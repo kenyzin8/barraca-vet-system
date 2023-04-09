@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
+
 {% load static %}
-{% block title %} Client Register {% endblock %}
+
+{% block title %} Client Registration | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
 
@@ -45,23 +47,22 @@
               {% csrf_token %}
               <div class="form-group d-flex">             
                 {{ form.username }}
-                {{ form.username.errors }}
               </div>
               <div class="form-group d-flex">             
                 {{ form.password1 }}
-                {{ form.password1.errors }}
               </div>
               <div class="form-group d-flex">             
                 {{ form.password2 }}
-                {{ form.password2.errors }}
               </div>
-              <div class="form-group">
-                {% for error in form.non_field_errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
-              </div>
+              {% if form.username.errors or form.password1.errors or form.password2.errors %}
+                <div class="form-group">
+                  <div class="alert alert-danger" role="alert">
+                    {{ form.username.errors }}
+                    {{ form.password1.errors }}
+                    {{ form.password2.errors }}
+                  </div>
+                </div>
+              {% endif %}            
               <div class="text-md-center text-decoration-underline">
                 <a href="{% url 'login-page' %}">Login Instead</a>
               </div>

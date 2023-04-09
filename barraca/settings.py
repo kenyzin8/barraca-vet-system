@@ -79,8 +79,21 @@ WSGI_APPLICATION = 'barraca.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
+# HEROKU DEPLOYMENT
+# DATABASES = {
+#     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+# }
+
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db_Barraca',
+        'USER': 'kentjamila',
+        'PASSWORD': 'sajelan123',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 
 # Password validation

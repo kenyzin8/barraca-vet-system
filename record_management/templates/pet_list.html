@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %} Pets {% endblock %}
+
+{% block content %}
+{% include 'frontend/navbar.html' %}
+<div class="container">
+    <h2>Pet List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Species</th>
+                <th>Breed</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Owner</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pet in pets %}
+                <tr>
+                    <td>{{ pet.name }}</td>
+                    <td>{{ pet.species }}</td>
+                    <td>{{ pet.breed }}</td>
+                    <td>{{ pet.age }}</td>
+                    <td>{{ pet.gender }}</td>
+                    <td>{{ pet.client }}</td>
+                    <td>
+                        <a href="{% url 'view-pet-page' pet.id %}">View</a>
+                        <a href="{% url 'update-pet-page' pet.id %}">Edit</a>
+                        <a href="{% url 'delete-pet-page' pet.id %}">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">You have no pets registered. Click <a href="{% url 'register-pet-page' %}">here</a> to register a pet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

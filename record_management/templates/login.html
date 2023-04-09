@@ -7,23 +7,29 @@
 <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{% static 'css/login_css.css' %}">
+
 <style>
-  body {
-        background-image: url("{% static 'images/bg_dogs.png' %}");
-        background-position: center bottom;
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-attachment: fixed;
-        color: #232323;
+    body 
+    {
+      background-image: url("{% static 'images/bg_dogs.png' %}");
+      background-position: center bottom;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      color: #232323;
     }
-    @media only screen and (max-width: 780px) {
-      .text-decoration-underline {
-          text-decoration: underline!important;
-          text-align: center;
-          margin-bottom: 15px;
+
+    @media only screen and (max-width: 780px) 
+    {
+      .text-decoration-underline 
+      {
+        text-decoration: underline!important;
+        text-align: center;
+        margin-bottom: 15px;
       }
     }
 </style>
+
 {% endblock %}
 
 {% block content %}
@@ -31,7 +37,7 @@
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-md-6 text-center mb-5">
-        <h2 class="heading-section"><a href="{% url 'home' %}">Barraca Veterinary Clinic</a></h2>
+        <h2 class="heading-section"><a class="home-link" href="{% url 'home' %}">Barraca Veterinary Clinic</a></h2>
       </div>
     </div>
     <div class="row justify-content-center">

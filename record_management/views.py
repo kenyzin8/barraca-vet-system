@@ -3,9 +3,14 @@ from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+import json
 
 from .forms import ClientInfoForm, UserRegistrationForm, PetRegistrationForm, LoginForm
 from .models import Client, Pet
+from .sms import send_sms
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -13,12 +18,17 @@ def login_view(request):
 
     if request.method == 'POST':
         form = LoginForm(request=request, data=request.POST)
+        print(hasattr(request.user, 'client'))
         if form.is_valid():
-            login(request, form.get_user())
-            # return redirect('register-pet-page')
-            return redirect('home')
+            if not hasattr(request.user, 'client'):
+                login(request, form.get_user())
+                return redirect('register-client-page')
+            else:
+                login(request, form.get_user())
+                return redirect('home')
     else:
         form = LoginForm()
+
     return render(request, 'login.html', {'form': form})
 
 def register_user(request):
@@ -43,8 +53,8 @@ def register_user(request):
 def register_client(request):
     user = request.user
     if hasattr(user, 'client'):
-        messages.error(request, 'You have already submitted your client information.')
-        return redirect('home')  # Replace 'home' with the name of the URL pattern for the page you want to redirect to
+        #messages.error(request, 'You have already submitted your client information.')
+        return redirect('home')  
 
     if request.method == 'POST':
         form = ClientInfoForm(request.POST)
@@ -68,7 +78,7 @@ def register_client(request):
 def cancel_registration(request):
     user = request.user
     logout(request)  # Log out the user
-    user.delete()  # Delete the user
+    #user.delete()  # Delete the user
     return redirect('home')  # Replace 'home' with the name of the URL pattern for the home page
 
 @login_required
@@ -128,3 +138,33 @@ def pet_list(request):
     pets = Pet.objects.filter(client=request.user.client)
     context = {'pets': pets}
     return render(request, 'pet_list.html', context)
+
+#-------------APPOINTMENT MANAGEMENT TRANSFER IT SOON--------------------------------------------
+@csrf_exempt
+@login_required
+def send_sms_to_client(request):
+    if request.method == 'POST':
+        client_ids = json.loads(request.POST.get('client_ids'))
+        message = "Welcome to Barraca Veterinary Clinic!"
+        contact_numbers = []
+
+        if(type(client_ids) is list):
+            for client_id in client_ids:
+                try:
+                    client = Client.objects.get(id=client_id)
+                    contact_numbers.append(client.contact_number)
+                except Client.DoesNotExist:
+                    pass
+        else:
+            try:
+                client = Client.objects.get(id=client_ids)
+                contact_numbers.append(client.contact_number)
+            except Client.DoesNotExist:
+                pass
+
+        if contact_numbers:
+            recipients = ','.join(contact_numbers)
+            send_sms(recipients, message)
+            return JsonResponse({"status": "success", "message": "SMS sent successfully"})
+        else:
+            return JsonResponse({"status": "error", "message": "No clients found"})

@@ -10,14 +10,21 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from dotenv import load_dotenv
 from pathlib import Path
 import os
+import datetime
 import django_heroku
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
+
+# LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+# if not os.path.exists(LOGS_DIR):
+#     os.makedirs(LOGS_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -152,3 +159,12 @@ LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = 'home'
 
 django_heroku.settings(locals())
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
+
+SEMAPHORE_API_KEY = os.getenv("SEMAPHORE_API_KEY")

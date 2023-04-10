@@ -3,11 +3,12 @@ from record_management.models import Client
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_page
+from django.conf import settings
+from datetime import datetime
+from functools import wraps
 
 import requests
 import time
-from datetime import datetime
-from functools import wraps
 
 # @cache_page(60)
 def home(request):
@@ -19,7 +20,7 @@ def home(request):
     page = request.GET.get('page')
     clients = paginator.get_page(page)
 
-    #api_key = ''  # Replace this with your actual API key
+    #api_key = settings.SEMAPHORE_API_KEY  # Replace this with your actual API key
     #credit_balance = get_credit_balance(api_key)
 
     # if credit_balance is None:

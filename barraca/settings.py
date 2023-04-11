@@ -42,6 +42,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     #'jazzmin',
+    'django_feather',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +51,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'record_management',
     'frontend',
+    'admin_dashboard',
+    'appointment_management',
 ]
 
 MIDDLEWARE = [

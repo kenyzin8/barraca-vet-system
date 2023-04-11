@@ -74,7 +74,15 @@ function confirmSendSMS(client_id, first_name, last_name, contact_number) {
 }
 
 function confirmSendBulkSMS() {
-    var bulkConfirmModal = new bootstrap.Modal(document.getElementById('bulkConfirmationModal'), {});
+    const tableRows = document.querySelectorAll('tbody tr');
+    const contactNumbers = Array.from(tableRows).map(row => row.children[2].textContent);
+
+    const contactNumbersText = contactNumbers.join(', ');
+
+    const modalBody = document.querySelector('.bulk-modal-body');
+    modalBody.innerHTML = `Are you sure you want to send SMS reminders to all clients?<br>Contact Numbers: ${contactNumbersText}`;
+
+    const bulkConfirmModal = new bootstrap.Modal(document.getElementById('bulkConfirmationModal'), {});
     bulkConfirmModal.show();
 }
 
@@ -92,136 +100,33 @@ function sendBulkSMS() {
     closeBulkSMSButton.disabled = true;
     bulkSMSSendingSpinner.classList.remove("d-none");
 
-    const totalPages = getLastPage();
-    let allClientIDs = [];
+    const allClientIDs = Array.from(document.querySelectorAll("tbody tr")).map((row) => row.children[0].textContent);
 
-    function fetchClients(page) {
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", "?page=" + page, true);
-            xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        const data = JSON.parse(xhr.responseText);
-                        const clientIDs = data.clients.map((client) => client.id);
-                        resolve(clientIDs);
-                    } else {
-                        reject();
-                    }
-                }
-            };
-            xhr.send();
-        });
-    }
-
-    Promise.all([...Array(totalPages).keys()].map((_, i) => fetchClients(i + 1)))
-        .then((clientIDsArray) => {
-            allClientIDs = clientIDsArray.flat();
-
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", sendSmsUrl, true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    sendBulkSMSButton.disabled = false;
-                    cancelBulkSMSButton.disabled = false;
-                    closeBulkSMSButton.disabled = false;
-                    bulkSMSSendingSpinner.classList.add("d-none");
-
-                    const messageModalBody = document.getElementById("messageModalBody");
-
-                    if (xhr.status === 200) {
-                        messageModalBody.textContent = JSON.parse(xhr.responseText).message;
-                    } else {
-                        messageModalBody.textContent = "Error sending SMS.";
-                    }
-
-                    const bulkConfirmModal = bootstrap.Modal.getInstance(document.getElementById("bulkConfirmationModal"));
-                    bulkConfirmModal.hide();
-
-                    const messageModal = new bootstrap.Modal(document.getElementById("messageModal"), {});
-                    messageModal.show();
-                }
-            };
-            xhr.send("client_ids=" + JSON.stringify(allClientIDs));
-        })
-        .catch(() => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", sendSmsUrl, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
             sendBulkSMSButton.disabled = false;
             cancelBulkSMSButton.disabled = false;
             closeBulkSMSButton.disabled = false;
             bulkSMSSendingSpinner.classList.add("d-none");
-            alert("Error fetching client IDs.");
-        });
-}
 
+            const messageModalBody = document.getElementById("messageModalBody");
 
-function navigatePage(direction) {
-    const tableContainer = document.querySelector(".table-container");
-    let currentPage = parseInt(tableContainer.getAttribute("data-page"));
-
-    currentPage += direction;
-    tableContainer.setAttribute("data-page", currentPage);
-
-    updateButtonStates(currentPage);
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "?page=" + currentPage, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-
-                let tableBody = document.querySelector(".table tbody");
-                tableBody.innerHTML = "";
-
-                data.clients.forEach((client) => {
-                    let row = document.createElement("tr");
-
-                    row.innerHTML = `
-                        <th scope="row">${client.id}</th>
-                        <td>${client.first_name} ${client.last_name}</td>
-                        <td>${client.contact_number}</td>
-                        <td>
-                            <button type="button" class="btn btn-primary" onclick="confirmSendSMS('${client.id}', '${client.first_name}', '${client.last_name}', '${client.contact_number}')">
-                                Notify
-                            </button>
-                        </td>
-                    `;
-
-                    tableBody.appendChild(row);
-                });
+                messageModalBody.textContent = JSON.parse(xhr.responseText).message;
             } else {
-                currentPage -= direction;
-                tableContainer.setAttribute("data-page", currentPage);
-
-                updateButtonStates(currentPage);
+                messageModalBody.textContent = "Error sending SMS.";
             }
+
+            const bulkConfirmModal = bootstrap.Modal.getInstance(document.getElementById("bulkConfirmationModal"));
+            bulkConfirmModal.hide();
+
+            const messageModal = new bootstrap.Modal(document.getElementById("messageModal"), {});
+            messageModal.show();
         }
     };
-    xhr.send();
+    xhr.send("client_ids=" + JSON.stringify(allClientIDs));
 }
-
-function updateButtonStates(currentPage) {
-    const prevButton = document.getElementById("prevPage");
-    const nextButton = document.getElementById("nextPage");
-
-    prevButton.disabled = currentPage === 1;
-    nextButton.disabled = currentPage === getLastPage();
-}
-
-function getLastPage() {
-    const tableContainer = document.querySelector(".table-container");
-    const totalClients = parseInt(tableContainer.getAttribute("data-total"));
-    const clientsPerPage = parseInt(tableContainer.getAttribute("data-per-page"));
-
-    return Math.ceil(totalClients / clientsPerPage);
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    updateButtonStates(parseInt(document.querySelector(".table-container").getAttribute("data-page")));
-});

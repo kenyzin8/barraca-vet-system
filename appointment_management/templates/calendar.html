@@ -1,0 +1,118 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Calendar | Barraca Veterinary Clinic {% endblock %}
+
+{% block content %}
+
+<div class="card mb-4">
+    <div class="card-header">August 5, 2020 | Appointments</div>
+    <div class="card-body">
+        <table id="datatablesSimple">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Contact Number</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Contact Number</th>
+                    <th>Action</th>
+                </tr>
+            </tfoot>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>{{ client.id }}</td>
+                    <td>{{ client.first_name }} {{ client.last_name }}</td>
+                    <td>{{ client.contact_number }}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="confirmSendSMS('{{ client.id }}', '{{ client.first_name }}', '{{ client.last_name }}', '{{ client.contact_number }}')">
+                            Notify
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-warning btn-sm" onclick="confirmSendBulkSMS()">Notify All</button>
+    </div>
+</div>
+
+<div class="modal" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="confirmationModalLabel">Send SMS Confirmation</h5>
+            <button id="close-sms-confirmation-button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to remind this client?<br><br>
+            <b>Name:</b> <span id="clientName"></span><br>
+            <b>Phone Number:</b> <span id="clientPhoneNumber"></span>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelSMSButton" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button id="sendSMSButton" type="button" class="btn btn-primary" onclick="sendSMS(document.getElementById('hiddenClientId').value)">
+                Yes
+                <span id="smsSendingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+            </button>
+        </div>
+        </div>
+    </div>
+</div>   
+
+<div class="modal" id="bulkConfirmationModal" tabindex="-1" aria-labelledby="bulkConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkConfirmationModalLabel">Send Bulk SMS Confirmation</h5>
+                <button id="closeBulkSMSButton" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bulk-modal-body">
+                Are you sure you want to send SMS reminders to all clients?
+            </div>
+            <div class="modal-footer">
+                <button id="cancelBulkSMSButton" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="sendBulkSMSButton" type="button" class="btn btn-primary" onclick="sendBulkSMS()">
+                    Yes
+                    <span id="bulkSMSSendingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="messageModalLabel">SMS Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="messageModalBody">
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<input type="hidden" id="hiddenClientId" value="">
+<div id="sms-data" data-url="{% url 'send_sms_to_client' %}"></div>
+
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script src="{% static 'sb-admin/js/datatables/datatables-simple-demo.js' %}"></script>
+<script src="{% static 'jQuery/jquery-3.6.4.min.js' %}"></script>
+<script src="{% static 'js/sms/send_sms.js' %}"></script>
+{% endblock %}

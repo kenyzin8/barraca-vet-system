@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls, name='admin-page'),
     path('', include('record_management.urls')),
     path('', include('frontend.urls')),
+    path('', include('admin_dashboard.urls')),
+    path('', include('appointment_management.urls')),
 ]

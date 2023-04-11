@@ -26,7 +26,7 @@
           
           {% if user.is_authenticated %}
             {% if user.is_staff %}
-            <a class="btn btn-info me-2" href="{% url 'admin:index' %}">Admin</a>
+            <a class="btn btn-info me-2" href="{% url 'admin-vet' %}">Admin</a>
             {% endif %}
             <a class="btn btn-warning me-2" href="{% url 'pet-list-page' %}">My Pets</a>
             <a class="btn btn-danger me-2" href="{% url 'logout-page' %}">Logout</a>

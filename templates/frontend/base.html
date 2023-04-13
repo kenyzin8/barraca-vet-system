@@ -10,13 +10,49 @@
         <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}">
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'plugins/sb-landing-page/css/styles.css' %}" rel="stylesheet" />
+        <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script data-search-pseudo-elements defer src="{% static 'plugins/fontawesome/js/all.min.js' %}"></script>
+        <style>
+            body, html {
+                font-family: inter-var, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+                scroll-behavior: smooth;
+            }
+            header {
+                padding-bottom: 3.7rem;
+                background-color: #8d448b !important;
+            }
+            .link-success
+            {
+                color: #000000 !important;
+            }
+            .link-success:hover
+            {
+                color: #474747 !important;
+            }
+            .navbar-custom
+            {
+                background: white;
+            }
+            .custom-wrapper
+            {
+                margin-top: 100px;
+            }
+            
+        </style>
+        
+        {% block extrastyles %}{% endblock %}
+
     </head>
     <body id="page-top">
         <!-- Navigation-->
         {% include 'frontend/navbar.html' %}
-        
-        {% block content %}
-        {% endblock %}
+
+        <div class="custom-wrapper">
+            {% block content %}
+            {% endblock %}  
+        </div>
+
         <br>
         <!-- Footer-->
         {% include 'frontend/footer.html' %}
@@ -24,8 +60,6 @@
         <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
         <!-- Core theme JS-->
         <script src="{% static 'plugins/sb-landing-page/js/scripts.js' %}"></script>
-
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
         {% block extrascript %}{% endblock %}
     </body>

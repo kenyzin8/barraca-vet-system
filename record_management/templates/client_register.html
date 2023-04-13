@@ -1,34 +1,33 @@
-{% extends 'base.html' %}
-
 {% load static %}
-
-{% block title %} Client Registration | Barraca Veterinary Clinic {% endblock %}
-
-{% block extrastyles %}
-
-<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'plugins/fontawesome/js/41e0099898.js' %}">
-<link rel="stylesheet" href="{% static 'css/login_css.css' %}">
-<style>
-  body {
-        background-image: url("{% static 'images/bg_dogs.png' %}");
-        background-position: center bottom;
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-attachment: fixed;
-        color: #232323;
-    }
-    @media only screen and (max-width: 780px) {
-      .text-decoration-underline {
-          text-decoration: underline!important;
-          text-align: center;
-          margin-bottom: 15px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Registration | Barraca Veterinary Clinic</title>
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+  <script src="{% static 'plugins/fontawesome/js/41e0099898.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/login_css.css' %}">
+  <style>
+    body {
+          background-image: url("{% static 'images/bg_dogs.png' %}");
+          background-position: center bottom;
+          background-repeat: no-repeat;
+          background-size: cover;
+          background-attachment: fixed;
+          color: #232323;
       }
-    }
-</style>
-{% endblock %}
-
-{% block content %}
+      @media only screen and (max-width: 780px) {
+        .text-decoration-underline {
+            text-decoration: underline!important;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+      }
+  </style>
+</head>
+<body>
   <section class="ftco-section">
     <div class="container">
       <div class="row justify-content-center">
@@ -75,4 +74,5 @@
       </div>
     </div>
   </section>
-{% endblock %}
+</body>
+</html>

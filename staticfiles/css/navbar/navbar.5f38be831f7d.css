@@ -1,0 +1,7 @@
+.navbar {
+    transition: box-shadow 0.3s;
+}
+  
+.navbar.scrolled {
+    box-shadow: 0 0.3px 0px rgb(0, 0, 0);
+}

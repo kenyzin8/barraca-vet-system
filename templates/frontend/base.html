@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Landing Page of Barraca Veterinary Clinic" />
+        <meta name="author" content="Kent J" />
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}">
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="{% static 'plugins/sb-landing-page/css/styles.css' %}" rel="stylesheet" />
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        {% include 'frontend/navbar.html' %}
+        
+        {% block content %}
+        {% endblock %}
+        <br>
+        <!-- Footer-->
+        {% include 'frontend/footer.html' %}
+        <!-- Bootstrap core JS-->
+        <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+        <!-- Core theme JS-->
+        <script src="{% static 'plugins/sb-landing-page/js/scripts.js' %}"></script>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        {% block extrascript %}{% endblock %}
+    </body>
+</html>

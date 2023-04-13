@@ -24,3 +24,5 @@ urlpatterns = [
     path('', include('admin_dashboard.urls')),
     path('', include('appointment_management.urls')),
 ]
+
+handler404 = 'frontend.views.handler404'

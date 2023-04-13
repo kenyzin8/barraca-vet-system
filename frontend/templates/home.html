@@ -5,23 +5,6 @@
 
 {% block extrastyles %}
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
-    <style>
-        .col-id {
-            width: 10%;
-        }
-
-        .col-name {
-            width: 50%;
-        }
-
-        .col-contact {
-            width: 25%;
-        }
-
-        .col-action {
-            width: 15%;
-        }
-    </style>
 {% endblock %}
 
 {% block content %}
@@ -30,114 +13,45 @@
 
 <div class="container">
     <p>{{ message_balance }}</p>
-    {% if messages %}
-    <div class="row mt-3">
-        <div class="col-md-12">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-    {% if user.is_authenticated and user.is_staff %}
-        <button type="button" class="btn btn-warning" onclick="confirmSendBulkSMS()">Notify All</button>
-        <div class="table-container" data-page="{{ clients.number }}" data-total="{{ total_clients }}" data-per-page="{{ clients_per_page }}">
-            <table class="table table-hover">
-                <thead class="thead-dark">
-                    <tr>
-                        <th scope="col" class="col-id">#</th>
-                        <th scope="col" class="col-name">Name</th>
-                        <th scope="col" class="col-contact">Contact Number</th>
-                        <th scope="col" class="col-action">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for client in clients %}
-                        <tr>
-                            <th scope="row" class="col-id">{{ client.id }}</th>
-                            <td class="col-name">{{ client.first_name }} {{ client.last_name }}</td>
-                            <td class="col-contact">{{ client.contact_number }}</td>
-                            <td class="col-action">
-                                <button type="button" class="btn btn-primary" onclick="confirmSendSMS('{{ client.id }}', '{{ client.first_name }}', '{{ client.last_name }}', '{{ client.contact_number }}')">
-                                    Notify
-                                </button>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
     
-    <button id="prevPage" class="btn btn-dark" onclick="navigatePage(-1)">Previous</button>
-    <button id="nextPage" class="btn btn-dark" onclick="navigatePage(1)">Next</button>
-        
-    <div class="modal" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmationModalLabel">Send SMS Confirmation</h5>
-                <button id="close-sms-confirmation-button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to remind this client?<br><br>
-                <b>Name:</b> <span id="clientName"></span><br>
-                <b>Phone Number:</b> <span id="clientPhoneNumber"></span>
-            </div>
-            <div class="modal-footer">
-                <button id="cancelSMSButton" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="sendSMSButton" type="button" class="btn btn-primary" onclick="sendSMS(document.getElementById('hiddenClientId').value)">
-                    Yes
-                    <span id="smsSendingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
-                </button>
-            </div>
-            </div>
+    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
         </div>
-    </div>    
-
-    <div class="modal" id="bulkConfirmationModal" tabindex="-1" aria-labelledby="bulkConfirmationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bulkConfirmationModalLabel">Send Bulk SMS Confirmation</h5>
-                    <button id="closeBulkSMSButton" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to send SMS reminders to all clients?
-                </div>
-                <div class="modal-footer">
-                    <button id="cancelBulkSMSButton" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button id="sendBulkSMSButton" type="button" class="btn btn-primary" onclick="sendBulkSMS()">
-                        Yes
-                        <span id="bulkSMSSendingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
-                    </button>
-                </div>
+        <div class="carousel-inner ">
+          <div class="carousel-item active" data-bs-interval="10000">
+            <img src="{% static 'images/bg_dogs.png' %}" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">  <!-- text-white bg-dark rounded -->
+              <h5 class="">First slide label</h5>
+              <p>Some representative placeholder content for the first slide.</p>
             </div>
+          </div>
+          <div class="carousel-item" data-bs-interval="10000">
+            <img src="{% static 'images/bg_dogs.png' %}" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+              <h5>Second slide label</h5>
+              <p>Some representative placeholder content for the second slide.</p>
+            </div>
+          </div>
+          <div class="carousel-item" data-bs-interval="10000">
+            <img src="{% static 'images/bg_dogs.png' %}" class="d-block w-100" alt="...">
+            <div class="carousel-caption d-none d-md-block">
+              <h5>Third slide label</h5>
+              <p>Some representative placeholder content for the third slide.</p>
+            </div>
+          </div>
         </div>
-    </div>    
-
-    <div class="modal" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="messageModalLabel">SMS Status</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="messageModalBody">
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-        </div>
-    </div>
-
-    <input type="hidden" id="hiddenClientId" value="">
-    <div id="sms-data" data-url="{% url 'send_sms_to_client' %}"></div>
-
-    {% endif %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
 </div>
 
 {% include 'frontend/footer.html' %}
@@ -146,7 +60,4 @@
 
 {% block extrascript %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-{% if user.is_authenticated %}
-<script src="{% static 'js/sms/send_sms.js' %}"></script>
-{% endif %}
 {% endblock %}

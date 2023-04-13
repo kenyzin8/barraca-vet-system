@@ -74,17 +74,20 @@ function confirmSendSMS(client_id, first_name, last_name, contact_number) {
 }
 
 function confirmSendBulkSMS() {
-    const tableRows = document.querySelectorAll('tbody tr');
+    const tableRows = document.querySelectorAll('.appointments-list-table tbody tr');
+    const contactNames = Array.from(tableRows).map(row => row.children[1].textContent);
     const contactNumbers = Array.from(tableRows).map(row => row.children[2].textContent);
 
-    const contactNumbersText = contactNumbers.join(', ');
+    const contacts = contactNames.map((name, i) => `${name} (${contactNumbers[i]})`);
+    const contactsText = contacts.join(' <br> ');
 
     const modalBody = document.querySelector('.bulk-modal-body');
-    modalBody.innerHTML = `Are you sure you want to send SMS reminders to all clients?<br>Contact Numbers: ${contactNumbersText}`;
+    modalBody.innerHTML = `Are you sure you want to send SMS reminders to all clients?<br><br><b>Contact List:</b> <br>${contactsText}`;
 
     const bulkConfirmModal = new bootstrap.Modal(document.getElementById('bulkConfirmationModal'), {});
     bulkConfirmModal.show();
 }
+
 
 function sendBulkSMS() {
     const smsData = document.getElementById("sms-data");

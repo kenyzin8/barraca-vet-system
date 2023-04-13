@@ -8,13 +8,13 @@
         <meta name="description" content="" />
         <meta name="author" content="Kent J." />
         <title>{% block title %}{% endblock %}</title>
-        <link href="{% static 'sb-admin/css/datatables/style.css' %}" rel="stylesheet" />
-        <link href="{% static 'sb-admin/css/litepicker/litepicker.css' %}" rel="stylesheet" />
-        <link href="{% static 'sb-admin/css/styles.css' %}" rel="stylesheet" />
+        <link href="{% static 'plugins/sb-admin/css/datatables/style.css' %}" rel="stylesheet" />
+        <link href="{% static 'plugins/sb-admin/css/litepicker/litepicker.css' %}" rel="stylesheet" />
+        <link href="{% static 'plugins/sb-admin/css/styles.css' %}" rel="stylesheet" />
         <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}" />
-        <script data-search-pseudo-elements defer src="{% static 'fontawesome/js/all.min.js' %}"></script>
-        <script src="{% static 'feather-icons/js/feather.min.js' %}" crossorigin="anonymous"></script>
-
+        <script data-search-pseudo-elements defer src="{% static 'plugins/fontawesome/js/all.min.js' %}"></script>
+        <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}" crossorigin="anonymous"></script>
+        {% block extrastyles %}{% endblock %}
     </head>
     <body class="nav-fixed bg-light">
         {% include 'admin_dashboard/navbar.html' %}
@@ -24,7 +24,7 @@
                     {% block header %}
                     {% endblock %}
                     <!-- Main page content-->
-                    <div class="container-xl px-4 mt-5">
+                    <div class="container-xl px-4 mt-2">
                         {% block content %}
                         {% endblock %}
                     </div>
@@ -32,8 +32,8 @@
                 {% include 'admin_dashboard/footer.html' %}
             </div>
         </div>
-        <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-        <script src="{% static 'sb-admin/js/scripts.js' %}"></script>
+        <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'plugins/sb-admin/js/scripts.js' %}"></script>
         {% block extrascripts %}
         {% endblock %}
     </body>

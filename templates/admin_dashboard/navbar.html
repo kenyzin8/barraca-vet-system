@@ -4,6 +4,11 @@
     <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle"><i data-feather="menu"></i></button>
     <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="{% url 'admin-vet' %}">Barraca Veterinary Clinic</a>
     <ul class="navbar-nav align-items-center ms-auto">
+        <li class="nav-item no-caret d-none d-md-block me-3">
+            <a class="nav-link" href="{% url 'home' %}" role="button">
+                <div class="fw-500 mt-1">Visit Site</div>
+            </a>
+        </li>
         <li class="nav-item dropdown no-caret me-3 d-lg-none">
             <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="searchDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="search"></i></a>
             <!-- Dropdown - Search-->
@@ -17,8 +22,11 @@
             </div>
         </li>
         <!-- Alerts Dropdown-->
-        <li class="nav-item dropdown no-caret d-none d-sm-block me-3 dropdown-notifications">
-            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownAlerts" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="bell"></i></a>
+        <li class="nav-item dropdown no-caret d-none d-sm-block me-2 dropdown-notifications">
+            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownAlerts" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i data-feather="bell"></i>
+                <span class="indicator" style="font-size: 11px; margin-left: 5px; color: orange;">4</span>
+            </a>
             <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownAlerts">
                 <h6 class="dropdown-header dropdown-notifications-header">
                     <i class="me-2" data-feather="bell"></i>
@@ -61,7 +69,10 @@
         </li>
         <!-- Messages Dropdown-->
         <li class="nav-item dropdown no-caret d-none d-sm-block me-3 dropdown-notifications">
-            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownMessages" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="mail"></i></a>
+            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownMessages" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i data-feather="mail"></i>
+                <span class="indicator" style="font-size: 11px; margin-left: 5px; color: orange;">4</span>
+            </a>
             <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownMessages">
                 <h6 class="dropdown-header dropdown-notifications-header">
                     <i class="me-2" data-feather="mail"></i>
@@ -69,7 +80,7 @@
                 </h6>
                 <!-- Example Message 1  -->
                 <a class="dropdown-item dropdown-notifications-item" href="#!">
-                    <img class="dropdown-notifications-item-img" src="{% static 'sb-admin/assets/img/illustrations/profiles/profile-2.png' %}" />
+                    <img class="dropdown-notifications-item-img" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-2.png' %}" />
                     <div class="dropdown-notifications-item-content">
                         <div class="dropdown-notifications-item-content-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
                         <div class="dropdown-notifications-item-content-details">Thomas Wilcox · 58m</div>
@@ -77,7 +88,7 @@
                 </a>
                 <!-- Example Message 2-->
                 <a class="dropdown-item dropdown-notifications-item" href="#!">
-                    <img class="dropdown-notifications-item-img" src="{% static 'sb-admin/assets/img/illustrations/profiles/profile-3.png' %}" />
+                    <img class="dropdown-notifications-item-img" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-3.png' %}" />
                     <div class="dropdown-notifications-item-content">
                         <div class="dropdown-notifications-item-content-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
                         <div class="dropdown-notifications-item-content-details">Emily Fowler · 2d</div>
@@ -85,7 +96,7 @@
                 </a>
                 <!-- Example Message 3-->
                 <a class="dropdown-item dropdown-notifications-item" href="#!">
-                    <img class="dropdown-notifications-item-img" src="{% static 'sb-admin/assets/img/illustrations/profiles/profile-4.png' %}" />
+                    <img class="dropdown-notifications-item-img" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-4.png' %}" />
                     <div class="dropdown-notifications-item-content">
                         <div class="dropdown-notifications-item-content-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
                         <div class="dropdown-notifications-item-content-details">Marshall Rosencrantz · 3d</div>
@@ -93,7 +104,7 @@
                 </a>
                 <!-- Example Message 4-->
                 <a class="dropdown-item dropdown-notifications-item" href="#!">
-                    <img class="dropdown-notifications-item-img" src="{% static 'sb-admin/assets/img/illustrations/profiles/profile-5.png' %}" />
+                    <img class="dropdown-notifications-item-img" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-5.png' %}" />
                     <div class="dropdown-notifications-item-content">
                         <div class="dropdown-notifications-item-content-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
                         <div class="dropdown-notifications-item-content-details">Colby Newton · 3d</div>
@@ -104,11 +115,13 @@
             </div>
         </li>
         <!-- User Dropdown-->
-        <li class="nav-item dropdown no-caret dropdown-user me-3 me-lg-4">
-            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="img-fluid" src="{% static 'sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" /></a>
+        <li class="nav-item dropdown no-caret dropdown-user me-3 me-lg-5">
+            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <img class="img-fluid" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" />
+            </a>
             <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
                 <h6 class="dropdown-header d-flex align-items-center">
-                    <img class="dropdown-user-img" src="{% static 'sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" />
+                    <img class="dropdown-user-img" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" />
                     <div class="dropdown-user-details">
                         <div class="dropdown-user-details-name">{{ user.client }}</div>
                         <div class="dropdown-user-details-email">{{ user.email }}</div>

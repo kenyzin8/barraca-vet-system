@@ -22,17 +22,17 @@
             <a class="nav-link" href="#">Services</a>
           </li>
         </ul>
-        <div class="d-flex">
+        <div class="">
           
           {% if user.is_authenticated %}
             {% if user.is_staff %}
-            <a class="btn btn-info me-2" href="{% url 'admin-vet' %}">Admin</a>
+            <a class="btn btn-info me-2 btn-sm" href="{% url 'admin-vet' %}">Admin</a>
             {% endif %}
-            <a class="btn btn-warning me-2" href="{% url 'pet-list-page' %}">My Pets</a>
-            <a class="btn btn-danger me-2" href="{% url 'logout-page' %}">Logout</a>
+            <a class="btn btn-warning me-2 btn-sm" href="{% url 'pet-list-page' %}">My Pets</a>
+            <a class="btn btn-danger me-2 btn-sm" href="{% url 'logout-page' %}">Logout</a>
           {% else %}
-            <a class="btn btn-primary me-2" href="{% url 'login-page' %}">Login</a>
-            <a class="btn btn-primary" href="{% url 'register-user-page' %}">Signup</a>
+            <a class="btn btn-primary me-2 btn-sm" href="{% url 'login-page' %}">Login</a>
+            <a class="btn btn-primary btn-sm" href="{% url 'register-user-page' %}">Signup</a>
           {% endif %}
         </div>
       </div>

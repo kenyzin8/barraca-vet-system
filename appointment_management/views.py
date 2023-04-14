@@ -2,17 +2,19 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from record_management.models import Client
 from django.core.paginator import Paginator
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.cache import cache_page
 from django.conf import settings
 from datetime import datetime
 from functools import wraps
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login, logout
+from core.sms import send_sms, send_otp_sms
+from django.contrib.auth.models import User
 
 import json
 import requests
 import time
-from .sms import send_sms
 
 @login_required
 def calendar(request):

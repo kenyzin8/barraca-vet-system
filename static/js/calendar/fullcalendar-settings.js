@@ -32,7 +32,7 @@
       },
       allDayText: '',
       firstDay: 1,
-      noEventsText: 'No appointments for this day',
+      noEventsText: 'No appointments to show',
       initialDate: '2023-04-12',
       initialView: getInitialView(),
       navLinks: true, // can click day/week names to navigate views

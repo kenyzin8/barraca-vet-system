@@ -7,12 +7,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="Login" />
         <meta name="author" content="Kent J" />
-        <title>Register | Barraca Veterinary Clinic</title>
+        <title>OTP Verification | Barraca Veterinary Clinic</title>
 
         <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}" />
         <link href="{% static 'plugins/sb-admin/css/styles.css' %}" rel="stylesheet" />
-        <link rel="stylesheet" href="{% static 'css/register.css' %}">
-        <script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'css/login.css' %}">
+        <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}"></script>
+        <style>
+          .btn:disabled, .btn.disabled, fieldset:disabled .btn {
+              background-color: #69707a;
+          }
+        </style>
     </head>
     <body>
 
@@ -28,66 +33,38 @@
         <p>{{ message_balance }}</p>
         <div class="title-barraca">
           <h1 class="header-barraca">
-            Sign up
+            OTP Verification
           </h1>
+          {{ contact_number }}
           <br>
+          <br>
+          <div id="timer">05:00</div>
         </div>
       </div>
       <div class="container form-container">
-      <form action="" method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-          {{ form.username }}
-        </div>
-        <div class="mb-3">
-          {{ form.password1 }}
-        </div>
-        <div class="mb-3">
-          {{ form.password2 }}
-        </div>
-        <hr>
-        <div class="mb-3">
-          {{ form.first_name }}
-        </div>
-        <div class="mb-3">
-          {{ form.last_name }}
-        </div>
-        <div class="mb-3">
-          {{ form.address }}
-        </div>
-        <div class="mb-3">
-          {{ form.contact_number }}
-        </div>
-        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="errorModalLabel">There was an error</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <p>{{ form.errors }}</p>
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-dark btn-sm" type="button" data-bs-dismiss="modal">OK</button>
-              </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+            <input type="text" id="otp_code" name="otp_code" class="form-control" placeholder="OTP Code" required>
             </div>
-          </div>
-        </div>
-        {% if form.errors %}
-        <script>
-          $(document).ready(function() {
-            $('#errorModal').modal('show');
-          });
-        </script>
-        {% endif %}
+            <div class="form-group"> 
+                {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error_message }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary rounded">Get Started</button>
+            </div>
+        </form>
+            <!-- Form Group (login box)-->
         <div class="mb-3">
-          <button type="submit" class="btn btn-primary rounded">Get Started</button>
+          <a id="resend-button" href="#" class="btn btn-dark rounded disabled" role="button" style="width: 100%; border: none;">Resend OTP</a>
         </div>
         <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-          <a class="small create-acc" href="{% url 'login-page' %}">Login Instead</a>
-        </div>
-      </form>
+          <a class="small forgot-pass" href="{% url 'login-page' %}">Login with another account</a>
+        </div>   
       </div>
       <div id="layoutAuthentication">
           <div id="layoutAuthentication_footer">
@@ -170,5 +147,42 @@
       </div>
       <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
       <script src="{% static 'plugins/sb-admin/js/scripts.js' %}"></script>
+      <script>
+        // Set the time for the timer (in minutes)
+        var time = 300;
+        
+        // Get the timer element
+        var timerElement = document.getElementById("timer");
+        var button = document.getElementById("resend-button");
+        // Start the timer
+        var timer = setInterval(function() {
+          // Subtract one second from the time
+          time--;
+          
+          // Calculate the minutes and seconds
+          var minutes = Math.floor(time / 60);
+          var seconds = time % 60;
+          
+          // Add leading zeroes if necessary
+          if (minutes < 10) {
+            minutes = "0" + minutes;
+          }
+          if (seconds < 10) {
+            seconds = "0" + seconds;
+          }
+          
+          // Update the timer element
+          timerElement.innerHTML = minutes + ":" + seconds;
+          
+          // If the time has run out, clear the interval
+          if (time == 0) {
+            clearInterval(timer);
+            button.removeAttribute("disabled");
+            button.classList.remove("disabled");
+            button.innerText = "Resend OTP";
+          }
+        }, 1000);
+      </script>
     </body>
 </html>
+

@@ -4,9 +4,9 @@ from . import views
 
 urlpatterns = [
     path('register/', views.register_user, name='register-user-page'),
-    path('register/client/', views.register_client, name='register-client-page'),
-    path('register/cancel/', views.cancel_registration, name='cancel-registration-page'), 
-    path('success/', views.registration_success, name='client-success-page'),
+    # path('register/client/', views.register_client, name='register-client-page'),
+    #path('register/cancel/', views.cancel_registration, name='cancel-registration-page'), 
+    #path('success/', views.registration_success, name='client-success-page'),
     path('pet-list/', views.pet_list, name='pet-list-page'),
     path('register-pet/', views.register_pet, name='register-pet-page'),
     path('pet-success/', views.pet_registration_success, name='pet-success-page'),
@@ -15,4 +15,5 @@ urlpatterns = [
     path('delete-pet/<int:pet_id>/', views.delete_pet, name='delete-pet-page'),
     path('login/', views.login_view, name='login-page'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout-page'),
+    path('otp/<str:sessionid>', views.otp_view, name='otp_view'),
 ]

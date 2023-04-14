@@ -33,7 +33,7 @@ load_dotenv()
 SECRET_KEY = 'django-insecure-)l-r0e3802bh)^4v)5rerq#x+8r=zx=t593=u^l4_u(ee)8^wx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -176,3 +176,6 @@ CACHES = {
 }
 
 SEMAPHORE_API_KEY = os.getenv("SEMAPHORE_API_KEY")
+
+SESSION_COOKIE_NAME = 'sessionid'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'

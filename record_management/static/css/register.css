@@ -5,7 +5,7 @@ body {
 .header-barraca
 {
   font-size: 4rem;
-  margin-top: 230px
+  margin-top: 140px
 }
 .title-barraca
 {
@@ -104,10 +104,27 @@ body
   cursor: default;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1200px) {
+    body {
+        overflow: auto;
+    }
+  /* Add fixed-top to your title */
+  .barraca-title {
+    position: static;
+    text-align: center;
+    padding: 10px;
+  }
+  .footer-admin {
+    position: static;
+  }
+
+  #layoutAuthentication {
+    min-height: none;
+    }
+
   .header-barraca {
     font-size: 4rem;
-    margin-top: 200px
+    margin-top: 20px
   }
 
   .description-barraca {
@@ -118,6 +135,7 @@ body
   .form-container {
     width: 100%;
     margin: 0 auto;
+    margin-top: -30px;
   }
 
   .row
@@ -125,4 +143,7 @@ body
     margin: 0 auto;
     text-align: center;
   }
+}
+#layoutAuthentication {
+    min-height: 0px;
 }

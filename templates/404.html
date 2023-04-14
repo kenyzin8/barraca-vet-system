@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -6,11 +7,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>404 Error - SB Admin Pro</title>
-        <link href="css/styles.css" rel="stylesheet" />
-        <link rel="icon" type="image/x-icon" href="assets/img/favicon.png" />
-        <script data-search-pseudo-elements defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/js/all.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js" crossorigin="anonymous"></script>
+        <title>Page Not Found | Barraca Veterinary Clinic</title>
+        <link href="{% static 'plugins/sb-admin/css/styles.css' %}" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}">
+        <script data-search-pseudo-elements defer src="{% static 'plugins/fontawesome/js/all.min.js' %}"></script>
+        <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}"></script>
     </head>
     <body class="bg-white">
         <div id="layoutError">
@@ -20,11 +21,11 @@
                         <div class="row justify-content-center">
                             <div class="col-lg-6">
                                 <div class="text-center mt-4">
-                                    <img class="img-fluid p-4" src="assets/img/illustrations/404-error-with-a-cute-animal.svg" alt="" />
+                                    <img class="img-fluid p-4" src="{% static 'images/404-error-with-a-cute-animal.svg' %}" alt="" />
                                     <p class="lead">This requested URL was not found on this server.</p>
-                                    <a class="text-arrow-icon" href="dashboard-1.html">
+                                    <a class="text-arrow-icon" href="{% url 'home' %}">
                                         <i class="ms-0 me-1" data-feather="arrow-left"></i>
-                                        Return to Dashboard
+                                        Return Home
                                     </a>
                                 </div>
                             </div>
@@ -36,18 +37,81 @@
                 <footer class="footer-admin mt-auto footer-light">
                     <div class="container-xl px-4">
                         <div class="row">
-                            <div class="col-md-6 small">Copyright &copy; Your Website 2021</div>
+                            <div class="col-md-6 small">&copy; Barraca Veterinary Clinic {% now "Y" %}</div>
                             <div class="col-md-6 text-md-end small">
-                                <a href="#!">Privacy Policy</a>
+                                <a href="#!" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
                                 &middot;
-                                <a href="#!">Terms &amp; Conditions</a>
+                                <a href="#!" data-bs-toggle="modal" data-bs-target="#termsModal">Terms &amp; Conditions</a>
                             </div>
                         </div>
                     </div>
                 </footer>
             </div>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="js/scripts.js"></script>
+        <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <!-- Privacy Policy Content -->
+                  <p>At Barraca Veterinary Clinic, we are committed to protecting the privacy and security of our website visitors and clients. This privacy policy explains how we collect, use, and protect your personal information when you visit our website or use our services.</p>
+          
+                  <p>We collect personal information that you provide to us when you fill out forms on our website, contact us through email or phone, or use our services. This may include your name, address, email address, phone number, pet information, and payment information. We also collect non-personal information, such as your IP address, browser type, and operating system, which we use to improve our website and services.</p>
+          
+                  <p>We use your personal information to provide you with the services you request, such as scheduling appointments, processing payments, and communicating with you about your pet's health. We may also use your information to improve our services and website, to send you promotional emails or newsletters, and to comply with legal obligations.</p>
+          
+                  <p>We do not share your personal information with third parties except as necessary to provide our services, such as sharing your pet's health information with specialists or other veterinary clinics for treatment purposes. We may also share your information with our service providers who assist us with website hosting, payment processing, and email communication. We may disclose your information if required by law or if we believe it is necessary to protect our rights or the safety of our clients, staff, or others.</p>
+          
+                  <p>We use industry-standard security measures to protect your personal information from unauthorized access, use, or disclosure. We also limit access to your information to authorized personnel who need to know the information to provide our services.</p>
+          
+                  <p>Our website uses cookies and other tracking technologies to personalize your experience, improve our website, and analyze website usage. You can disable cookies in your browser settings, but please note that this may affect the functionality of our website.</p>
+          
+                  <p>You have the right to access, modify, or delete your personal information. You may also opt-out of receiving promotional emails or newsletters. To exercise your rights, please contact us by <a href="#">clicking here</a>.</p>
+          
+                  <p>We may update this privacy policy from time to time to reflect changes in our practices or applicable laws. We will post the updated policy on our website and notify you by email or through our website.</p>
+                  <!-- End Privacy Policy Content -->
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-sm btn-dark" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Terms and Conditions Modal -->
+          <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <!-- Terms and Conditions Content -->
+                  <p>By accessing or using the Barraca Veterinary Clinic website, you agree to be bound by the following terms and conditions:</p>
+    
+                  <p>1. Content: The content on this website is provided for informational purposes only and is not intended to be a substitute for professional veterinary advice, diagnosis, or treatment. Always seek the advice of a licensed veterinarian with any questions you may have regarding your pet's health.</p>
+    
+                  <p>2. Intellectual Property: The content on this website, including but not limited to text, graphics, images, and logos, is the property of arraca Veterinary Clinic and is protected by applicable copyright and trademark laws. You may not copy, reproduce, distribute, or display any part of this website without our prior written consent.</p>
+    
+                  <p>3. Links: This website may contain links to third-party websites that are not under our control. We are not responsible for the content, accuracy, or reliability of any third-party websites, and we do not endorse or make any representations about them. Your use of third-party websites is at your own risk.</p>
+    
+                  <p>4. Limitation of Liability: We are not liable for any direct, indirect, incidental, consequential, or punitive damages arising out of or in connection with your use of this website or our services, including but not limited to damages for loss of profits, goodwill, or data. This limitation of liability applies even if we have been advised of the possibility of such damages.</p>
+    
+                  <p>5. Governing Law: These terms and conditions are governed by and construed in accordance with the laws of [Your Jurisdiction], and you irrevocably submit to the exclusive jurisdiction of the courts in that jurisdiction.</p>
+    
+                  <p>6. Changes to these Terms and Conditions: We may update these terms and conditions from time to time by posting the updated version on our website. Your continued use of our website after the posting of the updated terms and conditions constitutes your acceptance of the updated terms and conditions.</p>
+                  <!-- End Terms and Conditions Content -->
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-sm btn-dark" data-bs-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'plugins/sb-admin/js/scripts.js' %}"></script>
     </body>
 </html>

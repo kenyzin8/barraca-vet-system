@@ -26,3 +26,4 @@ urlpatterns = [
 ]
 
 handler404 = 'frontend.views.handler404'
+handler500 = 'frontend.views.handler500'

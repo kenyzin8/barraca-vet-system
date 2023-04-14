@@ -79,9 +79,8 @@ def home(request):
 #     response = requests.get(url, params=params)
 #     return response.json()["credit_balance"]
 
-def handler404(request, *args, **argv):
-    response = render_to_response('404.html', {}, context_instance=RequestContext(request))
-    response.status_code = 404
-    return response
+def handler404(request, exception):
+    return render(request, '404.html', {}, status=404)
 
-    
+def handler500(request):
+    return render(request, '404.html', {}, status=500)

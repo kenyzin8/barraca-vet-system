@@ -93,6 +93,34 @@
                         Services
                     </a>
                     {% endwith %}
+                    <style>
+                        .superadmin-card
+                        {
+                            margin: 0 auto;
+                            max-width: 200px;
+                        } 
+
+                        .deeper-admin
+                        {
+                            font-weight: 600;
+                        }
+
+                        @media (max-width: 576px) {
+                            .superadmin-card
+                            {
+                                margin-bottom: 45px;
+                            } 
+                        }
+                    </style>
+                    <div class="card card-header-actions mt-5 mb-2 superadmin-card">
+                        <div class="card-body">
+                            <span class="deeper-admin">Missing something?</span>
+                            <br>
+                            <center>
+                                <a role="button" class="btn btn-sm btn-dark mt-3" href="{% url 'admin:index' %}" style="margin:0 auto;">Superadmin Page</a>
+                            </center>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- Sidenav Footer-->

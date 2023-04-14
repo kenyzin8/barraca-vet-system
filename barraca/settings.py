@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 import datetime
-#import django_heroku
+import django_heroku
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -161,7 +161,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = 'home'
 
-#django_heroku.settings(locals())
+django_heroku.settings(locals())
 
 CACHES = {
     "default": {

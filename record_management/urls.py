@@ -15,5 +15,4 @@ urlpatterns = [
     path('delete-pet/<int:pet_id>/', views.delete_pet, name='delete-pet-page'),
     path('login/', views.login_view, name='login-page'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout-page'),
-    path('send_sms/', views.send_sms_to_client, name='send_sms_to_client'),
 ]

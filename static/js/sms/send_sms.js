@@ -103,7 +103,7 @@ function sendBulkSMS() {
     closeBulkSMSButton.disabled = true;
     bulkSMSSendingSpinner.classList.remove("d-none");
 
-    const allClientIDs = Array.from(document.querySelectorAll("tbody tr")).map((row) => row.children[0].textContent);
+    const allClientIDs = Array.from(document.querySelectorAll(".appointments-list-table tbody tr")).map((row) => row.children[0].textContent);
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", sendSmsUrl, true);

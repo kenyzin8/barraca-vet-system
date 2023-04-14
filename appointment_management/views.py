@@ -7,9 +7,11 @@ from django.views.decorators.cache import cache_page
 from django.conf import settings
 from datetime import datetime
 from functools import wraps
+from django.views.decorators.csrf import csrf_exempt
 
 import requests
 import time
+from .sms import send_sms
 
 @login_required
 def calendar(request):
@@ -33,3 +35,32 @@ def calendar(request):
     }
 
     return render(request, 'calendar.html', context)
+
+@csrf_exempt
+@login_required
+def send_sms_to_client(request):
+    if request.method == 'POST':
+        client_ids = json.loads(request.POST.get('client_ids'))
+        message = "Welcome to Barraca Veterinary Clinic!"
+        contact_numbers = []
+
+        if(type(client_ids) is list):
+            for client_id in client_ids:
+                try:
+                    client = Client.objects.get(id=client_id)
+                    contact_numbers.append(client.contact_number)
+                except Client.DoesNotExist:
+                    pass
+        else:
+            try:
+                client = Client.objects.get(id=client_ids)
+                contact_numbers.append(client.contact_number)
+            except Client.DoesNotExist:
+                pass
+
+        if contact_numbers:
+            recipients = ','.join(contact_numbers)
+            send_sms(recipients, message)
+            return JsonResponse({"status": "success", "message": "SMS sent successfully"})
+        else:
+            return JsonResponse({"status": "error", "message": "No clients found"})

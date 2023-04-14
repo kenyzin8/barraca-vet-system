@@ -10,7 +10,6 @@ import json
 
 from .forms import ClientInfoForm, UserRegistrationForm, PetRegistrationForm, LoginForm
 from .models import Client, Pet
-from .sms import send_sms
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -138,33 +137,3 @@ def pet_list(request):
     pets = Pet.objects.filter(client=request.user.client)
     context = {'pets': pets}
     return render(request, 'pet_list.html', context)
-
-#-------------APPOINTMENT MANAGEMENT TRANSFER IT SOON--------------------------------------------
-@csrf_exempt
-@login_required
-def send_sms_to_client(request):
-    if request.method == 'POST':
-        client_ids = json.loads(request.POST.get('client_ids'))
-        message = "Welcome to Barraca Veterinary Clinic!"
-        contact_numbers = []
-
-        if(type(client_ids) is list):
-            for client_id in client_ids:
-                try:
-                    client = Client.objects.get(id=client_id)
-                    contact_numbers.append(client.contact_number)
-                except Client.DoesNotExist:
-                    pass
-        else:
-            try:
-                client = Client.objects.get(id=client_ids)
-                contact_numbers.append(client.contact_number)
-            except Client.DoesNotExist:
-                pass
-
-        if contact_numbers:
-            recipients = ','.join(contact_numbers)
-            send_sms(recipients, message)
-            return JsonResponse({"status": "success", "message": "SMS sent successfully"})
-        else:
-            return JsonResponse({"status": "error", "message": "No clients found"})

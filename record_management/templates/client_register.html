@@ -17,7 +17,7 @@
     <body>
 
         <center>
-          <div class="large static-top text-dark fw-bold barraca-title">
+          <div class="large fixed-top text-dark fw-bold barraca-title">
             <a href="{% url 'home' %}">
               Barraca Veterinary Clinic
             </a>
@@ -36,27 +36,38 @@
       <div class="container form-container">
       <form action="" method="post">
         {% csrf_token %}
-        <div class="mb-3">
-          {{ form.username }}
-        </div>
-        <div class="mb-3">
-          {{ form.password1 }}
-        </div>
-        <div class="mb-3">
-          {{ form.password2 }}
-        </div>
-        <hr>
-        <div class="mb-3">
-          {{ form.first_name }}
-        </div>
-        <div class="mb-3">
-          {{ form.last_name }}
-        </div>
-        <div class="mb-3">
-          {{ form.address }}
-        </div>
-        <div class="mb-3">
-          {{ form.contact_number }}
+        <div class="row">
+          <!-- First column -->
+          <div class="col-md-6">
+            <div class="mb-3">
+              {{ form.first_name }}
+            </div>
+            <div class="mb-3">
+              {{ form.last_name }}
+            </div>
+            <div class="mb-3">
+              {{ form.address }}
+            </div>
+            <div class="mb-3">
+              {{ form.contact_number }}
+            </div>
+          </div>
+          
+          <!-- Second column -->
+          <div class="col-md-6">
+            <div class="mb-3">
+              {{ form.username }}
+            </div>
+            <div class="mb-3">
+              {{ form.email }}
+            </div>
+            <div class="mb-3">
+              {{ form.password1 }}
+            </div>
+            <div class="mb-3">
+              {{ form.password2 }}
+            </div>
+          </div>
         </div>
         <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
@@ -81,7 +92,7 @@
           });
         </script>
         {% endif %}
-        <div class="mb-3">
+        <div class="mb-3 get-started-button mt-3">
           <button type="submit" class="btn btn-primary rounded">Get Started</button>
         </div>
         <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
@@ -91,7 +102,7 @@
       </div>
       <div id="layoutAuthentication">
           <div id="layoutAuthentication_footer">
-              <footer class="footer-admin mt-auto footer-dark static-bottom">
+              <footer class="footer-admin mt-auto footer-dark fixed-bottom">
                   <div class="container-xl px-4">
                       <div class="row">
                           <div class="col-md-6 small footer-barraca">&copy; Barraca Veterinary Clinic {% now "Y" %}</div>
@@ -170,5 +181,10 @@
       </div>
       <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
       <script src="{% static 'plugins/sb-admin/js/scripts.js' %}"></script>
+      <script>
+        window.addEventListener('load', function () {
+          document.querySelector('input').blur();
+        });
+      </script>
     </body>
 </html>

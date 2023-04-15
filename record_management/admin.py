@@ -6,7 +6,7 @@ from django.contrib.admin.models import LogEntry
 from django.utils.html import escape
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'client', 'is_active', 'last_login')
+    list_display = ('username', 'client', 'email', 'is_active', 'last_login')
     search_fields = ('username', 'client__first_name', 'client__last_name')
 
 class ClientAdmin(admin.ModelAdmin):

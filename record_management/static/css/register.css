@@ -1,11 +1,11 @@
 
 body {
-    overflow: hidden;
+    overflow:auto;
 }
 .header-barraca
 {
   font-size: 4rem;
-  margin-top: 140px
+  margin-top: 70px
 }
 .title-barraca
 {

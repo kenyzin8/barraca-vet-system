@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #APPS
+    'core',
     'record_management',
     'frontend',
     'admin_dashboard',

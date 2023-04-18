@@ -1,5 +1,4 @@
 {% load static %}
-
 <script>
   $(document).ready(function () {
     $(window).scroll(function () {
@@ -46,12 +45,6 @@
     --bs-bg-opacity: 1;
     background-color: #121212 !important;
   }
-
-  /* .navbar-dark {
-    --bs-navbar-toggler-icon-bg: url(
-  "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2823, 23, 23, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-  } */
-
 </style>
 <div class="border-wrapper">
   <nav class="navbar-custom navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
@@ -99,6 +92,11 @@
         <div class="d-flex" style="height: 20px; margin: auto 0"><div class="vr"></div></div>
         &nbsp;
         {% endif %}
+        <li class="nav-item me-2">
+          <a role="button" class="btn-custom-login btn btn-sm btn-light" href="#">
+            Profile
+          </a>
+        </li>  
         <li class="nav-item me-2">
           <a role="button" class="btn-custom-login btn btn-sm btn-light" href="#">
             Appointments

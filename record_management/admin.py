@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Client, Pet
 
 class ClientAdmin(admin.ModelAdmin):
-    list_display = ('user', 'first_name', 'last_name', 'contact_number', 'address')
+    list_display = ('user', 'first_name', 'last_name', 'contact_number', 'address', 'two_auth_enabled')
     search_fields = ('first_name', 'last_name', 'user__email')
 
     def email(self, obj):

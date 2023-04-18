@@ -8,6 +8,7 @@ class Client(models.Model):
     last_name = models.CharField(max_length=30)
     address = models.CharField(max_length=200)
     contact_number = models.CharField(max_length=15)
+    two_auth_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

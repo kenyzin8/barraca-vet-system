@@ -22,73 +22,23 @@ def login_view(request):
         form = LoginForm(request=request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            if not hasattr(user, 'client'):
+
+            if not user.client.two_auth_enabled:
                 login(request, user)
-                return redirect('register-client-page')
-            else:
-                # Generate and send the OTP
-                phone_number = user.client.contact_number
-                otp_code = send_otp_sms(phone_number)
+                return redirect('home')
+                
+            phone_number = user.client.contact_number
+            otp_code = send_otp_sms(phone_number)
 
-                # Store the OTP code and user ID in the session
-                request.session['otp_code'] = otp_code
-                request.session['temp_user_id'] = user.id
+            request.session['otp_code'] = otp_code
+            request.session['temp_user_id'] = user.id
 
-                # Save the session data explicitly
-                request.session.save()
+            request.session.save()
 
-                # Redirect to the OTP verification page with the session ID
-                return redirect('otp_view', sessionid=request.session.session_key)
+            return redirect('otp_view', sessionid=request.session.session_key)
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
-
-@csrf_exempt
-def otp_view(request, sessionid):
-    if request.session.session_key != sessionid:
-        return HttpResponse("Unauthorized access.", status=403)
-
-    if request.method == 'POST':
-        entered_otp_code = int(request.POST.get('otp_code'))
-        stored_otp_code = int(request.session.get('otp_code', None))
-
-        if entered_otp_code != stored_otp_code:
-            # Return an error message if the OTP is not valid
-            return render(request, 'otp.html', {'error_message': 'Invalid OTP. Please try again.'})
-
-        if entered_otp_code == stored_otp_code:
-            # Clear the OTP code from the session
-            del request.session['otp_code']
-
-            # Log in the user and redirect to the home page
-            user_id = request.session.get('temp_user_id')
-            if user_id:
-                user = User.objects.get(id=user_id)
-                user.is_active = True
-                user.save()
-                login(request, user)
-
-                del request.session['temp_user_id']
-
-                return redirect('home')
-            else:
-                return HttpResponse("An error occurred. Please try again.")
-        else:
-            # Return an error message if the OTP is not valid
-            # Delete the user and client
-            user_id = request.session.get('temp_user_id')
-            if user_id:
-                user = User.objects.get(id=user_id)
-                user.delete()
-            return HttpResponse("Invalid OTP. Please try again.")
-    else:
-        user_id = request.session.get('temp_user_id')
-        if user_id:
-            user = User.objects.get(id=user_id)
-            contact_number = user.client.contact_number
-            return render(request, 'otp.html', {'contact_number': contact_number})
-        else:
-            return HttpResponse("An error occurred. Please try again.")
 
 def register_user(request):
     if request.user.is_authenticated:
@@ -108,17 +58,14 @@ def register_user(request):
                             contact_number=form.cleaned_data['contact_number'])
             client.save()
 
-            # Generate and send the OTP
             phone_number = client.contact_number
             otp_code = send_otp_sms(phone_number)
 
-            # Store the OTP code in the session
             request.session['otp_code'] = otp_code
             request.session['temp_user_id'] = user.id
 
             request.session.save()
 
-            # Redirect to the OTP verification page
             return redirect('otp_view', sessionid=request.session.session_key)
     else:
         form = CombinedRegistrationForm()
@@ -126,72 +73,47 @@ def register_user(request):
     context = {'form': form}
     return render(request, 'client_register.html', context)
 
-# def register_client(request):
-#     if request.user.is_authenticated and hasattr(request.user, 'client'):
-#         return redirect('home')
+@csrf_exempt
+def otp_view(request, sessionid):
+    if request.session.session_key != sessionid:
+        return HttpResponse("Unauthorized access.", status=403)
 
-#     if request.method == 'POST':
-#         form = ClientInfoForm(request.POST)
-#         if form.is_valid():
-#             user_id = request.session.get('temp_user_id')
-#             if user_id:
-#                 user = User.objects.get(id=user_id)
-#             else:
-#                 return HttpResponse("An error occurred. Please try again.")
+    if request.method == 'POST':
+        entered_otp_code = int(request.POST.get('otp_code'))
+        stored_otp_code = int(request.session.get('otp_code', None))
 
-#             client = Client(user=user,
-#                             first_name=form.cleaned_data['first_name'],
-#                             last_name=form.cleaned_data['last_name'],
-#                             address=form.cleaned_data['address'],
-#                             contact_number=form.cleaned_data['contact_number'])
-#             client.save()
+        if entered_otp_code != stored_otp_code:
+            return render(request, 'otp.html', {'error_message': 'Invalid OTP. Please try again.'})
 
-#             # Generate and send the OTP
-#             phone_number = client.contact_number
-#             otp_code = send_otp_sms(phone_number)
+        if entered_otp_code == stored_otp_code:
+            del request.session['otp_code']
 
-#             # Store the OTP code in the session
-#             request.session['otp_code'] = otp_code
+            user_id = request.session.get('temp_user_id')
+            if user_id:
+                user = User.objects.get(id=user_id)
+                user.is_active = True
+                user.save()
+                login(request, user)
 
-#             # Redirect to the OTP verification page
-#             return redirect('otp_view')
-#     else:
-#         form = ClientInfoForm()
+                del request.session['temp_user_id']
 
-#     context = {'form': form}
-#     return render(request, 'client_info.html', context)
-
-# def register_user(request):
-#     if request.user.is_authenticated:
-#         return redirect('home')
-
-#     if request.method == 'POST':
-#         form = UserRegistrationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             user.is_active = False  # Set is_active to False initially
-#             user.save()
-
-#             # Store the user ID in the session
-#             request.session['temp_user_id'] = user.id
-#             request.session.save()
-#             return redirect('register-client-page')
-#     else:
-#         form = UserRegistrationForm()
-
-#     context = {'form': form}
-#     return render(request, 'client_register.html', context)
-
-# @login_required
-# def cancel_registration(request):
-#     user = request.user
-#     #logout(request)  # Log out the user
-#     user.delete()  # Delete the user
-#     return redirect('home')  # Replace 'home' with the name of the URL pattern for the home page
-
-# @login_required
-# def registration_success(request):
-#     return render(request, 'client_success.html')
+                return redirect('home')
+            else:
+                return HttpResponse("An error occurred. Please try again.")
+        else:
+            user_id = request.session.get('temp_user_id')
+            if user_id:
+                user = User.objects.get(id=user_id)
+                user.delete()
+            return HttpResponse("Invalid OTP. Please try again.")
+    else:
+        user_id = request.session.get('temp_user_id')
+        if user_id:
+            user = User.objects.get(id=user_id)
+            contact_number = user.client.contact_number
+            return render(request, 'otp.html', {'contact_number': contact_number})
+        else:
+            return HttpResponse("An error occurred. Please try again.")
 
 @login_required
 def register_pet(request):

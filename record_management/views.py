@@ -12,7 +12,7 @@ import json
 from .forms import PetRegistrationForm, LoginForm, CombinedRegistrationForm
 from .models import Client, Pet
 from django.contrib.auth import login, logout
-from core.sms import send_sms, send_otp_sms
+from core.semaphore import send_sms, send_otp_sms
 
 def login_view(request):
     if request.user.is_authenticated:

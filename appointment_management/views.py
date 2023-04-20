@@ -9,7 +9,7 @@ from datetime import datetime
 from functools import wraps
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout
-from core.sms import send_sms, send_otp_sms
+from core.semaphore import send_sms, send_otp_sms
 from django.contrib.auth.models import User
 
 import json

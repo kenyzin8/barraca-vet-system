@@ -7,6 +7,7 @@
         <meta name="description" content="Landing Page of Barraca Veterinary Clinic" />
         <meta name="author" content="Kent J" />
         <title>{% block title %}{% endblock %}</title>
+
         <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}">
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'plugins/sb-landing-page/css/styles.css' %}" rel="stylesheet" />
@@ -38,15 +39,21 @@
             {
                 margin-top: 125px;
             }
-            
+
+            .navbar-hidden 
+            {
+                display: none;
+            }
         </style>
         
         {% block extrastyles %}{% endblock %}
 
     </head>
     <body id="page-top">
+        {% include 'loader.html' %}
+
         <!-- Navigation-->
-        {% include 'frontend/navbar.html' %}
+        {% include 'frontend/navbar.html' with additional_class='navbar-hidden' %}
 
         <div class="custom-wrapper">
             {% block content %}

@@ -1,0 +1,67 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %} SMS History | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', event => {
+    const datatablesSimple = document.getElementById('datatablesSimple');
+    if (datatablesSimple) {
+        new simpleDatatables.DataTable(datatablesSimple, {
+            paging: true,
+            perPageSelect: [5, 10, 25, 50],
+            perPage: 10,
+            fixedHeight: true,
+            sortable: false,
+            searchable: false,
+            hiddenHeader: false,
+        });
+    }
+    });
+</script>
+
+<script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="card mb-4 mt-5">
+    <div class="card-header">SMS History</div>
+    <div class="card-body">
+        {% if message %}
+        <p>{{ message }}</p>
+        {% else %}
+        <table id="datatablesSimple" class="sms-history-table">
+            <thead>
+                <tr>
+                    <th>Message ID</th>
+                    <th>Status</th>
+                    {% comment %} <th>Message</th> {% endcomment %}
+                    <th>Recipient</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sms in sms_data %}
+                <tr>
+                    <td><span style="font-weight: 600;">{{ sms.message_id }}</span></td>
+                    <td><span class="badge bg-success rounded-pill">{{ sms.status }}</span></td>
+                    {% comment %} <td>{{ sms.message }}</td> {% endcomment %}
+                    <td>{{ sms.recipient }}</td>
+                    <td>{{ sms.created_at }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        <span style="font-style: italic; font-size: 12px">Only shows 50 SMS history. For more detailed view of history, visit Semaphore dashboard.</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script src="{% static 'plugins/sb-admin/js/bundle.js' %}"></script>
+<script src="{% static 'plugins/sb-admin/js/litepicker.js' %}"></script>
+{% endblock %}

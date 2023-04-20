@@ -1,6 +1,29 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from core.semaphore import fetch_sms_data
+from datetime import datetime
+import urllib.parse
+import requests
 
 @login_required
 def admin_dashboard(request):
     return render(request, 'admin_dashboard.html')
+
+def sms_history(request):
+    raw_sms_data = fetch_sms_data()
+
+    if isinstance(raw_sms_data, str):
+        message = raw_sms_data
+        sms_data = None
+    else:
+        message = None
+        sms_data = []
+        for sms in raw_sms_data:
+            formatted_date_sent = datetime.strptime(sms['created_at'], "%Y-%m-%d %H:%M:%S").strftime("%B %d, %Y - %I:%M %p")
+            sms['created_at'] = formatted_date_sent
+            sms_data.append(sms)
+
+        sms_data.sort(key=lambda x: x['created_at'], reverse=True)
+
+    return render(request, "sms_history.html", {"sms_data": sms_data, "message": message})

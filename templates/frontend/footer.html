@@ -69,13 +69,24 @@
 </div>
 
 <script>
-  var map = L.map('map').setView([6.496059007043394, 124.84662845804704], 20);
+  // Initialize the map
+  var map = L.map('map').setView([6.496059007043394, 124.84662845804704], 25);
 
+  // Add a tile layer with satellite imagery
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Map Data &copy; <a href="https://www.esri.com/">Esri</a>',
+    attribution: 'Map data &copy; <a href="https://www.esri.com/">Esri</a>',
     maxZoom: 18
   }).addTo(map);
 
-  L.marker([6.496059007043394, 124.84662845804704]).addTo(map)
+  // Define a custom icon image
+  var customIcon = L.icon({
+    iconUrl: "{% static 'plugins/leaflet/images/marker-icon.png' %}",
+    iconSize: [24, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34]
+  });
+
+  // Add a marker for the location with the custom icon
+  L.marker([6.496059007043394, 124.84662845804704], {icon: customIcon}).addTo(map)
     .bindPopup("<center><b>Door 5&6 SLB Building, 431 Abad Santos Street, <br>Koronadal, Philippines</b></center>").openPopup();
 </script>

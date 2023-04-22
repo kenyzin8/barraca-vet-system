@@ -49,12 +49,30 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #APPS
+    'django_celery_beat',
     'core',
     'record_management',
     'frontend',
     'admin_dashboard',
     'appointment_management',
 ]
+
+# Celery settings
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
+CELERY_TIMEZONE = 'UTC'
+
+from datetime import timedelta
+from core.tasks import print_hello_world
+
+CELERY_BEAT_SCHEDULE = {
+    'print_hello_world_every_2_minutes': {
+        'task': print_hello_world,
+        'schedule': timedelta(minutes=2),
+    },
+}
+
+CELERY_IMPORTS = ('core.tasks', )
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

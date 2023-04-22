@@ -1,0 +1,23 @@
+[
+    {
+      "model": "django_celery_beat.periodictask",
+      "pk": 1,
+      "fields": {
+        "name": "Print Hello World every 2 minutes",
+        "task": "core.tasks.print_hello_world",
+        "interval": 1,
+        "args": "[]",
+        "kwargs": "{}",
+        "enabled": true
+      }
+    },
+    {
+      "model": "django_celery_beat.interval",
+      "pk": 1,
+      "fields": {
+        "every": 2,
+        "period": "minutes"
+      }
+    }
+]
+  

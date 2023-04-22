@@ -5,7 +5,7 @@ body {
 .header-barraca
 {
   font-size: 4rem;
-  margin-top: 230px
+  margin-top: 190px
 }
 .title-barraca
 {
@@ -78,7 +78,7 @@ body
 {
   background: #121212;
   border: none;
-  width: 100%;
+  width: 50%;
 }
 
 .mb-3 button:hover
@@ -104,10 +104,37 @@ body
   cursor: default;
 }
 
-@media (max-width: 700px) {
+.form-container {
+  width: 40%;
+}
+
+@media (max-width: 1200px) {
+    body {
+        overflow: auto;
+    }
+  /* Add fixed-top to your title */
+  .barraca-title {
+    position: static;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .title-barraca
+  {
+    margin-top: 50px
+  }
+
+  .footer-admin {
+    position: static;
+  }
+
+  #layoutAuthentication {
+    min-height: none;
+    }
+
   .header-barraca {
     font-size: 4rem;
-    margin-top: 200px
+    margin-top: 20px
   }
 
   .description-barraca {
@@ -118,6 +145,7 @@ body
   .form-container {
     width: 100%;
     margin: 0 auto;
+    margin-top: -30px;
   }
 
   .row
@@ -125,4 +153,26 @@ body
     margin: 0 auto;
     text-align: center;
   }
+
+  .mb-3 button {
+    width: 94%;
+  }
+
+  .create-acc {
+    margin-bottom: 20px;
+  }  
+}
+#layoutAuthentication {
+    min-height: 0px;
+}
+
+.wider-input {
+  width: 100%; 
+}
+
+.get-started-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* or any desired height */
 }

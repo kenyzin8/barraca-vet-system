@@ -9,8 +9,6 @@
         <meta name="author" content="Kent J." />
         <title>{% block title %}{% endblock %}</title>
 
-        <link rel="stylesheet" href="{% static 'css/loader.css' %}">
-
         <link href="{% static 'plugins/sb-admin/css/datatables/style.css' %}" rel="stylesheet" />
         <link href="{% static 'plugins/sb-admin/css/litepicker/litepicker.css' %}" rel="stylesheet" />
         <link href="{% static 'plugins/sb-admin/css/styles.css' %}" rel="stylesheet" />
@@ -23,6 +21,7 @@
             .page-item:not(:first-child) .page-link, .page-item:not(:first-child) .datatable-pagination a, .datatable-pagination .page-item:not(:first-child) a, .datatable-pagination li:not(:first-child) .page-link, .datatable-pagination li:not(:first-child) a {
                 cursor: default;
             }
+            
         </style>
     </head>
     <body class="nav-fixed bg-light">

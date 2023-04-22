@@ -1,5 +1,5 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/loader.css' %}">
+<link id="loader-css" rel="stylesheet" href="{% static 'css/loader.css' %}">
 
 <div class="loader">
     <div class="dog">
@@ -38,11 +38,19 @@
  </div>
 
  <script>
-    window.addEventListener("load", function() {
-        const loader = document.querySelector(".loader");
-        const navbar = document.querySelector(".frontend-navbar"); 
+   window.addEventListener("load", function() {
+       const loader = document.querySelector(".loader");
+       const navbar = document.querySelector(".frontend-navbar");
+       const loaderCSS = document.getElementById("loader-css");
 
-        loader.style.display = "none";
-        navbar.classList.remove("navbar-hidden");
-    });
+       loader.style.display = "none";
+
+       if (navbar != null) {
+           navbar.classList.remove("navbar-hidden");
+       }
+
+       if (loaderCSS != null) {
+           loaderCSS.parentNode.removeChild(loaderCSS);
+       }
+   });
 </script>

@@ -132,22 +132,16 @@ def register_pet(request):
 
 @login_required
 def pet_registration_success(request):
-    if request.user.is_authenticated and not hasattr(request.user, 'client'):
-        return redirect('register-client-page')
     return render(request, 'pet_success.html')
 
 @login_required
 def view_pet(request, pet_id):
-    if request.user.is_authenticated and not hasattr(request.user, 'client'):
-        return redirect('register-client-page')
     pet = get_object_or_404(Pet, id=pet_id)
     context = {'pet': pet}
     return render(request, 'view_pet.html', context)
 
 @login_required
 def update_pet(request, pet_id):
-    if request.user.is_authenticated and not hasattr(request.user, 'client'):
-        return redirect('register-client-page')
     pet = get_object_or_404(Pet, id=pet_id)
     if request.method == 'POST':
         form = PetRegistrationForm(request.POST, instance=pet)
@@ -162,8 +156,6 @@ def update_pet(request, pet_id):
 
 @login_required
 def delete_pet(request, pet_id):
-    if request.user.is_authenticated and not hasattr(request.user, 'client'):
-        return redirect('register-client-page')
     pet = get_object_or_404(Pet, id=pet_id)
     if request.method == 'POST':
         pet.delete()
@@ -173,8 +165,6 @@ def delete_pet(request, pet_id):
 
 @login_required
 def pet_list(request):
-    if request.user.is_authenticated and not hasattr(request.user, 'client'):
-        return redirect('register-client-page')
     pets = Pet.objects.filter(client=request.user.client)
     context = {'pets': pets}
     return render(request, 'pet_list.html', context)

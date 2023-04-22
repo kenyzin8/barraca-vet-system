@@ -25,6 +25,10 @@
                         <div class="nav-link-icon"><i data-feather="activity"></i></div>
                         Dashboard
                     </a>
+                    <a class="nav-link" href="#">
+                        <div class="nav-link-icon"><i data-feather="users"></i></div>
+                        Manage Users
+                    </a>
                     <a class="nav-link {% if current_url_name == 'sms-history' %}active{% endif %}" href="{% url 'sms-history' %}">
                         <div class="nav-link-icon"><i data-feather="send"></i></div>
                         SMS History
@@ -32,7 +36,7 @@
                     <div class="sidenav-menu-heading">Record</div>
                     <a class="nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
                         <div class="nav-link-icon"><i data-feather="credit-card"></i></div>
-                        Health Card
+                        Pet Health Card
                     </a>
                     <a class="nav-link" href="#">
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
@@ -82,8 +86,12 @@
                     </a>
                     <div class="sidenav-menu-heading">Billing</div>
                     <a class="nav-link" href="#">
-                        <div class="nav-link-icon"><i data-feather="file-text"></i></div>
-                        Statements
+                        <div class="nav-link-icon"><i data-feather="dollar-sign"></i></div>
+                        Transactions
+                    </a>
+                    <a class="nav-link" href="#">
+                        <div class="nav-link-icon"><i data-feather="paperclip"></i></div>
+                        Daily Sales
                     </a>
                     <div class="sidenav-menu-heading">Inventory & Services</div>
                     <a class="nav-link" href="#">
@@ -93,6 +101,10 @@
                     <a class="nav-link" href="#">
                         <div class="nav-link-icon"><i data-feather="table"></i></div>
                         Services
+                    </a>
+                    <a class="nav-link" href="#">
+                        <div class="nav-link-icon"><i data-feather="list"></i></div>
+                        Reorder List
                     </a>
                     {% endwith %}
                     <style>

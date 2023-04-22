@@ -40,7 +40,7 @@
       selectMirror: true,
       select: function(arg) 
       {
-        var title = prompt('Event Title:');
+        var title = prompt('Create Appointment:');
         if (title) 
         {
           calendar.addEvent(

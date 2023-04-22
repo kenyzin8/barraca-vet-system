@@ -78,9 +78,3 @@ def home(request):
 #     params = {"apikey": api_key}
 #     response = requests.get(url, params=params)
 #     return response.json()["credit_balance"]
-
-def handler404(request, exception):
-    return render(request, '404.html', {}, status=404)
-
-def handler500(request):
-    return render(request, '404.html', {}, status=500)

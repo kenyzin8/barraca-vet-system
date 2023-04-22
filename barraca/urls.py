@@ -25,5 +25,5 @@ urlpatterns = [
     path('', include('appointment_management.urls')),
 ]
 
-handler404 = 'frontend.views.handler404'
-handler500 = 'frontend.views.handler500'
+handler404 = 'core.views.handler404'
+handler500 = 'core.views.handler500'

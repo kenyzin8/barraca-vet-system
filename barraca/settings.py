@@ -188,16 +188,17 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Celery settings
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
+CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
-from datetime import timedelta
+# from datetime import timedelta
 
-CELERY_BEAT_SCHEDULE = {
-    'print_hello_world_task': {
-        'task': 'core.tasks.print_hello_world',
-        'schedule': 30.0,
-    },
-}
+# CELERY_BEAT_SCHEDULE = {
+#     'print_hello_world_task': {
+#         'task': 'core.tasks.print_hello_world',
+#         'schedule': 30.0,
+#     },
+# }

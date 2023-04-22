@@ -49,29 +49,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #APPS
-    'django_celery_beat',
     'core',
     'record_management',
     'frontend',
     'admin_dashboard',
     'appointment_management',
+    #CELERY
+    'django_celery_beat',
+    'django_celery_results',
 ]
-
-# Celery settings
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379')
-CELERY_TIMEZONE = 'UTC'
-
-from datetime import timedelta
-from core.tasks import print_hello_world
-
-CELERY_BEAT_SCHEDULE = {
-    'print_hello_world_every_2_minutes': {
-        'task': print_hello_world,
-        'schedule': timedelta(minutes=2),
-    },
-}
-
-CELERY_IMPORTS = ('core.tasks', )
 
 
 MIDDLEWARE = [
@@ -199,3 +185,19 @@ SEMAPHORE_API_KEY = os.getenv("SEMAPHORE_API_KEY")
 
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Celery settings
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+from datetime import timedelta
+
+CELERY_BEAT_SCHEDULE = {
+    'print_hello_world_task': {
+        'task': 'core.tasks.print_hello_world',
+        'schedule': 30.0,
+    },
+}

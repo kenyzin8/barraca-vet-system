@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.contrib.admin.models import LogEntry
+from django_celery_beat.models import ClockedSchedule, CrontabSchedule, IntervalSchedule, PeriodicTask, SolarSchedule
+from django_celery_results.models import TaskResult, GroupResult
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'client', 'email', 'is_active', 'last_login')
@@ -27,8 +29,13 @@ class LogEntryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
+
+admin.site.unregister(ClockedSchedule)
+admin.site.unregister(SolarSchedule)
+admin.site.unregister(GroupResult)
 
 LogEntry._meta.verbose_name_plural = 'Log Entries'
 

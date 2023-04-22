@@ -48,15 +48,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #CELERY
+    'django_celery_beat',
+    'django_celery_results',
     #APPS
     'core',
     'record_management',
     'frontend',
     'admin_dashboard',
     'appointment_management',
-    #CELERY
-    'django_celery_beat',
-    'django_celery_results',
 ]
 
 

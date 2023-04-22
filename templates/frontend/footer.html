@@ -1,4 +1,7 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'plugins/leaflet/leaflet.css' %}">
+<script src="{% static 'plugins/leaflet/leaflet.js' %}"></script>
+
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="bootstrap" viewBox="0 0 118 94">
     <title>Bootstrap</title>
@@ -20,45 +23,28 @@
     width: 98%;
     margin: 0 auto;
   }
+  
 </style>
 <div class="border-wrapper">
   <div class="border-top">
     <footer class="py-5 container">
       <div class="row" style="margin: 0 auto;">
         <div class="col-sm mb-3">
-          <h5>Section</h5>
+          <h5>Barraca Veterinary Clinic</h5>
           <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Home</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Features</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Pricing</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">FAQs</a></li>
             <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">About</a></li>
+            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">FAQs</a></li>
+            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Contact</a></li>
+            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Pricing</a></li>
+            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Blog</a></li>
           </ul>
         </div>
-  
-        <div class="col-sm mb-3">
-          <h5>Section</h5>
-          <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Home</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Features</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Pricing</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">FAQs</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">About</a></li>
-          </ul>
-        </div>
-  
-        <div class="col-sm mb-3">
-          <h5>Section</h5>
-          <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Home</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Features</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">Pricing</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">FAQs</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-muted">About</a></li>
-          </ul>
+        <div class="col-sm mb-3" style="position: relative;">
+          <h5>Location</h5>
+          <div id="map" class="shadow-sm" style="height: 280px; position: inherit; top: 0; left: 0; right: 0; bottom: 0; border-radius: 5px;"></div>
         </div>
       </div>
-  
+      
       <div class="d-flex flex-column flex-sm-row justify-content-between">
         <center><p class="text-secondary">© {% now "Y" %} Barraca Veterinary Clinic</p></center>
         <ul class="list-unstyled d-flex">
@@ -71,4 +57,14 @@
   </div>
 </div>
 
+<script>
+  var map = L.map('map').setView([6.496059007043394, 124.84662845804704], 20);
 
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Map Data &copy; <a href="https://www.esri.com/">Esri</a>',
+    maxZoom: 18
+  }).addTo(map);
+
+  L.marker([6.496059007043394, 124.84662845804704]).addTo(map)
+    .bindPopup("<center><b>Door 5&6 SLB Building, 431 Abad Santos Street, <br>Koronadal, Philippines</b></center>").openPopup();
+</script>

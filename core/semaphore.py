@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 from datetime import datetime, timedelta
 
-api_key = settings.SEMAPHORE_API_KEY
+api_key = os.getenv("SEMAPHORE_API_KEY")
 sendername = 'SEMAPHORE'
 
 def fetch_sms_data():

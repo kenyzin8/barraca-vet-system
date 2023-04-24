@@ -44,19 +44,18 @@ window.addEventListener("load", function() {
   const loaderCSS = document.getElementById("loader-css");
   const body = document.body;
 
-  // Add loader-active class to the body element
   body.classList.add("loader-active");
 
   if (loaderCSS != null) {
     loaderCSS.parentNode.removeChild(loaderCSS);
   }
 
-  //Hide the loader and remove loader-active class from the body element
   loader.style.display = "none";
-  body.classList.remove("loader-active");
 
   if (navbar != null) {
     navbar.classList.remove("navbar-hidden");
   }
+
+  body.classList.remove("loader-active");
 });
 </script>

@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="Kent J." />
+        <title>{% block title %}{% endblock %}</title>
+
+        <link href="{% static 'plugins/sb-admin/css/datatables/style.css' %}" rel="stylesheet" />
+        <link href="{% static 'plugins/sb-admin/css/litepicker/litepicker.css' %}" rel="stylesheet" />
+        <link href="{% static 'plugins/sb-admin/css/styles.css' %}" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}" />
+        <script data-search-pseudo-elements defer src="{% static 'plugins/fontawesome/js/all.min.js' %}"></script>
+        <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}"></script>
+        {% block extrastyles %}{% endblock %}
+
+        <style>
+            .page-item:not(:first-child) .page-link, .page-item:not(:first-child) .datatable-pagination a, .datatable-pagination .page-item:not(:first-child) a, .datatable-pagination li:not(:first-child) .page-link, .datatable-pagination li:not(:first-child) a {
+                cursor: default;
+            }
+            
+        </style>
+    </head>
+    <body class="nav-fixed bg-light">
+        {% include 'loader.html' %}
+        {% include 'customer_dashboard/navbar.html' %}
+        {% include 'customer_dashboard/sidebar.html' %}
+            <div id="layoutSidenav_content">
+                <main>
+                    {% block header %}
+                    {% endblock %}
+                    <!-- Main page content-->
+                    <div class="container-xl px-4 mt-2">
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </main>
+                {% include 'customer_dashboard/footer.html' %}
+            </div>
+        </div>
+        <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'plugins/sb-admin/js/scripts.js' %}"></script>
+        {% block extrascripts %}
+        {% endblock %}
+    </body>
+</html>

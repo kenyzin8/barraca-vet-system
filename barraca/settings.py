@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'frontend',
     'admin_dashboard',
     'appointment_management',
+    'customer_dashboard',
 ]
 
 

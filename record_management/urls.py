@@ -15,5 +15,5 @@ urlpatterns = [
     path('delete-pet/<int:pet_id>/', views.delete_pet, name='delete-pet-page'),
     path('login/', views.login_view, name='login-page'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout-page'),
-    path('otp/<str:sessionid>', views.otp_view, name='otp_view'),
+    path('otp/', views.otp_view, name='otp_view'),
 ]

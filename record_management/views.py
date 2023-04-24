@@ -32,10 +32,10 @@ def login_view(request):
 
             request.session['otp_code'] = otp_code
             request.session['temp_user_id'] = user.id
-
+            request.session['temp_user_session'] = request.session.session_key
             request.session.save()
 
-            return redirect('otp_view', sessionid=request.session.session_key)
+            return redirect('otp_view')
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
@@ -63,10 +63,10 @@ def register_user(request):
 
             request.session['otp_code'] = otp_code
             request.session['temp_user_id'] = user.id
-
+            request.session['temp_user_session'] = request.session.session_key
             request.session.save()
 
-            return redirect('otp_view', sessionid=request.session.session_key)
+            return redirect('otp_view')
     else:
         form = CombinedRegistrationForm()
 
@@ -74,9 +74,9 @@ def register_user(request):
     return render(request, 'client_register.html', context)
 
 @csrf_exempt
-def otp_view(request, sessionid):
-    if request.session.session_key != sessionid:
-        return HttpResponse("Unauthorized access.", status=403)
+def otp_view(request):
+    # if request.session.session_key != request.session['temp_user_session']:
+    #     return HttpResponse("Unauthorized access.", status=403)
 
     if request.method == 'POST':
         entered_otp_code = int(request.POST.get('otp_code'))
@@ -86,17 +86,18 @@ def otp_view(request, sessionid):
             return render(request, 'otp.html', {'error_message': 'Invalid OTP. Please try again.'})
 
         if entered_otp_code == stored_otp_code:
-            del request.session['otp_code']
-
             user_id = request.session.get('temp_user_id')
             if user_id:
                 user = User.objects.get(id=user_id)
                 user.is_active = True
                 user.save()
+                
                 login(request, user)
 
                 del request.session['temp_user_id']
-
+                del request.session['otp_code']
+                del request.session['temp_user_session']
+            
                 return redirect('home')
             else:
                 return HttpResponse("An error occurred. Please try again.")

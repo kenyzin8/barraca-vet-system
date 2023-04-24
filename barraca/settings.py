@@ -186,6 +186,7 @@ SEMAPHORE_API_KEY = os.getenv("SEMAPHORE_API_KEY")
 
 SESSION_COOKIE_NAME = 'sessionid'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Celery settings
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")

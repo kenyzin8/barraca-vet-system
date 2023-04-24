@@ -1,15 +1,23 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from core.semaphore import fetch_sms_data
 from datetime import datetime
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import Http404
+
+from core.decorators import staff_required
+
 import urllib.parse
 import requests
 
 @login_required
+@staff_required
 def admin_dashboard(request):
     return render(request, 'admin_dashboard.html')
 
+@login_required
+@staff_required
 def sms_history(request):
     raw_sms_data = fetch_sms_data()
 

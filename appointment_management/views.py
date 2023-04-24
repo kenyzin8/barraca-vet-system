@@ -12,12 +12,16 @@ from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
 from django.contrib.auth.models import User
 
+from core.decorators import staff_required
+
 import json
 import requests
 import time
 
 @login_required
+@staff_required
 def calendar(request):
+
     clients_list = Client.objects.all().order_by('id')
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -41,6 +45,7 @@ def calendar(request):
 
 @csrf_exempt
 @login_required
+@staff_required
 def send_sms_to_client(request):
     if request.method == 'POST':
         client_ids = json.loads(request.POST.get('client_ids'))

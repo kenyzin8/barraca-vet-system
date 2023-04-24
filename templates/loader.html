@@ -38,19 +38,25 @@
  </div>
 
  <script>
-   window.addEventListener("load", function() {
-       const loader = document.querySelector(".loader");
-       const navbar = document.querySelector(".frontend-navbar");
-       const loaderCSS = document.getElementById("loader-css");
+window.addEventListener("load", function() {
+  const loader = document.querySelector(".loader");
+  const navbar = document.querySelector(".frontend-navbar");
+  const loaderCSS = document.getElementById("loader-css");
+  const body = document.body;
 
-       loader.style.display = "none";
+  // Add loader-active class to the body element
+  body.classList.add("loader-active");
 
-       if (navbar != null) {
-           navbar.classList.remove("navbar-hidden");
-       }
+  if (loaderCSS != null) {
+    loaderCSS.parentNode.removeChild(loaderCSS);
+  }
 
-       if (loaderCSS != null) {
-           loaderCSS.parentNode.removeChild(loaderCSS);
-       }
-   });
+  //Hide the loader and remove loader-active class from the body element
+  loader.style.display = "none";
+  body.classList.remove("loader-active");
+
+  if (navbar != null) {
+    navbar.classList.remove("navbar-hidden");
+  }
+});
 </script>

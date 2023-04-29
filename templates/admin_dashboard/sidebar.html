@@ -29,15 +29,11 @@
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
                         Manage Users
                     </a>
-                    <a class="nav-link {% if current_url_name == 'sms-history' %}active{% endif %}" href="{% url 'sms-history' %}">
+                    <!-- <a class="nav-link {% if current_url_name == 'sms-history' %}active{% endif %}" href="{% url 'sms-history' %}">
                         <div class="nav-link-icon"><i data-feather="send"></i></div>
                         SMS History
-                    </a>
+                    </a> -->
                     <div class="sidenav-menu-heading">Record</div>
-                    <a class="nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
-                        <div class="nav-link-icon"><i data-feather="credit-card"></i></div>
-                        Pet Health Card
-                    </a>
                     <a class="nav-link" href="#">
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
                         Clients
@@ -45,6 +41,14 @@
                     <a class="nav-link" href="#">
                         <div class="nav-link-icon"><i data-feather="gitlab"></i></div>
                         Pets
+                    </a>
+                    <a class="nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                        <div class="nav-link-icon"><i data-feather="credit-card"></i></div>
+                        Pet Health Card
+                    </a>
+                    <a class="nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                        <div class="nav-link-icon"><i data-feather="list"></i></div>
+                        Pet Medical Prescription
                     </a>
                     <!-- Sidenav Accordion (Pages)-->
                     <!-- <a class="nav-link collapsed" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">

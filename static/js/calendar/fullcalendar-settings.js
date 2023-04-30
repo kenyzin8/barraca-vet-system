@@ -1,153 +1,181 @@
+function getEventCounts(events) {
+  const eventCounts = {};
 
-  function getEventCounts(events) {
-    const eventCounts = {};
+  events.forEach(event => {
+    const date = FullCalendar.formatDate(event.start, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' });
+    eventCounts[date] = (eventCounts[date] || 0) + 1;
+  });
 
-    events.forEach(event => {
-      const date = FullCalendar.formatDate(event.start, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' });
-      eventCounts[date] = (eventCounts[date] || 0) + 1;
-    });
+  return eventCounts;
+}
 
-    return eventCounts;
-  }
-  
-  function getInitialView() {
-    return window.innerWidth <= 576 ? 'listMonth' : 'dayGridMonth';
-  }
+function getInitialView() {
+  return window.innerWidth <= 576 ? 'listMonth' : 'dayGridMonth';
+}
 
-  document.addEventListener('DOMContentLoaded', function() 
+document.addEventListener('DOMContentLoaded', function() 
+{
+  var calendarEl = document.getElementById('calendar');
+
+  var calendar = new FullCalendar.Calendar(calendarEl, 
   {
-    var calendarEl = document.getElementById('calendar');
-  
-    var calendar = new FullCalendar.Calendar(calendarEl, 
+    themeSystem: 'bootstrap5',
+    views: {
+      listDay: { buttonText: 'Day' },
+      dayGridMonth: { buttonText: 'Month' },
+      multiMonthYear: { buttonText: 'Year' },
+      listMonth: { buttonText: 'All'},
+    },
+    buttonText: {
+          today: 'Today',
+    },
+    allDayText: '',
+    firstDay: 1,
+    noEventsText: 'No appointments to show',
+    initialDate: getCurrentDateString(),
+    initialView: getInitialView(),
+    navLinks: true, // can click day/week names to navigate views
+    selectable: true,
+    selectMirror: true,
+    select: function(arg) 
     {
-      themeSystem: 'bootstrap5',
-      views: {
-        listDay: { buttonText: 'Day' },
-        dayGridMonth: { buttonText: 'Month' },
-        listYear: { buttonText: 'Year' },
-        listMonth: { buttonText: 'All'},
-      },
-      buttonText: {
-            today: 'Today',
-      },
-      allDayText: '',
-      firstDay: 1,
-      noEventsText: 'No appointments to show',
-      initialDate: '2023-04-12',
-      initialView: getInitialView(),
-      navLinks: true, // can click day/week names to navigate views
-      selectable: true,
-      selectMirror: true,
-      select: function(arg) 
+      var title = prompt('Create Appointment:');
+      if (title) 
       {
-        var title = prompt('Create Appointment:');
-        if (title) 
-        {
-          calendar.addEvent(
-            {
-              title: title,
-              start: arg.start,
-              end: arg.end,
-              allDay: arg.allDay
-            })
-        }
+        calendar.addEvent(
+          {
+            title: title,
+            start: arg.start,
+            end: arg.end,
+            allDay: arg.allDay
+          })
+      }
 
-        calendar.unselect()
-        },
-      eventClick: function(arg) 
-      {
-        var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
-        const dateString = arg.event.start;
-        const date = new Date(dateString);
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const day = monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
-        
-        document.getElementById('eventModalLabel').innerText = day;
-        document.getElementById('eventModalBody').innerText = arg.event.title;
-        eventModal.show();
+      calendar.unselect()
+    },
+    eventClick: function(arg) 
+    {
+      var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+      const dateString = arg.event.start;
+      const date = new Date(dateString);
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const day = monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
       
-        document.getElementById('deleteEvent').onclick = function() {
-          arg.event.remove();
-          eventModal.hide();
-        };
+      document.getElementById('eventModalLabel').innerText = day;
+      document.getElementById('eventModalBody').innerText = arg.event.title;
+      eventModal.show();
+    
+      // Hide the popover right after showing the modal
+      var popover = document.querySelector('.fc-popover');
+      if (popover) {
+        popover.style.display = 'none';
+      }
+    
+      document.getElementById('deleteEvent').onclick = function() {
+        arg.event.remove();
+        eventModal.hide();
+      };
+    },
+    editable: false,
+    dayMaxEvents: true, // allow "more" link when too many events
+    events: [
+      {
+        title: 'Kent Jamila',
+        start: '2023-04-11'
       },
-      editable: false,
-      dayMaxEvents: true, // allow "more" link when too many events
-      events: [
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-11'
-        },
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-11'
-        },
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-11'
-        },
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-11'
-        },
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-11'
-        },
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-11'
-        },
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-11'
-        },
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-11'
-        },
-        {
-          title: 'Kent Jamila',
-          start: '2023-04-15',
-          // display: 'background',
-          // color: "red"
-        }
-      ],
-      dayCellClassNames: function (info) 
-      {    
-        const eventCounts = getEventCounts(calendar.getEvents());
-        const date = FullCalendar.formatDate(info.date, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' });
-        if (eventCounts[date] === 8) 
-        {
-          return ['day-full'];
-        } 
-        else 
-        {
-          return ['day-available'];
-        }
+      {
+        title: 'John Jamila',
+        start: '2023-04-11'
+      },
+      {
+        title: 'Susie Jamila',
+        start: '2023-04-11'
+      },
+      {
+        title: 'Kharyl Caye Domalogdog',
+        start: '2023-04-11'
+      },
+      {
+        title: 'Kotlin Molk',
+        start: '2023-04-11'
+      },
+      {
+        title: 'Simon Walker',
+        start: '2023-04-11'
+      },
+      {
+        title: 'Yvette Mae Barraca',
+        start: '2023-04-11'
+      },
+      {
+        title: 'Erika Mae Barraca',
+        start: '2023-04-11'
+      },
+      {
+        title: 'Kent John Jin',
+        start: '2023-04-15',
+        // display: 'background',
+        // color: "red"
       }
-    });
-
-    calendar.render();
-
-    function updateCalendarOptions() {
-      if (window.innerWidth <= 576) {
-        calendar.setOption('initialView', 'listMonth');
-        calendar.setOption('headerToolbar', {
-          left: 'title',
-          center: 'listDay,listYear,listMonth',
-          right: 'today prev,next'
-        });
-        
-      } else {
-        calendar.setOption('initialView', 'dayGridMonth');
-        calendar.setOption('headerToolbar', {
-          left: 'today prev,next',
-          center: 'title',
-          right: 'listDay,dayGridMonth,listYear,listMonth'
-        });
+    ],
+    dayCellClassNames: function (info) 
+    {    
+      const eventCounts = getEventCounts(calendar.getEvents());
+      const date = FullCalendar.formatDate(info.date, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' });
+      if (eventCounts[date] === 8) 
+      {
+        return ['day-full'];
+      } 
+      else 
+      {
+        return ['day-available'];
       }
-    }  
+    },
+    navLinkDayClick: function(date, jsEvent) {
+      // Your custom logic here
 
-    updateCalendarOptions();
-  });    
+      alert('day clicked ' + date.toISOString());
+      jsEvent.preventDefault();
+    },
+    selectAllow: function(selectInfo) {
+      // Get the day before the end date
+      var dayBeforeEndDate = new Date(selectInfo.end);
+      dayBeforeEndDate.setDate(dayBeforeEndDate.getDate() - 1);
+
+      // Allow selection only if the start date is the same as the day before the end date (single day)
+      return FullCalendar.formatDate(selectInfo.start, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' }) === FullCalendar.formatDate(dayBeforeEndDate, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' });
+    }
+  });
+
+  calendar.render();
+
+  function updateCalendarOptions() {
+    if (window.innerWidth <= 576) {
+      calendar.setOption('initialView', 'listMonth');
+      calendar.setOption('headerToolbar', {
+        left: 'title',
+        center: 'listDay,listYear,listMonth',
+        right: 'today prev,next'
+      });
+      
+    } else {
+      calendar.setOption('initialView', 'dayGridMonth');
+      calendar.setOption('headerToolbar', {
+        left: 'today prev,next',
+        center: 'title',
+        right: 'listDay,dayGridMonth,multiMonthYear,listMonth'
+      });
+    }
+  }  
+
+  updateCalendarOptions();
+
+  function getCurrentDateString() {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
+    const day = String(currentDate.getDate()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}`;
+  }
+});    

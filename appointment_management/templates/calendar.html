@@ -15,17 +15,19 @@
 {% endblock %}
 
 {% block content %}
-<div class="card mb-5 card-collapsable card-waves">
-  <a class="card-header" href="#collapseCardExample" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">Calendar
-    <div class="card-collapsable-arrow">
-        <i class="fas fa-chevron-down"></i>
-    </div>
-  </a>
-  <div class="collapse show" id="collapseCardExample">
-    <div class="card-body">
-        <div id='calendar'></div>
-    </div>
-  </div>
+<div class="calendar-container">
+    <div class="card mb-5 card-collapsable card-waves">
+        <a class="card-header" href="#collapseCardExample" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">Calendar
+          <div class="card-collapsable-arrow">
+              <i class="fas fa-chevron-down"></i>
+          </div>
+        </a>
+        <div class="collapse show" id="collapseCardExample">
+          <div class="card-body">
+              <div id='calendar'></div>
+          </div>
+        </div>
+      </div>
 </div>
 
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
@@ -41,9 +43,9 @@
         <!-- Event title will be displayed here -->
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-danger btn-sm" id="deleteEvent">Delete Event</button>
-        <button type="button" class="btn btn-primary btn-sm" id="notifyEvent">Notify</button>
+        <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-dark btn-sm" id="deleteEvent">Delete Event</button>
+        <button type="button" class="btn btn-dark btn-sm" id="notifyEvent">Notify</button>
       </div>
     </div>
   </div>

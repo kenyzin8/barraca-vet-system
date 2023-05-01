@@ -10,7 +10,7 @@ function getEventCounts(events) {
 }
 
 function getInitialView() {
-  return window.innerWidth <= 576 ? 'listMonth' : 'dayGridMonth';
+  return window.innerWidth <= 576 ? 'listYear' : 'dayGridMonth';
 }
 
 document.addEventListener('DOMContentLoaded', function() 
@@ -24,7 +24,8 @@ document.addEventListener('DOMContentLoaded', function()
       listDay: { buttonText: 'Day' },
       dayGridMonth: { buttonText: 'Month' },
       multiMonthYear: { buttonText: 'Year' },
-      listMonth: { buttonText: 'All'},
+      listYear: { buttonText: 'All'},
+      listMonth: {buttonText: 'Month'}
     },
     buttonText: {
           today: 'Today',
@@ -132,17 +133,12 @@ document.addEventListener('DOMContentLoaded', function()
       }
     },
     navLinkDayClick: function(date, jsEvent) {
-      // Your custom logic here
-
       alert('day clicked ' + date.toISOString());
       jsEvent.preventDefault();
     },
     selectAllow: function(selectInfo) {
-      // Get the day before the end date
       var dayBeforeEndDate = new Date(selectInfo.end);
       dayBeforeEndDate.setDate(dayBeforeEndDate.getDate() - 1);
-
-      // Allow selection only if the start date is the same as the day before the end date (single day)
       return FullCalendar.formatDate(selectInfo.start, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' }) === FullCalendar.formatDate(dayBeforeEndDate, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' });
     }
   });
@@ -151,19 +147,17 @@ document.addEventListener('DOMContentLoaded', function()
 
   function updateCalendarOptions() {
     if (window.innerWidth <= 576) {
-      calendar.setOption('initialView', 'listMonth');
       calendar.setOption('headerToolbar', {
         left: 'title',
-        center: 'listDay,listYear,listMonth',
+        center: 'listMonth,listYear',
         right: 'today prev,next'
       });
       
     } else {
-      calendar.setOption('initialView', 'dayGridMonth');
       calendar.setOption('headerToolbar', {
         left: 'today prev,next',
         center: 'title',
-        right: 'listDay,dayGridMonth,multiMonthYear,listMonth'
+        right: 'listDay,dayGridMonth,multiMonthYear,listYear'
       });
     }
   }  

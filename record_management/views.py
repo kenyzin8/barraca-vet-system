@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
+from django.views.decorators.http import require_http_methods
 
 import json
 
@@ -119,7 +120,7 @@ def otp_view(request):
 @login_required
 def register_pet(request):
     if request.method == 'POST':
-        form = PetRegistrationForm(request.POST)
+        form = PetRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             pet = form.save(commit=False)
             pet.client = request.user.client
@@ -166,6 +167,6 @@ def delete_pet(request, pet_id):
 
 @login_required
 def pet_list(request):
-    pets = Pet.objects.filter(client=request.user.client)
+    pets = Pet.objects.filter(client=request.user.client).order_by('-id')
     context = {'pets': pets}
     return render(request, 'pet_list.html', context)

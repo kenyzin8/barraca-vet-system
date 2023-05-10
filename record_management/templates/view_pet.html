@@ -1,8 +1,15 @@
-{% extends 'frontend/base.html' %}
+{% extends 'customer_dashboard/base.html' %}
 
 {% block title %} Pet - {{ pet.name }} | Barraca Veterinary Clinic {% endblock %}
 
 {% block content %}
+<div class="container mt-5">
+    <nav class="mt-4 rounded mb-5" aria-label="breadcrumb">
+        <ol class="breadcrumb py-2 rounded mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'pet-list-page' %}">My Pets</a></li>
+            <li class="breadcrumb-item active">{{ pet.name }}</li>
+        </ol>
+    </nav>
     <h2>{{ pet.name }}</h2>
     <p>Species: {{ pet.species }}</p>
     <p>Breed: {{ pet.breed }}</p>
@@ -10,6 +17,8 @@
     <p>Gender: {{ pet.gender }}</p>
     <p>Owner: {{ pet.client }}</p>
 
+    <a href="{% url 'pet-list-page' %}">Back</a>
     <a href="{% url 'update-pet-page' pet.id %}">Edit</a>
     <a href="{% url 'delete-pet-page' pet.id %}">Delete</a>
+</div>
 {% endblock %}

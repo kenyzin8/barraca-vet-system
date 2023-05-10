@@ -25,7 +25,7 @@
                         <div class="nav-link-icon"><i data-feather="activity"></i></div>
                         Dashboard
                     </a>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if current_url_name == 'pet-list-page' or current_url_name == 'register-pet-page' or current_url_name == 'view-pet-page' or current_url_name == 'update-pet-page' or current_url_name == 'delete-pet-page' or current_url_name == 'pet-success-page' %} active {% endif %}" href="{% url 'pet-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="gitlab"></i></div>
                         My Pets
                     </a>

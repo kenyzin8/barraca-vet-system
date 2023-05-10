@@ -1,8 +1,18 @@
-{% extends 'frontend/base.html' %}
+{% extends 'customer_dashboard/base.html' %}
 
 {% block title %} Registration Success | Barraca Veterinary Clinic {% endblock %}
 
 {% block content %}
+<div class="container mt-5">
   <h2>Pet Registration Successful!</h2>
   <p>Thank you for registering your pet. Your pet registration is now complete.</p>
+</div>
+
+<script>
+  // Wait for 2 seconds (2000 milliseconds)
+  setTimeout(function() {
+    // Redirect the user to the pet list page
+    window.location.href = "{% url 'pet-list-page' %}";
+  }, 1500);
+</script>
 {% endblock %}

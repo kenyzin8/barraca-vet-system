@@ -1,12 +1,23 @@
-{% extends 'frontend/base.html' %}
+{% extends 'customer_dashboard/base.html' %}
 
 {% block title %} Update Pet | Barraca Veterinary Clinic {% endblock %}
 
 {% block content %}
+<div class="container mt-5">
+    <nav class="mt-4 rounded mb-5" aria-label="breadcrumb">
+        <ol class="breadcrumb py-2 rounded mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'pet-list-page' %}">My Pets</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'view-pet-page' pet.id %}">{{ pet.name }}</a></li>
+            <li class="breadcrumb-item active">Update</li>
+        </ol>
+    </nav>
     <h2>Edit Pet</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        <a href="{% url 'view-pet-page' pet.id %}">Cancel</a>
         <button type="submit">Update Pet</button>
     </form>
+</div>
+
 {% endblock %}

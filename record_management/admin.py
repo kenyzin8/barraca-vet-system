@@ -11,7 +11,7 @@ class ClientAdmin(admin.ModelAdmin):
     email.short_description = 'Email'
 
 class PetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'species', 'breed', 'age', 'gender', 'client')
+    list_display = ('name', 'birthday', 'breed', 'gender', 'color', 'weight', 'picture', 'species')
     search_fields = ('name', 'species', 'client__first_name', 'client__last_name')
 
 

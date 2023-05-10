@@ -1,45 +1,85 @@
-{% extends 'frontend/base.html' %}
+{% extends 'customer_dashboard/base.html' %}
 
-{% block title %} Pets | Barraca Veterinary Clinic {% endblock %}
+{% load static %}
+
+{% block title %} My Pets | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
+<style>
+    .card {
+        box-shadow: none;
+    }
+
+    .card-custom {
+    width: calc(25% - 10px);
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.card-custom .card-img-top {
+    height: 200px; /* Adjust the height according to your needs */
+    object-fit: cover;
+}
+
+.card-custom .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+    .card-deck-custom {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        max-width: 100%;
+        margin: 0 -5px;
+    }
+    .custom-btn {
+        width: 100%;
+        background: #121212;
+        border: none;
+    }
+
+    @media (max-width: 991px) {
+        .card {
+            margin: 0 auto;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        .card-custom {
+            width: 100%; 
+            margin-right: 0; 
+        }
+        .card-deck-custom {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+        }
+    }
+
+</style>
+{% endblock %}
+{% block header %}
+{% endblock %}
 
 {% block content %}
-{% include 'frontend/navbar.html' %}
-<div class="container">
-    <h2>Pet List</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Species</th>
-                <th>Breed</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Owner</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pet in pets %}
-                <tr>
-                    <td>{{ pet.name }}</td>
-                    <td>{{ pet.species }}</td>
-                    <td>{{ pet.breed }}</td>
-                    <td>{{ pet.age }}</td>
-                    <td>{{ pet.gender }}</td>
-                    <td>{{ pet.client }}</td>
-                    <td>
-                        <a href="{% url 'view-pet-page' pet.id %}">View</a>
-                        <a href="{% url 'update-pet-page' pet.id %}">Edit</a>
-                        <a href="{% url 'delete-pet-page' pet.id %}">Delete</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="5">You have no pets registered. Click <a href="{% url 'register-pet-page' %}">here</a> to register a pet.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container mt-5">
+    <h1>My Pets</h1> 
+    Click <a href="{% url 'register-pet-page' %}">here</a> to register another pet</p>
+    <div class="card-deck-custom">
+        {% for pet in pets %}
+        <div class="card card-custom">
+            <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}">
+            <div class="card-body">
+                <center><h5 class="card-title mt-3 mb-4">{{ pet.name }}</h5></center>
+                <a href="{% url 'view-pet-page' pet.id %}" class="btn btn-dark custom-btn">View Pet</a>
+                <a href="#" class="btn btn-dark custom-btn mt-2">Set Appointment</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
-
 {% endblock %}

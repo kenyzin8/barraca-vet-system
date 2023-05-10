@@ -125,16 +125,12 @@ def register_pet(request):
             pet = form.save(commit=False)
             pet.client = request.user.client
             pet.save()
-            return redirect('pet-success-page')
+            return redirect('pet-list-page')
     else:
         form = PetRegistrationForm()
 
     context = {'form': form}
     return render(request, 'pet_register.html', context)
-
-@login_required
-def pet_registration_success(request):
-    return render(request, 'pet_success.html')
 
 @login_required
 def view_pet(request, pet_id):
@@ -158,12 +154,12 @@ def update_pet(request, pet_id):
 
 @login_required
 def delete_pet(request, pet_id):
-    pet = get_object_or_404(Pet, id=pet_id)
     if request.method == 'POST':
+        pet = get_object_or_404(Pet, id=pet_id)
         pet.delete()
-        return redirect('pet-list-page')
-    context = {'pet': pet}
-    return render(request, 'delete_pet.html', context)
+        return JsonResponse({'result': 'success'})
+    else:
+        return JsonResponse({'result': 'error', 'message': 'Invalid request method'})
 
 @login_required
 def pet_list(request):

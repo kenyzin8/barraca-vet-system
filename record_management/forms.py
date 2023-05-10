@@ -54,15 +54,15 @@ class CombinedRegistrationForm(UserCreationForm):
 #     otp_code = forms.CharField(required=False, widget=forms.HiddenInput())
 
 class PetRegistrationForm(forms.ModelForm):
-    name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter pet name'}))
-    birthday = forms.DateField(widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}))
-    species = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter species'}))
-    breed = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter breed'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control', 'placeholder': 'Enter pet name'}))
+    birthday = forms.DateField(widget=forms.DateInput(attrs={'id': 'birthday', 'class': 'form-control', 'type': 'date'}))
+    species = forms.CharField(widget=forms.TextInput(attrs={'id': 'species', 'class': 'form-control', 'placeholder': 'Enter species'}))
+    breed = forms.CharField(widget=forms.TextInput(attrs={'id': 'breed', 'class': 'form-control', 'placeholder': 'Enter breed'}))
     gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')],
-                                widget=forms.Select(attrs={'class': 'form-select'}))
-    color = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter color'}))
-    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Enter weight'}))
-    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
+                                widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
+    color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color'}))
+    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight'}))
+    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control'}))
 
     class Meta:
         model = Pet

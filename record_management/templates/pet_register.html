@@ -32,7 +32,7 @@
         <div class="card mb-4">
             <div class="card-header">Add Pet</div>
             <div class="card-body">
-              <form method="post" enctype="multipart/form-data">
+              <form id="pet_registration_form" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="row gx-3 mb-3">
                   <div class="col-md-6">
@@ -74,12 +74,71 @@
                       {{ form.picture }}
                   </div>
                 </div>
-                <button class="btn btn-dark" type="submit">Add Pet</button>
+                <button class="btn btn-dark" type="button" id="addPetButton">Add Pet</button>
+                <!-- <button class="btn btn-dark" type="submit">Add Pet</button> -->
               </form>
             </div>
         </div>
     </div>
   </div>
 </div>
+<!-- Add Pet Confirmation Modal -->
+<div class="modal fade" id="addPetConfirmationModal" tabindex="-1" aria-labelledby="addPetConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPetConfirmationModalLabel">Add Pet Confirmation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to add this pet?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-dark" type="submit" form="pet_registration_form">Add Pet</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Missing Fields -->
+<div class="modal fade" id="addPetMissingFields" tabindex="-1" aria-labelledby="addPetMissingFieldsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPetMissingFieldsLabel">Error</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Missing fields
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
 
+{% block extrascripts %}
+<script>
+  document.getElementById("addPetButton").addEventListener("click", function() {
+    const name = document.getElementById("name").value;
+    const birthday = document.getElementById("birthday").value;
+    const species = document.getElementById("species").value;
+    const breed = document.getElementById("breed").value;
+    const gender = document.getElementById("gender").value;
+    const color = document.getElementById("color").value;
+    const weight = document.getElementById("weight").value;
+    const picture = document.getElementById("picture").value;
+
+    if (!name || !birthday || !species || !breed || !gender || !color || !weight || !picture) {
+      const modal = new bootstrap.Modal(document.getElementById("addPetMissingFields"));
+      modal.show();
+    } else {
+      const modal = new bootstrap.Modal(document.getElementById("addPetConfirmationModal"));
+      modal.show();
+    }
+  });
+  </script>
+  
 {% endblock %}

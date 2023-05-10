@@ -135,12 +135,20 @@ def register_pet(request):
 @login_required
 def view_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
+
+    if pet.client != request.user.client:
+        return redirect('pet-list-page')
+
     context = {'pet': pet}
     return render(request, 'view_pet.html', context)
 
 @login_required
 def update_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
+
+    if pet.client != request.user.client:
+        return redirect('pet-list-page')
+
     if request.method == 'POST':
         form = PetRegistrationForm(request.POST, request.FILES, instance=pet)
         if form.is_valid():
@@ -156,6 +164,10 @@ def update_pet(request, pet_id):
 def delete_pet(request, pet_id):
     if request.method == 'POST':
         pet = get_object_or_404(Pet, id=pet_id)
+
+        if pet.client != request.user.client:
+            return redirect('pet-list-page')
+
         pet.delete()
         return JsonResponse({'result': 'success'})
     else:

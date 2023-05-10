@@ -77,6 +77,7 @@ MIDDLEWARE = [
 # WhiteNoise Configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+WHITENOISE_ROOT = os.path.join(BASE_DIR, 'media')
 WHITENOISE_MAX_AGE = 60 * 60 * 24 * 30  # Cache for 30 days
 
 ROOT_URLCONF = 'barraca.urls'

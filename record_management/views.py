@@ -146,7 +146,7 @@ def view_pet(request, pet_id):
 def update_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
     if request.method == 'POST':
-        form = PetRegistrationForm(request.POST, instance=pet)
+        form = PetRegistrationForm(request.POST, request.FILES, instance=pet)
         if form.is_valid():
             form.save()
             return redirect('view-pet-page', pet_id=pet.id)

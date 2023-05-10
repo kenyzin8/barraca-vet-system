@@ -2,6 +2,16 @@
 
 {% block title %} Update Pet | Barraca Veterinary Clinic {% endblock %}
 
+{% block extrastyles %}
+<style>
+  
+  .small
+  {
+    font-weight: 700;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
     <nav class="mt-4 rounded mb-5" aria-label="breadcrumb">
@@ -11,13 +21,71 @@
             <li class="breadcrumb-item active">Update</li>
         </ol>
     </nav>
-    <h2>Edit Pet</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <a href="{% url 'view-pet-page' pet.id %}">Cancel</a>
-        <button type="submit">Update Pet</button>
-    </form>
+    <div class="row mt-5">
+        <div class="col-xl-8">
+            <!-- Account details card-->
+            <div class="card mb-4">
+                <div class="card-header">Update Pet</div>
+                <div class="card-body">
+                  <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row gx-3 mb-3">
+                      <div class="col-md-6">
+                          <label class="small mb-1" for="inputFirstName">Name</label>
+                          {{ form.name }}
+                      </div>
+                      <div class="col-md-6">
+                          <label class="small mb-1" for="inputLastName">Birthday</label>
+                          {{ form.birthday }}
+                      </div>
+                    </div>
+                    <div class="row gx-3 mb-3">
+                      <div class="col-md-6">
+                          <label class="small mb-1" for="inputFirstName">Specie</label>
+                          {{ form.species }}
+                      </div>
+                      <div class="col-md-6">
+                          <label class="small mb-1" for="inputLastName">Breed</label>
+                          {{ form.breed }}
+                      </div>
+                    </div>
+                    <div class="row gx-3 mb-3">
+                      <div class="col-md-6">
+                          <label class="small mb-1" for="inputFirstName">Gender</label>
+                          {{ form.gender }}
+                      </div>
+                      <div class="col-md-6">
+                          <label class="small mb-1" for="inputLastName">Color</label>
+                          {{ form.color }}
+                      </div>
+                    </div>
+                    <div class="row gx-3 mb-3">
+                      <div class="col-md-6">
+                          <label class="small mb-1" for="inputFirstName">Weight</label>
+                          {{ form.weight }}
+                      </div>
+                      <div class="col-md-6">
+                          <label class="small mb-1" for="inputLastName">Picture</label><br>
+                          {{ form.picture }}
+                      </div>
+                    </div>
+                    <button class="btn btn-dark" type="submit">Update Pet</button>
+                  </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <!-- Profile picture card-->
+            <div class="card mb-4 mb-xl-0">
+                <div class="card-header">Pet Picture</div>
+                <div class="card-body text-center">
+                    <img class="img-account-profile mb-2" style="border-radius: 10px;" src="{{ pet.picture.url }}" alt="" />
+                    <br>
+                    <label class="small mb-1">{{ pet.name }}</label>
+                </div>
+            </div>
+        </div>
+      </div>
 </div>
 
 {% endblock %}

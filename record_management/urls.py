@@ -1,8 +1,9 @@
-from django.urls import path
+from django.urls import path, re_path
 from django.contrib.auth import views as auth_views
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 
 urlpatterns = [
     path('register/', views.register_user, name='register-user-page'),
@@ -18,6 +19,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login-page'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout-page'),
     path('otp/', views.otp_view, name='otp_view'),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

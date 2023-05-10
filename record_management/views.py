@@ -162,12 +162,12 @@ def update_pet(request, pet_id):
 
 @login_required
 def delete_pet(request, pet_id):
+    pet = get_object_or_404(Pet, id=pet_id)
+    
+    if pet.client != request.user.client:
+        return redirect('pet-list-page')
+
     if request.method == 'POST':
-        pet = get_object_or_404(Pet, id=pet_id)
-
-        if pet.client != request.user.client:
-            return redirect('pet-list-page')
-
         pet.delete()
         return JsonResponse({'result': 'success'})
     else:

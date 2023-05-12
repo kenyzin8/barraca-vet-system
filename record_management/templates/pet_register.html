@@ -150,6 +150,20 @@
 </script>
 {% endif %}
 <script>
+  $(document).ready(function(){
+      $('#weight').on('keydown', function(e) {
+          var value = $(this).val();
+          var decimal_point_index = value.indexOf('.');
+          if (e.key === '-' || e.key === 'e' || (decimal_point_index >= 0 && value.length - decimal_point_index > 2 && 
+             !(e.key === 'Backspace' || e.key === 'Delete' || e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) {
+              e.preventDefault();
+          }
+      }).bind("cut copy paste",function(e) {
+        e.preventDefault();
+      });
+  });
+</script>
+<script>
   document.getElementById("addPetButton").addEventListener("click", function() {
     const name = document.getElementById("name").value;
     const birthday = document.getElementById("birthday").value;

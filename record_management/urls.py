@@ -18,7 +18,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login-page'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout-page'),
     path('otp/', views.otp_view, name='otp_view'),
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    # re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
 #urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

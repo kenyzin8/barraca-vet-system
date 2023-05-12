@@ -61,7 +61,7 @@ class PetRegistrationForm(forms.ModelForm):
     gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')],
                                 widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
     color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color'}))
-    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight'}))
+    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01'}))
     picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control'}), validators=[validate_image_size])
 
     class Meta:

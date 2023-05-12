@@ -27,7 +27,7 @@ class Pet(models.Model):
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female')])
     color = models.CharField(max_length=50)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
-    picture = models.ImageField(upload_to='images/pets/')
+    picture = models.ImageField(upload_to='public/images/')
     
     def __str__(self):
         return f"{self.name} ({self.species})"

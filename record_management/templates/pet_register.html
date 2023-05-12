@@ -82,8 +82,29 @@
     </div>
   </div>
 </div>
+<!-- Picture Error Modal -->
+<div class="modal fade" id="errorModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="errorModalLabel" style="color: red;">Error</h5>
+              <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="error-message">
+              <!-- message here -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-dark" type="button" data-bs-dismiss="modal">
+              OK
+            </button>
+          </div>
+      </div>
+  </div>
+</div>
 <!-- Add Pet Confirmation Modal -->
-<div class="modal fade" id="addPetConfirmationModal" tabindex="-1" aria-labelledby="addPetConfirmationModalLabel" aria-hidden="true">
+<div class="modal fade" id="addPetConfirmationModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="addPetConfirmationModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -101,15 +122,15 @@
   </div>
 </div>
 <!-- Missing Fields -->
-<div class="modal fade" id="addPetMissingFields" tabindex="-1" aria-labelledby="addPetMissingFieldsLabel" aria-hidden="true">
+<div class="modal fade" id="addPetMissingFields" data-bs-backdrop="static" tabindex="-1" aria-labelledby="addPetMissingFieldsLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="addPetMissingFieldsLabel">Error</h5>
+        <h5 class="modal-title" id="addPetMissingFieldsLabel" style="color: red;">Error</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Missing fields
+        Missing fields.
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
@@ -120,6 +141,14 @@
 {% endblock %}
 
 {% block extrascripts %}
+{% if form.picture.errors %}
+<script>
+  $(document).ready(function(){
+    $('#error-message').text("{{ form.picture.errors|striptags }}");
+    $('#errorModal').modal('show');
+  });
+</script>
+{% endif %}
 <script>
   document.getElementById("addPetButton").addEventListener("click", function() {
     const name = document.getElementById("name").value;

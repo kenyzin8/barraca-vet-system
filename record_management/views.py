@@ -33,6 +33,7 @@ def login_view(request):
             otp_code = send_otp_sms(phone_number)
 
             request.session['otp_code'] = otp_code
+            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=5)).timestamp()
             request.session['temp_user_id'] = user.id
             request.session['temp_user_session'] = request.session.session_key
             request.session.save()

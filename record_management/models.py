@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
+import datetime
 
 class Client(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='client')
@@ -17,7 +18,6 @@ class Client(models.Model):
     class Meta:
         verbose_name_plural = "Clients"
 
-import datetime
 
 class Pet(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)

@@ -11,10 +11,11 @@ from datetime import datetime, timedelta
 
 import json
 
-from .forms import PetRegistrationForm, LoginForm, CombinedRegistrationForm
+from .forms import PetRegistrationForm, LoginForm, UserRegistrationForm, UserUpdateForm, ClientUpdateForm
 from .models import Client, Pet
 from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
+from core.decorators import staff_required
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -48,7 +49,7 @@ def register_user(request):
         return redirect('home')
 
     if request.method == 'POST':
-        form = CombinedRegistrationForm(request.POST)
+        form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.is_active = False
@@ -72,10 +73,56 @@ def register_user(request):
 
             return redirect('otp_view')
     else:
-        form = CombinedRegistrationForm()
+        form = UserRegistrationForm()
 
     context = {'form': form}
     return render(request, 'client_register.html', context)
+
+@login_required
+def client_profile_view(request):
+    user = request.user
+    client = get_object_or_404(Client, user=user)
+
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=user)
+        client_form = ClientUpdateForm(request.POST, instance=client)
+
+        if user_form.is_valid() and client_form.is_valid():
+            user_form.save()
+            client_form.save()
+            return redirect('client-account-settings-page')
+        # else:
+        #     print(user_form.errors) 
+        #     print(client_form.errors)
+    else:
+        user_form = UserUpdateForm(instance=user)
+        client_form = ClientUpdateForm(instance=client)
+
+    context = {'user_form': user_form, 'client_form': client_form}
+
+    return render(request, 'client_account_settings.html', context)
+
+@login_required
+@staff_required
+def admin_profile_view(request):
+    user = request.user
+    client = get_object_or_404(Client, user=user)
+
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=user)
+        client_form = ClientUpdateForm(request.POST, instance=client)
+
+        if user_form.is_valid() and client_form.is_valid():
+            user_form.save()
+            client_form.save()
+            return redirect('admin-account-settings-page')
+    else:
+        user_form = UserUpdateForm(instance=user)
+        client_form = ClientUpdateForm(instance=client)
+
+    context = {'user_form': user_form, 'client_form': client_form}
+
+    return render(request, 'admin_account_settings.html', context)
 
 @csrf_exempt
 def otp_view(request):
@@ -122,6 +169,7 @@ def otp_view(request):
             return render(request, 'otp.html', {'contact_number': contact_number, 'time_remaining': time_remaining})
         else:
             return HttpResponse("An error occurred. Please try again.")
+
 
 @csrf_exempt
 def resend_otp(request):

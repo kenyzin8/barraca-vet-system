@@ -1,0 +1,90 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Account Settings | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+
+{% endblock %}
+
+{% block content %}
+<main>
+    <!-- Main page content-->
+    <div class="container-xl px-4 mt-4">
+        <!-- Account page navigation-->
+        <nav class="nav nav-borders">
+            <a class="nav-link active ms-0" href="{% url 'admin-account-settings-page' %}">Account Settings</a>
+            <!-- <a class="nav-link" href="account-billing.html">Billing</a>
+            <a class="nav-link" href="account-security.html">Security</a>
+            <a class="nav-link" href="account-notifications.html">Notifications</a> -->
+        </nav>
+        <hr class="mt-0 mb-4" />
+        <div class="row">
+            <div class="col-xl-4">
+                <div class="card mb-4 mb-xl-0">
+                    <div class="card-header">Profile Picture</div>
+                    <div class="card-body text-center">
+                        <img class="img-account-profile rounded-circle mb-2" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" alt="" />
+                        <br>
+                        <br>
+                        <div class="small font-italic text-muted mb-4">Your profile picture is based on your gender</div>
+                        <!-- <button class="btn btn-primary" type="button">Select new image</button> -->
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-8">
+                <div class="card mb-4">
+                    <div class="card-header">Account Details</div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="small mb-1" for="inputUsername">Username</label>
+                                {{ user_form.username }}
+                            </div>
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputFirstName">First name</label>
+                                    {{ client_form.first_name }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLastName">Last name</label>
+                                    {{ client_form.last_name }}
+                                </div>
+                            </div>
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputOrgName">Gender</label>
+                                    {{ client_form.gender }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLocation">Email</label>
+                                    {{ user_form.email }}
+                                </div>
+                            </div>
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputOrgName">Contact Number</label>
+                                    {{ client_form.contact_number }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLocation">Address</label>
+                                    {{ client_form.address }}
+                                </div>
+                            </div>
+                            <button class="btn btn-dark" type="submit">Save changes</button>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+{% block extrascripts %}
+
+{% endblock %}

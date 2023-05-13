@@ -4,11 +4,34 @@ from .models import Client, Pet
 from .validators import validate_phone_number, validate_image_size
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 User = get_user_model()
 
-class CombinedRegistrationForm(UserCreationForm):
+class UserUpdateForm(UserChangeForm):
+    username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Username'}))
+    email = forms.CharField(required=True, widget=forms.EmailInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Email'}))
+    
+    class Meta:
+        model = User
+        fields = ('username', 'email',)
+
+class ClientUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name'}))
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
+    gender = forms.ChoiceField(
+        choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],
+        widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}),
+        initial=''
+    )
+    address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;'}))
+    contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number'}))
+
+    class Meta:
+        model = Client
+        fields = ('first_name', 'last_name', 'gender', 'address', 'contact_number', 'two_auth_enabled',)
+
+class UserRegistrationForm(UserCreationForm):
     username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Username'}))
     password1 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Password'}))
     password2 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Confirm Password'}))

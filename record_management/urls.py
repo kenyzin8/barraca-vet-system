@@ -7,9 +7,7 @@ from django.views.static import serve
 
 urlpatterns = [
     path('register/', views.register_user, name='register-user-page'),
-    # path('register/client/', views.register_client, name='register-client-page'),
-    #path('register/cancel/', views.cancel_registration, name='cancel-registration-page'), 
-    #path('success/', views.registration_success, name='client-success-page'),
+    path('client/account-settings/', views.client_profile_view, name='client-account-settings-page'),
     path('my-pets/', views.pet_list, name='pet-list-page'),
     path('register-pet/', views.register_pet, name='register-pet-page'),
     path('my-pets/view-pet/<int:pet_id>/', views.view_pet, name='view-pet-page'),
@@ -19,8 +17,16 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout-page'),
     path('otp/', views.otp_view, name='otp_view'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),
+
+    #BACKEND-ADMIN-SIDE
+    path('admin/account-settings/', views.admin_profile_view, name='admin-account-settings-page'),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 #urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    # path('register/client/', views.register_client, name='register-client-page'),
+    #path('register/cancel/', views.cancel_registration, name='cancel-registration-page'), 
+    #path('success/', views.registration_success, name='client-success-page'),

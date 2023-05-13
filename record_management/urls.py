@@ -18,6 +18,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login-page'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout-page'),
     path('otp/', views.otp_view, name='otp_view'),
+    path('resend-otp/', views.resend_otp, name='resend_otp'),
 ]
 
 if settings.DEBUG:

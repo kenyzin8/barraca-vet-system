@@ -47,10 +47,10 @@
               {{ form.last_name }}
             </div>
             <div class="mb-3">
-              {{ form.address }}
+              {{ form.gender }}
             </div>
             <div class="mb-3">
-              {{ form.contact_number }}
+              {{ form.address }}
             </div>
           </div>
           
@@ -58,6 +58,9 @@
           <div class="col-md-6">
             <div class="mb-3">
               {{ form.username }}
+            </div>
+            <div class="mb-3">
+              {{ form.contact_number }}
             </div>
             <div class="mb-3">
               {{ form.email }}
@@ -187,5 +190,8 @@
           document.querySelector('input').blur();
         });
       </script>
+      <script>
+        document.getElementById("gender").options[0].disabled = true;
+    </script>
     </body>
 </html>

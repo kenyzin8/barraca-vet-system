@@ -176,3 +176,8 @@ body
   align-items: center;
   height: 100%; /* or any desired height */
 }
+
+.multitext-custom
+{
+  height: 104px;
+}

@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
+from datetime import datetime, timedelta
 
 import json
 
@@ -63,6 +64,7 @@ def register_user(request):
             otp_code = send_otp_sms(phone_number)
 
             request.session['otp_code'] = otp_code
+            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=5)).timestamp()  # 5 minutes from now
             request.session['temp_user_id'] = user.id
             request.session['temp_user_session'] = request.session.session_key
             request.session.save()
@@ -76,18 +78,22 @@ def register_user(request):
 
 @csrf_exempt
 def otp_view(request):
-    # if request.session.session_key != request.session['temp_user_session']:
-    #     return HttpResponse("Unauthorized access.", status=403)
-
+    otp_expiration_timestamp = request.session.get('otp_code_expiration', 0)
+    time_remaining = max(0, int(otp_expiration_timestamp - datetime.now().timestamp()))
+    user_id = request.session.get('temp_user_id')
+    otp_expired = False
     if request.method == 'POST':
         entered_otp_code = int(request.POST.get('otp_code'))
         stored_otp_code = int(request.session.get('otp_code', None))
 
+        if datetime.now().timestamp() > otp_expiration_timestamp:
+            otp_expired = True
+            return render(request, 'otp.html', {'error_message': 'Expired OTP. Please try again.', 'time_remaining': time_remaining, 'otp_expired': otp_expired})
+
         if entered_otp_code != stored_otp_code:
-            return render(request, 'otp.html', {'error_message': 'Invalid OTP. Please try again.'})
+            return render(request, 'otp.html', {'error_message': 'Invalid OTP. Please try again.', 'time_remaining': time_remaining})
 
         if entered_otp_code == stored_otp_code:
-            user_id = request.session.get('temp_user_id')
             if user_id:
                 user = User.objects.get(id=user_id)
                 user.is_active = True
@@ -97,25 +103,43 @@ def otp_view(request):
 
                 del request.session['temp_user_id']
                 del request.session['otp_code']
+                del request.session['otp_code_expiration']
                 del request.session['temp_user_session']
             
                 return redirect('home')
             else:
                 return HttpResponse("An error occurred. Please try again.")
         else:
-            user_id = request.session.get('temp_user_id')
             if user_id:
                 user = User.objects.get(id=user_id)
                 user.delete()
             return HttpResponse("Invalid OTP. Please try again.")
     else:
-        user_id = request.session.get('temp_user_id')
         if user_id:
             user = User.objects.get(id=user_id)
             contact_number = user.client.contact_number
-            return render(request, 'otp.html', {'contact_number': contact_number})
+            return render(request, 'otp.html', {'contact_number': contact_number, 'time_remaining': time_remaining})
         else:
             return HttpResponse("An error occurred. Please try again.")
+
+@csrf_exempt
+def resend_otp(request):
+    user_id = request.session.get('temp_user_id')
+    if user_id:
+        user = User.objects.get(id=user_id)
+        phone_number = user.client.contact_number
+        otp_code = send_otp_sms(phone_number)
+
+        if 'otp_code' in request.session:
+            del request.session['otp_code']
+        if 'otp_code_expiration' in request.session:
+            del request.session['otp_code_expiration']
+
+        request.session['otp_code'] = otp_code
+        request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=5)).timestamp()
+        return redirect('otp_view')
+    else:
+        return HttpResponse("An error occurred. Please try again.")
 
 @login_required
 def register_pet(request):

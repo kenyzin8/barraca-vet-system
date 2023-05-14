@@ -14,7 +14,7 @@
             perPageSelect: [5, 10, 25, 50],
             perPage: 10,
             fixedHeight: true,
-            sortable: false,
+            sortable: true,
             searchable: true,
             hiddenHeader: false,
         });
@@ -28,9 +28,10 @@
     <div class="card mt-5 mb-5 card-collapsable">
         <a class="card-header" href="#collapseCardExample" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
             Clients
-            <div class="card-collapsable-arrow">
+            <button class="btn btn-dark btn-sm">Print</button>
+            <!-- <div class="card-collapsable-arrow">
                 <i class="fas fa-chevron-down"></i>
-            </div>
+            </div> -->
         </a>
         <div class="collapse show" id="collapseCardExample">
           <div class="card-body">

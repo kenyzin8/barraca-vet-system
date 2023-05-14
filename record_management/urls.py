@@ -20,6 +20,8 @@ urlpatterns = [
 
     #BACKEND-ADMIN-SIDE
     path('admin/account-settings/', views.admin_profile_view, name='admin-account-settings-page'),
+    path('admin/client-list/', views.client_module, name='admin-client-list-page'),
+    path('admin/pet-list/', views.pet_module, name='admin-pet-list-page'),
 ]
 
 

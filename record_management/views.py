@@ -42,7 +42,7 @@ def login_view(request):
             return redirect('otp_view')
     else:
         form = LoginForm()
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'client/login.html', {'form': form})
 
 def register_user(request):
     if request.user.is_authenticated:
@@ -76,7 +76,7 @@ def register_user(request):
         form = UserRegistrationForm()
 
     context = {'form': form}
-    return render(request, 'client_register.html', context)
+    return render(request, 'client/client_register.html', context)
 
 @login_required
 def client_profile_view(request):
@@ -100,29 +100,7 @@ def client_profile_view(request):
 
     context = {'user_form': user_form, 'client_form': client_form}
 
-    return render(request, 'client_account_settings.html', context)
-
-@login_required
-@staff_required
-def admin_profile_view(request):
-    user = request.user
-    client = get_object_or_404(Client, user=user)
-
-    if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=user)
-        client_form = ClientUpdateForm(request.POST, instance=client)
-
-        if user_form.is_valid() and client_form.is_valid():
-            user_form.save()
-            client_form.save()
-            return redirect('admin-account-settings-page')
-    else:
-        user_form = UserUpdateForm(instance=user)
-        client_form = ClientUpdateForm(instance=client)
-
-    context = {'user_form': user_form, 'client_form': client_form}
-
-    return render(request, 'admin_account_settings.html', context)
+    return render(request, 'client/client_account_settings.html', context)
 
 @csrf_exempt
 def otp_view(request):
@@ -136,10 +114,10 @@ def otp_view(request):
 
         if datetime.now().timestamp() > otp_expiration_timestamp:
             otp_expired = True
-            return render(request, 'otp.html', {'error_message': 'Expired OTP. Please try again.', 'time_remaining': time_remaining, 'otp_expired': otp_expired})
+            return render(request, 'client/otp.html', {'error_message': 'Expired OTP. Please try again.', 'time_remaining': time_remaining, 'otp_expired': otp_expired})
 
         if entered_otp_code != stored_otp_code:
-            return render(request, 'otp.html', {'error_message': 'Invalid OTP. Please try again.', 'time_remaining': time_remaining})
+            return render(request, 'client/otp.html', {'error_message': 'Invalid OTP. Please try again.', 'time_remaining': time_remaining})
 
         if entered_otp_code == stored_otp_code:
             if user_id:
@@ -166,10 +144,9 @@ def otp_view(request):
         if user_id:
             user = User.objects.get(id=user_id)
             contact_number = user.client.contact_number
-            return render(request, 'otp.html', {'contact_number': contact_number, 'time_remaining': time_remaining})
+            return render(request, 'client/otp.html', {'contact_number': contact_number, 'time_remaining': time_remaining})
         else:
             return HttpResponse("An error occurred. Please try again.")
-
 
 @csrf_exempt
 def resend_otp(request):
@@ -203,7 +180,7 @@ def register_pet(request):
         form = PetRegistrationForm()
 
     context = {'form': form}
-    return render(request, 'pet_register.html', context)
+    return render(request, 'client/pet_register.html', context)
 
 @login_required
 def view_pet(request, pet_id):
@@ -213,7 +190,7 @@ def view_pet(request, pet_id):
         return redirect('pet-list-page')
 
     context = {'pet': pet}
-    return render(request, 'view_pet.html', context)
+    return render(request, 'client/view_pet.html', context)
 
 @login_required
 def update_pet(request, pet_id):
@@ -231,7 +208,7 @@ def update_pet(request, pet_id):
         form = PetRegistrationForm(instance=pet)
     
     context = {'form': form, 'pet': pet}
-    return render(request, 'update_pet.html', context)
+    return render(request, 'client/update_pet.html', context)
 
 @login_required
 def delete_pet(request, pet_id):
@@ -250,4 +227,43 @@ def delete_pet(request, pet_id):
 def pet_list(request):
     pets = Pet.objects.filter(client=request.user.client).order_by('-id')
     context = {'pets': pets}
-    return render(request, 'pet_list.html', context)
+    return render(request, 'client/pet_list.html', context)
+
+#--------------------ADMIN-SIDE-BACKEND--------------------
+from django.db.models import Count
+
+@login_required
+@staff_required
+def admin_profile_view(request):
+    user = request.user
+    client = get_object_or_404(Client, user=user)
+
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=user)
+        client_form = ClientUpdateForm(request.POST, instance=client)
+
+        if user_form.is_valid() and client_form.is_valid():
+            user_form.save()
+            client_form.save()
+            return redirect('admin-account-settings-page')
+    else:
+        user_form = UserUpdateForm(instance=user)
+        client_form = ClientUpdateForm(instance=client)
+
+    context = {'user_form': user_form, 'client_form': client_form}
+
+    return render(request, 'admin/admin_account_settings.html', context)
+
+@staff_required
+@login_required
+def client_module(request):
+    clients = Client.objects.annotate(total_pets=Count('pet'))
+    context = {'clients': clients}
+    return render(request, 'admin/client_module.html', context)
+
+@staff_required
+@login_required
+def pet_module(request):
+    pets = Pet.objects.all()
+    context = {'pets': pets}
+    return render(request, 'admin/pet_module.html', context)

@@ -1,12 +1,14 @@
 
 body {
-    overflow: hidden;
+    overflow: auto;
 }
+
 .header-barraca
 {
   font-size: 4rem;
-  margin-top: 190px
+  margin-top: 110px
 }
+
 .title-barraca
 {
   text-align: center;
@@ -60,7 +62,7 @@ body
 
 .barraca-title
 {
-  margin-top: 50px;
+  padding-top: 50px;
   cursor: default;
 }
 
@@ -108,6 +110,14 @@ body
   width: 40%;
 }
 
+#layoutAuthentication {
+  min-height: 0px;
+}
+
+#layoutAuthentication {
+margin-top: 132px;
+}
+
 @media (max-width: 1200px) {
     body {
         overflow: auto;
@@ -117,6 +127,7 @@ body
     position: static;
     text-align: center;
     padding: 10px;
+    padding-top: 50px;
   }
 
   .title-barraca
@@ -161,9 +172,11 @@ body
   .create-acc {
     margin-bottom: 20px;
   }  
-}
-#layoutAuthentication {
-    min-height: 0px;
+
+  #layoutAuthentication
+  {
+    margin-top: 0px;
+  }
 }
 
 .wider-input {

@@ -19,11 +19,7 @@ class UserUpdateForm(UserChangeForm):
 class ClientUpdateForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name'}))
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
-    gender = forms.ChoiceField(
-        choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],
-        widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}),
-        initial=''
-    )
+    gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
     address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;'}))
     contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number'}))
 
@@ -32,19 +28,35 @@ class ClientUpdateForm(forms.ModelForm):
         fields = ('first_name', 'last_name', 'gender', 'address', 'contact_number', 'two_auth_enabled',)
 
 class UserRegistrationForm(UserCreationForm):
-    username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Username'}))
-    password1 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Password'}))
-    password2 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Confirm Password'}))
+    username = forms.CharField(required=True, widget=forms.TextInput(attrs={
+                                'class' : 'form-control rounded-left wider-input',
+                                'placeholder' : 'Username',
+                                'data-bs-toggle': 'tooltip',
+                                'data-bs-placement': 'right',
+                                'title': 'This will be your username for logging in.'}))
+    password1 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={
+                                'class' : 'form-control rounded-left wider-input',
+                                'placeholder' : 'Password',
+                                'data-bs-toggle': 'tooltip',
+                                'data-bs-placement': 'right',
+                                'title': 'This will be your password for logging in.'}))
+    password2 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={
+                                'class' : 'form-control rounded-left wider-input',
+                                'placeholder' : 'Confirm Password',
+                                'data-bs-toggle': 'tooltip',
+                                'data-bs-placement': 'right',
+                                'title': 'This will be your password for logging in.'}))
     email = forms.CharField(required=True, widget=forms.EmailInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Email'}))
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name'}))
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
-    gender = forms.ChoiceField(
-        choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],
-        widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}),
-        initial=''
-    )
+    gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')], widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
     address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;'}))
-    contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number'}), validators=[validate_phone_number], label='Contact Number')
+    contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={
+                                'class': 'form-control wider-input', 
+                                'placeholder': 'Contact Number',
+                                'data-bs-toggle': 'tooltip',
+                                'data-bs-placement': 'right',
+                                'title': "Input a valid number. It's for contact during appointments."}), validators=[validate_phone_number], label='Contact Number')
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

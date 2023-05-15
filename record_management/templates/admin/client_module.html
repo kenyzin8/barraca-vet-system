@@ -6,7 +6,29 @@
 
 {% block extrastyles %}
 <script>
+window.addEventListener('DOMContentLoaded', event => {
+    const datatablesSimple = document.getElementById('datatablesSimple');
+    if (datatablesSimple) {
+        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+            paging: true,
+            perPageSelect: [5, 10, 25, 50],
+            perPage: 10,
+            fixedHeight: true,
+            sortable: true,
+            searchable: true,
+            hiddenHeader: false,
+        });
 
+        dataTable.on('datatable.update', () => {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    }
+});
 </script>
 {% endblock %}
 
@@ -38,6 +60,9 @@
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-2"><img class="avatar-img img-fluid" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" /></div>
                                 {{ client.first_name }} {{ client.last_name }}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">
+                                    <i data-feather="external-link"></i>
+                                </a>
                             </div>
                         </td>
                         <td>{{ client.gender }}</td>
@@ -45,9 +70,6 @@
                         <td>{{ client.contact_number }}</td>
                         <td>{{ client.total_pets }}</td>
                         <td>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
-                                <i data-feather="external-link"></i>
-                            </a>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Billing Statement">
                                 <i data-feather="dollar-sign"></i>
                             </a>
@@ -63,5 +85,5 @@
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
-<script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script>
+<!-- <script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script> -->
 {% endblock %}

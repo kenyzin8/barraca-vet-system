@@ -5,7 +5,31 @@
 {% block title %} Pets | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
-
+<script>
+    window.addEventListener('DOMContentLoaded', event => {
+        const datatablesSimple = document.getElementById('datatablesSimple');
+        if (datatablesSimple) {
+            let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+    
+            dataTable.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+        }
+    });
+</script>
 {% endblock %}
 
 {% block content %}
@@ -31,14 +55,21 @@
                     {% for pet in pets %}
                     <tr>
                         <td>{{ pet.id }}</td>
-                        <td>{{ pet.name }}</td>
-                        <td>{{ pet.species }}</td>
-                        <td>{{ pet.birthday }}</td>
-                        <td >{{ pet.client.first_name }} {{ pet.client.last_name }}</td>
                         <td>
+                            {{ pet.name }}
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="right" title="View Pet">
                                 <i data-feather="external-link"></i>
                             </a>
+                        </td>
+                        <td>{{ pet.species }}</td>
+                        <td>{{ pet.birthday }}</td>
+                        <td >
+                            {{ pet.client.first_name }} {{ pet.client.last_name }} 
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
+                                <i data-feather="external-link"></i>
+                            </a>
+                        </td>
+                        <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="right" title="Encode Health Card">
                                 <i data-feather="credit-card"></i>
                             </a>
@@ -63,5 +94,5 @@
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
-<script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script>
+<!-- <script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script> -->
 {% endblock %}

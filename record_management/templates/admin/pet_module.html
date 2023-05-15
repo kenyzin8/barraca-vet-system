@@ -5,22 +5,7 @@
 {% block title %} Pets | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
-<script>
-    window.addEventListener('DOMContentLoaded', event => {
-    const datatablesSimple = document.getElementById('datatablesSimple');
-    if (datatablesSimple) {
-        new simpleDatatables.DataTable(datatablesSimple, {
-            paging: true,
-            perPageSelect: [5, 10, 25, 50],
-            perPage: 10,
-            fixedHeight: true,
-            sortable: true,
-            searchable: true,
-            hiddenHeader: false,
-        });
-    }
-    });
-</script>
+
 {% endblock %}
 
 {% block content %}
@@ -78,4 +63,5 @@
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script>
 {% endblock %}

@@ -119,19 +119,19 @@
         </div>
     </div>
     <div class="card card-collapsable card-waves mb-2 mt-2">
-        <a class="card-header" href="#petCollapse" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="petCollapse">
+        <a class="card-header {% if pets %}collapsed{% endif %}" href="#petCollapse" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="petCollapse">
             Client's {% if pets|length >= 1 %}Pets{% else %}Pet{% endif %} ({{ pets|length }})
             <div class="card-collapsable-arrow">
                 <i class="fas fa-chevron-down"></i>
             </div>
         </a>
-        <div class="collapse show" id="petCollapse">
+        <div class="collapse {% if not pets %}show{% endif %}" id="petCollapse">
             <div class="card-body">
                 <div class="card-deck-custom">
                     {% if pets %}
                         {% for pet in pets %}
                         <div class="card card-custom">
-                            <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}">
+                            <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}" loading="lazy">
                             <div class="card-body">
                                 <center>
                                     <div class=" mt-3 mb-4">

@@ -22,7 +22,25 @@
             .page-item:not(:first-child) .page-link, .page-item:not(:first-child) .datatable-pagination a, .datatable-pagination .page-item:not(:first-child) a, .datatable-pagination li:not(:first-child) .page-link, .datatable-pagination li:not(:first-child) a {
                 cursor: default;
             }
-            
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px; 
+                background: white;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: white;
+                border-radius: 3px;
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: rgba(0, 0, 0, 0.219);
+                border-radius: 3px;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: rgba(0, 0, 0, 0.315);
+            }
         </style>
     </head>
     <body class="nav-fixed bg-light">

@@ -120,7 +120,7 @@
     </div>
     <div class="card card-collapsable card-waves mb-2 mt-2">
         <a class="card-header {% if pets %}collapsed{% endif %}" href="#petCollapse" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="petCollapse">
-            Client's {% if pets|length >= 1 %}Pets{% else %}Pet{% endif %} ({{ pets|length }})
+            {{ client.first_name }}'s {% if pets|length >= 1 %}Pets{% else %}Pet{% endif %} ({{ pets|length }})
             <div class="card-collapsable-arrow">
                 <i class="fas fa-chevron-down"></i>
             </div>

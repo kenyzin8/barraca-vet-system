@@ -57,17 +57,20 @@
                         <td>{{ pet.id }}</td>
                         <td>
                             {{ pet.name }}
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="right" title="View Pet">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Pet">
                                 <i data-feather="external-link"></i>
                             </a>
                         </td>
                         <td>{{ pet.species }}</td>
                         <td>{{ pet.birthday }}</td>
                         <td >
-                            {{ pet.client.first_name }} {{ pet.client.last_name }} 
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
+                            {{ pet.client.full_name }}
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' pet.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
                                 <i data-feather="external-link"></i>
                             </a>
+                            {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}
+                            (You)
+                            {% endif %}
                         </td>
                         <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="right" title="Encode Health Card">

@@ -29,6 +29,11 @@ window.addEventListener('DOMContentLoaded', event => {
         });
     }
 });
+$(document).on('search', '#datatablesSimple input[type="search"]', function () {
+    // Trigger input event
+    $(this).trigger('input');
+});
+
 </script>
 {% endblock %}
 
@@ -59,10 +64,13 @@ window.addEventListener('DOMContentLoaded', event => {
                         <td >
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-2"><img class="avatar-img img-fluid" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" /></div>
-                                {{ client.first_name }} {{ client.last_name }}
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">
+                                {{ client.full_name }}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' client.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">
                                     <i data-feather="external-link"></i>
                                 </a>
+                                {% if request.user.is_authenticated and client.user.id == request.user.id %}
+                                (You)
+                                {% endif %}
                             </div>
                         </td>
                         <td>{{ client.gender }}</td>

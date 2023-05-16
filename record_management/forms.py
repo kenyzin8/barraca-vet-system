@@ -8,25 +8,6 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 User = get_user_model()
 
-class UserUpdateForm(UserChangeForm):
-    username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Username'}))
-    email = forms.CharField(required=True, widget=forms.EmailInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Email'}))
-    
-    class Meta:
-        model = User
-        fields = ('username', 'email',)
-
-class ClientUpdateForm(forms.ModelForm):
-    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name'}))
-    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
-    gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
-    address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;'}))
-    contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number'}))
-
-    class Meta:
-        model = Client
-        fields = ('first_name', 'last_name', 'gender', 'address', 'contact_number', 'two_auth_enabled',)
-
 class UserRegistrationForm(UserCreationForm):
     username = forms.CharField(required=True, widget=forms.TextInput(attrs={
                                 'class' : 'form-control rounded-left wider-input',
@@ -98,3 +79,22 @@ class LoginForm(AuthenticationForm):
                 'required' : 'true'
             }))
     remember_me = forms.BooleanField(required=False)
+
+class UserUpdateForm(UserChangeForm):
+    username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Username'}))
+    email = forms.CharField(required=True, widget=forms.EmailInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Email'}))
+    
+    class Meta:
+        model = User
+        fields = ('username', 'email',)
+
+class ClientUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name'}))
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
+    gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
+    address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;'}))
+    contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number'}))
+
+    class Meta:
+        model = Client
+        fields = ('first_name', 'last_name', 'gender', 'address', 'contact_number', 'two_auth_enabled',)

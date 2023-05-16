@@ -199,3 +199,19 @@ margin-top: 132px;
 {
   color: #69707aab;
 }
+
+.datatable-input::-webkit-search-clear-button {
+  appearance: none;
+}
+
+.datatable-input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.datatable-input::-ms-clear {
+  display: none;
+}
+
+.datatable-input::-moz-cancel {
+  display: none;
+}

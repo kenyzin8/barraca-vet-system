@@ -263,7 +263,40 @@ def client_module(request):
 
 @staff_required
 @login_required
+def admin_view_client(request, client_id):
+    client = get_object_or_404(Client, id=client_id)
+    pets = client.pet_set.all()
+
+    context = {'client': client, 'pets': pets}
+    return render(request, 'admin/view_client.html', context)
+
+@staff_required
+@login_required
 def pet_module(request):
     pets = Pet.objects.all()
     context = {'pets': pets}
     return render(request, 'admin/pet_module.html', context)
+
+@staff_required
+@login_required
+def admin_view_pet(request, pet_id):
+    pet = get_object_or_404(Pet, id=pet_id)
+
+    context = {'pet': pet}
+    return render(request, 'admin/view_pet.html', context)
+
+@staff_required
+@login_required
+def admin_update_pet(request, pet_id):
+    pet = get_object_or_404(Pet, id=pet_id)
+
+    if request.method == 'POST':
+        form = PetRegistrationForm(request.POST, request.FILES, instance=pet)
+        if form.is_valid():
+            form.save()
+            return redirect('admin-view-pet-page', pet_id=pet.id)
+    else:
+        form = PetRegistrationForm(instance=pet)
+    
+    context = {'form': form, 'pet': pet}
+    return render(request, 'admin/update_pet.html', context)

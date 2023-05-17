@@ -21,7 +21,7 @@
         <nav class="mt-4 rounded mb-3" aria-label="breadcrumb">
             <ol class="breadcrumb py-2 rounded mb-0">
                 <li class="breadcrumb-item"><a href="{% url 'service-list-page' %}">Services</a></li>
-                <li class="breadcrumb-item">{{ service.service_type }}</li>
+                <li class="breadcrumb-item">{{ service.service_type }} (ID: {{ service.id }})</li>
                 <li class="breadcrumb-item active">Update Service</li>
             </ol>
         </nav>

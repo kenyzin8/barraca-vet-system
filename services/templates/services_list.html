@@ -1,0 +1,170 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block title %} Services | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<script>
+window.addEventListener('DOMContentLoaded', event => {
+    const datatablesSimple = document.getElementById('datatablesSimple');
+    if (datatablesSimple) {
+        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+            paging: true,
+            perPageSelect: [5, 10, 25, 50],
+            perPage: 10,
+            fixedHeight: true,
+            sortable: true,
+            searchable: true,
+            hiddenHeader: false,
+        });
+
+        dataTable.on('datatable.update', () => {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.page', function(page) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.search', function(query, matched) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.sort', function(column, direction) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+    }
+});
+</script>
+<style>
+  .datatable-pagination .datatable-active a, .datatable-pagination .datatable-active a:focus, .datatable-pagination .datatable-active a:hover 
+  {
+    background-color: #232323;
+  }
+  .page-link, .datatable-pagination a
+   {
+    color: #232323;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="card card-header-actions mt-5 mb-5">
+        <div class="card-header">
+            Services
+            <a href="{% url 'service-add-page' %}" type="button" class="btn btn-dark btn-sm">Add Service</a>
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Service</th>
+                        <th>Fee</th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                    <tr>
+                        <td>{{ service.id }}</td>
+                        <td>{{ service.service_type }}</td>
+                        <td>₱ {{ service.fee|intcomma }}</td>
+                        <td>{{ service.get_remarks_display  }}</td>
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'service-update-page' service.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update">
+                                <i data-feather="settings"></i>
+                            </a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="modal" data-bs-target="#deleteServiceModal" data-service-name="{{ service.service_type }}" data-service-id="{{ service.id }}" data-bs-placement="top" title="Delete">
+                                <i data-feather="trash-2"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteServiceModalLabel">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to delete this service?
+            <br>
+            <br>
+            <span id="serviceName" style="font-weight: bolder;"></span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
+          <a href="#" class="btn btn-dark" id="confirmDelete">Delete</a>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var deleteServiceModal = document.getElementById('deleteServiceModal');
+      deleteServiceModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var serviceName = button.getAttribute('data-service-name');
+        var serviceElement = document.getElementById('serviceName');
+
+        serviceElement.textContent = serviceName;
+
+        var serviceId = button.getAttribute('data-service-id');
+        var deleteUrl = '{% url "delete-service-page" 0 %}'.replace('0', serviceId);
+        var confirmDelete = document.getElementById('confirmDelete');
+        confirmDelete.onclick = function() {
+          fetch(deleteUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{ csrf_token }}'
+            }
+          }).then(function(response) {
+            return response.json();
+          }).then(function(data) {
+            if (data.result === 'success') {
+              location.href = '{% url "service-list-page" %}';
+            } else {
+              alert('Error: ' + data.message);
+            }
+          });
+        }
+      });
+    });
+</script>
+{% endblock %}

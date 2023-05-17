@@ -24,6 +24,8 @@ urlpatterns = [
     path('', include('admin_dashboard.urls')),
     path('', include('appointment_management.urls')),
     path('', include('customer_dashboard.urls')),
+    path('', include('inventory.urls')),
+    path('', include('services.urls')),
 ]
 
 handler404 = 'core.views.handler404'

@@ -27,13 +27,35 @@ window.addEventListener('DOMContentLoaded', event => {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
         });
+
+        dataTable.on('datatable.page', function(page) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.search', function(query, matched) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.sort', function(column, direction) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
     }
 });
-$(document).on('search', '#datatablesSimple input[type="search"]', function () {
-    // Trigger input event
-    $(this).trigger('input');
-});
-
 </script>
 {% endblock %}
 
@@ -65,7 +87,7 @@ $(document).on('search', '#datatablesSimple input[type="search"]', function () {
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-2"><img class="avatar-img img-fluid" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" /></div>
                                 {{ client.full_name }}
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' client.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">
                                     <i data-feather="external-link"></i>
                                 </a>
                                 {% if request.user.is_authenticated and client.user.id == request.user.id %}

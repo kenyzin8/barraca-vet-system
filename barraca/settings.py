@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     #CELERY
     'django_celery_beat',
     'django_celery_results',
@@ -63,6 +64,8 @@ INSTALLED_APPS = [
     'admin_dashboard',
     'appointment_management',
     'customer_dashboard',
+    'inventory',
+    'services',
     #STORAGES
     'storages',
 ]

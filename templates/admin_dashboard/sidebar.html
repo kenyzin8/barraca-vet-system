@@ -69,11 +69,11 @@
                         Sales
                     </a>
                     <div class="sidenav-menu-heading">Inventory & Services</div>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="box"></i></div>
                         Inventory
                     </a>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if current_url_name == 'service-list-page' or current_url_name == 'service-add-page' or current_url_name == 'service-update-page' %}active{% endif %}" href="{% url 'service-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="table"></i></div>
                         Services
                     </a>

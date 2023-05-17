@@ -1,0 +1,76 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Add Service | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+    label 
+    {
+        font-weight: bold;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <!-- Main page content-->
+    <div class="container-xl px-4 mt-5 mb-5">
+        <nav class="mt-4 rounded mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb py-2 rounded mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'service-list-page' %}">Services</a></li>
+                <li class="breadcrumb-item active">Add Service</li>
+            </ol>
+        </nav>
+        <div class="row">
+            <div class="col-xl-8">
+                <div class="card mb-4">
+                    <div class="card-header">Add Service</div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputFirstName">Service</label>
+                                    {{ form.service_type }}
+                                    <datalist id="service-type-list">
+                                        {% for service_type_value, service_type_label in service_types %}
+                                          <option value="{{ service_type_label }}">
+                                        {% endfor %}
+                                    </datalist>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputFirstName">Fee</label>
+                                    {{ form.fee }}
+                                </div>
+                            </div>
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLastName">Remarks</label>
+                                    {{ form.remarks }}
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-dark" type="submit">Add Service</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="form-group gx-3 mb-3">
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+{% block extrascripts %}
+
+{% endblock %}

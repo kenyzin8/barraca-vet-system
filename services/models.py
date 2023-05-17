@@ -16,7 +16,7 @@ class Service(models.Model):
     )
 
     service_type = models.CharField(max_length=50)
-    fee = models.DecimalField(max_digits=8, decimal_places=2)
+    fee = models.DecimalField(max_digits=10, decimal_places=2)
     remarks = models.CharField(max_length=20, choices=REMARKS_TYPES)
 
     def __str__(self):

@@ -23,7 +23,7 @@ class ProductForm(forms.ModelForm):
         expiration_date = cleaned_data.get('expiration_date')
 
         if validate_manufacturing_and_expiry_date(manufacturing_date, expiration_date):
-            raise ValidationError(("Manufacturing date must be earlier than expiry date"))
+            raise ValidationError(("Manufacturing date must be earlier than expiry date."))
 
         price = self.cleaned_data.get('price')
         str_price = str(price)
@@ -33,3 +33,9 @@ class ProductForm(forms.ModelForm):
 
         if len(str_price.replace('.', '')) > 10:
             raise ValidationError('You can only input 8 digits for the price.')
+
+        quantity_on_stock = cleaned_data.get('quantity_on_stock')
+        critical_level = cleaned_data.get('critical_level')
+
+        if critical_level > quantity_on_stock:
+            raise ValidationError('Critical level must not be greater than quantity on stock.')

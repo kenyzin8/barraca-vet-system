@@ -1,5 +1,6 @@
 from django import forms
 from .models import Service
+from django.core.exceptions import ValidationError
 
 class ServiceForm(forms.ModelForm):
     service_type = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'list': 'service-type-list'}))
@@ -9,3 +10,13 @@ class ServiceForm(forms.ModelForm):
     class Meta:
         model = Service
         fields = ['service_type', 'fee', 'remarks']
+
+    def clean(self):
+        price = self.cleaned_data.get('fee')
+        str_price = str(price)
+
+        if '.' in str_price and len(str_price.split('.')[1]) > 2:
+            raise ValidationError('You can only input 8 digits and 2 decimal points for the fee.')
+
+        if len(str_price.replace('.', '')) > 10:
+            raise ValidationError('You can only input 8 digits for the fee.')

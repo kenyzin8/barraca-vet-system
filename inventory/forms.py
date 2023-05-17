@@ -24,3 +24,12 @@ class ProductForm(forms.ModelForm):
 
         if validate_manufacturing_and_expiry_date(manufacturing_date, expiration_date):
             raise ValidationError(("Manufacturing date must be earlier than expiry date"))
+
+        price = self.cleaned_data.get('price')
+        str_price = str(price)
+
+        if '.' in str_price and len(str_price.split('.')[1]) > 2:
+            raise ValidationError('You can only input 8 digits and 2 decimal points for the price.')
+
+        if len(str_price.replace('.', '')) > 10:
+            raise ValidationError('You can only input 8 digits for the price.')

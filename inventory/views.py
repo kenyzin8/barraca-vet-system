@@ -25,6 +25,8 @@ def product_add(request):
         if form.is_valid():
             form.save()
             return redirect('product-list-page')
+        else:
+            print(form.errors)
     else:
         form = ProductForm()
 
@@ -41,6 +43,8 @@ def product_update(request, product_id):
         if form.is_valid():
             form.save()
             return redirect('product-list-page')
+        else:
+            print(form.errors)     
     else:
         form = ProductForm(instance=product)
 

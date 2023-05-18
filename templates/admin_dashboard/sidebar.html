@@ -60,11 +60,11 @@
                         Calendar
                     </a>
                     <div class="sidenav-menu-heading">Billing</div>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if current_url_name == 'billing-page' or current_url_name == 'billing-client-page' %}active{% endif %}" href="{% url 'billing-page' %}">
                         <div class="nav-link-icon"><i data-feather="dollar-sign"></i></div>
                         Billing & Payment
                     </a>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if current_url_name == 'view-bill-page' %}active{% endif %}" href="#">
                         <div class="nav-link-icon"><i data-feather="paperclip"></i></div>
                         Sales
                     </a>

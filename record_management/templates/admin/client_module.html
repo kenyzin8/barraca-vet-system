@@ -100,7 +100,7 @@ window.addEventListener('DOMContentLoaded', event => {
                         <td>{{ client.contact_number }}</td>
                         <td>{{ client.total_pets }}</td>
                         <td>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Billing Statement">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'billing-client-page' client.id %}" data-client-id="{{ client.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Billing Statement">
                                 <i data-feather="dollar-sign"></i>
                             </a>
                         </td>

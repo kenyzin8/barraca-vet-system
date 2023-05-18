@@ -1,0 +1,262 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Billing & Payment | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+    .table-responsive, .datatable-wrapper .datatable-container 
+    {
+        margin-top: -60px;
+    }
+
+    .invoice .table tbody tr td, .invoice .datatable-table tbody tr td 
+    {
+        padding-top: 0;
+    }
+
+    @media screen and (max-width: 600px) 
+    {
+        .table-responsive, .datatable-wrapper .datatable-container 
+        {
+            margin-top: -30px;
+        }
+    }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card invoice mt-5 mb-5">
+    <div class="card-header p-4 p-md-5 border-bottom-0 bg-dark text-white-50">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-12 col-lg-auto mb-5 mb-lg-0 text-center text-lg-start">
+                <!-- Invoice branding-->
+                <img class="invoice-brand-img rounded-circle mb-2" src="{% static 'images/billing.png' %}" alt=""/>
+                <div class="h2 text-white mb-0">
+                    Barraca
+                </div>
+                Veterinary Clinic
+            </div>
+            <div class="col-12 col-lg-auto text-center text-lg-end">
+                <!-- Invoice details-->
+                <div class="h3 text-white">Billing Statement</div>
+                Bill No. <span class="billing-number">{{ next_bill_number|stringformat:"06d" }}</span>
+                <br />
+                <span class="current-date">{% now "F j, Y" %}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body p-4 p-md-5">
+        <div class="row" style="padding: 0.75rem 0.75rem;">
+            <div class="col-md-6 col-lg-3 mb-lg-0">
+                <!-- Invoice - sent to info-->
+                <div class="small text-muted text-uppercase fw-700 mb-2">
+                    Client
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark find-client-button" href="#addClientModal" data-bs-toggle="modal" data-bs-placement="top" title="Find Client">
+                        <i data-feather="plus-circle"></i>
+                    </a>
+                </div>
+                <input type="text" class="form-control selected-client-input" data-client-id="{{ client.id }}" value="{{ client.full_name }}" id="" placeholder="Ex. Juan Dela Cruz">
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body p-4 p-md-5">
+        <!-- Invoice table-->
+        <div class="table-responsive">
+            <table class="table table-borderless mb-0">
+                <thead class="">
+                    <tr class="small text-uppercase text-muted">
+                        <th scope="col">
+                            Services 
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#addServiceModal" data-bs-toggle="modal" data-bs-placement="top" title="Add Service">
+                                <i data-feather="plus-circle"></i>
+                            </a>
+                        </th>
+                        <th class="text-end" scope="col"><!-- empty for spacing --></th>
+                        <th class="text-end" scope="col"><!-- empty for spacing --></th>
+                        <th class="text-end" scope="col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="tbody-services">
+                    <!-- added service here -->
+                </tbody>
+            </table>
+            <hr>
+            <table class="table table-borderless mb-0 mt-4">
+                <thead class="">
+                    <tr class="small text-uppercase text-muted">
+                        <th scope="col">
+                            Products
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#addProductModal" data-bs-toggle="modal" data-bs-placement="top" title="Add Product">
+                                <i data-feather="plus-circle"></i>
+                            </a>
+                        </th>
+                        <th class="text-end" scope="col"><!-- empty for spacing --></th>
+                        <th class="text-end" scope="col"><!-- empty for spacing --></th>
+                        <th class="text-end" scope="col"><!-- empty for spacing --></th>
+                    </tr>
+                </thead>
+                <tbody class="tbody-products">
+                    <!-- added product here -->
+                    <tr class="border-top" id="total-row">
+                        <td class="text-end pb-0" colspan="3"><!-- empty for spacing --></td>
+                        <td class="text-end pb-0 h5 mb-0 fw-700 total-amount" style="padding-top: 20px;">Total Amount: ₱ 0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="text-end pb-0" colspan="3"><!-- empty for spacing --></td>
+                        <td class="text-end pb-0" style="padding-top: 20px;">
+                            <a href="{% url 'billing-page' %}" id="cancel-button" type="button" class="btn btn-danger">Cancel</a>
+                            <a href="#" id="paid-button" type="button" class="btn btn-success">Paid</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addClientModal" tabindex="-1" role="dialog" aria-labelledby="addClientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addClientModalLabel">Add Client</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    {% for client in clients %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <span class="client-id">{{ client.id }}</span>
+                            <span class="client-value">{{ client.full_name }}</span>
+                            <button class="btn btn-dark add-client" data-client-id="{{ client.id }}">Add</button>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addServiceModal" tabindex="-1" role="dialog" aria-labelledby="addServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addServiceModalLabel">Add Service</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    {% for service in services %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <span class="service-type">{{ service.service_type }}</span>
+                            <span class="service-fee">₱ {{ service.fee }}</span>
+                            <button class="btn btn-dark add-service" data-service-id="{{ service.id }}">Add</button>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    {% for product in products %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <span class="product-name">{{ product.product_name }}</span>
+                            <span>{{ product.type }}</span>
+                            <input type="number" class="form-control product-quantity" min="1" value="1" style="width: 60px;">
+                            <span class="product-price">₱ {{ product.price }}</span>
+                            <button class="btn btn-dark add-product" data-product-id="{{ product.id }}" data-product-price="{{ product.price }}">Add</button>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addBillSuccess" tabindex="-1" role="dialog" aria-labelledby="addBillSuccessLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addBillSuccessLabel">Success</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Billing <span class="billing-number-modal">{{ next_bill_number|stringformat:"06d" }}</span> has been submitted. Click <a href="{% url 'view-bill-page' next_bill_number %}">here</a> to view.
+            </div>
+            <div class="modal-footer">
+                <button id="success-add-billing" class="btn btn-dark" type="button" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to submit this billing statement?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-paid-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'js/billing/billing.js' %}"></script>
+{% endblock %}

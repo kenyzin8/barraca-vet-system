@@ -9,6 +9,7 @@ from record_management.models import Client
 from .models import Billing, BillingProduct
 from django.db.models import Max
 from django.utils import timezone
+from decimal import Decimal
 
 @staff_required
 @login_required
@@ -79,6 +80,9 @@ def post_bill(request):
         for product, quantity in zip(products, quantities):
             billing_product = BillingProduct(billing=bill, product=product, quantity=quantity)
             billing_product.save()
+            # reduce the quantity on hand of the product
+            product.quantity_on_stock -= Decimal(quantity)
+            product.save()
 
         bill.services.set(services)
         bill.products.set(products)

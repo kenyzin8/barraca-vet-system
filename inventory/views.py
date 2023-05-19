@@ -60,3 +60,9 @@ def delete_product(request, product_id):
         return JsonResponse({'result': 'success'})
     else:
         return JsonResponse({'result': 'error', 'message': 'Invalid request method'})
+
+@staff_required
+@login_required
+def check_product_quantity(request, product_id):
+    product = Product.objects.get(pk=product_id)
+    return JsonResponse({'quantity': float(product.quantity_on_stock)})

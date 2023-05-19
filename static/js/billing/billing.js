@@ -4,26 +4,26 @@ $(document).ready(function() {
     var findClientButton = $('.find-client-button');
     var selectedServiceIds = new Set();
     var selectedProductIds = new Set();
+    var quantityOnStockSelected = 0;
 
     if(clientInput.val().trim() != '') {
         clientInput.prop('disabled', true);
         findClientButton.css('display', 'none');
     }
 
-    $('.add-client').on('click', function() 
-    {
+    $(document).on('click', '.add-client', function() {
         var clientId = $(this).data('client-id');
-        var clientName = $(this).siblings('.client-value').text();
+        var clientName = $(this).closest('tr').find('.client-value').text();
     
         $('.selected-client-input').val(clientName);
         $('.selected-client-input').addClass('selected-client');
         $('.selected-client-input').data('client-id', clientId);
-
+    
         $('#addClientModal').modal('hide');
     });
 
     // Add service
-    $('.add-service').on('click', function() {
+    $(document).on('click', '.add-service', function() { 
         var serviceId = $(this).data('service-id');
 
         if (selectedServiceIds.has(serviceId)) {
@@ -31,8 +31,9 @@ $(document).ready(function() {
             return;
         }
 
-        var serviceName = $(this).siblings('.service-type').text();
-        var serviceFee = $(this).siblings('.service-fee').text();
+        var row = $(this).closest('tr');
+        var serviceName = row.find('.service-type').text();
+        var serviceFee = row.find('.service-fee').text();
         
         selectedServiceIds.add(serviceId);
 
@@ -69,55 +70,85 @@ $(document).ready(function() {
     });
 
     // Add product
-    $('.add-product').on('click', function() {
-        var productId = $(this).data('product-id');
+    $(document).on('click', '.add-product', function() { 
+        var $this = $(this);
 
+        var productId = $(this).data('product-id');
+    
         if (selectedProductIds.has(productId)) {
-            $(this).prop('disabled', true);
+            $this.prop('disabled', true);
+            return;
+        }
+    
+        var row = $(this).closest('tr');
+        var productName = row.find('.product-name').text();
+        var productPrice = row.find('.product-price').text();
+        var quantityInput = row.find('.product-quantity');
+        var quantity = quantityInput.val();
+    
+        var stockQuantity = row.find('.product-stock-quantity').text();
+        stockQuantity = parseFloat(stockQuantity.replace(/,/g, ""));
+
+        if((quantity.split('.')[1] || []).length > 2)
+         {
+            $('#errorModal .modal-body').text("Only 2 decimal points for the quantity.");
+            $('#errorModal').modal('show');
+            quantityInput.focus();
             return;
         }
 
-        var productName = $(this).siblings('.product-name').text();
-        var productPrice = $(this).siblings('.product-price').text();
-        var quantity = $(this).siblings('.product-quantity').val();
+        $.ajax({
+            url: '/admin/inventory/check-quantity/' + productId + '/',
+            method: 'GET',
+            success: function(data) {
+                var stockQuantity = data.quantity;
 
-        selectedProductIds.add(productId);
+                if(parseFloat(quantity) > stockQuantity) {
+                    $('#errorModal .modal-body').text("The entered quantity is greater than the stock quantity.");
+                    $('#errorModal').modal('show');
+                    quantityInput.focus();
+                    return;
+                }
 
-        $(this).prop('disabled', true);
-
-        productPrice = productPrice.replace("₱", "").trim();
-        productPrice = productPrice.replace(/,/g, "").trim();
-        productPrice = parseFloat(productPrice);
-
-        total += productPrice * parseFloat(quantity);
-
-        var price = parseFloat(productPrice) * parseFloat(quantity);
-        var formattedPrice = price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-        var newRow = `
-            <tr class="selected-product" data-product-id="${productId}" data-product-quantity="${quantity}">
-                <td>
-                    <div class="fw-bold">
-                        ${productName} x <span class="product-quantity">${quantity}</span>
-                        <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
-                            <i data-feather="delete"></i>
-                        </a>
-                    </div>
-                    <div class="small text-muted d-none d-md-block">Without Medicine</div>
-                </td>
-                <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                <td class="text-end fw-bold product-price">₱ ${formattedPrice}</td>
-            </tr>
-        `;
-
-        $('#total-row').before(newRow);
-        $('#addProductModal').modal('hide');
-
-        $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-
-        feather.replace();
-    });
+                selectedProductIds.add(productId);
+    
+                $this.prop('disabled', true);
+            
+                productPrice = productPrice.replace("₱", "").trim();
+                productPrice = productPrice.replace(/,/g, "").trim();
+                productPrice = parseFloat(productPrice);
+            
+                total += productPrice * parseFloat(quantity);
+            
+                var price = parseFloat(productPrice) * parseFloat(quantity);
+                var formattedPrice = price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+                var newRow = `
+                    <tr class="selected-product" data-product-id="${productId}" data-product-quantity="${quantity}">
+                        <td>
+                            <div class="fw-bold">
+                                ${productName} x <span class="product-quantity">${quantity}</span>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
+                                    <i data-feather="delete"></i>
+                                </a>
+                            </div>
+                            <div class="small text-muted d-none d-md-block">Without Medicine</div>
+                        </td>
+                        <td class="text-end fw-bold"><!-- empty for spacing --></td>
+                        <td class="text-end fw-bold"><!-- empty for spacing --></td>
+                        <td class="text-end fw-bold product-price">₱ ${formattedPrice}</td>
+                    </tr>
+                `;
+            
+                $('#total-row').before(newRow);
+                $('#addProductModal').modal('hide');
+            
+                $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            
+                feather.replace();
+            }
+        });
+    });    
 
     $(document).on('click', '.remove-service', function(e) {
         e.preventDefault();

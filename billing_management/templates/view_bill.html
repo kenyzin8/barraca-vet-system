@@ -111,7 +111,7 @@
                     <tr>
                         <td>
                             <div class="fw-bold">
-                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.product.price }}</span>) x <span class="product-quantity">{{ product.quantity }}</span>
+                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.product.price }}</span>) x <span class="product-quantity">{{ product.quantity|floatformat:2 }}</span>
                             </div>
                             <div class="small text-muted d-none d-md-block">Without Medicine</div>
                         </td>

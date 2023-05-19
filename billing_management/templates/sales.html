@@ -121,13 +121,19 @@
                                         <th>Client</th>
                                         <th>Total Amount</th>
                                         <th>Date</th>
-                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for bill in bills %}
                                     <tr>
-                                        <td><span class="billing-number">{{ bill.id|stringformat:"06d" }}</span></td>
+                                        <td>
+                                            <span class="billing-number">
+                                                {{ bill.id|stringformat:"06d" }}
+                                            </span>
+                                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Billing">
+                                                <i data-feather="external-link"></i>
+                                            </a>
+                                        </td>
                                         <td>
                                             {{ bill.client.full_name }}
                                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' bill.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
@@ -137,13 +143,8 @@
                                             (You)
                                             {% endif %}
                                         </td>
-                                        <td>₱ {{ bill.get_total|intcomma }}</td>
+                                        <td>₱ {{ bill.get_total|floatformat:2|intcomma }}</td>
                                         <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
-                                        <td>
-                                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Billing">
-                                                <i data-feather="external-link"></i>
-                                            </a>
-                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -168,22 +169,22 @@
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script>
-$(document).ready(function() 
-{
-    function formatBillId(billId) {
-        let billIdStr = String(billId);
-        while (billIdStr.length < 6) {
-            billIdStr = '0' + billIdStr;
-        }
-        billIdStr = billIdStr.slice(0, 3) + '-' + billIdStr.slice(3);
-        return billIdStr;
-    }
+// $(document).ready(function() 
+// {
+//     function formatBillId(billId) {
+//         let billIdStr = String(billId);
+//         while (billIdStr.length < 6) {
+//             billIdStr = '0' + billIdStr;
+//         }
+//         billIdStr = billIdStr.slice(0, 3) + '-' + billIdStr.slice(3);
+//         return billIdStr;
+//     }
 
-    $('.billing-number').each(function() {
-        let billId = $(this).text();
-        let formattedBillId = formatBillId(billId);
-        $(this).text(formattedBillId);
-    });
-});
+//     $('.billing-number').each(function() {
+//         let billId = $(this).text();
+//         let formattedBillId = formatBillId(billId);
+//         $(this).text(formattedBillId);
+//     });
+// });
 </script>
 {% endblock %}

@@ -7,11 +7,6 @@
 
 {% block extrastyles %}
 <style>
-    .table-responsive, .datatable-wrapper .datatable-container 
-    {
-        margin-top: -60px;
-    }
-
     .invoice .table tbody tr td, .invoice .datatable-table tbody tr td 
     {
         padding-top: 0;
@@ -23,10 +18,92 @@
         {
             margin-top: -30px;
         }
+
+        .table-responsive-modal
+        {
+            overflow-x: auto;
+        }
+    }
+    .table-responsive, .datatable-wrapper .datatable-container 
+    {
+        margin-top: 0;
     }
 
-
+    .billing-table
+    {
+        margin-top: -60px;
+    }
 </style>
+<script>
+    $(document).ready(function() {
+        let dataTable_products;
+        let dataTable_services;
+        let dataTable_clients;
+        
+        $('#addClientModal').on('show.bs.modal', function (event) {
+            const datatablesSimple_clients = document.getElementById('datatablesSimple-client');
+            if (datatablesSimple_clients) {
+                dataTable_clients = new simpleDatatables.DataTable(datatablesSimple_clients, {
+                    paging: true,
+                    perPageSelect: [5, 10, 25, 50],
+                    perPage: 10,
+                    sortable: true,
+                    searchable: true,
+                    hiddenHeader: false,
+                });
+            }
+        });
+        $('#addServiceModal').on('show.bs.modal', function (event) {
+            const datatablesSimple_services = document.getElementById('datatablesSimple-services');
+            if (datatablesSimple_services) {
+                dataTable_services = new simpleDatatables.DataTable(datatablesSimple_services, {
+                    paging: true,
+                    perPageSelect: [5, 10, 25, 50],
+                    perPage: 10,
+                    sortable: true,
+                    searchable: true,
+                    hiddenHeader: false,
+                });
+            }
+        });
+
+        $('#addProductModal').on('show.bs.modal', function (event) {
+            const datatablesSimple_products = document.getElementById('datatablesSimple-products');
+            if (datatablesSimple_products) {
+                dataTable_products = new simpleDatatables.DataTable(datatablesSimple_products, {
+                    paging: true,
+                    perPageSelect: [5, 10, 25, 50],
+                    perPage: 10,
+                    sortable: true,
+                    searchable: true,
+                    hiddenHeader: false,
+                });
+            }
+        });
+
+        $('#addClientModal').on('hidden.bs.modal', function (event) {
+            if (dataTable_services) {
+                dataTable_services.destroy();
+                dataTable_services = null;
+            }
+        });
+
+        $('#addServiceModal').on('hidden.bs.modal', function (event) {
+            if (dataTable_clients) {
+                dataTable_clients.destroy();
+                dataTable_clients = null;
+            }
+        });
+
+        $('#addProductModal').on('hidden.bs.modal', function (event) {
+            if (dataTable_products) {
+                dataTable_products.destroy();
+                dataTable_products = null;
+            }
+        });
+    });
+</script>
+    
 {% endblock %}
 
 {% block content %}
@@ -68,7 +145,7 @@
 
     <div class="card-body p-4 p-md-5">
         <!-- Invoice table-->
-        <div class="table-responsive">
+        <div class="table-responsive billing-table">
             <table class="table table-borderless mb-0">
                 <thead class="">
                     <tr class="small text-uppercase text-muted">
@@ -122,24 +199,33 @@
 </div>
 
 <div class="modal fade" id="addClientModal" tabindex="-1" role="dialog" aria-labelledby="addClientModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addClientModalLabel">Add Client</h5>
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <ul class="list-group">
-                    {% for client in clients %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <span class="client-id">{{ client.id }}</span>
-                            <span class="client-value">{{ client.full_name }}</span>
-                            <button class="btn btn-dark add-client" data-client-id="{{ client.id }}">Add</button>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
+                <div>
+                    <table id="datatablesSimple-client">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Client</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for client in clients %}
+                            <tr>
+                                <td><span class="client-id">{{ client.id }}</span></td>
+                                <td><span class="client-value">{{ client.full_name }}</span></td>
+                                <td><button class="btn btn-dark add-client" data-client-id="{{ client.id }}">Add</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Cancel</button>
@@ -149,24 +235,47 @@
 </div>
 
 <div class="modal fade" id="addServiceModal" tabindex="-1" role="dialog" aria-labelledby="addServiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addServiceModalLabel">Add Service</h5>
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <ul class="list-group">
-                    {% for service in services %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <span class="service-type">{{ service.service_type }}</span>
-                            <span class="service-fee">₱ {{ service.fee|intcomma }}</span>
-                            <button class="btn btn-dark add-service" data-service-id="{{ service.id }}">Add</button>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
+                <div>
+                    <table id="datatablesSimple-services">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Service</th>
+                                <th>Fee</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for service in services %}
+                            <tr>
+                                <td>{{ service.id }}</td>
+                                <td>
+                                    <span class="service-type">
+                                        {{ service.service_type }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="service-fee">
+                                        ₱ {{ service.fee|intcomma }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-dark add-service" data-service-id="{{ service.id }}">
+                                        Add
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Cancel</button>
@@ -176,26 +285,59 @@
 </div>
 
 <div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <ul class="list-group">
-                    {% for product in products %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <span class="product-name">{{ product.product_name }}</span>
-                            <span>{{ product.type }}</span>
-                            <input type="number" class="form-control product-quantity" min="1" value="1" style="width: 60px;">
-                            <span class="product-price">₱ {{ product.price|intcomma }}</span>
-                            <button class="btn btn-dark add-product" data-product-id="{{ product.id }}" data-product-price="{{ product.price }}">Add</button>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
+                <div>
+                    <table id="datatablesSimple-products">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product Name</th>
+                                <th>Type</th>
+                                <th>Stock Quantity</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr>
+                                <td>{{ product.id }}</td>
+                                <td>
+                                    <span class="product-name">
+                                        {{ product.product_name }}
+                                    </span>
+                                </td>
+                                <td>{{ product.get_type_display }}</td>
+                                <td>
+                                    <span class="product-stock-quantity">
+                                        {{ product.quantity_on_stock|floatformat:2|intcomma }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control product-quantity" min="1" step="0.01" value="1" style="width: 80px;">
+                                </td>
+                                <td>
+                                    <span class="product-price">
+                                        ₱ {{ product.price|intcomma }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-dark add-product" data-product-id="{{ product.id }}" data-product-price="{{ product.price }}">
+                                        Add
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Cancel</button>
@@ -203,6 +345,7 @@
         </div>
     </div>
 </div>
+
 
 <div class="modal fade" id="addBillSuccess" tabindex="-1" role="dialog" aria-labelledby="addBillSuccessLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -259,5 +402,6 @@
 {% endblock %}
 
 {% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script src="{% static 'js/billing/billing.js' %}"></script>
 {% endblock %}

@@ -5,7 +5,10 @@ from django.core.exceptions import ValidationError
 
 class ProductForm(forms.ModelForm):
     product_name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control'}))
-    quantity_on_stock = forms.IntegerField(widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control'}))
+    quantity_on_stock = forms.DecimalField(
+        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control'}),
+        decimal_places=2, 
+    )
     type = forms.ChoiceField(choices=Product.TYPES, widget=forms.Select(attrs={'id': 'type', 'class': 'form-select'}))
     batch_number = forms.CharField(widget=forms.TextInput(attrs={'id': 'batch_number', 'class': 'form-control', 'list': 'previous-batch-numbers'}))
     manufacturing_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'manufacturing_date', 'class': 'form-control', 'type': 'date'}))

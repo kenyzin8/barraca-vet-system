@@ -21,6 +21,8 @@ class Billing(models.Model):
     def __str__(self):
         return self.client.first_name + " " + self.client.last_name + " " + str(self.get_total())
 
+        # update inventory quantity tomorrow
+
 class BillingProduct(models.Model):
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_products')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)

@@ -76,6 +76,7 @@
                     </tr>
                 </thead>
                 <tbody class="tbody-services">
+                    {% if bill.services %}
                     {% for service in bill.services.all %}
                     <tr>
                         <td>
@@ -89,6 +90,7 @@
                         <td class="text-end fw-bold product-price">{{ service.fee }}</td>
                     </tr>
                     {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
             <hr>

@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
 # Create your models here.
 class Product(models.Model):
     TYPES = (
@@ -13,7 +13,7 @@ class Product(models.Model):
     )
 
     product_name = models.CharField(max_length=255)
-    quantity_on_stock = models.IntegerField()
+    quantity_on_stock = models.DecimalField(default=1.000, max_digits=10, decimal_places=3, validators=[MinValueValidator(0.01)])
     type = models.CharField(max_length=50, choices=TYPES, default='tablets')
     batch_number = models.CharField(max_length=100)
     manufacturing_date = models.DateField()

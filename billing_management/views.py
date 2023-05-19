@@ -13,20 +13,12 @@ from django.utils import timezone
 @staff_required
 @login_required
 def bill(request):
-    products = Product.objects.all()
-    services = Service.objects.all()
-    clients = Client.objects.all()
+    client_id = request.GET.get('to', None)
+    if client_id is not None:
+        client = Client.objects.get(id=client_id)
+    else:
+        client = None
 
-    last_bill = Billing.objects.aggregate(Max('id'))['id__max']
-    next_bill_number = (last_bill + 1) if last_bill else 1
-
-    context = {'products': products, 'services': services, 'clients': clients, 'next_bill_number': next_bill_number}
-    return render(request, 'billing.html', context)
-
-@staff_required
-@login_required
-def bill_client(request, client_id):
-    client = Client.objects.get(id=client_id)
     products = Product.objects.all()
     services = Service.objects.all()
     clients = Client.objects.all()
@@ -42,6 +34,30 @@ def bill_client(request, client_id):
         'next_bill_number': next_bill_number
     }
     return render(request, 'billing.html', context)
+
+# @staff_required
+# @login_required
+# def bill_client(request):
+#     client_id = request.GET.get('to', None)
+#     if client_id is not None:
+#         client = Client.objects.get(id=client_id)
+#     else:
+#         client = None
+#     products = Product.objects.all()
+#     services = Service.objects.all()
+#     clients = Client.objects.all()
+
+#     last_bill = Billing.objects.aggregate(Max('id'))['id__max']
+#     next_bill_number = (last_bill + 1) if last_bill else 1
+
+#     context = {
+#         'client': client,
+#         'products': products,
+#         'services': services,
+#         'clients': clients,
+#         'next_bill_number': next_bill_number
+#     }
+#     return render(request, 'billing.html', context)
 
 @csrf_exempt
 @staff_required

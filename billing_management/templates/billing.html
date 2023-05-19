@@ -1,6 +1,7 @@
 {% extends 'admin_dashboard/base.html' %}
 
 {% load static %}
+{% load humanize %}
 
 {% block title %} Billing & Payment | Barraca Veterinary Clinic {% endblock %}
 
@@ -160,7 +161,7 @@
                     <li class="list-group-item">
                         <div class="d-flex justify-content-between">
                             <span class="service-type">{{ service.service_type }}</span>
-                            <span class="service-fee">₱ {{ service.fee }}</span>
+                            <span class="service-fee">₱ {{ service.fee|intcomma }}</span>
                             <button class="btn btn-dark add-service" data-service-id="{{ service.id }}">Add</button>
                         </div>
                     </li>
@@ -189,7 +190,7 @@
                             <span class="product-name">{{ product.product_name }}</span>
                             <span>{{ product.type }}</span>
                             <input type="number" class="form-control product-quantity" min="1" value="1" style="width: 60px;">
-                            <span class="product-price">₱ {{ product.price }}</span>
+                            <span class="product-price">₱ {{ product.price|intcomma }}</span>
                             <button class="btn btn-dark add-product" data-product-id="{{ product.id }}" data-product-price="{{ product.price }}">Add</button>
                         </div>
                     </li>

@@ -3,7 +3,7 @@ from django.db import models
 from inventory.models import Product
 from services.models import Service
 from record_management.models import Client
-
+from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
 class Billing(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     services = models.ManyToManyField(Service)
@@ -26,7 +26,7 @@ class Billing(models.Model):
 class BillingProduct(models.Model):
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_products')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.DecimalField(default=1.000, max_digits=10, decimal_places=3, validators=[MinValueValidator(0.01)])
 
     def __str__(self):
         return f"{self.billing} - {self.product} ({self.quantity})"

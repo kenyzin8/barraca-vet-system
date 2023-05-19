@@ -33,14 +33,15 @@ $(document).ready(function() {
 
         var serviceName = $(this).siblings('.service-type').text();
         var serviceFee = $(this).siblings('.service-fee').text();
-
+        
         selectedServiceIds.add(serviceId);
 
         $(this).prop('disabled', true);
 
         serviceFee = serviceFee.replace("₱", "").trim();
+        serviceFee = serviceFee.replace(/,/g, "").trim();
 
-        total += parseFloat(serviceFee.replace("₱", "").trim());
+        total += parseFloat(serviceFee);
 
         var newRow = `
             <tr class="selected-service" data-service-id="${serviceId}">
@@ -85,11 +86,12 @@ $(document).ready(function() {
         $(this).prop('disabled', true);
 
         productPrice = productPrice.replace("₱", "").trim();
-        productPrice = parseFloat(productPrice.replace("₱", "").trim());
+        productPrice = productPrice.replace(/,/g, "").trim();
+        productPrice = parseFloat(productPrice);
 
-        total += productPrice * parseInt(quantity);
+        total += productPrice * parseFloat(quantity);
 
-        var price = parseFloat(productPrice) * parseInt(quantity);
+        var price = parseFloat(productPrice) * parseFloat(quantity);
         var formattedPrice = price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
         var newRow = `

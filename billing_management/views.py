@@ -80,6 +80,6 @@ def view_bill(request, bill_id):
 @staff_required
 @login_required
 def sales(request):
-    bills = Billing.objects.all()
+    bills = Billing.objects.all().order_by('-id')
     context = {'bills': bills}
     return render(request, 'sales.html', context)

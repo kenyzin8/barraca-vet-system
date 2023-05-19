@@ -64,7 +64,7 @@
                         <div class="nav-link-icon"><i data-feather="dollar-sign"></i></div>
                         Billing & Payment
                     </a>
-                    <a class="nav-link {% if current_url_name == 'view-bill-page' %}active{% endif %}" href="#">
+                    <a class="nav-link {% if current_url_name == 'view-bill-page' or current_url_name == 'sales-page' %}active{% endif %}" href="{% url 'sales-page' %}">
                         <div class="nav-link-icon"><i data-feather="paperclip"></i></div>
                         Sales
                     </a>

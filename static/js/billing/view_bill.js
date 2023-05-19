@@ -4,11 +4,6 @@ $(document).ready(function() {
         $(this).text('₱ ' + fee.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
     });
 
-    $('.product-price').each(function() {
-        var price = parseFloat($(this).text().replace('₱ ', '').replace(',', ''));
-        $(this).text('₱ ' + price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-    });
-
     var total = parseFloat($('.total-amount').text().replace('₱ ', '').replace(',', ''));
 
     $('.total-amount').text('₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
@@ -27,4 +22,11 @@ $(document).ready(function() {
     let formattedBillId = formatBillId(billId);
 
     $('.billing-number').text(formattedBillId);
+
+    $('tr').each(function() {
+        var price = parseFloat($(this).find('.product-price').text().replace('₱ ', '').replace(',', ''));
+        var quantity = parseFloat($(this).find('.product-quantity').text());
+        var totalPrice = price * quantity;
+        $(this).find('.product-price-multiplied').text('₱ ' + totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+    });
 });

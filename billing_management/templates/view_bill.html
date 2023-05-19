@@ -45,7 +45,7 @@
                 <div class="h3 text-white">Billing Statement</div>
                 Bill No. <span class="billing-number">{{ bill.id|stringformat:"06d" }}</span>
                 <br />
-                {{ bill.date_created|date:"F j, Y" }}
+                {{ bill.date_created|date:"F j, Y, g:i A" }}
             </div>
         </div>
     </div>
@@ -86,7 +86,9 @@
                         </td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                        <td class="text-end fw-bold product-price">{{ service.fee }}</td>
+                        <td class="text-end fw-bold product-price">
+                            ₱ {{ service.fee }}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -108,13 +110,15 @@
                     <tr>
                         <td>
                             <div class="fw-bold">
-                                {{ product.product.product_name }} x {{ product.quantity }}
+                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.product.price }}</span>) x <span class="product-quantity">{{ product.quantity }}</span>
                             </div>
                             <div class="small text-muted d-none d-md-block">Without Medicine</div>
                         </td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                        <td class="text-end fw-bold product-price">{{ product.product.price }}</td> <!-- Adjust as per your Product model -->
+                        <td class="text-end fw-bold product-price-multiplied">
+                            <!-- here -->
+                        </td> 
                     </tr>
                     {% endfor %}
                     <tr class="border-top" id="total-row">

@@ -76,3 +76,10 @@ def view_bill(request, bill_id):
     bill = get_object_or_404(Billing, pk=bill_id)
     context = {'bill': bill}
     return render(request, 'view_bill.html', context)
+
+@staff_required
+@login_required
+def sales(request):
+    bills = Billing.objects.all()
+    context = {'bills': bills}
+    return render(request, 'sales.html', context)

@@ -2,6 +2,8 @@ $(document).ready(function() {
     var total = 0;
     var clientInput = $('.selected-client-input');
     var findClientButton = $('.find-client-button');
+    var selectedServiceIds = new Set();
+    var selectedProductIds = new Set();
 
     if(clientInput.val().trim() != '') {
         clientInput.prop('disabled', true);
@@ -23,8 +25,18 @@ $(document).ready(function() {
     // Add service
     $('.add-service').on('click', function() {
         var serviceId = $(this).data('service-id');
+
+        if (selectedServiceIds.has(serviceId)) {
+            $(this).prop('disabled', true);
+            return;
+        }
+
         var serviceName = $(this).siblings('.service-type').text();
         var serviceFee = $(this).siblings('.service-fee').text();
+
+        selectedServiceIds.add(serviceId);
+
+        $(this).prop('disabled', true);
 
         serviceFee = serviceFee.replace("₱", "").trim();
 
@@ -58,14 +70,27 @@ $(document).ready(function() {
     // Add product
     $('.add-product').on('click', function() {
         var productId = $(this).data('product-id');
+
+        if (selectedProductIds.has(productId)) {
+            $(this).prop('disabled', true);
+            return;
+        }
+
         var productName = $(this).siblings('.product-name').text();
         var productPrice = $(this).siblings('.product-price').text();
         var quantity = $(this).siblings('.product-quantity').val();
+
+        selectedProductIds.add(productId);
+
+        $(this).prop('disabled', true);
 
         productPrice = productPrice.replace("₱", "").trim();
         productPrice = parseFloat(productPrice.replace("₱", "").trim());
 
         total += productPrice * parseInt(quantity);
+
+        var price = parseFloat(productPrice) * parseInt(quantity);
+        var formattedPrice = price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
         var newRow = `
             <tr class="selected-product" data-product-id="${productId}" data-product-quantity="${quantity}">
@@ -80,7 +105,7 @@ $(document).ready(function() {
                 </td>
                 <td class="text-end fw-bold"><!-- empty for spacing --></td>
                 <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                <td class="text-end fw-bold product-price">₱ ${parseFloat(productPrice).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) * parseInt(quantity)}</td>
+                <td class="text-end fw-bold product-price">₱ ${formattedPrice}</td>
             </tr>
         `;
 
@@ -94,7 +119,12 @@ $(document).ready(function() {
 
     $(document).on('click', '.remove-service', function(e) {
         e.preventDefault();
-
+    
+        var serviceId = $(this).parents('tr').data('service-id');
+    
+        // Remove the service ID from the set of selected services
+        selectedServiceIds.delete(serviceId);
+    
         var serviceFee = $(this).parents('tr').find('.service-fee').text();
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
@@ -103,20 +133,28 @@ $(document).ready(function() {
         
         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
+        $('.add-service[data-service-id="' + serviceId + '"]').prop('disabled', false);
+
         $(this).closest('tr').remove();
     });
 
     $(document).on('click', '.remove-product', function(e) {
         e.preventDefault();
+    
+        var productId = $(this).parents('tr').data('product-id');
+
+        selectedProductIds.delete(productId);
 
         var productPrice = $(this).parents('tr').find('.product-price').text();
         productPrice = productPrice.replace("₱", "").trim();
         productPrice = productPrice.replace(/,/g, "").trim();
-
+    
         total -= parseFloat(productPrice.replace("₱", "").trim());
-
+    
         $('.total-amount').text('₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-        
+    
+        $('.add-product[data-product-id="' + productId + '"]').prop('disabled', false);
+    
         $(this).closest('tr').remove();
     });
 });

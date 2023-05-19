@@ -6,10 +6,11 @@ from django.http import JsonResponse
 from inventory.models import Product
 from services.models import Service
 from record_management.models import Client
-from .models import Billing, BillingProduct
+from .models import Billing, BillingProduct, format_billing_number
 from django.db.models import Max
 from django.utils import timezone
 from decimal import Decimal
+
 
 @staff_required
 @login_required
@@ -25,7 +26,7 @@ def bill(request):
     clients = Client.objects.all()
 
     last_bill = Billing.objects.aggregate(Max('id'))['id__max']
-    next_bill_number = (last_bill + 1) if last_bill else 1
+    next_bill_number = format_billing_number((last_bill + 1) if last_bill else 1)
 
     context = {
         'client': client,

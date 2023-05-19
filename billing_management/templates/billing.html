@@ -121,7 +121,7 @@
             <div class="col-12 col-lg-auto text-center text-lg-end">
                 <!-- Invoice details-->
                 <div class="h3 text-white">Billing Statement</div>
-                Bill No. <span class="billing-number">{{ next_bill_number|stringformat:"06d" }}</span>
+                Bill No. <span class="billing-number">{{ next_bill_number }}</span>
                 <br />
                 <span class="current-date">{% now "F j, Y" %}</span>
             </div>
@@ -249,6 +249,7 @@
                                 <th>#</th>
                                 <th>Service</th>
                                 <th>Fee</th>
+                                <th>Remarks</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -264,6 +265,11 @@
                                 <td>
                                     <span class="service-fee">
                                         ₱ {{ service.fee|intcomma }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="service-remarks">
+                                        {{ service.get_remarks_display }}
                                     </span>
                                 </td>
                                 <td>
@@ -314,7 +320,11 @@
                                         {{ product.product_name }}
                                     </span>
                                 </td>
-                                <td>{{ product.get_type_display }}</td>
+                                <td>
+                                    <span class="product-type">
+                                        {{ product.get_type_display }}
+                                    </span>
+                                </td>
                                 <td>
                                     <span class="product-stock-quantity">
                                         {{ product.quantity_on_stock|floatformat:2|intcomma }}
@@ -355,7 +365,7 @@
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Billing <span class="billing-number-modal">{{ next_bill_number|stringformat:"06d" }}</span> has been submitted. Click <a href="{% url 'view-bill-page' next_bill_number %}">here</a> to view.
+                Billing <span class="billing-number-modal">{{ next_bill_number }}</span> has been submitted. Click <a href="{% url 'view-bill-page' next_bill_number %}">here</a> to view.
             </div>
             <div class="modal-footer">
                 <button id="success-add-billing" class="btn btn-dark" type="button" data-bs-dismiss="modal">OK</button>

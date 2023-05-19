@@ -34,7 +34,8 @@ $(document).ready(function() {
         var row = $(this).closest('tr');
         var serviceName = row.find('.service-type').text();
         var serviceFee = row.find('.service-fee').text();
-        
+        var serviceRemarks = row.find('.service-remarks').text();
+
         selectedServiceIds.add(serviceId);
 
         $(this).prop('disabled', true);
@@ -53,7 +54,7 @@ $(document).ready(function() {
                             <i data-feather="delete"></i>
                         </a>
                     </div>
-                    <div class="small text-muted d-none d-md-block">Without Medicine</div>
+                    <div class="small text-muted d-none d-md-block">${serviceRemarks}</div>
                 </td>
                 <td class="text-end fw-bold"><!-- empty for spacing --></td>
                 <td class="text-end fw-bold"><!-- empty for spacing --></td>
@@ -83,6 +84,7 @@ $(document).ready(function() {
         var row = $(this).closest('tr');
         var productName = row.find('.product-name').text();
         var productPrice = row.find('.product-price').text();
+        var productType = row.find('.product-type').text();
         var quantityInput = row.find('.product-quantity');
         var quantity = quantityInput.val();
     
@@ -132,7 +134,7 @@ $(document).ready(function() {
                                     <i data-feather="delete"></i>
                                 </a>
                             </div>
-                            <div class="small text-muted d-none d-md-block">Without Medicine</div>
+                            <div class="small text-muted d-none d-md-block">${productType}</div>
                         </td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
@@ -252,26 +254,26 @@ $('#confirm-paid-button').on('click', function() {
     });
 });
 
-$(document).ready(function() {
-    function formatBillId(billId) 
-    {
-        let billIdStr = String(billId);
-        while (billIdStr.length < 6) {
-            billIdStr = '0' + billIdStr;
-        }
-        billIdStr = billIdStr.slice(0, 3) + '-' + billIdStr.slice(3);
-        return billIdStr;
-    }
+// $(document).ready(function() {
+//     function formatBillId(billId) 
+//     {
+//         let billIdStr = String(billId);
+//         while (billIdStr.length < 6) {
+//             billIdStr = '0' + billIdStr;
+//         }
+//         billIdStr = billIdStr.slice(0, 3) + '-' + billIdStr.slice(3);
+//         return billIdStr;
+//     }
 
-    let billId = $('.billing-number').text();
-    let billIdModal = $('.billing-number-modal').text();
+//     let billId = $('.billing-number').text();
+//     let billIdModal = $('.billing-number-modal').text();
 
-    let formattedBillId = formatBillId(billId);
-    let formattedBillIdModal = formatBillId(billIdModal);
+//     let formattedBillId = formatBillId(billId);
+//     let formattedBillIdModal = formatBillId(billIdModal);
 
-    $('.billing-number').text(formattedBillId);
-    $('.billing-number-modal').text(formattedBillIdModal);
-});
+//     $('.billing-number').text(formattedBillId);
+//     $('.billing-number-modal').text(formattedBillIdModal);
+// });
 
 $('#success-add-billing').on('click', function() {
     window.location.href = "/admin/bill/";

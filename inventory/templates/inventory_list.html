@@ -98,7 +98,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     <tr>
                         <td>{{ product.id }}</td>
                         <td >{{ product.product_name }}</td>
-                        <td>{{ product.quantity_on_stock }}</td>
+                        <td>{{ product.quantity_on_stock|floatformat:2|intcomma }}</td>
                         <td>{{ product.get_type_display }}</td>
                         <td>{{ product.batch_number }}</td>
                         <td>{{ product.manufacturing_date }}</td>

@@ -128,7 +128,7 @@
                                     <tr>
                                         <td>
                                             <span class="billing-number">
-                                                {{ bill.id|stringformat:"06d" }}
+                                                {{ bill.get_billing_number }}
                                             </span>
                                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Billing">
                                                 <i data-feather="external-link"></i>

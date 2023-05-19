@@ -44,7 +44,7 @@
             <div class="col-12 col-lg-auto text-center text-lg-end">
                 <!-- Invoice details-->
                 <div class="h3 text-white">Billing Statement</div>
-                Bill No. <span class="billing-number">{{ bill.id|stringformat:"06d" }}</span>
+                Bill No. <span class="billing-number">{{ bill.get_billing_number }}</span>
                 <br />
                 {{ bill.date_created|date:"F j, Y, g:i A" }}
             </div>
@@ -77,13 +77,14 @@
                     </tr>
                 </thead>
                 <tbody class="tbody-services">
+                    {% if bill.services.all %}
                     {% for service in bill.services.all %}
                     <tr>
                         <td>
                             <div class="fw-bold">
                                 {{ service.service_type }}
                             </div>
-                            <div class="small text-muted d-none d-md-block">Without Medicine</div>
+                            <div class="small text-muted d-none d-md-block">{{ service.get_remarks_display }}</div>
                         </td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
@@ -92,6 +93,9 @@
                         </td>
                     </tr>
                     {% endfor %}
+                    {% else %}
+                        <td class="fw-bold">None</td>
+                    {% endif %}
                 </tbody>
             </table>
             <hr>
@@ -107,14 +111,15 @@
                     </tr>
                 </thead>
                 <tbody class="tbody-products">
+                    {% if bill.billing_products.all %}
                     {% for product in bill.billing_products.all %}
                     <tr>
                         <td>
                             <div class="fw-bold">
-                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.product.price }}</span>) x <span class="product-quantity">{{ product.quantity|floatformat:2 }}</span>
+                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.product.price|intcomma }}</span> x <span class="product-quantity">{{ product.quantity|floatformat:2 }})</span>
                             </div>
-                            <div class="small text-muted d-none d-md-block">Without Medicine</div>
-                        </td>
+                            <div class="small text-muted d-none d-md-block">{{ product.product.get_type_display }}</div>
+                        </td> 
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold product-price-multiplied">
@@ -122,6 +127,10 @@
                         </td> 
                     </tr>
                     {% endfor %}
+                    {% else %}
+                        <td class="fw-bold">None</td>
+                    {% endif %}
+
                     <tr class="border-top" id="total-row">
                         <td class="text-end pb-0" colspan="3"><!-- empty for spacing --></td>
                         <td class="text-end pb-0 h5 mb-0 fw-700" style="padding-top: 20px;">Total Amount: <span class="total-amount">₱ {{ bill.get_total }}</span></td>

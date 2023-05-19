@@ -4,9 +4,10 @@ from inventory.models import Product
 from services.models import Service
 from record_management.models import Client
 from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
+
 class Billing(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
-    services = models.ManyToManyField(Service)
+    services = models.ManyToManyField(Service, through='BillingService')
     products = models.ManyToManyField(Product, through='BillingProduct')
     date_created = models.DateTimeField(auto_now_add=True)
     
@@ -19,7 +20,7 @@ class Billing(models.Model):
         return total
 
     def __str__(self):
-        return self.client.first_name + " " + self.client.last_name + " " + str(self.get_total())
+        return self.client.full_name + " - Total: ₱ " + str(self.get_total())
 
         # update inventory quantity tomorrow
 
@@ -30,3 +31,10 @@ class BillingProduct(models.Model):
 
     def __str__(self):
         return f"{self.billing} - {self.product} ({self.quantity})"
+
+class BillingService(models.Model):
+    billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_services')
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.billing} - {self.service}"

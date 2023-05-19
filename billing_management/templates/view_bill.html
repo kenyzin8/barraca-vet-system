@@ -1,6 +1,7 @@
 {% extends 'admin_dashboard/base.html' %}
 
 {% load static %}
+{% load humanize %}
 
 {% block title %} Bill {{ bill.id }} | Barraca Veterinary Clinic {% endblock %}
 
@@ -86,8 +87,8 @@
                         </td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                        <td class="text-end fw-bold product-price">
-                            ₱ {{ service.fee }}
+                        <td class="text-end fw-bold service-price">
+                            ₱ {{ service.fee|intcomma }}
                         </td>
                     </tr>
                     {% endfor %}

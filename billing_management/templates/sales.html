@@ -31,6 +31,8 @@
     {
     color: #121212;
     }
+
+    
 </style>
 <script>
     window.addEventListener('DOMContentLoaded', event => {
@@ -40,7 +42,7 @@
                 paging: true,
                 perPageSelect: [5, 10, 25, 50],
                 perPage: 10,
-                fixedHeight: true,
+                fixedHeight: false,
                 sortable: true,
                 searchable: true,
                 hiddenHeader: false,
@@ -86,10 +88,16 @@
     </script>
 {% endblock %}
 
+{% block header %}
+
+{% endblock %}
+
 {% block content %}
 <div class="container mt-5 animated--fade-in-up">
         <!-- Wizard card example with navigation-->
+
         <div class="card">
+            
             <div class="card-header border-bottom">
                 <!-- Wizard navigation-->
                 <div class="nav nav-pills nav-justified flex-column flex-xl-row nav-wizard" id="cardTab" role="tablist">
@@ -109,7 +117,18 @@
                     </a>
                 </div>
             </div>
+            
             <div class="card-body">
+                <div class="d-flex justify-content-end mb-3 mt-3">
+                    <div class="col-12 col-xl-auto d-flex align-items-center">
+                        <div class="input-group input-group-joined border-0 ml-3" style="width: 16.5rem">
+                            <span class="input-group-text" style="background: #232323; color: white;">
+                                <i class="text-light" data-feather="calendar"></i>
+                            </span>
+                            <input class="form-control ps-0 pointer input-litepicker" id="litepickerRangePlugin" placeholder="Select date range..." style="background: #232323;color: white;" />
+                        </div>
+                    </div>
+                </div>
                 <div class="tab-content" id="cardTabContent">
                     <!-- Wizard tab pane item 1-->
                     <div class="tab-pane py-5 py-xl-2 fade show active" id="wizard1" role="tabpanel" aria-labelledby="wizard1-tab">
@@ -170,23 +189,6 @@
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
-<script>
-// $(document).ready(function() 
-// {
-//     function formatBillId(billId) {
-//         let billIdStr = String(billId);
-//         while (billIdStr.length < 6) {
-//             billIdStr = '0' + billIdStr;
-//         }
-//         billIdStr = billIdStr.slice(0, 3) + '-' + billIdStr.slice(3);
-//         return billIdStr;
-//     }
-
-//     $('.billing-number').each(function() {
-//         let billId = $(this).text();
-//         let formattedBillId = formatBillId(billId);
-//         $(this).text(formattedBillId);
-//     });
-// });
-</script>
+<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/bundle.js" crossorigin="anonymous"></script>
+<script src="{% static 'plugins/sb-admin/js/litepicker.js' %}"></script>
 {% endblock %}

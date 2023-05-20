@@ -16,6 +16,8 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from uuid import uuid4
 
+from datetime import datetime, timedelta, time
+
 @staff_required
 @login_required
 def bill(request):
@@ -104,6 +106,38 @@ def post_bill(request):
 
         return JsonResponse({'status': 'success'}, status=200)
 
+@staff_required
+@login_required
+def view_bill(request, bill_id):
+    bill = get_object_or_404(Billing, pk=bill_id)
+    context = {'bill': bill}
+    return render(request, 'view_bill.html', context)
+
+@login_required
+@staff_required
+def sales(request):
+    bills = Billing.objects.all().order_by('-id')
+
+    startDateStr = request.GET.get('startDate')
+    endDateStr = request.GET.get('endDate')
+
+    if startDateStr and endDateStr:
+        startDate = datetime.strptime(startDateStr, '%Y-%m-%d').date()
+        endDate = datetime.strptime(endDateStr, '%Y-%m-%d').date()
+
+        endDate = endDate + timedelta(days=1) - timedelta(seconds=1)
+        
+        bills = bills.filter(date_created__range=[startDate, endDate])
+    else:
+        current_date = datetime.now().date()
+        start_of_day = datetime.combine(current_date, time.min)
+        end_of_day = datetime.combine(current_date, time.max)
+        
+        bills = bills.filter(date_created__range=[start_of_day, end_of_day])
+
+    context = {'bills': bills}
+    return render(request, 'sales.html', context)
+
 # @csrf_exempt
 # @staff_required
 # @login_required
@@ -133,17 +167,3 @@ def post_bill(request):
 
 #         # Send response back to AJAX function
 #         return JsonResponse({'status': 'success'}, status=200)
-
-@staff_required
-@login_required
-def view_bill(request, bill_id):
-    bill = get_object_or_404(Billing, pk=bill_id)
-    context = {'bill': bill}
-    return render(request, 'view_bill.html', context)
-
-@staff_required
-@login_required
-def sales(request):
-    bills = Billing.objects.all().order_by('-id')
-    context = {'bills': bills}
-    return render(request, 'sales.html', context)

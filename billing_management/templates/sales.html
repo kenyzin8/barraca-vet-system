@@ -141,9 +141,9 @@
                                                 <i data-feather="external-link"></i>
                                             </a>
                                             {% endif %}
-                                            {% if request.user.is_authenticated and bill.client.user.id == request.user.id %}
+                                            <!-- {% if request.user.is_authenticated and bill.client.user.id == request.user.id %}
                                             (You)
-                                            {% endif %}
+                                            {% endif %} -->
                                         </td>
                                         <td>₱ {{ bill.get_total|floatformat:2|intcomma }}</td>
                                         <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>

@@ -100,6 +100,12 @@ def check_product_quantity(request, product_id):
 
 @staff_required
 @login_required
+def check_product_expiry(request, product_id):
+    product = Product.objects.get(pk=product_id)
+    return JsonResponse({'expiry': product.expiration_date})
+
+@staff_required
+@login_required
 def reorder_list(request):
     products = Product.objects.filter(quantity_on_stock__lte=F('critical_level')).order_by('-id')
     context = {'products': products}

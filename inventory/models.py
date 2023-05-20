@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
 
 class ProductType(models.Model):
@@ -26,6 +27,12 @@ class Product(models.Model):
 
     def is_product_critical(self):
         if self.quantity_on_stock <= self.critical_level:
+            return True
+        else:
+            return False
+
+    def is_product_expired(self):
+        if self.expiration_date < datetime.date.today():
             return True
         else:
             return False

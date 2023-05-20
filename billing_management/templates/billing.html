@@ -157,7 +157,7 @@
                     <tr class="small text-uppercase text-muted">
                         <th scope="col">
                             Services 
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#addServiceModal" data-bs-toggle="modal" data-bs-placement="top" title="Add Service">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#addServiceModal" data-bs-toggle="modal" data-bs-placement="top" title="Add Service" id="addServiceBtn">
                                 <i data-feather="plus-circle"></i>
                             </a>
                         </th>
@@ -311,6 +311,7 @@
                                 <th>#</th>
                                 <th>Product Name</th>
                                 <th>Type</th>
+                                <th>Expiration Date</th>
                                 <th>Stock Quantity</th>
                                 <th>Quantity</th>
                                 <th>Price</th>
@@ -328,9 +329,14 @@
                                 </td>
                                 <td>
                                     <span class="product-type">
-                                        {{ product.get_type_display }}
+                                        {{ product.type.name }}
                                     </span>
                                 </td>
+                                {% if product.is_product_expired %}
+                                    <td>{{ product.expiration_date }} <span style="color: red;">(Expired)</span></td>
+                                {% else %}
+                                    <td>{{ product.expiration_date }}</td>
+                                {% endif %}
                                 <td>
                                     <span class="product-stock-quantity">
                                         {{ product.quantity_on_stock|floatformat:2|intcomma }}

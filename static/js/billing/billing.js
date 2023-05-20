@@ -6,6 +6,8 @@ $(document).ready(function() {
     var selectedProductIds = new Set();
     var quantityOnStockSelected = 0;
 
+    $('#addServiceBtn').hide();
+
     if(clientInput.val().trim() != '') {
         clientInput.prop('disabled', true);
         findClientButton.css('display', 'none');
@@ -22,6 +24,7 @@ $(document).ready(function() {
         // Disable the input and show the anchor tag
         $('.selected-client-input').prop('disabled', true);
         $('.remove-client').show();
+        $('#addServiceBtn').show(); // Show the "Add Service" button
     
         $('#addClientModal').modal('hide');
     });
@@ -35,6 +38,7 @@ $(document).ready(function() {
         $('.selected-client-input').removeClass('selected-client');
         $('.selected-client-input').removeData('client-id');
         $('.remove-client').hide();
+        $('#addServiceBtn').hide(); // Hide the "Add Service" button
     });
 
     // Add service
@@ -115,54 +119,104 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: '/admin/inventory/check-quantity/' + productId + '/',
+            url: '/admin/inventory/check-expiry/' + productId + '/',
             method: 'GET',
             success: function(data) {
-                var stockQuantity = data.quantity;
+                var stockExpiry = data.expiry;
+                
+                if(stockExpiry != null) {
+                    var stockExpiryDate = new Date(stockExpiry);
+                    var today = new Date();
 
-                if(parseFloat(quantity) > stockQuantity) {
-                    $('#errorModal .modal-body').text("The entered quantity is greater than the stock quantity.");
-                    $('#errorModal').modal('show');
-                    quantityInput.focus();
-                    return;
+                    if(stockExpiryDate < today) {
+                        $('#errorModal .modal-body').html("The product is already expired. <a href='/admin/inventory/'>Click here</a> to view the list of product.");
+                        $('#errorModal').modal('show');
+                        quantityInput.focus();
+                        return;
+                    }
                 }
+            }
+        });
+        
 
-                selectedProductIds.add(productId);
+        $.ajax({
+            url: '/admin/inventory/check-expiry/' + productId + '/',
+            method: 'GET',
+            success: function(data) {
+                var stockExpiry = data.expiry;
+                
+                if(stockExpiry != null) {
+                    var stockExpiryDate = new Date(stockExpiry);
+                    var today = new Date();
+
+                    if(stockExpiryDate < today) {
+                        $('#errorModal .modal-body').html("The product is already expired. <br><br><a href='/admin/inventory/'>Click here</a> to view the list of product.");
+                        $('#errorModal').modal('show');
+                        quantityInput.focus();
+                        return;
+                    }
+                }
+                
+                $.ajax({
+                    url: '/admin/inventory/check-quantity/' + productId + '/',
+                    method: 'GET',
+                    success: function(data) {
+                        var stockQuantity = data.quantity;
+
+                        if(stockQuantity != null) {
+                            if(parseFloat(quantity) > stockQuantity) {
+                                $('#errorModal .modal-body').text("The entered quantity is greater than the stock quantity.");
+                                $('#errorModal').modal('show');
+                                quantityInput.focus();
+                                return;
+                            }
+                            else if(parseFloat(quantity) <= 0)
+                            {
+                                $('#errorModal .modal-body').text("The entered quantity is invalid.");
+                                $('#errorModal').modal('show');
+                                quantityInput.focus();
+                                return;
+                            }
+                        }
+
+                        selectedProductIds.add(productId);
     
-                $this.prop('disabled', true);
-            
-                productPrice = productPrice.replace("₱", "").trim();
-                productPrice = productPrice.replace(/,/g, "").trim();
-                productPrice = parseFloat(productPrice);
-            
-                total += productPrice * parseFloat(quantity);
-            
-                var price = parseFloat(productPrice) * parseFloat(quantity);
-                var formattedPrice = price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            
-                var newRow = `
-                    <tr class="selected-product" data-product-id="${productId}" data-product-quantity="${quantity}">
-                        <td>
-                            <div class="fw-bold">
-                                ${productName} x <span class="product-quantity">${quantity}</span>
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
-                                    <i data-feather="delete"></i>
-                                </a>
-                            </div>
-                            <div class="small text-muted d-none d-md-block">${productType}</div>
-                        </td>
-                        <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                        <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                        <td class="text-end fw-bold product-price">₱ ${formattedPrice}</td>
-                    </tr>
-                `;
-            
-                $('#total-row').before(newRow);
-                $('#addProductModal').modal('hide');
-            
-                $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-            
-                feather.replace();
+                        $this.prop('disabled', true);
+                    
+                        productPrice = productPrice.replace("₱", "").trim();
+                        productPrice = productPrice.replace(/,/g, "").trim();
+                        productPrice = parseFloat(productPrice);
+                    
+                        total += productPrice * parseFloat(quantity);
+                    
+                        var price = parseFloat(productPrice) * parseFloat(quantity);
+                        var formattedPrice = price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    
+                        var newRow = `
+                            <tr class="selected-product" data-product-id="${productId}" data-product-quantity="${quantity}">
+                                <td>
+                                    <div class="fw-bold">
+                                        ${productName} x <span class="product-quantity">${quantity}</span>
+                                        <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
+                                            <i data-feather="delete"></i>
+                                        </a>
+                                    </div>
+                                    <div class="small text-muted d-none d-md-block">${productType}</div>
+                                </td>
+                                <td class="text-end fw-bold"><!-- empty for spacing --></td>
+                                <td class="text-end fw-bold"><!-- empty for spacing --></td>
+                                <td class="text-end fw-bold product-price">₱ ${formattedPrice}</td>
+                            </tr>
+                        `;
+                    
+                        $('#total-row').before(newRow);
+                        $('#addProductModal').modal('hide');
+                    
+                        $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                    
+                        feather.replace();
+                    }
+                });
             }
         });
     });    

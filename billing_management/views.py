@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.db import transaction
+from uuid import uuid4
 
 @staff_required
 @login_required
@@ -77,7 +78,8 @@ def post_bill(request):
 
         if client_id is None:
             with transaction.atomic():
-                user = User(username="walkin_" + str(timezone.now()), is_active=False)
+                username = "walkin_" + str(uuid4())
+                user = User(username=username, is_active=False)
                 user.save()
 
                 client = Client(user=user, first_name=full_name, last_name="(walk-in)", address="N/A", contact_number="N/A")

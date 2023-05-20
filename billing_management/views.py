@@ -12,6 +12,8 @@ from django.utils import timezone
 from decimal import Decimal
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.contrib.auth.models import User
+from django.db import transaction
 
 @staff_required
 @login_required
@@ -61,9 +63,6 @@ def bill(request):
 #         'next_bill_number': next_bill_number
 #     }
 #     return render(request, 'billing.html', context)
-
-from django.contrib.auth.models import User
-from django.db import transaction
 
 @csrf_exempt
 @staff_required

@@ -14,7 +14,7 @@ class ProductType(models.Model):
 class Product(models.Model):
     product_name = models.CharField(max_length=255)
     quantity_on_stock = models.DecimalField(default=1.00, max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
-    type = models.ForeignKey(ProductType, on_delete=models.CASCADE)
+    type = models.ForeignKey(ProductType, on_delete=models.SET_NULL, null=True)
     batch_number = models.CharField(max_length=100)
     manufacturing_date = models.DateField()
     expiration_date = models.DateField()

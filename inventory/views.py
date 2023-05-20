@@ -3,10 +3,11 @@ import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from core.decorators import staff_required
 from django.contrib.auth.decorators import login_required
-from .models import Product
+from .models import Product, ProductType
 from .forms import ProductForm
 from django.http import JsonResponse
 from django.db.models import F
+from django.views.decorators.csrf import csrf_exempt
 
 @staff_required
 @login_required
@@ -15,6 +16,35 @@ def product_list(request):
     today = datetime.date.today()
     context = {'products': products, 'today': today}
     return render(request, 'inventory_list.html', context)
+
+@staff_required
+@login_required
+def product_type_list(request):
+    product_types = ProductType.objects.order_by('-id')
+    context = {'product_types': product_types}
+    return render(request, 'product_type_list.html', context)
+
+@staff_required
+@login_required
+@csrf_exempt
+def add_type_page(request):   
+    if request.method == 'POST':
+        name = request.POST.get('type_name') 
+        ProductType.objects.create(name=name)
+        return JsonResponse({'result': 'success'})
+
+# missing update
+
+@staff_required
+@login_required
+@csrf_exempt
+def delete_type_page(request, type_id):
+    try:
+        product_type = ProductType.objects.get(pk=type_id)
+        product_type.delete()
+        return JsonResponse({'result': 'success'})
+    except ProductType.DoesNotExist:
+        return JsonResponse({'result': 'error', 'message': 'Product type does not exist'})
 
 @staff_required
 @login_required

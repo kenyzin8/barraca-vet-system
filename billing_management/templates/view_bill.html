@@ -30,13 +30,13 @@
 {% endblock %}
 
 {% block content %}
-<nav class="mt-5 rounded" aria-label="breadcrumb">
+<nav class="mt-5 rounded animated--fade-in" aria-label="breadcrumb">
     <ol class="breadcrumb py-2 rounded mb-0">
         <li class="breadcrumb-item"><a href="{% url 'sales-page' %}">Sales</a></li>
         <li class="breadcrumb-item active">Bill No. {{ bill.get_billing_number}}</li>
     </ol>
 </nav>
-<div class="card invoice mt-2 mb-5">
+<div class="card invoice mt-2 mb-5 animated--fade-in">
     <div class="card-header p-4 p-md-5 border-bottom-0 bg-dark text-white-50">
         <div class="row justify-content-between align-items-center">
             <div class="col-12 col-lg-auto mb-5 mb-lg-0 text-center text-lg-start">

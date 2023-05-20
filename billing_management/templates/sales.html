@@ -136,9 +136,11 @@
                                         </td>
                                         <td>
                                             {{ bill.client.full_name }}
+                                            {% if bill.client.user.is_active %}
                                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' bill.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
                                                 <i data-feather="external-link"></i>
                                             </a>
+                                            {% endif %}
                                             {% if request.user.is_authenticated and bill.client.user.id == request.user.id %}
                                             (You)
                                             {% endif %}

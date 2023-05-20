@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Product
 from .forms import ProductForm
 from django.http import JsonResponse
+from django.db.models import F
 
 @staff_required
 @login_required
@@ -66,3 +67,10 @@ def delete_product(request, product_id):
 def check_product_quantity(request, product_id):
     product = Product.objects.get(pk=product_id)
     return JsonResponse({'quantity': float(product.quantity_on_stock)})
+
+@staff_required
+@login_required
+def reorder_list(request):
+    products = Product.objects.filter(quantity_on_stock__lte=F('critical_level')).order_by('-id')
+    context = {'products': products}
+    return render(request, 'reorder_list.html', context)

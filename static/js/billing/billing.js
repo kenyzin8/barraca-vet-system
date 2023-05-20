@@ -19,7 +19,22 @@ $(document).ready(function() {
         $('.selected-client-input').addClass('selected-client');
         $('.selected-client-input').data('client-id', clientId);
     
+        // Disable the input and show the anchor tag
+        $('.selected-client-input').prop('disabled', true);
+        $('.remove-client').show();
+    
         $('#addClientModal').modal('hide');
+    });
+    
+    $(document).on('click', '.remove-client', function(e) {
+        e.preventDefault();
+    
+        // Clear the input, enable it, hide the anchor tag, and remove selected-client class
+        $('.selected-client-input').val('');
+        $('.selected-client-input').prop('disabled', false);
+        $('.selected-client-input').removeClass('selected-client');
+        $('.selected-client-input').removeData('client-id');
+        $('.remove-client').hide();
     });
 
     // Add service
@@ -194,65 +209,78 @@ $(document).ready(function() {
     });
 });
 
-$('#paid-button').on('click', function() {
-    var clientId = $('.selected-client-input').data('client-id');
-    var serviceIds = [];
-    var productIds = [];
+    $('#paid-button').on('click', function() {
+        var clientId = $('.selected-client-input').data('client-id');
+        var clientName = $('.selected-client-input').val().trim();
+        var serviceIds = [];
+        var productIds = [];
 
-    $('.selected-service').each(function() {
-        serviceIds.push($(this).data('service-id'));
+        $('.selected-service').each(function() {
+            serviceIds.push($(this).data('service-id'));
+        });
+
+        $('.selected-product').each(function() {
+            productIds.push($(this).data('product-id'));
+        });
+
+        if(!clientId && clientName === '')
+        {
+            $('#errorModal .modal-body').text("Client is not selected.");
+            $('#errorModal').modal('show');
+            return;
+        }
+
+        if(serviceIds.length == 0 && productIds.length == 0) {
+            $('#errorModal .modal-body').text("At least one service or product should be added.");
+            $('#errorModal').modal('show');
+            return;
+        }
+
+        $('#confirmationModal').modal('show');
     });
 
-    $('.selected-product').each(function() {
-        productIds.push($(this).data('product-id'));
-    });
 
-    if(!clientId)
-    {
-        $('#errorModal .modal-body').text("Client is not selected.");
-        $('#errorModal').modal('show');
-        return;
-    }
+    $('#confirm-paid-button').on('click', function() {
+        var clientId = $('.selected-client-input').data('client-id');
+        if (clientId === '') {
+            clientId = undefined;
+        }
+        var fullName = $('.selected-client-input').val();
+        var serviceIds = [];
+        var productIds = [];
+        var quantities = [];
 
-    if(serviceIds.length == 0 && productIds.length == 0) {
-        $('#errorModal .modal-body').text("At least one service or product should be added.");
-        $('#errorModal').modal('show');
-        return;
-    }
+        $('.selected-service').each(function() {
+            serviceIds.push($(this).data('service-id'));
+        });
 
-    $('#confirmationModal').modal('show');
-});
+        $('.selected-product').each(function() {
+            productIds.push($(this).data('product-id'));
+            quantities.push($(this).data('product-quantity'));
+        });
 
-$('#confirm-paid-button').on('click', function() {
-    var clientId = $('.selected-client-input').data('client-id');
-    var serviceIds = [];
-    var productIds = [];
-    var quantities = [];
-
-    $('.selected-service').each(function() {
-        serviceIds.push($(this).data('service-id'));
-    });
-
-    $('.selected-product').each(function() {
-        productIds.push($(this).data('product-id'));
-        quantities.push($(this).data('product-quantity'));
-    });
-
-    $.ajax({
-        url: '/admin/bill/post/',
-        method: 'POST',
-        data: {
-            'client_id': clientId,
+        var data = {
+            'full_name': fullName,
             'service_ids': serviceIds,
             'product_ids': productIds,
             'quantities': quantities,
-        },
-        dataType: 'json',
-        success: function(data) {
-            $('#addBillSuccess').modal('show');
+        };
+
+        // Only include client_id in the data if it's not undefined
+        if (clientId !== undefined) {
+            data.client_id = clientId;
         }
+
+        $.ajax({
+            url: '/admin/bill/post/',
+            method: 'POST',
+            data: data,
+            dataType: 'json',
+            success: function(data) {
+                $('#addBillSuccess').modal('show');
+            }
+        });
     });
-});
 
 // $(document).ready(function() {
 //     function formatBillId(billId) 

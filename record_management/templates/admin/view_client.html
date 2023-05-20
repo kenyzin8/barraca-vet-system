@@ -114,7 +114,7 @@
                 <br>
                 <a href="#" class="btn btn-dark"><i data-feather="settings"></i>&nbsp;Update</a>
                 <!-- <a href="#" class="btn btn-dark">Delete</a> -->
-                <a href="#" class="btn btn-dark"><i data-feather="dollar-sign"></i>&nbsp;Bill</a>
+                <a href="{% url 'billing-page' %}?to={{ client.id }}" class="btn btn-dark"><i data-feather="dollar-sign"></i>&nbsp;Bill</a>
             </div>
         </div>
     </div>

@@ -99,7 +99,7 @@ window.addEventListener('DOMContentLoaded', event => {
                         <td>{{ product.id }}</td>
                         <td >{{ product.product_name }}</td>
                         <td>{{ product.quantity_on_stock|floatformat:2|intcomma }}</td>
-                        <td>{{ product.get_type_display }}</td>
+                        <td>{{ product.type.name }}</td>
                         <td>{{ product.batch_number }}</td>
                         <td>{{ product.manufacturing_date }}</td>
                         {% if product.expiration_date < today %}
@@ -107,7 +107,12 @@ window.addEventListener('DOMContentLoaded', event => {
                         {% else %}
                           <td>{{ product.expiration_date }}</td>
                         {% endif %}
-                        <td>{{ product.critical_level }}</td>
+                        <td>
+                          {{ product.critical_level }}
+                          {% if product.is_product_critical %}
+                            <span style="color: red;">(Critical)</span>
+                          {% endif %}
+                        </td>
                         <td>₱ {{ product.price|intcomma }}</td>
                         <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-update-page' product.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update">

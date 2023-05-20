@@ -1,0 +1,71 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block title %} Reorder List | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<script>
+window.addEventListener('DOMContentLoaded', event => {
+    const datatablesSimple = document.getElementById('datatablesSimple');
+    if (datatablesSimple) {
+        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+            paging: true,
+            perPageSelect: [5, 10, 25, 50],
+            perPage: 10,
+            fixedHeight: true,
+            sortable: true,
+            searchable: true,
+            hiddenHeader: false,
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="card card-header-actions mt-5 mb-5">
+        <div class="card-header">
+            Reorder List
+            <button class="btn btn-dark btn-sm">Print</button>
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Item</th>
+                        <th>Stock Quantity</th>
+                        <th>Critical Level</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.product_name }}</td>
+                        <td>{{ product.quantity_on_stock|floatformat:2|intcomma }}</td>
+                        <td>{{ product.critical_level }}</td>
+                        <td>₱ {{ product.price|intcomma }}</td>
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-update-page' product.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update">
+                                <i data-feather="settings"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<!-- <script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script> -->
+{% endblock %}

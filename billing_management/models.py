@@ -31,7 +31,8 @@ class Billing(models.Model):
     def __str__(self):
         return self.client.full_name + " - Total: ₱ " + str(self.get_total())
 
-        # update inventory quantity tomorrow
+    class Meta:
+        verbose_name_plural = "Bills"
 
 class BillingProduct(models.Model):
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_products')

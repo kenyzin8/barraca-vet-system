@@ -64,6 +64,14 @@
 
         <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
         <script src="{% static 'plugins/sb-admin/js/scripts.js' %}"></script>
+        <script>
+            window.onload = function() {
+                var activeLink = document.querySelector('.sidenav .nav-link.active');
+                if (activeLink) {
+                    activeLink.scrollIntoView({ behavior: 'auto', block: 'center' });
+                }
+            };
+        </script>
         {% block extrascripts %}
         {% endblock %}
     </body>

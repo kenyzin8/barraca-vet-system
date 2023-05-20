@@ -77,7 +77,7 @@
                         <div class="nav-link-icon"><i data-feather="table"></i></div>
                         Services
                     </a>
-                    <a class="nav-link" href="#">
+                    <a class="nav-link {% if current_url_name == 'reorder-list-page' %}active{% endif %}" href="{% url 'reorder-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="list"></i></div>
                         Reorder List
                     </a>

@@ -3,7 +3,7 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %} Billing & Payment | Barraca Veterinary Clinic {% endblock %}
+{% block title %} New Bill | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
 <style>
@@ -138,7 +138,13 @@
                         <i data-feather="plus-circle"></i>
                     </a>
                 </div>
-                <input disabled type="text" class="form-control selected-client-input" data-client-id="{{ client.id }}" value="{{ client.full_name }}" id="" placeholder="Select a client">
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control selected-client-input" data-client-id="{{ client.id }}" value="{{ client.full_name }}" id="" placeholder="Walk-in or select existing client">
+                    &nbsp;
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark remove-client ml-2" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Client" style="display: none;">
+                        <i data-feather="delete"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

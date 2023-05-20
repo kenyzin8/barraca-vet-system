@@ -78,7 +78,7 @@
                     <td>{{ client.first_name }} {{ client.last_name }}</td>
                     <td>{{ client.contact_number }}</td>
                     <td>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="confirmSendSMS('{{ client.id }}', '{{ client.first_name }}', '{{ client.last_name }}', '{{ client.contact_number }}')">
+                        <button type="button" class="btn btn-primary btn-sm lift lift-sm" onclick="confirmSendSMS('{{ client.id }}', '{{ client.first_name }}', '{{ client.last_name }}', '{{ client.contact_number }}')">
                             Notify
                         </button>
                     </td>
@@ -86,7 +86,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        <button type="button" class="btn btn-warning btn-sm" onclick="confirmSendBulkSMS()">Notify All</button>&nbsp;&nbsp;<span style="font-size: 12px;"><i>Only the visible rows will be notified</i></span>
+        <button type="button" class="btn btn-warning btn-sm lift lift-sm" onclick="confirmSendBulkSMS()">Notify All</button>&nbsp;&nbsp;<span style="font-size: 12px;"><i>Only the visible rows will be notified</i></span>
     </div>
 </div>
 

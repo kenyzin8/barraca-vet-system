@@ -75,8 +75,8 @@
             <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}">
             <div class="card-body">
                 <center><h5 class="card-title mt-3 mb-4">{{ pet.name }}</h5></center>
-                <a href="{% url 'view-pet-page' pet.id %}" class="btn btn-dark custom-btn">View Pet</a>
-                <a href="#" class="btn btn-dark custom-btn mt-2">Set Appointment</a>
+                <a href="{% url 'view-pet-page' pet.id %}" class="btn btn-dark custom-btn lift lift-sm">View Pet</a>
+                <a href="#" class="btn btn-dark custom-btn mt-2 lift lift-sm">Set Appointment</a>
             </div>
         </div>
         {% endfor %}

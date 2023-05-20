@@ -5,6 +5,12 @@
 {% block title %} Pets | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
+<style>
+    .btn-to-pet 
+    {
+        margin-bottom: 3px;
+    }
+</style>
 <script>
 window.addEventListener('DOMContentLoaded', event => {
     const datatablesSimple = document.getElementById('datatablesSimple');
@@ -64,7 +70,7 @@ window.addEventListener('DOMContentLoaded', event => {
     <div class="card card-header-actions mt-5 mb-5 animated--fade-in-up">
         <div class="card-header">
             Pets
-            <button class="btn btn-dark btn-sm">Print</button>
+            <button class="btn btn-dark btn-sm lift lift-sm">Print</button>
         </div>
         <div class="card-body">
             <table id="datatablesSimple">
@@ -83,10 +89,15 @@ window.addEventListener('DOMContentLoaded', event => {
                     <tr>
                         <td>{{ pet.id }}</td>
                         <td>
-                            {{ pet.name }}
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Pet">
-                                <i data-feather="external-link"></i>
-                            </a>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-2">
+                                    <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" loading="lazy"/>
+                                </div>
+                                {{ pet.name }}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Pet">
+                                    <i data-feather="external-link"></i>
+                                </a>
+                            </div>
                         </td>
                         <td>{{ pet.species }}</td>
                         <td>{{ pet.birthday }}</td>

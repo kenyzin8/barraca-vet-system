@@ -49,19 +49,14 @@ window.addEventListener('DOMContentLoaded', event => {
     yesterday.setDate(yesterday.getDate() - 1);
     
     let weekStart = new Date();
-    if (weekStart.getDay() === 0) { // if today is Sunday
-        weekStart.setDate(weekStart.getDate() - 6); // set to last Monday
+    if (weekStart.getDay() === 0) {
+        weekStart.setDate(weekStart.getDate() - 6);
     } else {
-        weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1); // set to this Monday
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
     }
 
     let weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6); // set to Sunday
-
-    let threeMonthsAgoStart = new Date();
-    threeMonthsAgoStart.setMonth(threeMonthsAgoStart.getMonth() - 3);
-    let threeMonthsAgoEnd = new Date();
-    threeMonthsAgoEnd.setDate(threeMonthsAgoEnd.getDate() - 1);
+    weekEnd.setDate(weekStart.getDate() + 6);
     
     const litepickerRangePlugin = document.getElementById('litepickerRangePlugin');
     if (litepickerRangePlugin) {
@@ -73,7 +68,7 @@ window.addEventListener('DOMContentLoaded', event => {
             numberOfMonths: 2,
             numberOfColumns: 2,
             format: 'MMM DD, YYYY',
-            plugins: ['ranges'],
+            plugins: ['mobilefriendly', 'ranges'],
             ranges: {
                 customRanges: {
                     'Today': [today, today],

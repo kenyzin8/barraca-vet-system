@@ -32,7 +32,57 @@
     color: #121212;
     }
 
+    .litepicker.mobilefriendly[data-plugins*="mobilefriendly"] 
+    {
+        width: 90%;
+    }
     
+    .litepicker.mobilefriendly-portrait 
+    {
+        --litepicker-day-width: 10vw;
+    }
+
+    .litepicker[data-plugins*="mobilefriendly"] .container__months 
+    {
+        overflow: visible;
+    }
+
+    .datatable-pagination .datatable-active a, .datatable-pagination .datatable-active a:focus, .datatable-pagination .datatable-active a:hover 
+    {
+        color: #fff;
+        background-color: #232323;
+    }
+
+    .page-link, .datatable-pagination a 
+    {
+        color: #232323;
+    }
+
+    @media (max-width: 767.98px) 
+    {
+        .datatable-top > nav:first-child, .datatable-top > div:first-child, .datatable-bottom > nav:first-child, .datatable-bottom > div:first-child 
+        {
+            float: left;
+            width: 100%;
+            text-align: center;
+        }
+
+        .datatable-top > nav:last-child, .datatable-top > div:last-child, .datatable-bottom > nav:last-child, .datatable-bottom > div:last-child 
+        {
+            float: left;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .datatable-pagination 
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+
 </style>
 <script>
     window.addEventListener('DOMContentLoaded', event => {
@@ -189,6 +239,6 @@
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/bundle.js" crossorigin="anonymous"></script>
+<script src="{% static 'plugins/sb-admin/js/bundle.js' %}" crossorigin="anonymous"></script>
 <script src="{% static 'plugins/sb-admin/js/litepicker.js' %}"></script>
 {% endblock %}

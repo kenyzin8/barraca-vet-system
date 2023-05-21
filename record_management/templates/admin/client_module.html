@@ -149,7 +149,7 @@ window.addEventListener('DOMContentLoaded', event => {
         var css_gridStyle = `text-align: center;padding: 8px;border: 1px solid #232323; ${font}`;
         var css_headerStyle = `text-align: center; font-size: 14pt; color: #232323; font-weight: bold; margin-bottom: 20px; font-family: Roboto;`;
         var headerName = "Client List Report";
-        var imgSrc = "https://i.imgur.com/s2xzcP9.png";
+        var imgSrc = "{% static 'images/barraca.png' %}";
         var header = `<hr><br><div style='text-align: center'><img src='${imgSrc}' style='width: 50%;' /><style>@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');</style><h1 style='${css_headerStyle}; font-family: Roboto;'>${headerName}</h1><span style='font-size:12pt; font-family: Roboto;'>Total Clients: ${data.length}</span></div><br>`;
 
         printJS({

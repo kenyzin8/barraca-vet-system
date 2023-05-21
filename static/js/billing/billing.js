@@ -6,7 +6,7 @@ $(document).ready(function() {
     var selectedProductIds = new Set();
     var quantityOnStockSelected = 0;
 
-    $('#addServiceBtn').hide();
+    // $('#addServiceBtn').hide();
 
     if(clientInput.val().trim() != '') {
         clientInput.prop('disabled', true);
@@ -24,7 +24,7 @@ $(document).ready(function() {
         // Disable the input and show the anchor tag
         $('.selected-client-input').prop('disabled', true);
         $('.remove-client').show();
-        $('#addServiceBtn').show(); // Show the "Add Service" button
+        // $('#addServiceBtn').show(); // Show the "Add Service" button
     
         $('#addClientModal').modal('hide');
     });
@@ -38,7 +38,7 @@ $(document).ready(function() {
         $('.selected-client-input').removeClass('selected-client');
         $('.selected-client-input').removeData('client-id');
         $('.remove-client').hide();
-        $('#addServiceBtn').hide(); // Hide the "Add Service" button
+        // $('#addServiceBtn').hide(); // Hide the "Add Service" button
     });
 
     // Add service

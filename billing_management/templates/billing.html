@@ -54,6 +54,7 @@ window.addEventListener('DOMContentLoaded', event => {
 
         tooltips.push(tooltip);
     }
+    
 });
 
 </script>
@@ -182,7 +183,7 @@ window.addEventListener('DOMContentLoaded', event => {
                             <tr>
                                 <td><span class="client-id">{{ client.id }}</span></td>
                                 <td><span class="client-value">{{ client.full_name }}</span></td>
-                                <td><button class="btn btn-dark add-client" data-client-id="{{ client.id }}">Add</button></td>
+                                <td><button class="btn btn-dark add-client btn-sm" data-client-id="{{ client.id }}">Add</button></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -235,7 +236,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-dark add-service" data-service-id="{{ service.id }}">
+                                    <button class="btn btn-dark add-service btn-sm" data-service-id="{{ service.id }}">
                                         Add
                                     </button>
                                 </td>
@@ -307,7 +308,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-dark add-product" data-product-id="{{ product.id }}" data-product-price="{{ product.price }}">
+                                    <button class="btn btn-dark btn-sm add-product" data-product-id="{{ product.id }}" data-product-price="{{ product.price }}">
                                         <span class="add-text">Add</span>
                                         <span class="add-product-ajax-loading spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
                                     </button>                                                                      

@@ -1,4 +1,6 @@
 $(document).ready(function() {
+
+    $('#fullscreen-spinner').addClass('d-none');
     var total = 0;
     var clientInput = $('.selected-client-input');
     var findClientButton = $('.find-client-button');
@@ -488,5 +490,4 @@ $(document).ready(function() {
     $('#success-add-billing').on('click', function() {
         window.location.href = "/admin/bill/";
     });
-
 });

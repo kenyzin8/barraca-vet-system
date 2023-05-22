@@ -1,5 +1,15 @@
 {% load static %}
-<link id="loader-css" rel="stylesheet" href="{% static 'css/loader.css' %}">
+<div id="fullscreen-spinner" class="d-flex justify-content-center align-items-center" style="display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0, 0, 0, 0.5); z-index: 9999;">
+   <div class="spinner-border text-light" role="status">
+       <span class="visually-hidden">Loading...</span>
+   </div>
+</div>
+<script>
+   $(document).ready(function() {
+       $('#fullscreen-spinner').addClass('d-none');
+   });
+</script>
+<!-- <link id="loader-css" rel="stylesheet" href="{% static 'css/loader.css' %}">
 
 <div class="loader">
     <div class="dog">
@@ -58,4 +68,4 @@ window.addEventListener("load", function() {
 
   body.classList.remove("loader-active");
 });
-</script>
+</script> -->

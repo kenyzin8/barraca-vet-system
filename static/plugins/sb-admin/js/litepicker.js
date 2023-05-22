@@ -75,6 +75,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     'This Week': [weekStart, weekEnd],
                     'This Month': [new Date(currentYear, today.getMonth(), 1), new Date(currentYear, today.getMonth() + 1, 0)],
                     'This Year': [new Date(currentYear, 0, 1), new Date(currentYear, 11, 31)],
+                    'Lifetime': [new Date(2010, 0, 1), new Date(currentYear, 11, 31)],
                 }
             },
             setup: (picker) => {

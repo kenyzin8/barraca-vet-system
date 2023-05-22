@@ -308,9 +308,10 @@ window.addEventListener('DOMContentLoaded', event => {
                                 </td>
                                 <td>
                                     <button class="btn btn-dark add-product" data-product-id="{{ product.id }}" data-product-price="{{ product.price }}">
-                                        Add
-                                    </button>
-                                </td>
+                                        <span class="add-text">Add</span>
+                                        <span class="add-product-ajax-loading spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                                    </button>                                                                      
+                                </td>                                
                             </tr>
                             {% endfor %}
                         </tbody>

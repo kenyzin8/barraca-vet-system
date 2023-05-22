@@ -215,10 +215,11 @@ $(document).ready(function() {
     // Add product
     $(document).on('click', '.add-product', function() 
     { 
+        $(this).attr('data-active-ajax', true);
         var $this = $(this);
 
         var productId = $(this).data('product-id');
-    
+        
         if (selectedProductIds.has(productId)) {
             $this.prop('disabled', true);
             return;
@@ -344,8 +345,28 @@ $(document).ready(function() {
                 });
             }
         });
-        
     });    
+
+    var activeAjaxRequests = 0;
+
+    $(document).ajaxStart(function() {
+        activeAjaxRequests++;
+        if (activeAjaxRequests === 1) { 
+            var $this = $('.add-product[data-active-ajax="true"]');
+            $this.prop('disabled', true);
+            $this.find('.add-text').text("Adding...");
+            $this.find('.add-product-ajax-loading').removeClass('d-none');
+        }
+    }).ajaxStop(function() {
+        activeAjaxRequests--;
+        if (activeAjaxRequests === 0) { 
+            var $this = $('.add-product[data-active-ajax="true"]');
+            $this.prop('disabled', false);
+            $this.find('.add-text').text("Add");
+            $this.find('.add-product-ajax-loading').addClass('d-none');
+            $this.removeAttr('data-active-ajax'); 
+        }
+    });
 
     $(document).on('click', '.remove-service', function(e) 
     {

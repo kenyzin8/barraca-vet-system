@@ -8,3 +8,4 @@ def staff_required(function):
             raise Http404("Page not found")
         return function(request, *args, **kwargs)
     return _wrapped_view
+

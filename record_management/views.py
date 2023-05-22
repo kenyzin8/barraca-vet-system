@@ -10,12 +10,22 @@ from django.views.decorators.http import require_http_methods
 from datetime import datetime, timedelta
 
 import json
+import time
 
 from .forms import PetRegistrationForm, LoginForm, UserRegistrationForm, UserUpdateForm, ClientUpdateForm
 from .models import Client, Pet
 from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
 from core.decorators import staff_required
+from django.core.cache import cache
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -23,13 +33,24 @@ def login_view(request):
 
     if request.method == 'POST':
         form = LoginForm(request=request, data=request.POST)
+        username = request.POST.get('username', '') 
+        client_ip = get_client_ip(request)
+        print(client_ip)
+        attempts_key = f'attempts_{client_ip}'
+        attempts = cache.get(attempts_key, 0)
+
+        if attempts >= 2:
+            messages.error(request, 'Too many attempts. Please try again after 2 minutes.')
+            return render(request, 'client/login.html', {'form': form})
+
         if form.is_valid():
             user = form.get_user()
 
             if not user.client.two_auth_enabled:
                 login(request, user)
+                cache.set(attempts_key, 0, 2 * 60) 
                 return redirect('home')
-                
+
             phone_number = user.client.contact_number
             otp_code = send_otp_sms(phone_number)
 
@@ -40,6 +61,9 @@ def login_view(request):
             request.session.save()
 
             return redirect('otp_view')
+        else:
+            cache.set(attempts_key, attempts + 1, 2 * 60)  
+
     else:
         form = LoginForm()
     return render(request, 'client/login.html', {'form': form})
@@ -66,7 +90,7 @@ def register_user(request):
             otp_code = send_otp_sms(phone_number)
 
             request.session['otp_code'] = otp_code
-            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=5)).timestamp()  # 5 minutes from now
+            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=5)).timestamp()
             request.session['temp_user_id'] = user.id
             request.session['temp_user_session'] = request.session.session_key
             request.session.save()

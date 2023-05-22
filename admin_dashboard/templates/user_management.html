@@ -1,0 +1,107 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Users | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="card card-header-actions mt-5 mb-5 animated--fade-in-up">
+        <div class="card-header">
+            Users
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple" class="print-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Client Profile</th>
+                        <th>Status</th>
+                        <th>E-mail</th>
+                        <th>Date Joined</th>
+                        <th>Last Login</th>
+                        <th>Permission</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-2">
+                                    <img class="avatar-img img-fluid" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" />
+                                </div>
+                                {{ user.client.full_name }}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' user.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">
+                                    <i data-feather="external-link"></i>
+                                </a>
+                                <!-- {% if request.user.is_authenticated and client.user.id == request.user.id %}
+                                (You)
+                                {% endif %} -->
+                            </div>
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="badge bg-danger">
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.email %}
+                            {{ user.email }}
+                            {% else %}
+                            <span class="badge bg-danger">
+                                No Email
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined }}</td>
+                        <td>{{ user.last_login }}</td>
+                        <td>
+                            {% if user.is_staff %}
+                            <span class="badge bg-orange ">
+                                Staff
+                            </span>
+                            {% endif %}
+                            {% if user.is_superuser %}
+                            <span class="badge bg-dark">
+                                Superuser
+                            </span>
+                            {% endif %}
+                            {% if not user.is_staff and not user.is_superuser %}
+                            <span class="badge bg-warning">
+                                Client
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Update User">
+                                <i data-feather="settings"></i>
+                            </a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Ban User">
+                                <i data-feather="slash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+{% endblock %}

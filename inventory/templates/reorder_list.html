@@ -6,22 +6,7 @@
 {% block title %} Reorder List | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
-<script>
-window.addEventListener('DOMContentLoaded', event => {
-    const datatablesSimple = document.getElementById('datatablesSimple');
-    if (datatablesSimple) {
-        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
-            paging: true,
-            perPageSelect: [5, 10, 25, 50],
-            perPage: 10,
-            fixedHeight: true,
-            sortable: true,
-            searchable: true,
-            hiddenHeader: false,
-        });
-    }
-});
-</script>
+<script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
 {% endblock %}
 
 {% block content %}

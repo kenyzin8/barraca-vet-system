@@ -19,6 +19,10 @@ from core.semaphore import send_sms, send_otp_sms
 from core.decorators import staff_required
 from django.core.cache import cache
 
+from django.conf import settings
+
+OTP_EXPIRATION_MINUTE = settings.OTP_EXPIRATION_MINUTES
+
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -26,6 +30,7 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -35,13 +40,30 @@ def login_view(request):
         form = LoginForm(request=request, data=request.POST)
         username = request.POST.get('username', '') 
         client_ip = get_client_ip(request)
-        print(client_ip)
+
         attempts_key = f'attempts_{client_ip}'
         attempts = cache.get(attempts_key, 0)
 
         if attempts >= 2:
             messages.error(request, 'Too many attempts. Please try again after 2 minutes.')
             return render(request, 'client/login.html', {'form': form})
+
+        try:
+            user = User.objects.get(username=username)
+            if not user.is_active:
+
+                phone_number = user.client.contact_number
+                otp_code = send_otp_sms(phone_number)
+                request.session['otp_code'] = otp_code
+                request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=OTP_EXPIRATION_MINUTE)).timestamp()
+                request.session['temp_user_id'] = user.id
+                request.session['temp_user_session'] = request.session.session_key
+                request.session['otp_attempt_count'] = 0
+                request.session.save()
+
+                return redirect('otp_view')
+        except User.DoesNotExist:
+            pass
 
         if form.is_valid():
             user = form.get_user()
@@ -55,9 +77,10 @@ def login_view(request):
             otp_code = send_otp_sms(phone_number)
 
             request.session['otp_code'] = otp_code
-            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=5)).timestamp()
+            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=OTP_EXPIRATION_MINUTE)).timestamp()
             request.session['temp_user_id'] = user.id
             request.session['temp_user_session'] = request.session.session_key
+            request.session['otp_attempt_count'] = 0
             request.session.save()
 
             return redirect('otp_view')
@@ -67,6 +90,7 @@ def login_view(request):
     else:
         form = LoginForm()
     return render(request, 'client/login.html', {'form': form})
+
 
 def register_user(request):
     if request.user.is_authenticated:
@@ -90,9 +114,10 @@ def register_user(request):
             otp_code = send_otp_sms(phone_number)
 
             request.session['otp_code'] = otp_code
-            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=5)).timestamp()
+            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=OTP_EXPIRATION_MINUTE)).timestamp()
             request.session['temp_user_id'] = user.id
             request.session['temp_user_session'] = request.session.session_key
+            request.session['otp_attempt_count'] = 0
             request.session.save()
 
             return redirect('otp_view')
@@ -132,16 +157,41 @@ def otp_view(request):
     time_remaining = max(0, int(otp_expiration_timestamp - datetime.now().timestamp()))
     user_id = request.session.get('temp_user_id')
     otp_expired = False
+    attempt_limit = 3 
+
+    if datetime.now().timestamp() > otp_expiration_timestamp:
+        del request.session['temp_user_id']
+        del request.session['otp_code']
+        del request.session['otp_code_expiration']
+        del request.session['temp_user_session']
+        del request.session['otp_attempt_count']
+
+        return redirect('home')
+
     if request.method == 'POST':
         entered_otp_code = int(request.POST.get('otp_code'))
         stored_otp_code = int(request.session.get('otp_code', None))
+        attempt_count = request.session.get('otp_attempt_count', 0)
 
         if datetime.now().timestamp() > otp_expiration_timestamp:
             otp_expired = True
             return render(request, 'client/otp.html', {'error_message': 'Expired OTP. Please try again.', 'time_remaining': time_remaining, 'otp_expired': otp_expired})
 
         if entered_otp_code != stored_otp_code:
-            return render(request, 'client/otp.html', {'error_message': 'Invalid OTP. Please try again.', 'time_remaining': time_remaining})
+            attempt_count += 1
+            request.session['otp_attempt_count'] = attempt_count
+
+            if attempt_count >= attempt_limit:
+                del request.session['temp_user_id']
+                del request.session['otp_code']
+                del request.session['otp_code_expiration']
+                del request.session['temp_user_session']
+                del request.session['otp_attempt_count']
+
+                return redirect('home')
+
+            remaining_attempts = attempt_limit - attempt_count
+            return render(request, 'client/otp.html', {'error_message': f'Invalid OTP. Please try again. Attempts ({attempt_count}/{attempt_limit})', 'time_remaining': time_remaining, 'remaining_attempts': remaining_attempts})
 
         if entered_otp_code == stored_otp_code:
             if user_id:
@@ -155,6 +205,9 @@ def otp_view(request):
                 del request.session['otp_code']
                 del request.session['otp_code_expiration']
                 del request.session['temp_user_session']
+
+                if 'otp_attempt_count' in request.session:
+                    del request.session['otp_attempt_count']
             
                 return redirect('home')
             else:
@@ -184,9 +237,13 @@ def resend_otp(request):
             del request.session['otp_code']
         if 'otp_code_expiration' in request.session:
             del request.session['otp_code_expiration']
+        if 'otp_attempt_count' in request.session:
+            del request.session['otp_attempt_count']
 
         request.session['otp_code'] = otp_code
-        request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=5)).timestamp()
+        request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=OTP_EXPIRATION_MINUTE)).timestamp()
+        request.session['otp_attempt_count'] = 0
+
         return redirect('otp_view')
     else:
         return HttpResponse("An error occurred. Please try again.")

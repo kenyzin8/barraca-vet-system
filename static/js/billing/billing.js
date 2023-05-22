@@ -4,16 +4,137 @@ $(document).ready(function() {
     var findClientButton = $('.find-client-button');
     var selectedServiceIds = new Set();
     var selectedProductIds = new Set();
-    var quantityOnStockSelected = 0;
+
+    let dataTable_products;
+    let dataTable_services;
+    let dataTable_clients;
+
+    $('#addClientModal').on('show.bs.modal', function (event)
+    {
+        const datatablesSimple_clients = document.getElementById('datatablesSimple-client');
+
+        if (datatablesSimple_clients) {
+            dataTable_clients = new simpleDatatables.DataTable(datatablesSimple_clients, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 5,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+        }
+
+        var searchInput = document.querySelector('.datatable-input');
+
+        searchInput.addEventListener('search', function(e) {
+            if (e.target.value == '') {
+                dataTable_clients.search('');
+            }
+        });
+    });
+
+    $('#addServiceModal').on('show.bs.modal', function (event) 
+    {
+        const datatablesSimple_services = document.getElementById('datatablesSimple-services');
+
+        if (datatablesSimple_services) {
+            dataTable_services = new simpleDatatables.DataTable(datatablesSimple_services, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 5,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+                labels: {
+                    info: `Services Table`,
+                },
+            });
+        }
+        $('.add-service').each(function() {
+            var serviceId = $(this).data('service-id');
+            var row = $(this).closest('tr');
+            if (selectedServiceIds.has(serviceId)) {
+                row.remove(); 
+            } 
+        });
+
+        var searchInput = document.querySelector('.datatable-input');
+
+        searchInput.addEventListener('search', function(e) {
+            if (e.target.value == '') {
+                dataTable_services.search('');
+            }
+        });
+    });
+
+    $('#addProductModal').on('show.bs.modal', function (event) 
+    {
+        const datatablesSimple_products = document.getElementById('datatablesSimple-products');
+
+        if (datatablesSimple_products) {
+            dataTable_products = new simpleDatatables.DataTable(datatablesSimple_products, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 5,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+                labels: {
+                    info: `Products Table`,
+                },
+            });
+        }
+        $('.add-product').each(function() {
+            var productId = $(this).data('product-id');
+            var row = $(this).closest('tr');
+            if (selectedProductIds.has(productId)) {
+                row.remove(); 
+            } 
+        });
+        var searchInput = document.querySelector('.datatable-input');
+        
+        searchInput.addEventListener('search', function(e) {
+            if (e.target.value == '') {
+                dataTable_products.search('');
+            }
+        });
+    });
+    
+
+    $('#addClientModal').on('hidden.bs.modal', function (event) 
+    {
+        if (dataTable_clients) {
+            dataTable_clients.destroy();
+            dataTable_clients = null;
+        }
+    });
+
+    $('#addServiceModal').on('hidden.bs.modal', function (event) 
+    {
+        if (dataTable_services) {
+            dataTable_services.destroy();
+            dataTable_services = null;
+        }
+    });
+
+    $('#addProductModal').on('hidden.bs.modal', function (event) 
+    {
+        if (dataTable_products) {
+            dataTable_products.destroy();
+            dataTable_products = null;
+        }
+    });
 
     // $('#addServiceBtn').hide();
 
-    if(clientInput.val().trim() != '') {
+    if(clientInput.val().trim() != '') 
+    {
         clientInput.prop('disabled', true);
         findClientButton.css('display', 'none');
     }
 
-    $(document).on('click', '.add-client', function() {
+    $(document).on('click', '.add-client', function() 
+    {
         var clientId = $(this).data('client-id');
         var clientName = $(this).closest('tr').find('.client-value').text();
     
@@ -29,7 +150,8 @@ $(document).ready(function() {
         $('#addClientModal').modal('hide');
     });
     
-    $(document).on('click', '.remove-client', function(e) {
+    $(document).on('click', '.remove-client', function(e) 
+    {
         e.preventDefault();
     
         // Clear the input, enable it, hide the anchor tag, and remove selected-client class
@@ -42,7 +164,8 @@ $(document).ready(function() {
     });
 
     // Add service
-    $(document).on('click', '.add-service', function() { 
+    $(document).on('click', '.add-service', function() 
+    { 
         var serviceId = $(this).data('service-id');
 
         if (selectedServiceIds.has(serviceId)) {
@@ -90,7 +213,8 @@ $(document).ready(function() {
     });
 
     // Add product
-    $(document).on('click', '.add-product', function() { 
+    $(document).on('click', '.add-product', function() 
+    { 
         var $this = $(this);
 
         var productId = $(this).data('product-id');
@@ -215,13 +339,16 @@ $(document).ready(function() {
                         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                     
                         feather.replace();
+
                     }
                 });
             }
         });
+        
     });    
 
-    $(document).on('click', '.remove-service', function(e) {
+    $(document).on('click', '.remove-service', function(e) 
+    {
         e.preventDefault();
     
         var serviceId = $(this).parents('tr').data('service-id');
@@ -242,7 +369,8 @@ $(document).ready(function() {
         $(this).closest('tr').remove();
     });
 
-    $(document).on('click', '.remove-product', function(e) {
+    $(document).on('click', '.remove-product', function(e) 
+    {
         e.preventDefault();
     
         var productId = $(this).parents('tr').data('product-id');
@@ -261,40 +389,41 @@ $(document).ready(function() {
     
         $(this).closest('tr').remove();
     });
-});
 
-    $('#paid-button').on('click', function() {
+    $('#paid-button').on('click', function() 
+    {
         var clientId = $('.selected-client-input').data('client-id');
         var clientName = $('.selected-client-input').val().trim();
         var serviceIds = [];
         var productIds = [];
-
+    
         $('.selected-service').each(function() {
             serviceIds.push($(this).data('service-id'));
         });
-
+    
         $('.selected-product').each(function() {
             productIds.push($(this).data('product-id'));
         });
-
+    
         if(!clientId && clientName === '')
         {
             $('#errorModal .modal-body').text("Client is not selected.");
             $('#errorModal').modal('show');
             return;
         }
-
+    
         if(serviceIds.length == 0 && productIds.length == 0) {
             $('#errorModal .modal-body').text("At least one service or product should be added.");
             $('#errorModal').modal('show');
             return;
         }
-
+    
         $('#confirmationModal').modal('show');
     });
-
-
-    $('#confirm-paid-button').on('click', function() {
+    
+    
+    $('#confirm-paid-button').on('click', function() 
+    {
         var clientId = $('.selected-client-input').data('client-id');
         if (clientId === '') {
             clientId = undefined;
@@ -303,28 +432,27 @@ $(document).ready(function() {
         var serviceIds = [];
         var productIds = [];
         var quantities = [];
-
+    
         $('.selected-service').each(function() {
             serviceIds.push($(this).data('service-id'));
         });
-
+    
         $('.selected-product').each(function() {
             productIds.push($(this).data('product-id'));
             quantities.push($(this).data('product-quantity'));
         });
-
+    
         var data = {
             'full_name': fullName,
             'service_ids': serviceIds,
             'product_ids': productIds,
             'quantities': quantities,
         };
-
-        // Only include client_id in the data if it's not undefined
+    
         if (clientId !== undefined) {
             data.client_id = clientId;
         }
-
+    
         $.ajax({
             url: '/admin/bill/post/',
             method: 'POST',
@@ -335,28 +463,9 @@ $(document).ready(function() {
             }
         });
     });
+    
+    $('#success-add-billing').on('click', function() {
+        window.location.href = "/admin/bill/";
+    });
 
-// $(document).ready(function() {
-//     function formatBillId(billId) 
-//     {
-//         let billIdStr = String(billId);
-//         while (billIdStr.length < 6) {
-//             billIdStr = '0' + billIdStr;
-//         }
-//         billIdStr = billIdStr.slice(0, 3) + '-' + billIdStr.slice(3);
-//         return billIdStr;
-//     }
-
-//     let billId = $('.billing-number').text();
-//     let billIdModal = $('.billing-number-modal').text();
-
-//     let formattedBillId = formatBillId(billId);
-//     let formattedBillIdModal = formatBillId(billIdModal);
-
-//     $('.billing-number').text(formattedBillId);
-//     $('.billing-number-modal').text(formattedBillIdModal);
-// });
-
-$('#success-add-billing').on('click', function() {
-    window.location.href = "/admin/bill/";
 });

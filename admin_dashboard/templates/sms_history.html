@@ -5,22 +5,7 @@
 
 {% block extrastyles %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
-<script>
-    window.addEventListener('DOMContentLoaded', event => {
-    const datatablesSimple = document.getElementById('datatablesSimple');
-    if (datatablesSimple) {
-        new simpleDatatables.DataTable(datatablesSimple, {
-            paging: true,
-            perPageSelect: [5, 10, 25, 50],
-            perPage: 10,
-            fixedHeight: true,
-            sortable: false,
-            searchable: false,
-            hiddenHeader: false,
-        });
-    }
-    });
-</script>
+<script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
 
 <script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
 {% endblock %}

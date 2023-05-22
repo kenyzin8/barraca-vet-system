@@ -230,3 +230,5 @@ CELERY_TIMEZONE = TIME_ZONE
 #         'schedule': 30.0,
 #     },
 # }
+
+OTP_EXPIRATION_MINUTES = 5

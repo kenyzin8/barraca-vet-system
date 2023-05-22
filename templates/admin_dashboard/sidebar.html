@@ -25,7 +25,7 @@
                         <div class="nav-link-icon"><i data-feather="activity"></i></div>
                         Dashboard
                     </a>
-                    <a class="animated--fade-in-up nav-link" href="#">
+                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'user-list-page' %}active{% endif %}" href="{% url 'user-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
                         Manage Users
                     </a>

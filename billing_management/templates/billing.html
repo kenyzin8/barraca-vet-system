@@ -34,76 +34,29 @@
         margin-top: -60px;
     }
 </style>
+
+<script src="{% static 'js/billing/billing.js' %}"></script>
 <script>
-    $(document).ready(function() {
-        let dataTable_products;
-        let dataTable_services;
-        let dataTable_clients;
-        
-        $('#addClientModal').on('show.bs.modal', function (event) {
-            const datatablesSimple_clients = document.getElementById('datatablesSimple-client');
-            if (datatablesSimple_clients) {
-                dataTable_clients = new simpleDatatables.DataTable(datatablesSimple_clients, {
-                    paging: true,
-                    perPageSelect: [5, 10, 25, 50],
-                    perPage: 10,
-                    sortable: true,
-                    searchable: true,
-                    hiddenHeader: false,
-                });
-            }
-        });
-        $('#addServiceModal').on('show.bs.modal', function (event) {
-            const datatablesSimple_services = document.getElementById('datatablesSimple-services');
-            if (datatablesSimple_services) {
-                dataTable_services = new simpleDatatables.DataTable(datatablesSimple_services, {
-                    paging: true,
-                    perPageSelect: [5, 10, 25, 50],
-                    perPage: 10,
-                    sortable: true,
-                    searchable: true,
-                    hiddenHeader: false,
-                });
-            }
+window.addEventListener('DOMContentLoaded', event => {
+    var buttonIds = ['addServiceBtn', 'addProductBtn', 'addClientBtn'];
+    var tooltips = [];
+
+    for (var i = 0; i < buttonIds.length; i++) {
+        var button = document.getElementById(buttonIds[i]);
+        var tooltip = new bootstrap.Tooltip(button, {
+            placement: 'top',
+            trigger: 'hover'
         });
 
-        $('#addProductModal').on('show.bs.modal', function (event) {
-            const datatablesSimple_products = document.getElementById('datatablesSimple-products');
-            if (datatablesSimple_products) {
-                dataTable_products = new simpleDatatables.DataTable(datatablesSimple_products, {
-                    paging: true,
-                    perPageSelect: [5, 10, 25, 50],
-                    perPage: 10,
-                    sortable: true,
-                    searchable: true,
-                    hiddenHeader: false,
-                });
-            }
+        button.addEventListener('click', function() {
+            tooltip.hide();
         });
 
-        $('#addClientModal').on('hidden.bs.modal', function (event) {
-            if (dataTable_services) {
-                dataTable_services.destroy();
-                dataTable_services = null;
-            }
-        });
+        tooltips.push(tooltip);
+    }
+});
 
-        $('#addServiceModal').on('hidden.bs.modal', function (event) {
-            if (dataTable_clients) {
-                dataTable_clients.destroy();
-                dataTable_clients = null;
-            }
-        });
-
-        $('#addProductModal').on('hidden.bs.modal', function (event) {
-            if (dataTable_products) {
-                dataTable_products.destroy();
-                dataTable_products = null;
-            }
-        });
-    });
 </script>
-    
 {% endblock %}
 
 {% block content %}
@@ -134,7 +87,7 @@
                 <!-- Invoice - sent to info-->
                 <div class="small text-muted text-uppercase fw-700 mb-2">
                     Client
-                    <a class="btn btn-datatable btn-icon btn-transparent-dark find-client-button" href="#addClientModal" data-bs-toggle="modal" data-bs-placement="top" title="Find Client">
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark find-client-button" href="#addClientModal" data-bs-toggle="modal" data-bs-placement="top" title="Find Client" id="addClientBtn">
                         <i data-feather="plus-circle"></i>
                     </a>
                     <a style="margin-left:-5px" class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="right" title="You can manually input a name or select an existing client">
@@ -179,7 +132,7 @@
                     <tr class="small text-uppercase text-muted">
                         <th scope="col">
                             Products
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#addProductModal" data-bs-toggle="modal" data-bs-placement="top" title="Add Product">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#addProductModal" data-bs-toggle="modal" data-bs-placement="top" title="Add Product" id="addProductBtn">
                                 <i data-feather="plus-circle"></i>
                             </a>
                         </th>
@@ -428,5 +381,4 @@
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
-<script src="{% static 'js/billing/billing.js' %}"></script>
 {% endblock %}

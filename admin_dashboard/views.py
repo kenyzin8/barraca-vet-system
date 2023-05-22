@@ -11,10 +11,19 @@ from core.decorators import staff_required
 import urllib.parse
 import requests
 
+from django.contrib.auth.models import User
+
 @login_required
 @staff_required
 def admin_dashboard(request):
     return render(request, 'admin_dashboard.html')
+
+@login_required
+@staff_required
+def user_list(request):
+    users = User.objects.exclude(client__last_name__icontains='(walk-in)').order_by('-date_joined')
+    context = {"users": users}
+    return render(request, 'user_management.html', context)
 
 @login_required
 @staff_required

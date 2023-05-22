@@ -3,7 +3,7 @@ from core.decorators import staff_required
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-from inventory.models import Product
+from inventory.models import Product, ProductType
 from services.models import Service
 from record_management.models import Client
 from .models import Billing, BillingProduct, format_billing_number
@@ -18,8 +18,8 @@ from uuid import uuid4
 
 from datetime import datetime, timedelta, time
 
-@staff_required
 @login_required
+@staff_required
 def bill(request):
     client_id = request.GET.get('to', None)
     if client_id is not None:
@@ -27,17 +27,23 @@ def bill(request):
     else:
         client = None
 
-    products = Product.objects.all()
     services = Service.objects.all()
     clients = Client.objects.filter(user__is_active=True)
+    clients_count = clients.count()
+    # Get all product types and group products by type
+    types = ProductType.objects.all()
+    product_dict = {t.name: Product.objects.filter(type=t) for t in types}
 
     last_bill = Billing.objects.aggregate(Max('id'))['id__max']
     next_bill_number = format_billing_number((last_bill + 1) if last_bill else 1)
 
     context = {
         'client': client,
-        'products': products,
+        'clients_count': clients_count,
+        'product_dict': product_dict,
+        'products_count': Product.objects.count(),
         'services': services,
+        'services_count': services.count(),
         'clients': clients,
         'next_bill_number': next_bill_number
     }

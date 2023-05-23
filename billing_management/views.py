@@ -15,7 +15,7 @@ from django.db import transaction
 from django.contrib.auth.models import User
 from django.db import transaction
 from uuid import uuid4
-
+import json
 from datetime import datetime, timedelta, time
 
 @login_required
@@ -30,7 +30,7 @@ def bill(request):
     services = Service.objects.all()
     clients = Client.objects.filter(user__is_active=True)
     clients_count = clients.count()
-    # Get all product types and group products by type
+
     types = ProductType.objects.all()
     product_dict = {t.name: Product.objects.filter(type=t) for t in types}
 
@@ -78,11 +78,11 @@ def bill(request):
 @login_required
 def post_bill(request):
     if request.method == 'POST':
-        client_id = request.POST.get('client_id', None)
-        full_name = request.POST.get('full_name', "Walk-in Customer")
-        service_ids = request.POST.getlist('service_ids[]')
-        product_ids = request.POST.getlist('product_ids[]')
-        quantities = request.POST.getlist('quantities[]')
+        data = json.loads(request.body)
+        client_id = data.get('client_id', None)
+        full_name = data.get('full_name', "Walk-in Customer")
+        service_ids = data.get('service_ids', [])
+        product_ids_and_quantities = data.get('product_ids', [])
 
         if client_id is None:
             with transaction.atomic():
@@ -96,15 +96,16 @@ def post_bill(request):
             client = Client.objects.get(pk=client_id)
 
         services = Service.objects.filter(id__in=service_ids)
-        products = Product.objects.filter(id__in=product_ids)
+        products = [Product.objects.get(id=pq['id']) for pq in product_ids_and_quantities]
 
         bill = Billing(client=client, date_created=timezone.now())
         bill.save()
 
-        for product, quantity in zip(products, quantities):
-            billing_product = BillingProduct(billing=bill, product=product, quantity=quantity)
+        for pq in product_ids_and_quantities:
+            product = Product.objects.get(id=pq['id'])
+            billing_product = BillingProduct(billing=bill, product=product, quantity=pq['quantity'])
             billing_product.save()
-            product.quantity_on_stock -= Decimal(quantity)
+            product.quantity_on_stock -= Decimal(pq['quantity'])
             product.save()
 
         bill.services.set(services)

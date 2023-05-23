@@ -1,5 +1,5 @@
 <script>
-    
+  
 $(document).ready(function() {
 
     $('#fullscreen-spinner').addClass('d-none');
@@ -359,7 +359,7 @@ $(document).ready(function() {
                     
                         $('#total-row').before(newRow);
                         $('#addProductModal').modal('hide');
-                    
+               
                         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                     
                         feather.replace();
@@ -465,6 +465,22 @@ $(document).ready(function() {
         $('#confirmationModal').modal('show');
     });
 
+    function getCookie(name) 
+    {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
     $('#confirm-paid-button').on('click', function() 
     {
@@ -482,9 +498,13 @@ $(document).ready(function() {
         });
 
         $('.selected-product').each(function() {
-            productIds.push($(this).data('product-id'));
-            quantities.push($(this).data('product-quantity'));
+            productIds.push({
+                id: $(this).data('product-id'),
+                quantity: $(this).data('product-quantity')
+            });
         });
+
+        console.log(productIds)
 
         var data = {
             'full_name': fullName,
@@ -497,13 +517,23 @@ $(document).ready(function() {
             data.client_id = clientId;
         }
 
+        var csrftoken = getCookie('csrftoken');
+
         $.ajax({
             url: '/admin/bill/post/',
             method: 'POST',
-            data: data,
+            data: JSON.stringify(data),
+            contentType: 'application/json',
             dataType: 'json',
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
             success: function(data) {
                 $('#addBillSuccess').modal('show');
+            },
+            error: function(data) {
+                $('#errorModal .modal-body').text(data.responseJSON.message);
+                $('#errorModal').modal('show');
             }
         });
     });

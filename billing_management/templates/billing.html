@@ -294,7 +294,7 @@ window.addEventListener('DOMContentLoaded', event => {
                             </li>
                             {% for type, products in product_dict.items %}
                                 <li class="nav-item me-1">
-                                    <a class="nav-link{% if forloop.first %} active{% endif %}" id="{{ type }}-pill" href="#{{ type }}" data-bs-toggle="tab" role="tab" aria-controls="{{ type }}" aria-selected="{{ forloop.first }}">{{ type }}{{ products|length|pluralize }}</a>
+                                    <a class="nav-link{% if forloop.first %} active{% endif %}" id="{{ type }}-pill" href="#{{ type }}" data-bs-toggle="tab" role="tab" aria-controls="{{ type }}" aria-selected="{{ forloop.first }}">{{ type }}</a>
                                 </li>
                             {% endfor %}      
                         </ul>

@@ -335,6 +335,8 @@ $(document).ready(function() {
                         productPrice = productPrice.replace(/,/g, "").trim();
                         productPrice = parseFloat(productPrice);
                     
+                        quantity = parseFloat(quantity);
+                        
                         total += productPrice * parseFloat(quantity);
                     
                         var price = parseFloat(productPrice) * parseFloat(quantity);
@@ -344,7 +346,7 @@ $(document).ready(function() {
                             <tr class="selected-product" data-product-id="${productId}" data-product-quantity="${quantity}">
                                 <td>
                                     <div class="fw-bold">
-                                        ${productName} x <span class="product-quantity">${quantity}</span>
+                                        ${productName} (₱ ${productPrice} x <span class="product-quantity">${quantity}</span>)
                                         <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
                                             <i data-feather="delete"></i>
                                         </a>

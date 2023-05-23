@@ -44,6 +44,20 @@
     {
         color: #11111155;
     }
+
+    .scrollable-tab 
+    {
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    .scrollable-tab .nav-item 
+    {
+        flex: 0 0 auto;
+    }
 </style>
 {% include 'product_table_script.html' %}
 <script>
@@ -274,15 +288,15 @@ window.addEventListener('DOMContentLoaded', event => {
                 <div class="card">
                     <div class="card-header border-bottom">
                         <!-- Dashboard card navigation-->
-                        <ul class="nav nav-tabs card-header-tabs" id="dashboardNav" role="tablist">
+                        <ul class="nav nav-tabs card-header-tabs scrollable-tab" id="dashboardNav" role="tablist">
                             <li class="nav-item type-label text-dark">
                                 Types:
                             </li>
                             {% for type, products in product_dict.items %}
                                 <li class="nav-item me-1">
-                                    <a class="nav-link{% if forloop.first %} active{% endif %}" id="{{ type }}-pill" href="#{{ type }}" data-bs-toggle="tab" role="tab" aria-controls="{{ type }}" aria-selected="{{ forloop.first }}">{{ type }}s</a>
+                                    <a class="nav-link{% if forloop.first %} active{% endif %}" id="{{ type }}-pill" href="#{{ type }}" data-bs-toggle="tab" role="tab" aria-controls="{{ type }}" aria-selected="{{ forloop.first }}">{{ type }}{{ products|length|pluralize }}</a>
                                 </li>
-                            {% endfor %}
+                            {% endfor %}      
                         </ul>
                     </div>
                     <div class="card-body">

@@ -1,6 +1,9 @@
 from django.db import models
 import datetime
 from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
+from django.contrib.contenttypes.models import ContentType
+
+from core.models import Notification
 
 class ProductType(models.Model):
     name = models.CharField(max_length=50)
@@ -36,3 +39,50 @@ class Product(models.Model):
             return True
         else:
             return False
+
+    def is_product_out_of_stock(self):
+        if self.quantity_on_stock == 0:
+            return True
+        else:
+            return False
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        content_type = ContentType.objects.get_for_model(Product)
+
+        if self.is_product_critical():
+            Notification.objects.get_or_create(
+                text=f"Critical Level - {self.product_name}",
+                content_type=content_type,
+                object_id=self.id
+            )
+        else:
+            Notification.objects.filter(
+                text=f"Critical Level - {self.product_name}", 
+                content_type=content_type, 
+                object_id=self.id).delete()
+            
+        if self.is_product_out_of_stock():
+            Notification.objects.get_or_create(
+                text=f"Out of Stock - {self.product_name}",
+                content_type=content_type,
+                object_id=self.id
+            )
+        else:
+            Notification.objects.filter(
+                text=f"Out of Stock - {self.product_name}", 
+                content_type=content_type, 
+                object_id=self.id).delete()
+
+        if self.is_product_expired():
+            Notification.objects.get_or_create(
+                text=f"Expired - {self.product_name}",
+                content_type=content_type,
+                object_id=self.id
+            )
+        else:
+            Notification.objects.filter(
+                text=f"Expired - {self.product_name}", 
+                content_type=content_type, 
+                object_id=self.id).delete()

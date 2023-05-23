@@ -431,6 +431,7 @@ $(document).ready(function() {
         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
         $('.add-service[data-service-id="' + serviceId + '"]').prop('disabled', false);
+        $('.add-service[data-service-id="' + serviceId + '"]').text("Add");
 
         $(this).closest('tr').remove();
     });
@@ -452,6 +453,7 @@ $(document).ready(function() {
         $('.total-amount').text('₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
         $('.add-product[data-product-id="' + productId + '"]').prop('disabled', false);
+        $('.add-product[data-product-id="' + productId + '"]').text("Add");
 
         $(this).closest('tr').remove();
     });

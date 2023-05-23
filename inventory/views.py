@@ -3,7 +3,7 @@ import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from core.decorators import staff_required
 from django.contrib.auth.decorators import login_required
-from .models import Product, ProductType
+from .models import Product, ProductType, Notification
 from .forms import ProductForm
 from django.http import JsonResponse
 from django.db.models import F

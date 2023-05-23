@@ -56,4 +56,4 @@ function updateNotifications()
 
 updateNotifications();
 
-setInterval(updateNotifications, 10000);
+// setInterval(updateNotifications, 10000);

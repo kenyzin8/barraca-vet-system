@@ -16,7 +16,7 @@ $(document).ready(function() {
         var client_help = document.getElementById('client-help');
         clientInput.prop('disabled', true);
         // findClientButton.css('display', 'none');
-        $(client_help).attr('data-bs-original-title', "You have selected a client. You cannot change the client unless you <a href='{% url 'billing-page' %}'>click here.</a>");
+        $(client_help).attr('data-bs-original-title', "You have selected a client. You can change the client by clicking the add or remove client button.");
         new bootstrap.Tooltip(client_help, {
             html: true
         });

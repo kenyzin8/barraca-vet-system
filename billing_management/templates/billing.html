@@ -115,7 +115,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     <a class="btn btn-datatable btn-icon btn-transparent-dark find-client-button" href="#addClientModal" data-bs-toggle="modal" data-bs-placement="top" title="Find Client" id="addClientBtn">
                         <i data-feather="plus-circle"></i>
                     </a>
-                    <a style="margin-left:-5px" class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="right" title="You can manually input a name or select an existing client">
+                    <a id="client-help" style="margin-left:-5px" class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="right" title="You can manually input a name or select an existing client">
                         <i data-feather="help-circle"></i>
                     </a>
                 </div>
@@ -261,7 +261,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                 </td>
                                 <td>
                                     <button class="btn btn-dark add-service btn-sm" data-service-id="{{ service.id }}">
-                                        Add
+                                        <span class="add-text">Add</span>
                                     </button>
                                 </td>
                             </tr>
@@ -271,7 +271,7 @@ window.addEventListener('DOMContentLoaded', event => {
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -294,7 +294,9 @@ window.addEventListener('DOMContentLoaded', event => {
                             </li>
                             {% for type, products in product_dict.items %}
                                 <li class="nav-item me-1">
-                                    <a class="nav-link{% if forloop.first %} active{% endif %}" id="{{ type }}-pill" href="#{{ type }}" data-bs-toggle="tab" role="tab" aria-controls="{{ type }}" aria-selected="{{ forloop.first }}">{{ type }}</a>
+                                    <a class="nav-link{% if forloop.first %} active{% endif %}" id="{{ type }}-pill" href="#{{ type }}" data-bs-toggle="tab" role="tab" aria-controls="{{ type }}" aria-selected="{{ forloop.first }}">
+                                        {{ type }} ({{ products|length }})
+                                    </a>
                                 </li>
                             {% endfor %}      
                         </ul>
@@ -377,7 +379,7 @@ window.addEventListener('DOMContentLoaded', event => {
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

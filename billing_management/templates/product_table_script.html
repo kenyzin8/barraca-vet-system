@@ -1,8 +1,6 @@
 <script>
   
 $(document).ready(function() {
-
-    $('#fullscreen-spinner').addClass('d-none');
     var total = 0;
     var clientInput = $('.selected-client-input');
     var findClientButton = $('.find-client-button');
@@ -12,6 +10,18 @@ $(document).ready(function() {
     let dataTable_products;
     let dataTable_services;
     let dataTable_clients;
+
+    if(clientInput.val().trim() != '') 
+    {
+        var client_help = document.getElementById('client-help');
+        clientInput.prop('disabled', true);
+        // findClientButton.css('display', 'none');
+        $(client_help).attr('data-bs-original-title', "You have selected a client. You cannot change the client unless you <a href='{% url 'billing-page' %}'>click here.</a>");
+        new bootstrap.Tooltip(client_help, {
+            html: true
+        });
+        $('.remove-client').show();
+    }
 
     $('#addClientModal').on('show.bs.modal', function (event)
     {
@@ -49,16 +59,18 @@ $(document).ready(function() {
                 sortable: true,
                 searchable: true,
                 hiddenHeader: false,
-                labels: {
-                    info: `Services Table`,
-                },
+                // labels: {
+                //     info: `Services Table`,
+                // },
             });
         }
         $('.add-service').each(function() {
             var serviceId = $(this).data('service-id');
             var row = $(this).closest('tr');
             if (selectedServiceIds.has(serviceId)) {
-                row.remove(); 
+                // row.remove(); 
+                row.find('.add-service').prop('disabled', true); 
+                row.find('.add-text').text("Added");
             } 
         });
 
@@ -85,9 +97,9 @@ $(document).ready(function() {
                     sortable: true,
                     searchable: true,
                     hiddenHeader: false,
-                    labels: {
-                        info: `Products Table`,
-                    },
+                    // labels: {
+                    //     info: `Products Table`,
+                    // },
                 });
 
                 var searchInput = document.querySelector('.datatable-input');
@@ -102,7 +114,8 @@ $(document).ready(function() {
                 var productId = $(this).data('product-id');
                 var row = $(this).closest('tr');
                 if (selectedProductIds.has(productId)) {
-                    row.remove(); 
+                    row.find('.add-product').prop('disabled', true); 
+                    row.find('.add-text').text("Added");
                 } 
 
                 $.ajax({
@@ -136,6 +149,13 @@ $(document).ready(function() {
                     }
                 });
             });
+            var searchInput = document.querySelector('.datatable-input');
+
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    datatablesSimple_products_{{ forloop.counter }}.search('');
+                }
+            });
         {% endfor %}
     });
  
@@ -166,12 +186,6 @@ $(document).ready(function() {
 
     // $('#addServiceBtn').hide();
 
-    if(clientInput.val().trim() != '') 
-    {
-        clientInput.prop('disabled', true);
-        findClientButton.css('display', 'none');
-    }
-
     $(document).on('click', '.add-client', function() 
     {
         var clientId = $(this).data('client-id');
@@ -200,6 +214,10 @@ $(document).ready(function() {
         $('.selected-client-input').removeData('client-id');
         $('.remove-client').hide();
         // $('#addServiceBtn').hide(); // Hide the "Add Service" button
+
+        var url = window.location.href;
+        var newUrl = url.split('?')[0];
+        window.history.pushState({}, null, newUrl);
     });
 
     // Add service
@@ -220,6 +238,7 @@ $(document).ready(function() {
         selectedServiceIds.add(serviceId);
 
         $(this).prop('disabled', true);
+        $(this).find('.add-text').text("Added");
 
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
@@ -244,7 +263,7 @@ $(document).ready(function() {
         `;
 
         $('.tbody-services').append(newRow);
-        $('#addServiceModal').modal('hide');
+        // $('#addServiceModal').modal('hide');
 
         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
@@ -330,7 +349,8 @@ $(document).ready(function() {
                         selectedProductIds.add(productId);
 
                         $this.prop('disabled', true);
-                    
+                        $this.find('.add-text').text("Added");
+                        
                         productPrice = productPrice.replace("₱", "").trim();
                         productPrice = productPrice.replace(/,/g, "").trim();
                         productPrice = parseFloat(productPrice);
@@ -346,7 +366,7 @@ $(document).ready(function() {
                             <tr class="selected-product" data-product-id="${productId}" data-product-quantity="${quantity}">
                                 <td>
                                     <div class="fw-bold">
-                                        ${productName} (₱ ${productPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} x <span class="product-quantity">${quantity}</span>)
+                                        ${productName} (₱ ${productPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} x <span class="product-quantity">${quantity.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>)
                                         <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
                                             <i data-feather="delete"></i>
                                         </a>
@@ -358,9 +378,9 @@ $(document).ready(function() {
                                 <td class="text-end fw-bold product-price">₱ ${formattedPrice}</td>
                             </tr>
                         `;
-                    
+                        
                         $('#total-row').before(newRow);
-                        $('#addProductModal').modal('hide');
+                        // $('#addProductModal').modal('hide');
                
                         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                     
@@ -386,8 +406,8 @@ $(document).ready(function() {
         activeAjaxRequests--;
         if (activeAjaxRequests === 0) { 
             var $this = $('.add-product[data-active-ajax="true"]');
-            $this.prop('disabled', false);
-            $this.find('.add-text').text("Add");
+            // $this.prop('disabled', false);
+            // $this.find('.add-text').text("Add");
             $this.find('.add-product-ajax-loading').addClass('d-none');
             $this.removeAttr('data-active-ajax'); 
         }
@@ -543,6 +563,8 @@ $(document).ready(function() {
     $('#success-add-billing').on('click', function() {
         window.location.href = "/admin/bill/";
     });
+
+    $('#fullscreen-spinner').addClass('d-none');
 });
 
 </script>

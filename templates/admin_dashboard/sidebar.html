@@ -20,12 +20,12 @@
                         Visit Site
                     </a>
                     {% with request.resolver_match.url_name as current_url_name %}
-                    <div class="sidenav-menu-heading animated--fade-in-up">Home</div>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'admin-vet' %}active{% endif %}" href="{% url 'admin-vet' %}">
+                    <div class="sidenav-menu-heading animated--fade-in">Home</div>
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'admin-vet' %}active{% endif %}" href="{% url 'admin-vet' %}">
                         <div class="nav-link-icon"><i data-feather="activity"></i></div>
                         Dashboard
                     </a>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'user-list-page' %}active{% endif %}" href="{% url 'user-list-page' %}">
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'user-list-page' %}active{% endif %}" href="{% url 'user-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
                         Manage Users
                     </a>
@@ -33,51 +33,51 @@
                         <div class="nav-link-icon"><i data-feather="send"></i></div>
                         SMS History
                     </a> -->
-                    <div class="sidenav-menu-heading animated--fade-in-up">Record</div>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
+                    <div class="sidenav-menu-heading animated--fade-in">Record</div>
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
                         Clients
                     </a>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'admin-pet-list-page' or current_url_name == 'admin-view-pet-page' or current_url_name == 'admin-update-pet-page' %}active{% endif %}" href="{% url 'admin-pet-list-page' %}">
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'admin-pet-list-page' or current_url_name == 'admin-view-pet-page' or current_url_name == 'admin-update-pet-page' %}active{% endif %}" href="{% url 'admin-pet-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="gitlab"></i></div>
                         Pets
                     </a>
-                    <a class="animated--fade-in-up nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                    <a class="animated--fade-in nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
                         <div class="nav-link-icon"><i data-feather="credit-card"></i></div>
                         Health Card
                     </a>
-                    <a class="animated--fade-in-up nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                    <a class="animated--fade-in nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
                         <div class="nav-link-icon"><i data-feather="list"></i></div>
                         Medical Prescription
                     </a>
-                    <a class="animated--fade-in-up nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                    <a class="animated--fade-in nav-link" href="#"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
                         <div class="nav-link-icon"><i data-feather="heart"></i></div>
                         Consultation
                     </a>
-                    <div class="sidenav-menu-heading animated--fade-in-up">Appointment</div>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'admin-calendar' %}active{% endif %} " href="{% url 'admin-calendar' %}">
+                    <div class="sidenav-menu-heading animated--fade-in">Appointment</div>
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'admin-calendar' %}active{% endif %} " href="{% url 'admin-calendar' %}">
                         <div class="nav-link-icon"><i data-feather="calendar"></i></div>
                         Calendar
                     </a>
-                    <div class="sidenav-menu-heading animated--fade-in-up">Billing</div>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'billing-page' or current_url_name == 'billing-client-page' %}active{% endif %}" href="{% url 'billing-page' %}">
+                    <div class="sidenav-menu-heading animated--fade-in">Billing</div>
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'billing-page' or current_url_name == 'billing-client-page' %}active{% endif %}" href="{% url 'billing-page' %}">
                         <div class="nav-link-icon"><i data-feather="dollar-sign"></i></div>
                         Billing & Payment
                     </a>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'view-bill-page' or current_url_name == 'sales-page' %}active{% endif %}" href="{% url 'sales-page' %}">
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'view-bill-page' or current_url_name == 'sales-page' %}active{% endif %}" href="{% url 'sales-page' %}">
                         <div class="nav-link-icon"><i data-feather="paperclip"></i></div>
                         Sales
                     </a>
-                    <div class="sidenav-menu-heading animated--fade-in-up">Inventory & Services</div>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
+                    <div class="sidenav-menu-heading animated--fade-in">Inventory & Services</div>
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="box"></i></div>
                         Inventory
                     </a>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'service-list-page' or current_url_name == 'service-add-page' or current_url_name == 'service-update-page' %}active{% endif %}" href="{% url 'service-list-page' %}">
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'service-list-page' or current_url_name == 'service-add-page' or current_url_name == 'service-update-page' %}active{% endif %}" href="{% url 'service-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="table"></i></div>
                         Services
                     </a>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'reorder-list-page' %}active{% endif %}" href="{% url 'reorder-list-page' %}">
+                    <a class="animated--fade-in nav-link {% if current_url_name == 'reorder-list-page' %}active{% endif %}" href="{% url 'reorder-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="list"></i></div>
                         Reorder List
                     </a>

@@ -27,6 +27,13 @@ $(document).ready(function() {
         var price = parseFloat($(this).find('.product-price').text().replace('₱ ', '').replace(',', ''));
         var quantity = parseFloat($(this).find('.product-quantity').text());
         var totalPrice = price * quantity;
-        $(this).find('.product-price-multiplied').text('₱ ' + totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        if(totalPrice || price || quantity)
+        {
+            $(this).find('.product-price-multiplied').text('₱ ' + totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        }
+        else
+        {
+            $(this).find('.product-price-multiplied').text('₱ 0');
+        }
     });
 });

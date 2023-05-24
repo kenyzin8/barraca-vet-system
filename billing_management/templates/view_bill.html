@@ -3,7 +3,7 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %} Bill {{ bill.id }} | Barraca Veterinary Clinic {% endblock %}
+{% block title %} Bill {{ bill.get_billing_number }} | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
 <style>
@@ -36,7 +36,7 @@
         <li class="breadcrumb-item active">Bill No. {{ bill.get_billing_number}}</li>
     </ol>
 </nav>
-<div class="card invoice mt-2 mb-5 animated--fade-in">
+<div id="bill" class="card invoice mt-2 mb-5 animated--fade-in">
     <div class="card-header p-4 p-md-5 border-bottom-0 bg-dark text-white-50">
         <div class="row justify-content-between align-items-center">
             <div class="col-12 col-lg-auto mb-5 mb-lg-0 text-center text-lg-start">
@@ -50,9 +50,9 @@
             <div class="col-12 col-lg-auto text-center text-lg-end">
                 <!-- Invoice details-->
                 <div class="h3 text-white">Billing Statement</div>
-                Bill No. <span class="billing-number">{{ bill.get_billing_number }}</span>
+                Bill No. <span id="billNumber" class="billing-number">{{ bill.get_billing_number }}</span>
                 <br />
-                {{ bill.date_created|date:"F j, Y, g:i A" }}
+                <span id="billDate">{{ bill.date_created|date:"F j, Y - g:i A" }}</span>
             </div>
         </div>
     </div>
@@ -64,7 +64,7 @@
                 <div class="small text-muted text-uppercase fw-700 mb-2">
                     Client
                 </div>
-                {{ bill.client.full_name }}
+                <span id="clientName">{{ bill.client.full_name }}</span>
             </div>
         </div>
     </div>
@@ -100,7 +100,18 @@
                     </tr>
                     {% endfor %}
                     {% else %}
-                        <td class="fw-bold">None</td>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">
+                                None
+                            </div>
+                        </td>
+                        <td class="text-end fw-bold"><!-- empty for spacing --></td>
+                        <td class="text-end fw-bold"><!-- empty for spacing --></td>
+                        <td class="text-end fw-bold service-price">
+                            ₱ 0
+                        </td>
+                    </tr>
                     {% endif %}
                 </tbody>
             </table>
@@ -134,7 +145,18 @@
                     </tr>
                     {% endfor %}
                     {% else %}
-                        <td class="fw-bold">None</td>
+                    <tr>
+                        <td>
+                            <div class="fw-bold">
+                                None
+                            </div>
+                        </td> 
+                        <td class="text-end fw-bold"><!-- empty for spacing --></td>
+                        <td class="text-end fw-bold"><!-- empty for spacing --></td>
+                        <td class="text-end fw-bold product-price-multiplied">
+                            ₱ 0
+                        </td> 
+                    </tr>
                     {% endif %}
 
                     <tr class="border-top" id="total-row">
@@ -144,10 +166,145 @@
                 </tbody>
             </table>
         </div>
+        <button class="btn btn-dark btn-sm lift lift-sm" style="margin-left:10px;" onclick="printBill()">Print</button>
     </div>
 </div>
 {% endblock %}
 
 {% block extrascripts %}
 <script src="{% static 'js/billing/view_bill.js' %}"></script>
+<script src="{% static 'plugins/print-js/print.min.js' %}"></script>
+<script>
+    function getServicesData() {
+        var tbody = document.querySelector(".tbody-services");
+        var rows = tbody.querySelectorAll("tr");
+        var data = [];
+
+        for (var i = 0; i < rows.length; i++) {
+            var cells = rows[i].querySelectorAll("td");
+            var rowData = {
+                'Service': cells[0].innerText.trim(),
+                'Amount': cells[3].innerText.trim()
+            };
+            data.push(rowData);
+        }
+
+        data.push({
+            'Service': '',
+            'Amount': ''
+        });
+
+        return data;
+    }
+
+    function getProductsData() 
+    {
+        var tbody = document.querySelector(".tbody-products");
+        var rows = tbody.querySelectorAll("tr:not(#total-row)");
+        var data = [];
+
+        for (var i = 0; i < rows.length; i++) {
+            var cells = rows[i].querySelectorAll("td");
+            var rowData = {
+                'Product': cells[0].innerText.trim(),
+                'Total Price': cells[3].innerText.trim()
+            };
+            data.push(rowData);
+        }
+        data.push({
+            'Product': '',
+            'Total Price': ''
+        });
+
+        return data;
+    }
+
+    function getTotalAmount() 
+    {
+        var totalRow = document.querySelector("#total-row");
+        var totalCell = totalRow.querySelector(".total-amount");
+        return totalCell.innerText;
+    }
+
+    function getFormattedDate(date)
+    {
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        var day = date.getDate();
+        day = day < 10 ? '0' + day : day;
+
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        var strTime = hours + ':' + minutes + ' ' + ampm;
+        return formattedDate = months[monthIndex] + ' ' + day + ', ' + year + ' - ' + strTime;
+    }
+
+    function printBill() 
+    {
+        var servicesData = getServicesData();
+        var productsData = getProductsData();
+        var totalAmount = getTotalAmount();
+
+        var clientName = document.getElementById("clientName").innerText;
+        var billNo = document.getElementById("billNumber").innerText;
+        var billDate = document.getElementById("billDate").innerText;
+
+        var billData = servicesData.map(service => ({
+            type: service.Service == '' ? '‎ ' : 'Service',
+            name: service.Service,
+            amount: service.Amount
+        })).concat(productsData.map(product => ({
+            type: product.Product == '' ? '‎ ' : 'Product',
+            name: product.Product,
+            amount: product['Total Price']
+        })));
+
+        billData.push({type: 'Total', name: '', amount: totalAmount});
+
+        var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
+        var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 1px solid #232323; ${font}`;
+        var css_gridStyle = `text-align: center;padding: 0px;border: 1px solid #232323; ${font}`;
+        var css_headerStyle = `text-align: center; font-size: 14pt; color: #232323; font-weight: bold; margin-bottom: 20px; font-family: Roboto;`;
+        var headerName = "Sales Report";
+        var imgSrc = "{% static 'images/barraca.png' %}";
+        var date = new Date();
+        var formattedDate = getFormattedDate(date);
+
+        var header = `
+            <div style='display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 2px solid #000;'>
+                <div style='width: 70%; display: flex; flex-direction: column; align-items: flex-start;'>
+                    <h1 style='${css_headerStyle}; font-family: Roboto;'>${headerName}</h1>
+                    <span style='font-size:12pt; font-family: Roboto;'>Client: ${clientName}</span>
+                    <span style='font-size:12pt; font-family: Roboto;'>Bill No.: ${billNo}</span>
+                    <span style='font-size:12pt; font-family: Roboto;'>Bill Date: ${billDate}</span>
+                    <span style='font-size:12pt; font-family: Roboto;'>Report Generated: ${formattedDate}</span>
+                </div>
+                <img src='${imgSrc}' style='width: 30%;' />
+            </div>
+        `;
+
+        printJS({
+            printable: billData,
+            properties: ['type', 'name', 'amount'],
+            type: 'json',
+            gridHeaderStyle: css_gridHeaderStyle,
+            font_size: "15pt",
+            documentTitle: 'Original Copy',
+            showModal: true,
+            header: header,
+            gridStyle: css_gridStyle,
+            style: "@page { size: auto;  margin: 5mm; }",
+        });
+    }
+</script>
+
 {% endblock %}

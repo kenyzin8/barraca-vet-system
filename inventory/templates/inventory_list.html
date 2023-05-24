@@ -24,7 +24,10 @@
     <div class="card card-header-actions mt-5 mb-5 animated--fade-in-up">
         <div class="card-header">
             Inventory
-            <a href="{% url 'product-add-page' %}" type="button" class="btn btn-dark btn-sm lift lift-sm">Add Product</a>
+            <div class="buttons-inventory">
+              <a href="{% url 'product-type-list-page' %}" type="button" class="btn btn-dark btn-sm lift lift-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Manage product types here.">Product Type</a>
+              <a href="{% url 'product-add-page' %}" type="button" class="btn btn-dark btn-sm lift lift-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Add Product">Add Product</a>
+            </div>
         </div>
         <div class="card-body">
             <table id="datatablesSimple">

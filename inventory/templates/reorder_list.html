@@ -6,6 +6,7 @@
 {% block title %} Reorder List | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
+<link rel="stylesheet" type="text/css" href="{% static 'plugins/print-js/print.min.css' %}">
 <script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
 {% endblock %}
 
@@ -14,7 +15,7 @@
     <div class="card card-header-actions mt-5 mb-5 animated--fade-in-up">
         <div class="card-header">
             Reorder List
-            <button class="btn btn-dark btn-sm lift lift-sm">Print</button>
+            <button class="btn btn-dark btn-sm lift lift-sm" onclick="printTable('datatablesSimple')">Print</button>
         </div>
         <div class="card-body">
             <table id="datatablesSimple">
@@ -52,5 +53,86 @@
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
-<!-- <script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script> -->
+<script src="{% static 'plugins/print-js/print.min.js' %}"></script>
+<script>
+    function getTableData(tableID) {
+        var table = document.getElementById(tableID);
+        var data = [];
+
+        for (var i = 1; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            var rowData = {
+                'ID': row.cells[0].innerText,
+                'Item': row.cells[1].innerText,
+                'Stock Quantity': row.cells[2].innerText,
+                'Critical Level': row.cells[3].innerText,
+                'Price': row.cells[4].innerText
+            };
+            data.push(rowData);
+        }
+
+        return data;
+    }
+
+    function getFormattedDate(date)
+    {
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        var day = date.getDate();
+        day = day < 10 ? '0' + day : day;
+
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        var strTime = hours + ':' + minutes + ' ' + ampm;
+        return formattedDate = months[monthIndex] + ' ' + day + ', ' + year + ' - ' + strTime;
+    }
+
+    function printTable(tableID) 
+    {
+        var data = getTableData(tableID);
+        var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
+        var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 1px solid #232323; ${font}`;
+        var css_gridStyle = `text-align: center;padding: 0px;border: 1px solid #232323; ${font}`;
+        var css_headerStyle = `text-align: center; font-size: 14pt; color: #232323; font-weight: bold; margin-bottom: 20px; font-family: Roboto;`;
+        var headerName = "Reorder List Report";
+        var imgSrc = "{% static 'images/barraca.png' %}";
+        var date = new Date();
+
+        var formattedDate = getFormattedDate(date);
+
+        var header = `
+            <div style='display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 2px solid #000;'>
+                <div style='width: 70%; display: flex; flex-direction: column; align-items: flex-start;'>
+                    <h1 style='${css_headerStyle}; font-family: Roboto;'>${headerName}</h1>
+                    <span style='font-size:12pt; font-family: Roboto;'>List: ${data.length}</span>
+                    <span style='font-size:12pt; font-family: Roboto;'>Range: Overall</span>
+                    <span style='font-size:12pt; font-family: Roboto;'>${formattedDate}</span>
+                </div>
+                <img src='${imgSrc}' style='width: 30%;' />
+            </div>
+        `;
+
+        printJS({
+            printable: data,
+            properties: ['ID', 'Item', 'Stock Quantity', 'Critical Level', 'Price'],
+            type: 'json',
+            gridHeaderStyle: css_gridHeaderStyle,
+            font_size: "15pt",
+            documentTitle: 'Original Copy',
+            showModal: true,
+            header: header,
+            gridStyle: css_gridStyle,
+            style: "@page { size: auto;  margin: 5mm; }",
+        });
+    }
+</script>
 {% endblock %}

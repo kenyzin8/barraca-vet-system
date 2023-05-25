@@ -30,10 +30,10 @@
                     <tr>
                         <th>#</th>
                         <th>Pet</th>
-                        <th>Status</th>
                         <th>Species</th>
                         <th>Birthday</th>
                         <th>Owner</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -52,13 +52,6 @@
                                 </a>
                             </div>
                         </td>
-                        <td>
-                            {% if pet.is_active %}
-                                <span class="badge bg-success">Active</span>
-                            {% else %}
-                                <span class="badge bg-danger">Inactive</span>
-                            {% endif %}
-                        </td>
                         <td>{{ pet.species }}</td>
                         <td>{{ pet.birthday }}</td>
                         <td >
@@ -68,6 +61,13 @@
                             </a>
                             {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}
                             (You)
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if pet.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
                             {% endif %}
                         </td>
                         <td>

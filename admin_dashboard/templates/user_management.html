@@ -20,10 +20,10 @@
                     <tr>
                         <th>#</th>
                         <th>Client Profile</th>
-                        <th>Status</th>
                         <th>E-mail</th>
                         <th>Date Joined</th>
                         <th>Last Login</th>
+                        <th>Status</th>
                         <th>Permission</th>
                         <th>Actions</th>
                     </tr>
@@ -46,17 +46,7 @@
                                 {% endif %} -->
                             </div>
                         </td>
-                        <td>
-                            {% if user.is_active %}
-                            <span class="badge bg-success">
-                                Active
-                            </span>
-                            {% else %}
-                            <span class="badge bg-danger">
-                                Inactive
-                            </span>
-                            {% endif %}
-                        </td>
+
                         <td>
                             {% if user.email %}
                             {{ user.email }}
@@ -68,6 +58,17 @@
                         </td>
                         <td>{{ user.date_joined }}</td>
                         <td>{{ user.last_login }}</td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                            {% else %}
+                            <span class="badge bg-danger">
+                                Inactive
+                            </span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if user.is_staff %}
                             <span class="badge bg-orange ">

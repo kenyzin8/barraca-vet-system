@@ -21,7 +21,7 @@ def admin_dashboard(request):
 @login_required
 @staff_required
 def user_list(request):
-    users = User.objects.exclude(client__last_name__icontains='(walk-in)').order_by('-date_joined')
+    users = User.objects.exclude(client__last_name__icontains='(walk-in)').order_by('-id')
     context = {"users": users}
     return render(request, 'user_management.html', context)
 

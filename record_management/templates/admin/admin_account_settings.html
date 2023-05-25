@@ -26,7 +26,7 @@
                 <div class="card mb-4 mb-xl-0">
                     <div class="card-header">Profile Picture</div>
                     <div class="card-body text-center">
-                        <img class="img-account-profile rounded-circle mb-2" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" alt="" />
+                        <img class="img-account-profile rounded-circle mb-2" src="{% static user.client.get_image %}" alt="" />
                         <br>
                         <br>
                         <div class="small font-italic text-muted mb-4">Your profile picture is based on your gender</div>

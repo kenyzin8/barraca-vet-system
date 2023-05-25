@@ -340,10 +340,9 @@ def admin_profile_view(request):
 @staff_required
 @login_required
 def client_module(request):
-    clients = Client.objects.filter(user__is_active=True).annotate(total_pets=Count('pet'))
+    clients = Client.objects.filter(user__is_active=True).annotate(total_pets=Count('pet')).order_by('-id')
     context = {'clients': clients}
     return render(request, 'admin/client_module.html', context)
-    #add max count in tables clients_count
 
 @staff_required
 @login_required
@@ -357,7 +356,7 @@ def admin_view_client(request, client_id):
 @staff_required
 @login_required
 def pet_module(request):
-    pets = Pet.objects.all()
+    pets = Pet.objects.all().order_by('-id')
     context = {'pets': pets}
     return render(request, 'admin/pet_module.html', context)
 

@@ -35,7 +35,7 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-2">
-                                    <img class="avatar-img img-fluid" src="{% static 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png' %}" />
+                                    <img class="avatar-img img-fluid" src="{% static user.client.get_image %}" />
                                 </div>
                                 {{ user.client.full_name }}
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' user.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">

@@ -19,6 +19,15 @@ class Client(models.Model):
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
+    def get_image(self):
+        male_img = 'plugins/sb-admin/assets/img/illustrations/profiles/profile-5.png'
+        female_img = 'plugins/sb-admin/assets/img/illustrations/profiles/profile-1.png'
+
+        if self.gender == 'Male':
+            return male_img
+        elif self.gender == 'Female':
+            return female_img
+
     class Meta:
         verbose_name_plural = "Clients"
 

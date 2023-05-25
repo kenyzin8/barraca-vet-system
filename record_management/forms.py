@@ -61,7 +61,23 @@ class PetRegistrationForm(forms.ModelForm):
     class Meta:
         model = Pet
         fields = ('name', 'birthday', 'species', 'breed', 'gender', 'color', 'weight', 'picture')
-        
+
+class AdminPetRegistrationForm(forms.ModelForm):
+    name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control', 'placeholder': 'Enter pet name'}))
+    birthday = forms.DateField(widget=forms.DateInput(attrs={'id': 'birthday', 'class': 'form-control', 'type': 'date'}))
+    species = forms.CharField(widget=forms.TextInput(attrs={'id': 'species', 'class': 'form-control', 'placeholder': 'Enter species'}))
+    breed = forms.CharField(widget=forms.TextInput(attrs={'id': 'breed', 'class': 'form-control', 'placeholder': 'Enter breed'}))
+    gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')],
+                                widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
+    color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color'}))
+    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01'}))
+    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control'}), validators=[validate_image_size])
+    is_active = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'id': 'is_active', 'class': 'form-check-input'}))
+
+    class Meta:
+        model = Pet
+        fields = ('name', 'birthday', 'species', 'breed', 'gender', 'color', 'weight', 'picture', 'is_active')
+
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={
                 'name': "username", 

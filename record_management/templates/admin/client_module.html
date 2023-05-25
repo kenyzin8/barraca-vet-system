@@ -22,6 +22,7 @@
                     <tr>
                         <th>#</th>
                         <th>Client</th>
+                        <th>Status</th>
                         <th>Gender</th>
                         <th>Address</th>
                         <th>Contact Number</th>
@@ -46,6 +47,13 @@
                                 (You)
                                 {% endif %} -->
                             </div>
+                        </td>
+                        <td>
+                            {% if client.user.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
                         </td>
                         <td>{{ client.gender }}</td>
                         <td>{{ client.address }}</td>
@@ -79,10 +87,11 @@
             var rowData = {
                 'ID': row.cells[0].innerText,
                 'Name': row.cells[1].innerText,
-                'Gender': row.cells[2].innerText,
-                'Address': row.cells[3].innerText,
-                'Phone': row.cells[4].innerText,
-                'Total Pets': row.cells[5].innerText
+                'Status': row.cells[2].innerText,
+                'Gender': row.cells[3].innerText,
+                'Address': row.cells[4].innerText,
+                'Phone': row.cells[5].innerText,
+                'Total Pets': row.cells[6].innerText
             };
             data.push(rowData);
         }
@@ -114,7 +123,7 @@
             `;
         printJS({
             printable: data,
-            properties: ['ID', 'Name', 'Gender', 'Address', 'Phone', 'Total Pets'],
+            properties: ['ID', 'Name', 'Status', 'Gender', 'Address', 'Phone', 'Total Pets'],
             type: 'json',
             gridHeaderStyle: css_gridHeaderStyle,
             font_size: "15pt",

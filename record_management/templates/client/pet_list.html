@@ -71,6 +71,7 @@
     Click <a href="{% url 'register-pet-page' %}">here</a> to register another pet</p>
     <div class="card-deck-custom">
         {% for pet in pets %}
+        {% if pet.is_active %}
         <div class="card card-custom">
             <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}">
             <div class="card-body">
@@ -79,6 +80,7 @@
                 <a href="#" class="btn btn-dark custom-btn mt-2 lift lift-sm">Set Appointment</a>
             </div>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
 </div>

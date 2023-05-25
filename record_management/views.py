@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import json
 import time
 
-from .forms import PetRegistrationForm, LoginForm, UserRegistrationForm, UserUpdateForm, ClientUpdateForm
+from .forms import PetRegistrationForm, LoginForm, UserRegistrationForm, UserUpdateForm, ClientUpdateForm, AdminPetRegistrationForm
 from .models import Client, Pet
 from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
@@ -299,7 +299,9 @@ def delete_pet(request, pet_id):
         return redirect('pet-list-page')
 
     if request.method == 'POST':
-        pet.delete()
+        #set is_active to False
+        pet.is_active = False
+        pet.save()
         return JsonResponse({'result': 'success'})
     else:
         return JsonResponse({'result': 'error', 'message': 'Invalid request method'})
@@ -373,12 +375,12 @@ def admin_update_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
 
     if request.method == 'POST':
-        form = PetRegistrationForm(request.POST, request.FILES, instance=pet)
+        form = AdminPetRegistrationForm(request.POST, request.FILES, instance=pet)
         if form.is_valid():
             form.save()
             return redirect('admin-view-pet-page', pet_id=pet.id)
     else:
-        form = PetRegistrationForm(instance=pet)
+        form = AdminPetRegistrationForm(instance=pet)
     
     context = {'form': form, 'pet': pet}
     return render(request, 'admin/update_pet.html', context)

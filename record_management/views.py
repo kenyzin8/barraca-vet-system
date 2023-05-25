@@ -18,6 +18,7 @@ from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
 from core.decorators import staff_required
 from django.core.cache import cache
+from django.db import transaction
 
 from django.conf import settings
 
@@ -91,7 +92,6 @@ def login_view(request):
         form = LoginForm()
     return render(request, 'client/login.html', {'form': form})
 
-
 def register_user(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -99,16 +99,18 @@ def register_user(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
+            with transaction.atomic():
+                user = form.save(commit=False)
+                user.is_active = False
+                user.save()
 
-            client = Client(user=user,
-                            first_name=form.cleaned_data['first_name'],
-                            last_name=form.cleaned_data['last_name'],
-                            address=form.cleaned_data['address'],
-                            contact_number=form.cleaned_data['contact_number'])
-            client.save()
+                client = Client(user=user,
+                                first_name=form.cleaned_data['first_name'],
+                                last_name=form.cleaned_data['last_name'],
+                                gender=form.cleaned_data['gender'],
+                                address=form.cleaned_data['address'],
+                                contact_number=form.cleaned_data['contact_number'])
+                client.save()
 
             phone_number = client.contact_number
             otp_code = send_otp_sms(phone_number)

@@ -46,7 +46,8 @@ def fetch_sms_data():
     return sms_data
 
 def send_otp_sms(to_phone_number):
-    message = "Your One Time Password is: {otp}. Please use it within 5 minutes."
+    minutes = settings.OTP_EXPIRATION_MINUTES
+    message = "Your One Time Password is: {otp}. Please use it within " + str(minutes) +" minutes."
     
     params = (
         ('apikey', api_key),

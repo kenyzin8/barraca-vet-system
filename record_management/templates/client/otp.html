@@ -45,7 +45,7 @@
         <form method="post" id="otp-form">
           {% csrf_token %}
           <div class="mb-3">
-          <input type="text" id="otp_code" name="otp_code" class="form-control" placeholder="OTP Code" required {% if otp_expired %}disabled{% endif %}>
+          <input type="number" id="otp_code" name="otp_code" class="form-control" placeholder="OTP Code" required {% if otp_expired %}disabled{% endif %}>
           </div>
           <div class="form-group"> 
               {% if error_message %}

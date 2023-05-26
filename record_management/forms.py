@@ -4,7 +4,7 @@ from .models import Client, Pet
 from .validators import validate_phone_number, validate_image_size
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 
 User = get_user_model()
 
@@ -114,3 +114,18 @@ class ClientUpdateForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = ('first_name', 'last_name', 'gender', 'address', 'contact_number', 'two_auth_enabled',)
+
+class PasswordResetStep1(forms.Form):
+    username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Username'}))
+
+class PasswordResetStep2(forms.Form):
+    new_password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control wider-input', 'placeholder': 'New Password'}))
+    confirm_new_password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Confirm New Password'}))
+
+class AdminChangePasswordForm(PasswordChangeForm):
+    old_password = forms.CharField(label="Old Password", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter current password'}))
+    new_password1 = forms.CharField(label="New Password", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter new password'}))
+    new_password2 = forms.CharField(label="Confirm New Password", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm new password'}))
+
+class TwoFactorAuthenticationForm(forms.Form):
+    two_auth_enabled = forms.BooleanField(required=False, widget=forms.RadioSelect(choices=((True, 'On'), (False, 'Off'))))

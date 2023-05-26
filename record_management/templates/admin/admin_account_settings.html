@@ -15,10 +15,10 @@
         <!-- Account page navigation-->
         <nav class="nav nav-borders">
             <a class="nav-link active ms-0" href="{% url 'admin-account-settings-page' %}">Account</a>
-            <a class="nav-link" href="#">Security</a>
-            <!-- <a class="nav-link" href="account-billing.html">Billing</a>
+            <a class="nav-link" href="{% url 'admin-password-settings-page' %}">Password</a>
+            <a class="nav-link" href="{% url 'admin-otp-settings-page' %}">2FA</a>
             
-            <a class="nav-link" href="account-notifications.html">Notifications</a> -->
+            <!--<a class="nav-link" href="account-notifications.html">Notifications</a> -->
         </nav>
         <hr class="mt-0 mb-4" />
         <div class="row">

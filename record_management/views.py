@@ -1,5 +1,6 @@
+#----------------------------------------------IMPORTS--------------------------------------------------------
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth import login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
@@ -7,12 +8,12 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta 
 
 import json
 import time
 
-from .forms import PetRegistrationForm, LoginForm, UserRegistrationForm, UserUpdateForm, ClientUpdateForm, AdminPetRegistrationForm
+from .forms import *
 from .models import Client, Pet
 from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
@@ -23,6 +24,37 @@ from django.db import transaction
 from django.conf import settings
 
 OTP_EXPIRATION_MINUTE = settings.OTP_EXPIRATION_MINUTES
+#-------------------------------------------------------------------------------------------------------------
+def forgot_password(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = PasswordResetStep1(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            try:
+                user = User.objects.get(username=username)
+                client = user.client
+                phone_number = client.contact_number
+                otp_code = send_otp_sms(phone_number)
+
+                request.session['otp_code'] = otp_code
+                request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=OTP_EXPIRATION_MINUTE)).timestamp()
+                request.session['temp_user_id'] = user.id
+                request.session['temp_user_session'] = request.session.session_key
+                request.session['otp_attempt_count'] = 0
+                request.session['otp_context'] = 'password_reset'
+                request.session.save()
+
+                return redirect('otp_view')
+            except User.DoesNotExist:
+                messages.error(request, 'User with this username does not exist.')
+        else:
+            print(form.errors)
+    else:
+        form = PasswordResetStep1()
+    return render(request, 'client/forgot_password.html', {'form': form})
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -31,7 +63,6 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
-
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -153,11 +184,60 @@ def client_profile_view(request):
 
     return render(request, 'client/client_account_settings.html', context)
 
+@login_required
+def client_change_password_view(request):
+    if request.method == 'POST':
+        password_form = AdminChangePasswordForm(user=request.user, data=request.POST)
+
+        if password_form.is_valid():
+            user = password_form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was successfully updated!', extra_tags='password_form')
+            return redirect('client-password-settings-page')
+        else:
+            messages.error(request, 'Please correct the error below.')
+                 
+    else:
+        password_form = AdminChangePasswordForm(user=request.user)
+        
+    return render(request, 'client/client_password_settings.html', {'password_form': password_form})
+
+@login_required
+def client_change_otp_view(request):
+    if request.method == 'POST':
+        two_factor_form = TwoFactorAuthenticationForm(request.POST)
+
+        if two_factor_form.is_valid():
+            client = request.user.client
+            client.two_auth_enabled = two_factor_form.cleaned_data['two_auth_enabled']
+            client.save()
+            messages.success(request, 'Two-factor authentication settings successfully updated!')
+            return redirect('client-otp-settings-page')
+        else:
+            messages.error(request, 'Please correct the error below.')  
+    else:
+        two_factor_form = TwoFactorAuthenticationForm(initial={'two_auth_enabled': request.user.client.two_auth_enabled})
+        
+    return render(request, 'client/client_otp_settings.html', {'two_factor_form': two_factor_form, 'sms_number': request.user.client.contact_number})
+
 @csrf_exempt
 def otp_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    # user_session = request.session.get('temp_user_session')
+
+    # if user_session != request.session.session_key:
+    #     return redirect('home')
+
+    otp_context = request.session.get('otp_context', None)
     otp_expiration_timestamp = request.session.get('otp_code_expiration', 0)
     time_remaining = max(0, int(otp_expiration_timestamp - datetime.now().timestamp()))
     user_id = request.session.get('temp_user_id')
+
+    if not user_id:
+        return redirect('home')
+
     otp_expired = False
     attempt_limit = 3 
 
@@ -197,21 +277,29 @@ def otp_view(request):
 
         if entered_otp_code == stored_otp_code:
             if user_id:
-                user = User.objects.get(id=user_id)
-                user.is_active = True
-                user.save()
-                
-                login(request, user)
-
-                del request.session['temp_user_id']
-                del request.session['otp_code']
-                del request.session['otp_code_expiration']
-                del request.session['temp_user_session']
-
-                if 'otp_attempt_count' in request.session:
+                if otp_context == 'password_reset':
+                    del request.session['otp_code'] 
+                    del request.session['otp_code_expiration'] 
+                    del request.session['temp_user_session']
                     del request.session['otp_attempt_count']
-            
-                return redirect('home')
+
+                    return redirect('forgot-password-step-3-page')
+                else:
+                    user = User.objects.get(id=user_id)
+                    user.is_active = True
+                    user.save()
+                    
+                    login(request, user)
+
+                    del request.session['temp_user_id']
+                    del request.session['otp_code']
+                    del request.session['otp_code_expiration']
+                    del request.session['temp_user_session']
+
+                    if 'otp_attempt_count' in request.session:
+                        del request.session['otp_attempt_count']
+                
+                    return redirect('home')
             else:
                 return HttpResponse("An error occurred. Please try again.")
         else:
@@ -227,9 +315,58 @@ def otp_view(request):
         else:
             return HttpResponse("An error occurred. Please try again.")
 
+def forgot_password_step_3(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    user_id = request.session.get('temp_user_id')
+
+    if not user_id:
+        messages.error(request, 'There was an error. You might skipped a step.')
+        return redirect('forgot-password-page')
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, 'User does not exist.')
+        return redirect('forgot-password-page')
+
+    if request.method == 'POST':
+        form = PasswordResetStep2(request.POST)
+
+        if form.is_valid():
+            new_password = form.cleaned_data.get('new_password')
+            confirm_new_password = form.cleaned_data.get('confirm_new_password')
+
+            if new_password != confirm_new_password:
+                messages.error(request, 'Passwords do not match. Please try again.')
+                return render(request, 'client/forgot_password_step3.html', {'form': form})
+
+            user.set_password(new_password)
+            user.save()
+
+            del request.session['temp_user_id']
+            del request.session['otp_context']
+
+            messages.success(request, 'Password changed successfully. Please login with your new password.')
+            return redirect('login-page')
+
+        else:
+            messages.error(request, 'Please fill out the form correctly.')
+            return render(request, 'client/forgot_password_step3.html', {'form': form})
+
+    else:
+        form = PasswordResetStep2()
+
+    return render(request, 'client/forgot_password_step3.html', {'form': form})
+
 @csrf_exempt
 def resend_otp(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     user_id = request.session.get('temp_user_id')
+
     if user_id:
         user = User.objects.get(id=user_id)
         phone_number = user.client.contact_number
@@ -248,7 +385,7 @@ def resend_otp(request):
 
         return redirect('otp_view')
     else:
-        return HttpResponse("An error occurred. Please try again.")
+        return redirect('home')
 
 @login_required
 def register_pet(request):
@@ -338,6 +475,44 @@ def admin_profile_view(request):
     context = {'user_form': user_form, 'client_form': client_form}
 
     return render(request, 'admin/admin_account_settings.html', context)
+
+@login_required
+@staff_required
+def admin_change_password_view(request):
+    if request.method == 'POST':
+        password_form = AdminChangePasswordForm(user=request.user, data=request.POST)
+
+        if password_form.is_valid():
+            user = password_form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was successfully updated!', extra_tags='password_form')
+            return redirect('admin-password-settings-page')
+        else:
+            messages.error(request, 'Please correct the error below.')
+                 
+    else:
+        password_form = AdminChangePasswordForm(user=request.user)
+        
+    return render(request, 'admin/admin_password_settings.html', {'password_form': password_form})
+
+@login_required
+@staff_required
+def admin_change_otp_view(request):
+    if request.method == 'POST':
+        two_factor_form = TwoFactorAuthenticationForm(request.POST)
+
+        if two_factor_form.is_valid():
+            client = request.user.client
+            client.two_auth_enabled = two_factor_form.cleaned_data['two_auth_enabled']
+            client.save()
+            messages.success(request, 'Two-factor authentication settings successfully updated!')
+            return redirect('admin-otp-settings-page')
+        else:
+            messages.error(request, 'Please correct the error below.')  
+    else:
+        two_factor_form = TwoFactorAuthenticationForm(initial={'two_auth_enabled': request.user.client.two_auth_enabled})
+        
+    return render(request, 'admin/admin_otp_settings.html', {'two_factor_form': two_factor_form, 'sms_number': request.user.client.contact_number})
 
 @staff_required
 @login_required

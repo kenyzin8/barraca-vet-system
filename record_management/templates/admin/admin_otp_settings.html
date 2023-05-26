@@ -57,33 +57,5 @@
 {% endblock %}
 
 {% block extrascripts %}
-<script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-        const genderSelect = document.getElementById('gender');
 
-        genderSelect.addEventListener('focus', function() {
-            for (let i = 0; i < this.options.length; i++) {
-                if (this.options[i].value === '') {
-                    this.options[i].style.display = 'none';
-                }
-            }
-        });
-
-        genderSelect.addEventListener('blur', function() {
-            for (let i = 0; i < this.options.length; i++) {
-                if (this.options[i].value === '') {
-                    this.options[i].style.display = 'block';
-                }
-            }
-        });
-
-        genderSelect.addEventListener('change', function() {
-            if (this.value === 'Male' || this.value === 'Female') {
-                this.style.color = '#69707a';
-            } else {
-                this.style.color = ''; // Reset to default color if selection is not 'Male' or 'Female'
-            }
-        });
-    });
-  </script>
 {% endblock %}

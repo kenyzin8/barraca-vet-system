@@ -454,7 +454,9 @@ $(document).ready(function() {
         $('.total-amount').text('₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
         $('.add-product[data-product-id="' + productId + '"]').prop('disabled', false);
-        $('.add-product[data-product-id="' + productId + '"]').text("Add");
+        var addProductButton = $('.add-product[data-product-id="' + productId + '"]');
+        addProductButton.html('<span class="spinner-border spinner-border-sm add-product-ajax-loading d-none" role="status" aria-hidden="true"></span><span class="add-text">Add</span>');
+        addProductButton.prop('disabled', false);
 
         $(this).closest('tr').remove();
     });

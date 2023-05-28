@@ -100,9 +100,10 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
 
+            cache.set(attempts_key, 0, 2 * 60) 
+
             if not user.client.two_auth_enabled:
                 login(request, user)
-                cache.set(attempts_key, 0, 2 * 60) 
                 return redirect('home')
 
             phone_number = user.client.contact_number
@@ -114,7 +115,7 @@ def login_view(request):
             request.session['temp_user_session'] = request.session.session_key
             request.session['otp_attempt_count'] = 0
             request.session.save()
-
+            
             return redirect('otp_view')
         else:
             cache.set(attempts_key, attempts + 1, 2 * 60)  

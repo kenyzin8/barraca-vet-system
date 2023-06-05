@@ -14,7 +14,9 @@ class UserRegistrationForm(UserCreationForm):
                                 'placeholder' : 'Username',
                                 'data-bs-toggle': 'tooltip',
                                 'data-bs-placement': 'right',
-                                'title': 'This will be your username for logging in.'}))
+                                'title': 'This will be your username for logging in.',
+                                'autocomplete': 'off'
+                                }))
     password1 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={
                                 'class' : 'form-control rounded-left wider-input',
                                 'placeholder' : 'Password',
@@ -27,17 +29,17 @@ class UserRegistrationForm(UserCreationForm):
                                 'data-bs-toggle': 'tooltip',
                                 'data-bs-placement': 'right',
                                 'title': 'This will be your password for logging in.'}))
-    email = forms.CharField(required=True, widget=forms.EmailInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Email'}))
-    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name'}))
-    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
+    email = forms.CharField(required=True, widget=forms.EmailInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Email', 'autocomplete': 'off'}))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name', 'autocomplete': 'off'}))
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name','autocomplete': 'off'}))
     gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')], widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
-    address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;'}))
+    address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;','autocomplete': 'off'}))
     contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={
                                 'class': 'form-control wider-input', 
                                 'placeholder': 'Contact Number',
                                 'data-bs-toggle': 'tooltip',
                                 'data-bs-placement': 'right',
-                                'title': "Input a valid number. It's for contact during appointments."}), validators=[validate_phone_number], label='Contact Number')
+                                'title': "Input a valid number. It's for contact during appointments.", 'autocomplete': 'off'}), validators=[validate_phone_number], label='Contact Number')
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,15 +50,15 @@ class UserRegistrationForm(UserCreationForm):
         fields = UserCreationForm.Meta.fields + ('email',)
 
 class PetRegistrationForm(forms.ModelForm):
-    name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control', 'placeholder': 'Enter pet name'}))
-    birthday = forms.DateField(widget=forms.DateInput(attrs={'id': 'birthday', 'class': 'form-control', 'type': 'date'}))
-    species = forms.CharField(widget=forms.TextInput(attrs={'id': 'species', 'class': 'form-control', 'placeholder': 'Enter species'}))
-    breed = forms.CharField(widget=forms.TextInput(attrs={'id': 'breed', 'class': 'form-control', 'placeholder': 'Enter breed'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control', 'placeholder': 'Enter pet name', 'autocomplete': 'off'}))
+    birthday = forms.DateField(widget=forms.DateInput(attrs={'id': 'birthday', 'class': 'form-control', 'type': 'date', 'autocomplete': 'off'}))
+    species = forms.CharField(widget=forms.TextInput(attrs={'id': 'species', 'class': 'form-control', 'placeholder': 'Enter species', 'autocomplete': 'off'}))
+    breed = forms.CharField(widget=forms.TextInput(attrs={'id': 'breed', 'class': 'form-control', 'placeholder': 'Enter breed', 'autocomplete': 'off'}))
     gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')],
                                 widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
-    color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color'}))
-    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01'}))
-    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control'}), validators=[validate_image_size])
+    color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color', 'autocomplete': 'off'}))
+    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01', 'autocomplete': 'off'}))
+    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control', 'autocomplete': 'off'}), validators=[validate_image_size])
 
     class Meta:
         model = Pet
@@ -83,7 +85,8 @@ class LoginForm(AuthenticationForm):
                 'name': "username", 
                 'class' : 'form-control rounded-left', 
                 'placeholder' : 'Username', 
-                'required' : 'true'
+                'required' : 'true',
+                'autocomplete': 'off'
             }))
     password = forms.CharField(
         widget=forms.PasswordInput(
@@ -94,7 +97,7 @@ class LoginForm(AuthenticationForm):
                 'placeholder' : 'Password', 
                 'required' : 'true'
             }))
-    remember_me = forms.BooleanField(required=False)
+    # remember_me = forms.BooleanField(required=False)
 
 class UserUpdateForm(UserChangeForm):
     username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Username'}))

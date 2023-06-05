@@ -1,6 +1,6 @@
 #----------------------------------------------IMPORTS--------------------------------------------------------
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, get_user_model, update_session_auth_hash
+from django.contrib.auth import login, logout, authenticate, get_user_model, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.contrib import messages
@@ -71,19 +71,22 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request=request, data=request.POST)
         username = request.POST.get('username', '') 
+        password = request.POST.get('password', '')
+        
         client_ip = get_client_ip(request)
-
         attempts_key = f'attempts_{client_ip}'
         attempts = cache.get(attempts_key, 0)
+        
+        print(f"Current attempts from cache: {attempts}")   
 
         if attempts >= 2:
             messages.error(request, 'Too many attempts. Please try again after 2 minutes.')
             return render(request, 'client/login.html', {'form': form})
 
-        try:
-            user = User.objects.get(username=username)
-            if not user.is_active:
+        if form.is_valid():
+            user = form.get_user()
 
+            if not user.is_active:
                 phone_number = user.client.contact_number
                 otp_code = send_otp_sms(phone_number)
                 request.session['otp_code'] = otp_code
@@ -94,16 +97,11 @@ def login_view(request):
                 request.session.save()
 
                 return redirect('otp_view')
-        except User.DoesNotExist:
-            pass
-
-        if form.is_valid():
-            user = form.get_user()
-
-            cache.set(attempts_key, 0, 2 * 60) 
 
             if not user.client.two_auth_enabled:
                 login(request, user)
+                cache.set(attempts_key, 0, 2 * 60)
+                print(f"Reset attempts in cache: {cache.get(attempts_key)}")
                 return redirect('home')
 
             phone_number = user.client.contact_number
@@ -116,10 +114,12 @@ def login_view(request):
             request.session['otp_attempt_count'] = 0
             request.session.save()
             
+            cache.set(attempts_key, 0, 2 * 60)
+            print(f"Reset attempts in cache: {cache.get(attempts_key)}")
+
             return redirect('otp_view')
         else:
             cache.set(attempts_key, attempts + 1, 2 * 60)  
-
     else:
         form = LoginForm()
     return render(request, 'client/login.html', {'form': form})

@@ -112,11 +112,11 @@ class ClientUpdateForm(forms.ModelForm):
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
     gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
     address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;'}))
-    contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number'}))
+    #contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number', 'disabled': 'true'}))
 
     class Meta:
         model = Client
-        fields = ('first_name', 'last_name', 'gender', 'address', 'contact_number', 'two_auth_enabled',)
+        fields = ('first_name', 'last_name', 'gender', 'address', 'two_auth_enabled',)
 
 class PasswordResetStep1(forms.Form):
     username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Username'}))

@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 @staff_required
 @login_required
 def product_list(request):
-    products = Product.objects.order_by('-id')
+    products = Product.objects.filter(active=True).order_by('-id')
     today = datetime.date.today()
     context = {'products': products, 'today': today}
     return render(request, 'inventory_list.html', context)
@@ -54,7 +54,11 @@ def product_add(request):
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_product = form.save(commit=False)
+            new_product.original_product_name = new_product.product_name
+            new_product.previous_version = "New"
+            new_product.updated_version = "New"
+            new_product.save()  
             return redirect('product-list-page')
         else:
             print(form.errors)
@@ -70,16 +74,28 @@ def product_update(request, product_id):
     previous_batch_numbers = list(Product.objects.values_list('batch_number', flat=True).distinct())
 
     if request.method == 'POST':
-        form = ProductForm(request.POST, instance=product)
+        form = ProductForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_product_name = form.cleaned_data['product_name'] if form.cleaned_data['product_name'] != product.product_name else None
+            new_quantity_on_stock = form.cleaned_data['quantity_on_stock'] if form.cleaned_data['quantity_on_stock'] != product.quantity_on_stock else None
+            new_type = form.cleaned_data['type'] if form.cleaned_data['type'] != product.type else None
+            new_manufacturing_date = form.cleaned_data['manufacturing_date'] if form.cleaned_data['manufacturing_date'] != product.manufacturing_date else None
+            new_expiration_date = form.cleaned_data['expiration_date'] if form.cleaned_data['expiration_date'] != product.expiration_date else None
+            new_critical_level = form.cleaned_data['critical_level'] if form.cleaned_data['critical_level'] != product.critical_level else None
+            new_price = form.cleaned_data['price'] if form.cleaned_data['price'] != product.price else None
+
+            new_product = product.create_new_version(new_product_name, new_quantity_on_stock, new_type, new_manufacturing_date, 
+                                                     new_expiration_date, new_critical_level, new_price)
+
             return redirect('product-list-page')
         else:
-            print(form.errors)     
+            print(form.errors)
     else:
         form = ProductForm(instance=product)
 
-    return render(request, 'inventory_update.html', {'form': form, 'previous_batch_numbers': previous_batch_numbers, 'product': product})
+    previous_products = Product.objects.filter(product_name=product.product_name).order_by('-batch_number')
+
+    return render(request, 'inventory_update.html', {'form': form, 'previous_batch_numbers': previous_batch_numbers, 'product': product, 'previous_products': previous_products})
 
 @staff_required
 @login_required

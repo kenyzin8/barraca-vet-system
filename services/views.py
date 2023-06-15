@@ -8,7 +8,7 @@ from .forms import ServiceForm
 @staff_required
 @login_required
 def service_list(request):
-    services = Service.objects.order_by('-id')
+    services = Service.objects.filter(active=True).order_by('-id')
     context = {'services': services}
     return render(request, 'services_list.html', context)
 
@@ -19,7 +19,11 @@ def service_add(request):
     if request.method == 'POST':
         form = ServiceForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_service = form.save(commit=False) 
+            new_service.original_service_type = new_service.service_type 
+            new_service.previous_version = "New"
+            new_service.updated_version = "New"
+            new_service.save()  
             return redirect('service-list-page')
     else:
         form = ServiceForm()
@@ -37,14 +41,21 @@ def service_update(request, service_id):
     service = get_object_or_404(Service, id=service_id)
 
     if request.method == 'POST':
-        form = ServiceForm(request.POST, instance=service)
+        form = ServiceForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_service_type = form.cleaned_data['service_type'] if form.cleaned_data['service_type'] != service.service_type else None
+            new_fee = form.cleaned_data['fee'] if form.cleaned_data['fee'] != service.fee else None
+            new_remarks = form.cleaned_data['remarks'] if form.cleaned_data['remarks'] != service.remarks else None
+
+            new_service = service.create_new_version(new_service_type, new_fee, new_remarks)
+
             return redirect('service-list-page')
     else:
-        form = ServiceForm(instance=service)
+        form = ServiceForm(initial={'fee': service.fee, 'service_type': service.service_type, 'remarks': service.remarks})
 
-    return render(request, 'services_update.html', {'form': form, 'service': service})
+    previous_services = Service.objects.filter(original_service_type=service.original_service_type).order_by('-control_number')
+
+    return render(request, 'services_update.html', {'form': form, 'service': service, 'previous_services': previous_services})
 
 @staff_required
 @login_required

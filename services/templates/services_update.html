@@ -1,6 +1,8 @@
 {% extends 'admin_dashboard/base.html' %}
 
 {% load static %}
+{% load humanize %}
+
 
 {% block title %} Update Service | Barraca Veterinary Clinic {% endblock %}
 
@@ -10,7 +12,17 @@
     {
         font-weight: bold;
     }
-
+</style>
+<script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
+<style>
+  .datatable-pagination .datatable-active a, .datatable-pagination .datatable-active a:focus, .datatable-pagination .datatable-active a:hover 
+  {
+    background-color: #232323;
+  }
+  .page-link, .datatable-pagination a
+   {
+    color: #232323;
+  }
 </style>
 {% endblock %}
 
@@ -26,11 +38,11 @@
             </ol>
         </nav>
         <div class="row">
-            <div class="col-xl-8">
+            <div>
                 <div class="card mb-4">
                     <div class="card-header">Update Service</div>
                     <div class="card-body">
-                        <form method="post" enctype="multipart/form-data">
+                        <form id="update-service" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
@@ -52,9 +64,13 @@
                                     <label class="small mb-1" for="inputLastName">Remarks</label>
                                     {{ form.remarks }}
                                 </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLastName">Current Control Number</label>
+                                    <input type="control_number" class="form-control" value="{{ service.control_number }}" disabled>
+                                </div>
                             </div>
                             
-                            <button class="btn btn-dark lift lift-sm" type="submit">Update Service</button>
+                            <button id="submit-button" class="btn btn-dark lift lift-sm" type="submit" disabled>Update Service</button>
                         </form>
                     </div>
                 </div>
@@ -66,6 +82,35 @@
                     {% endfor %}
                 </div>
             </div>
+            <div>
+                <div class="card mt-0 mb-0">
+                    <div class="card-header">Updates</div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>CN</th>
+                                    <th>Old Version</th>
+                                    <th>New Version</th>
+                                    <th>Date Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for old_service in previous_services %}
+                                <tr>
+                                    <td>{{ old_service.id }}</td>
+                                    <td>{{ old_service.control_number }}</td>
+                                    <td>{{ old_service.previous_version }}</td>
+                                    <td>{{ old_service.updated_version }}</td>
+                                    <td>{{ old_service.date_added }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
@@ -73,5 +118,17 @@
 {% endblock %}
 
 {% block extrascripts %}
-
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        var initial_form_state = $('#update-service').serialize();
+        $('#update-service').change(function() {
+            if ($('#update-service').serialize() !== initial_form_state) {
+                $('#submit-button').prop('disabled', false);
+            } else {
+                $('#submit-button').prop('disabled', true);
+            }
+        });
+    });
+    </script>
 {% endblock %}

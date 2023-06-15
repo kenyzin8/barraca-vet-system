@@ -11,6 +11,17 @@
         font-weight: bold;
     }
 </style>
+<script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
+<style>
+  .datatable-pagination .datatable-active a, .datatable-pagination .datatable-active a:focus, .datatable-pagination .datatable-active a:hover 
+  {
+    background-color: #232323;
+  }
+  .page-link, .datatable-pagination a
+   {
+    color: #232323;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -25,11 +36,11 @@
             </ol>
         </nav>
         <div class="row">
-            <div class="col-xl-8">
+            <div>
                 <div class="card mb-4">
                     <div class="card-header">Update Product</div>
                     <div class="card-body">
-                        <form method="post" enctype="multipart/form-data">
+                        <form id="update-product" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
@@ -47,13 +58,8 @@
                                     {{ form.type }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputOrgName">Batch Number</label>
-                                    {{ form.batch_number }}
-                                    <datalist id="previous-batch-numbers">
-                                        {% for batch_number in previous_batch_numbers %}
-                                          <option value="{{ batch_number }}">
-                                        {% endfor %}
-                                    </datalist>
+                                    <label class="small mb-1" for="inputOrgName">Current Batch Number</label>
+                                    <input type="text" class="form-control" value="{{ product.batch_number }}" disabled>
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
@@ -76,7 +82,7 @@
                                     {{ form.price }}
                                 </div>
                             </div>
-                            <button class="btn btn-dark lift lift-sm" type="submit">Update Product</button>
+                            <button disabled id="submit-button" class="btn btn-dark lift lift-sm" type="submit">Update Product</button>
                             
                         </form>
                     </div>
@@ -89,6 +95,35 @@
                     {% endfor %}
                 </div>
             </div>
+            <div>
+                <div class="card mt-0 mb-0">
+                    <div class="card-header">Updates</div>
+                    <div class="card-body">
+                        <table id="datatablesSimple">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>BN</th>
+                                    <th>Old Version</th>
+                                    <th>New Version</th>
+                                    <th>Date Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for old_product in previous_products %}
+                                <tr>
+                                    <td>{{ old_product.id }}</td>
+                                    <td>{{ old_product.batch_number }}</td>
+                                    <td>{{ old_product.previous_version }}</td>
+                                    <td>{{ old_product.updated_version }}</td>
+                                    <td>{{ old_product.date_added }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
@@ -96,5 +131,17 @@
 {% endblock %}
 
 {% block extrascripts %}
-
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        var initial_form_state = $('#update-product').serialize();
+        $('#update-product').change(function() {
+            if ($('#update-product').serialize() !== initial_form_state) {
+                $('#submit-button').prop('disabled', false);
+            } else {
+                $('#submit-button').prop('disabled', true);
+            }
+        });
+    });
+    </script>
 {% endblock %}

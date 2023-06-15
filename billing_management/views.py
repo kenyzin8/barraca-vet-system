@@ -27,12 +27,12 @@ def bill(request):
     else:
         client = None
 
-    services = Service.objects.all()
+    services = Service.objects.filter(active=True)
     clients = Client.objects.filter(user__is_active=True)
     clients_count = clients.count()
 
     types = ProductType.objects.all()
-    product_dict = {t.name: Product.objects.filter(type=t) for t in types}
+    product_dict = {t.name: Product.objects.filter(type=t, active=True) for t in types}
 
     last_bill = Billing.objects.aggregate(Max('id'))['id__max']
     next_bill_number = format_billing_number((last_bill + 1) if last_bill else 1)

@@ -237,6 +237,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                 <th>Service</th>
                                 <th>Fee</th>
                                 <th>Remarks</th>
+                                <th>Control Number</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -258,6 +259,12 @@ window.addEventListener('DOMContentLoaded', event => {
                                     <span class="service-remarks">
                                         {{ service.get_remarks_display }}
                                     </span>
+                                </td>
+                                <td>
+                                    {{ service.control_number }}
+                                    <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'service-update-page' service.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Updates" style="margin-bottom: 4px;">
+                                        <i data-feather="external-link"></i>
+                                    </a>
                                 </td>
                                 <td>
                                     <button class="btn btn-dark add-service btn-sm" data-service-id="{{ service.id }}">
@@ -321,6 +328,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                     </thead>
                                     <tbody>
                                         {% for product in products %}
+                                        {% if product.active %}
                                         <tr>
                                             <td>{{ product.id }}</td>
                                             <td>
@@ -335,6 +343,9 @@ window.addEventListener('DOMContentLoaded', event => {
                                                 <span class="product-batch-number">
                                                     {{ product.batch_number }}
                                                 </span>
+                                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-update-page' product.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Updates" style="margin-bottom: 4px;">
+                                                    <i data-feather="external-link"></i>
+                                                </a>
                                             </td>
                                             <td>
                                                 {% if product.is_product_expired %}
@@ -369,6 +380,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                                 </button>                                                                      
                                             </td>                                
                                         </tr>
+                                        {% endif %}
                                         {% endfor %}
                                     </tbody>
                                 </table>

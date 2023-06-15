@@ -6,7 +6,8 @@ class ProductTypeAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_name', 'quantity_on_stock', 'type', 'batch_number', 'manufacturing_date', 'expiration_date', 'critical_level', 'price')
+    list_display = ('product_name', 'quantity_on_stock', 'type', 'batch_number', 'manufacturing_date', 'expiration_date', 'critical_level', 'price', 'active')
+    readonly_fields = ('original_product_name', 'batch_number', 'active')
     search_fields = ('product_name', 'type', 'price', 'batch_number')
 
 admin.site.register(ProductType, ProductTypeAdmin)

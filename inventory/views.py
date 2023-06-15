@@ -93,7 +93,7 @@ def product_update(request, product_id):
     else:
         form = ProductForm(instance=product)
 
-    previous_products = Product.objects.filter(product_name=product.product_name).order_by('-batch_number')
+    previous_products = Product.objects.filter(original_product_name=product.original_product_name).order_by('-batch_number')
 
     return render(request, 'inventory_update.html', {'form': form, 'previous_batch_numbers': previous_batch_numbers, 'product': product, 'previous_products': previous_products})
 

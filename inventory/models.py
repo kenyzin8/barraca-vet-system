@@ -24,7 +24,7 @@ class Product(models.Model):
     expiration_date = models.DateField()
     critical_level = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    date_added = models.DateTimeField(auto_now=True)
+    date_added = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
     previous_version = models.TextField(null=True, blank=True)
     updated_version = models.TextField(null=True, blank=True)

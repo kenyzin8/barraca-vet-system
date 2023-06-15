@@ -53,12 +53,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputOrgName">Batch Number</label>
-                                    {{ form.batch_number }}
-                                    <datalist id="previous-batch-numbers">
-                                        {% for batch_number in previous_batch_numbers %}
-                                          <option value="{{ batch_number }}">
-                                        {% endfor %}
-                                    </datalist>
+                                    <input class="form-control" value="1" disabled>
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">

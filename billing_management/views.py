@@ -128,6 +128,8 @@ def sales(request):
     startDateStr = request.GET.get('startDate')
     endDateStr = request.GET.get('endDate')
 
+    gross_revenue = 0
+
     if startDateStr and endDateStr:
         startDate = datetime.strptime(startDateStr, '%Y-%m-%d').date()
         endDate = datetime.strptime(endDateStr, '%Y-%m-%d').date()
@@ -142,7 +144,12 @@ def sales(request):
         
         bills = bills.filter(date_created__range=[start_of_day, end_of_day])
 
-    context = {'bills': bills}
+    bills = bills.prefetch_related('products', 'services')
+    
+    for bill in bills:
+        gross_revenue += bill.get_total()
+
+    context = {'bills': bills, 'gross_revenue': gross_revenue}
     return render(request, 'sales.html', context)
 
 # @csrf_exempt

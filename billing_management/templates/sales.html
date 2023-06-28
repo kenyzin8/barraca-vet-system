@@ -85,6 +85,75 @@
 
 </style>
 <script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
+<script>
+window.addEventListener('DOMContentLoaded', event => {
+  const wizard2Tab = document.getElementById('wizard2-tab');
+  wizard2Tab.addEventListener('click', function (event) {
+    initDataTables('datatablesSimple-sales');
+    initDataTables('datatablesSimple-services');
+  });
+});
+
+function initDataTables(tableId) {
+        const datatablesSimple = document.getElementById(tableId);
+        if (datatablesSimple) {
+            let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+            // DataTables options
+            paging: true,
+            perPageSelect: [5, 10, 25, 50],
+            perPage: 10,
+            fixedHeight: true,
+            sortable: true,
+            searchable: true,
+            hiddenHeader: false
+            });
+
+        dataTable.on('datatable.update', () => {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.page', function(page) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.search', function(query, matched) {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.sort', function(column, direction) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        var searchInput = document.querySelector('.datatable-input');
+        
+        searchInput.addEventListener('search', function(e) {
+            if (e.target.value == '') {
+                dataTable.search('');
+            }
+        });
+    }
+}
+</script>
 {% endblock %}
 
 {% block header %}
@@ -96,7 +165,6 @@
         <!-- Wizard card example with navigation-->
 
         <div class="card">
-            
             <div class="card-header border-bottom">
                 <!-- Wizard navigation-->
                 <div class="nav nav-pills nav-justified flex-column flex-xl-row nav-wizard" id="cardTab" role="tablist">
@@ -118,7 +186,10 @@
             </div>
             
             <div class="card-body">
-                <div class="d-flex justify-content-end mb-3 mt-3">
+                <div class="d-flex justify-content-between mb-3 mt-3">
+                    <div class="mb-2 mt-5 ">
+                        <span class="fw-700">Gross Revenue: ₱ {{ gross_revenue|floatformat:2|intcomma }}</span>
+                    </div>
                     <div class="col-12 col-xl-auto d-flex align-items-center">
                         <div class="input-group input-group-joined border-0 ml-3" style="width: 16.5rem">
                             <span class="input-group-text" style="background: #232323; color: white;">
@@ -127,7 +198,7 @@
                             <input class="form-control ps-0 pointer input-litepicker" id="litepickerRangePlugin" placeholder="Select date range..." style="background: #232323;color: white;" />
                         </div>
                     </div>
-                </div>
+                </div>                  
                 <div class="tab-content" id="cardTabContent">
                     <!-- Wizard tab pane item 1-->
                     <div class="tab-pane py-5 py-xl-2 fade show active" id="wizard1" role="tabpanel" aria-labelledby="wizard1-tab">
@@ -148,7 +219,7 @@
                                             <span class="billing-number">
                                                 {{ bill.get_billing_number }}
                                             </span>
-                                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Billing">
+                                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
                                                 <i data-feather="external-link"></i>
                                             </a>
                                         </td>
@@ -175,7 +246,92 @@
                     <!-- Wizard tab pane item 2-->
                     <div class="tab-pane py-5 py-xl-2 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
                         <div class="row justify-content-center">
-                            qwe
+                            <div class="card card-collapsable mb-2">
+                                <div class="card-header bg-transparent" href="#collapseSales" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseSales">
+                                    Sales
+                                    <div class="card-collapsable-arrow">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                                <div class="collapse show" id="collapseSales">
+                                    <div class="card-body">
+                                        <table id="datatablesSimple-sales">
+                                            <thead>
+                                                <tr>
+                                                    <th>Under Bill #</th>
+                                                    <th>Date Sold</th>
+                                                    <th>Product</th>
+                                                    <th>Quantity</th>
+                                                    <th>Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for bill in bills %}
+                                                {% for billing_product in bill.billing_products.all %}
+                                                <tr>
+                                                    <td>
+                                                        {{ bill.get_billing_number }}
+                                                        <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' billing_product.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
+                                                            <i data-feather="external-link"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
+                                                    <td>{{ billing_product.product.product_name }}</td>
+                                                    <td>{{ billing_product.quantity|floatformat:2 }}</td>
+                                                    <td class="calc" data-price="{{ billing_product.product.price }}" data-quantity="{{ billing_product.quantity }}">
+                                                        {{ billing_product.product.price|floatformat:2 }} x {{ billing_product.quantity|floatformat:3 }} = 
+                                                        ₱ <span class="total-price">0.00</span>
+                                                    </td>                                            
+                                                </tr>
+                                                {% endfor %}
+                                                {% endfor %}
+                                            </tbody>                                            
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="card card-collapsable">
+                                <div class="card-header bg-transparent" href="#collapseServices" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseServices">
+                                    Services
+                                    <div class="card-collapsable-arrow">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                                <div class="collapse show" id="collapseServices">
+                                    <div class="card-body">
+                                        <table id="datatablesSimple-services">
+                                            <thead>
+                                                <tr>
+                                                    <th>Under Bill #</th>
+                                                    <th>Date Sold</th>
+                                                    <th>Service</th>
+                                                    <th>Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for bill in bills %}
+                                                {% for billing_service in bill.billing_services.all %}
+                                                <tr>
+                                                    <td>
+                                                        {{ bill.get_billing_number }}
+                                                        <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
+                                                            <i data-feather="external-link"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
+                                                    <td>{{ billing_service.service.service_type }}</td>
+                                                    <td>₱ {{ billing_service.service.fee }}</td>                                           
+                                                </tr>
+                                                {% endfor %}
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -190,4 +346,16 @@
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/js/bundle.js' %}" crossorigin="anonymous"></script>
 <script src="{% static 'plugins/sb-admin/js/litepicker.js' %}"></script>
+<script>
+    window.onload = function() {
+        var calcs = document.getElementsByClassName('calc');
+        for(var i=0; i<calcs.length; i++) {
+            var price = parseFloat(calcs[i].dataset.price);
+            var quantity = parseFloat(calcs[i].dataset.quantity);
+            var totalPrice = price * quantity;
+    
+            calcs[i].getElementsByClassName('total-price')[0].textContent = totalPrice.toFixed(2);
+        }
+    };
+    </script>
 {% endblock %}

@@ -8,15 +8,40 @@ from django.http import Http404
 
 from core.decorators import staff_required
 
+from record_management.models import Client, Pet
+from billing_management.models import Billing
+
 import urllib.parse
 import requests
+import json
 
 from django.contrib.auth.models import User
 
 @login_required
 @staff_required
 def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
+    # Get count of clients
+    clients = Client.objects.filter(user__is_staff=False, user__is_superuser=False)
+    client_count = clients.count()
+    # Get count of pets
+    pets = Pet.objects.filter(client__user__is_staff=False, client__user__is_superuser=False)
+    pet_count = pets.count()
+
+    # Get total gross revenue for today
+    today = datetime.now()
+    today_bills = Billing.objects.filter(date_created__year=today.year, date_created__month=today.month, date_created__day=today.day)
+    total_revenue = 0
+    for bill in today_bills:
+        total_revenue += bill.get_total()
+
+    context = {
+        'client_count': client_count, 
+        'pet_count': pet_count, 
+        'total_revenue': total_revenue
+    }
+    
+    return render(request, 'admin_dashboard.html', context)
+
 
 @login_required
 @staff_required

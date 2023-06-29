@@ -20,7 +20,7 @@ def product_list(request):
 @staff_required
 @login_required
 def product_type_list(request):
-    product_types = ProductType.objects.order_by('-id')
+    product_types = ProductType.objects.filter(active=True).order_by('-id')
     context = {'product_types': product_types}
     return render(request, 'product_type_list.html', context)
 
@@ -41,7 +41,8 @@ def add_type_page(request):
 def delete_type_page(request, type_id):
     try:
         product_type = ProductType.objects.get(pk=type_id)
-        product_type.delete()
+        product_type.active = False
+        product_type.save()
         return JsonResponse({'result': 'success'})
     except ProductType.DoesNotExist:
         return JsonResponse({'result': 'error', 'message': 'Product type does not exist'})
@@ -103,7 +104,8 @@ def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
-        product.delete()
+        product.active = False
+        product.save()
         return JsonResponse({'result': 'success'})
     else:
         return JsonResponse({'result': 'error', 'message': 'Invalid request method'})

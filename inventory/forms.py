@@ -9,7 +9,7 @@ class ProductForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control'}),
         decimal_places=2, 
     )
-    type = forms.ModelChoiceField(queryset=ProductType.objects.all(), widget=forms.Select(attrs={'id': 'type', 'class': 'form-select'}))
+    type = forms.ModelChoiceField(queryset=ProductType.objects.filter(active=True).order_by('-id'), widget=forms.Select(attrs={'id': 'type', 'class': 'form-select'}))
     #batch_number = forms.CharField(widget=forms.TextInput(attrs={'id': 'batch_number', 'class': 'form-control', 'list': 'previous-batch-numbers'}))
     manufacturing_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'manufacturing_date', 'class': 'form-control', 'type': 'date'}))
     expiration_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'expiration_date', 'class': 'form-control', 'type': 'date'}))

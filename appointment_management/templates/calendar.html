@@ -12,6 +12,47 @@
 <script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
 <script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
 <script src="{% static 'js/sms/send_sms.js' %}"></script>
+
+
+<style>
+    #external-events {
+      position: relative;
+      left: 20px;
+      top: 20px;
+      width: 150px;
+      padding: 0 10px;
+      border: 1px solid #ccc;
+      background: #eee;
+      text-align: left;
+    }
+  
+    #external-events h4 {
+      font-size: 16px;
+      margin-top: 0;
+      padding-top: 1em;
+    }
+  
+    #external-events .fc-event {
+      margin: 3px 0;
+      cursor: move;
+    }
+  
+    #external-events p {
+      margin: 1.5em 0;
+      font-size: 11px;
+      color: #666;
+    }
+  
+    #external-events p input {
+      margin: 0;
+      vertical-align: middle;
+    }
+
+    #calendar-wrap {
+        margin-top: -120px;
+    }
+
+  </style>
 {% endblock %}
 
 {% block content %}
@@ -24,7 +65,20 @@
         </a>
         <div class="collapse show" id="collapseCardExample">
           <div class="card-body animated--fade-in-up">
-              <div id='calendar'></div>
+            <div id='external-events'>
+                <h4>Rebook List</h4>
+                <div id='external-events-list'>
+                  <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event'>
+                    <div class='fc-event-main'>Kent Jamila</div>
+                  </div>
+                </div>
+                <p>
+                    <span>View your appointment and click rebook to add here.</span>
+                </p>
+            </div>
+            <div id='calendar-wrap'>
+                <div id='calendar'></div>
+            </div>
           </div>
         </div>
       </div>
@@ -43,10 +97,10 @@
         <!-- Event title will be displayed here -->
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-dark btn-sm" id="deleteEvent">Delete Event</button>
-        <button type="button" class="btn btn-dark btn-sm" id="notifyEvent">Notify</button>
-      </div>
+        <button type="button" class="btn btn-dark btn-sm" id="deleteEvent">Cancel</button>
+        <button type="button" class="btn btn-dark btn-sm" id="rebookEvent">Rebook</button>
+        <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+    </div>
     </div>
   </div>
 </div>

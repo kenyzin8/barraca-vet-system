@@ -33,7 +33,7 @@ var ctx = document.getElementById("myBarChart");
 var myBarChart = new Chart(ctx, {
     type: "bar",
     data: {
-        labels: ["January", "February", "March", "April", "May", "June"],
+        labels: ["2017", "2019", "2020", "2021", "2022", "2023"],
         datasets: [{
             label: "Revenue",
             backgroundColor: "rgba(0, 97, 242, 1)",
@@ -74,7 +74,7 @@ var myBarChart = new Chart(ctx, {
                     padding: 10,
                     // Include a dollar sign in the ticks
                     callback: function(value, index, values) {
-                        return "$" + number_format(value);
+                        return "₱" + number_format(value);
                     }
                 },
                 gridLines: {
@@ -105,7 +105,7 @@ var myBarChart = new Chart(ctx, {
                 label: function(tooltipItem, chart) {
                     var datasetLabel =
                         chart.datasets[tooltipItem.datasetIndex].label || "";
-                    return datasetLabel + ": $" + number_format(tooltipItem.yLabel);
+                    return datasetLabel + ": ₱" + number_format(tooltipItem.yLabel);
                 }
             }
         }

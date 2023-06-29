@@ -16,7 +16,16 @@ function getInitialView() {
 document.addEventListener('DOMContentLoaded', function() 
 {
   var calendarEl = document.getElementById('calendar');
-
+  var containerEl = document.getElementById('external-events-list');
+  new FullCalendar.Draggable(containerEl, {
+    itemSelector: '.fc-event',
+    eventData: function(eventEl) {
+      return {
+        title: eventEl.innerText.trim()
+      }
+    }
+  });
+  
   var calendar = new FullCalendar.Calendar(calendarEl, 
   {
     themeSystem: 'bootstrap5',
@@ -77,7 +86,8 @@ document.addEventListener('DOMContentLoaded', function()
         eventModal.hide();
       };
     },
-    editable: false,
+    editable: true,
+    droppable: true,
     dayMaxEvents: true, // allow "more" link when too many events
     events: [
       {
@@ -140,7 +150,21 @@ document.addEventListener('DOMContentLoaded', function()
       var dayBeforeEndDate = new Date(selectInfo.end);
       dayBeforeEndDate.setDate(dayBeforeEndDate.getDate() - 1);
       return FullCalendar.formatDate(selectInfo.start, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' }) === FullCalendar.formatDate(dayBeforeEndDate, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' });
-    }
+    },
+    eventDrop: function(info) {
+      if (!confirm("Are you sure you want to rebook this client?")) {
+        info.revert();
+      }
+    },
+    drop: function(arg) {
+      if (!confirm("Are you sure you want to rebook this client?")) {
+        arg.revert();
+      }
+      else
+      {
+        arg.draggedEl.parentNode.removeChild(arg.draggedEl);
+      }
+    },
   });
 
   calendar.render();

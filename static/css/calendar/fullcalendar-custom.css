@@ -75,7 +75,61 @@
   font-weight: bold;
 }
 
-@media (max-width: 576px) {
+.flex-container {
+  display: flex; 
+  flex-direction: row; 
+}
+
+.parent-container {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin: 0 auto;
+}
+
+#calendar-wrap {
+  flex: 3;
+  margin-left: 20px;
+}
+
+#external-events {
+  position: relative;
+  padding: 0 10px;
+  text-align: left;
+  flex: 0 0 2in; 
+  margin-right: 20px;
+}
+
+.height-wrapper
+{
+  border: 1px solid #ccc;
+  padding: 10px
+}
+
+#external-events h4 {
+  font-size: 16px;
+  margin-top: 0;
+  padding-top: 1em;
+}
+
+#external-events .fc-event {
+  margin: 3px 0;
+  cursor: move;
+}
+
+#external-events p {
+  margin: 1.5em 0;
+  font-size: 11px;
+  color: #666;
+}
+
+#external-events p input {
+  margin: 0;
+  vertical-align: middle;
+}
+
+
+@media (max-width: 876px) {
   .calendar-container .fc .fc-toolbar {
     display: flex;
     flex-direction: column;
@@ -106,5 +160,22 @@
 
   .calendar-container .fc-direction-ltr .fc-button-group>.fc-button:not(:first-child) {
     margin-left: 0px;
+  }
+
+  .flex-container {
+    flex-direction: column;
+  }
+  
+  #external-events{
+    display: none;
+  }
+
+  #calendar-wrap {
+    margin-left: 0px;
+  }
+
+  .fc-view-harness, .fc-view-harness-active
+  {
+    height: 500px;
   }
 }

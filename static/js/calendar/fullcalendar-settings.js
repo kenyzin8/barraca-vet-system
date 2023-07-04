@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', function()
   var calendar = new FullCalendar.Calendar(calendarEl, 
   {
     themeSystem: 'bootstrap5',
+    lazyFetching: true,
+    progressiveEventRendering: true,
     views: {
       listDay: { buttonText: 'Day' },
       dayGridMonth: { buttonText: 'Month' },
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function()
       listMonth: {buttonText: 'Month'}
     },
     buttonText: {
-          today: 'Today',
+      today: 'Today',
     },
     allDayText: '',
     firstDay: 1,
@@ -47,6 +49,10 @@ document.addEventListener('DOMContentLoaded', function()
     navLinks: true, // can click day/week names to navigate views
     selectable: true,
     selectMirror: true,
+    editable: true,
+    droppable: true,
+    dayMaxEvents: true, // allow "more" link when too many events
+    hiddenDays: [ 0 ],
     select: function(arg) 
     {
       var title = prompt('Create Appointment:');
@@ -86,45 +92,42 @@ document.addEventListener('DOMContentLoaded', function()
         eventModal.hide();
       };
     },
-    editable: true,
-    droppable: true,
-    dayMaxEvents: true, // allow "more" link when too many events
     events: [
       {
         title: 'Kent Jamila',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'John Jamila',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Susie Jamila',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Kharyl Caye Domalogdog',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Kotlin Molk',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Simon Walker',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Yvette Mae Barraca',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Erika Mae Barraca',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Kent John Jin',
-        start: '2023-04-15',
+        start: '2023-07-15',
         // display: 'background',
         // color: "red"
       }

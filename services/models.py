@@ -67,4 +67,4 @@ class Service(models.Model):
         return new_service
 
     def __str__(self):
-        return f"{self.service_type} - {self.fee}"
+        return f"{self.service_type}"

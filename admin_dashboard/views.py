@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from core.semaphore import fetch_sms_data
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import Http404
 
@@ -10,6 +10,7 @@ from core.decorators import staff_required
 
 from record_management.models import Client, Pet
 from billing_management.models import Billing
+from appointment_management.models import Appointment
 
 import urllib.parse
 import requests
@@ -34,10 +35,22 @@ def admin_dashboard(request):
     for bill in today_bills:
         total_revenue += bill.get_total()
 
+    in_30_days = today + timedelta(days=30)
+    upcoming_appointments = Appointment.objects.filter(date__range=[today, in_30_days], isActive=True, status='pending')
+
+    today_appointments = Appointment.objects.filter(date__year=today.year, date__month=today.month, date__day=today.day, isActive=True)
+    appointment_count = today_appointments.count()
+
+    today_done_appointments = Appointment.objects.filter(date__year=today.year, date__month=today.month, date__day=today.day, isActive=True, status='done')
+    done_appointment_count = today_appointments.count()
+
     context = {
         'client_count': client_count, 
         'pet_count': pet_count, 
-        'total_revenue': total_revenue
+        'total_revenue': total_revenue,
+        'upcoming_appointments': upcoming_appointments,
+        'appointment_count': appointment_count,
+        'done_appointment_count': done_appointment_count,
     }
     
     return render(request, 'admin_dashboard.html', context)

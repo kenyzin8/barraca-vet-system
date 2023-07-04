@@ -60,8 +60,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="me-3">
-                            <div class="text-white-75 small">Expected Clients</div>
-                            <div class="text-lg fw-bold">0 / 10</div>
+                            <div class="text-white-75 small">Expected Clients (Today)</div>
+                            <div class="text-lg fw-bold">{{ done_appointment_count }} / {{ appointment_count }}</div>
                         </div>
                         <i class="feather-xl text-white-50" data-feather="user"></i>
                     </div>
@@ -110,26 +110,17 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for appointment in upcoming_appointments %}
                         <tr>
-                            <td>Tiger Nixon</td>
-                            <td>August 5</td>
-                            <td>09772381588</td>
-                            <td><div class="badge bg-primary text-white rounded-pill">Vaccination</div> <div class="badge bg-warning text-white rounded-pill">Check Up</div></td>
+                            <td>{{ appointment.client.full_name }}</td>
+                            <td>{{ appointment.date|date:"F j" }}</td>
+                            <td>{{ appointment.client.contact_number }}</td>
+                            <td><div class="badge bg-warning text-white rounded-pill">{{ appointment.purpose.service_type }}</div></td>
                             <td>
-                                <button id="dropdownFadeIn" class="btn btn-datatable btn-icon btn-transparent-dark me-2"  type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                                </button>
-                                <div class="dropdown-menu animated--fade-in" aria-labelledby="dropdownFadeIn">
-                                    <a class="dropdown-item" href="#!">
-                                        <div class="dropdown-item-icon">
-                                            <i data-feather="user"></i>
-                                        </div>
-                                        View
-                                    </a>
-                                </div>
-                                <button class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="check"></i></button>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-calendar' %}" data-bs-toggle="tooltip" data-bs-placement="top" title="View in Calendar"><i data-feather="external-link"></i></a>
                             </td>
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

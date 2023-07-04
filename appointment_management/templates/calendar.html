@@ -94,7 +94,8 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-dark btn-sm" id="deleteEvent">Cancel Appointment</button>
           <button type="button" class="btn btn-dark btn-sm" id="rebookEvent">Rebook</button>
-          <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+          <button type="button" class="btn btn-dark btn-sm" id="doneEvent">Appointment Done</button>
+          <!-- <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button> -->
       </div>
       </div>
     </div>
@@ -188,13 +189,13 @@
         <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title" id="deleteAppointmentModalLabel">Cancel Appointment Confirmation</h5>
-            <button id="close-sms-confirmation-button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button id="close-sms-confirmation-button" type="button" class="btn-close cancelDeleteAppointmentButton" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             Are you sure you want to cancel this appointment?<br><br>
         </div>
         <div class="modal-footer">
-            <button id="cancelDeleteAppointmentButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">No</button>
+            <button id="cancelDeleteAppointmentButton" type="button" class="btn btn-dark btn-sm cancelDeleteAppointmentButton" data-bs-dismiss="modal">No</button>
             <button id="yesDeleteAppointmentButton" type="button" class="btn btn-danger btn-sm">
                 Yes
             </button>
@@ -228,6 +229,46 @@
     </div>
 </div>
 
+<div class="modal fade" id="doneAppointmentModal" tabindex="-1" aria-labelledby="doneAppointmentModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="doneAppointmentModalLabel">Appointment Done Confirmation</h5>
+            <button id="close-sms-confirmation-button" type="button" class="btn-close cancelDoneAppointmentButton" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you this appointment is done?<br><br>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelDoneAppointmentButton" type="button" class="btn btn-dark btn-sm cancelDoneAppointmentButton" data-bs-dismiss="modal">No</button>
+            <button id="yesDoneAppointmentButton" type="button" class="btn btn-danger btn-sm">
+                Yes
+            </button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="rebookConfModal" tabindex="-1" aria-labelledby="rebookConfModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="rebookConfModalLabel">Appointment Rebook Confirmation</h5>
+            <button id="cancelRebookConfButton" type="button" class="btn-close cancelRebookConfButton" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to add this appointment to rebook list?<br><br>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelRebookConfButton" type="button" class="btn btn-dark btn-sm cancelRebookConfButton" data-bs-dismiss="modal">No</button>
+            <button id="yesRebookConfButton" type="button" class="btn btn-danger btn-sm">
+                Yes
+            </button>
+        </div>
+        </div>
+    </div>
+</div> 
+
 <input id="hiddenClientPhone" value="" hidden>
 <input id="hiddenAppointmentID" value="" hidden>
 <div id="sms-data" data-url="{% url 'send_sms_to_client' %}"></div>
@@ -236,7 +277,6 @@
 
 {% block extrascripts %}
 <script>
-
 function formatDates(date) {
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const day = String(date.getDate()).padStart(2, '0');
@@ -278,6 +318,9 @@ function getInitialView() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+
+    var appointmentIdToMarkDone;
+
     const datatablesSimple = document.getElementById('datatablesSimple');
     var dataTable = null;
     if (datatablesSimple) {
@@ -293,18 +336,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         dataTable.on('datatable.update', () => {
             feather.replace();
-            
+
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
         });
 
         dataTable.on('datatable.page', function(page) {
             feather.replace();
-            
+
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
         });
@@ -313,22 +356,22 @@ document.addEventListener('DOMContentLoaded', function() {
             feather.replace();
 
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
         });
 
         dataTable.on('datatable.sort', function(column, direction) {
             feather.replace();
-            
+
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
         });
 
         var searchInput = document.querySelector('.datatable-input');
-        
+
         searchInput.addEventListener('search', function(e) {
             if (e.target.value == '') {
                 dataTable.search('');
@@ -418,14 +461,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const day = monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
 
             const details = [
-                `Client: ${arg.event.extendedProps.client}`,
-                `Pet: ${arg.event.extendedProps.pet}`,
-                `Time of the Day: ${arg.event.extendedProps.timeOfTheDay}`,
-                `Purpose: ${arg.event.extendedProps.purpose}`
-            ].join('\n');
+                `<strong>Client:</strong> ${arg.event.extendedProps.client}`,
+                `<strong>Pet:</strong> ${arg.event.extendedProps.pet}`,
+                `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay}`,
+                `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`
+            ].join('<br>');
 
             document.getElementById('eventModalLabel').innerText = "#" + arg.event.id + " - " + day;
-            document.getElementById('eventModalBody').innerText = details;
+            document.getElementById('eventModalBody').innerHTML = details;
             eventModal.show();
 
             var popover = document.querySelector('.fc-popover');
@@ -436,6 +479,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var deleteAppointmentModal = new bootstrap.Modal(document.getElementById('deleteAppointmentModal'));
 
             document.getElementById('deleteEvent').onclick = function() {
+                eventModal.hide();
                 deleteAppointmentModal.show();
             };
 
@@ -460,7 +504,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             };
 
+            var cancelDeleteAppointmentButton = document.getElementsByClassName('cancelDeleteAppointmentButton');
+            console.log(cancelDeleteAppointmentButton)
+            for (var i = 0; i < cancelDeleteAppointmentButton.length; i++) {
+                cancelDeleteAppointmentButton[i].onclick = function() {
+                    deleteAppointmentModal.hide();
+                    eventModal.show();
+                };
+            }
+
             document.getElementById('rebookEvent').onclick = function() {
+                eventModal.hide();
+                $('#rebookConfModal').modal('show');
+            };
+
+            document.getElementById('yesRebookConfButton').onclick = function() {
                 $.ajax({
                     type: 'POST',
                     url: '{% url "add_to_rebook_list" %}',
@@ -482,7 +540,54 @@ document.addEventListener('DOMContentLoaded', function() {
                         console.log(error);
                     }
                 });
+            }
+
+            var cancelRebookConfButtons = document.getElementsByClassName('cancelRebookConfButton');
+            console.log(cancelRebookConfButtons)
+            for (var i = 0; i < cancelRebookConfButtons.length; i++) {
+                cancelRebookConfButtons[i].onclick = function() {
+                    $('#rebookConfModal').modal('hide');
+                    eventModal.show();
+                };
+            }
+
+            document.getElementById('doneEvent').onclick = function() {
+                appointmentIdToMarkDone = arg.event.id;
+                eventModal.hide();
+                $('#doneAppointmentModal').modal('show');
             };
+
+            document.getElementById('yesDoneAppointmentButton').onclick = function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "mark_as_done" %}',
+                    data: {
+                        'appointment_id': appointmentIdToMarkDone,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'Appointment marked as done successfully') {
+                            arg.event.remove();
+                            eventModal.hide();
+                            var currentView = calendar.view;
+                            localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                            location.reload();
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            };
+
+            var cancelDoneAppointmentButton = document.getElementsByClassName('cancelDoneAppointmentButton');
+            console.log(cancelDoneAppointmentButton)
+            for (var i = 0; i < cancelDoneAppointmentButton.length; i++) {
+                cancelDoneAppointmentButton[i].onclick = function() {
+                    $('#doneAppointmentModal').modal('hide');
+                    eventModal.show();
+                };
+            }
         },
 
         events: "{% url 'get_appointments' %}",
@@ -504,8 +609,8 @@ document.addEventListener('DOMContentLoaded', function() {
         navLinkDayClick: function(date, jsEvent) {
             jsEvent.preventDefault();
 
-            var events = calendar.getEvents(); 
-            var dateStr = date.toISOString(); 
+            var events = calendar.getEvents();
+            var dateStr = date.toISOString();
 
             var eventsOnDate = events.filter(function(event) {
                 return event.start.toISOString().substring(0, 10) === dateStr.substring(0, 10);
@@ -526,12 +631,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     event.extendedProps.client,
                     event.extendedProps.contact_number,
                     "<button type='button' class='btn btn-primary btn-sm lift lift-sm' onclick='confirmSendSMS(\"" +
-                        event.id + "\", \"" +
-                        event.extendedProps.client + "\", \"" +
-                        event.extendedProps.contact_number + "\"" +
+                    event.id + "\", \"" +
+                    event.extendedProps.client + "\", \"" +
+                    event.extendedProps.contact_number + "\"" +
                     ")'>Notify</button>"
                 ];
-                dataTable.rows.add(row);  // Add the row
+                dataTable.rows.add(row); // Add the row
             });
 
             $('html, body').animate({
@@ -590,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 'client_id': clientId
                             },
                             success: function(data) {
-                                
+
                                 select_pet.html('');
                                 $.each(data, function(index, text) {
                                     select_pet.append(

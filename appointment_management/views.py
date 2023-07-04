@@ -244,3 +244,22 @@ def get_pets(request):
 #     client_id = request.GET.get('client_id')
 #     pets = Pet.objects.filter(client=client_id).exclude(appointment__isnull=False).values('id', 'name')
 #     return JsonResponse(list(pets), safe=False)
+
+@login_required
+@staff_required
+@csrf_exempt
+def set_appointment_done(request):
+    if request.method == 'POST':
+        try:
+            appointment_id = request.POST.get('appointment_id')
+            appointment = Appointment.objects.get(id=appointment_id)
+            appointment.status = 'done'
+            appointment.isActive = False
+            appointment.save()
+            return JsonResponse({'status': 'Appointment marked as done successfully'})
+        except Appointment.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Appointment not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)

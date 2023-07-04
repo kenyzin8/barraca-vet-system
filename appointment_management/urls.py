@@ -11,4 +11,5 @@ urlpatterns = [
     path('rebook_appointment/move', views.rebook_appointment, name='rebook_appointment'),
     path('set_appointment/check-if-full', views.check_if_full, name='check_if_full'),
     path('set_appointment/get-pets', views.get_pets, name='get_pets'),
+    path('set_appointment/done', views.set_appointment_done, name='mark_as_done')
 ]

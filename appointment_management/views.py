@@ -389,7 +389,7 @@ def get_appointments_client(request):
     for appointment in appointments:
         event = {
             'id': appointment.id,
-            'title': f'#{appointment.id} - {appointment.client.full_name}',
+            'title': f'#{appointment.id} - {appointment.pet.name}',
             'start': appointment.date.isoformat(),
             'color': appointment.getTimeOfDayColor(),
             'extendedProps': {

@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Product, ProductType, Notification
 from .forms import ProductForm
 from django.http import JsonResponse
-from django.db.models import F
+from django.db.models import F, Q
 from django.views.decorators.csrf import csrf_exempt
 
 @staff_required
@@ -56,7 +56,6 @@ def product_add(request):
         form = ProductForm(request.POST)
         if form.is_valid():
             new_product = form.save(commit=False)
-            new_product.original_product_name = new_product.product_name
             new_product.previous_version = "New"
             new_product.updated_version = "New"
             new_product.save()  
@@ -71,13 +70,26 @@ def product_add(request):
 @staff_required
 @login_required
 def product_update(request, product_id):
+
+    if Product.objects.filter(id=product_id, active=False).exists():
+        return redirect('product-list-page')
+
     product = get_object_or_404(Product, id=product_id)
     previous_batch_numbers = list(Product.objects.values_list('batch_number', flat=True).distinct())
 
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
-            new_product_name = form.cleaned_data['product_name'] if form.cleaned_data['product_name'] != product.product_name else None
+            new_product_name = form.cleaned_data['product_name']
+
+            if new_product_name != product.product_name and Product.objects.filter(product_name=new_product_name, active=True).exists():
+                form.add_error('product_name', 'Error: Product with this name already exists.')
+                if product.original_product is None:
+                    previous_products = Product.objects.filter(Q(id=product.id) | Q(original_product=product)).order_by('-batch_number')
+                else:
+                    previous_products = Product.objects.filter(Q(id=product.original_product.id) | Q(original_product=product.original_product)).order_by('-batch_number')
+                return render(request, 'inventory_update.html', {'form': form, 'product': product, 'previous_products': previous_products})
+
             new_quantity_on_stock = form.cleaned_data['quantity_on_stock'] if form.cleaned_data['quantity_on_stock'] != product.quantity_on_stock else None
             new_type = form.cleaned_data['type'] if form.cleaned_data['type'] != product.type else None
             new_manufacturing_date = form.cleaned_data['manufacturing_date'] if form.cleaned_data['manufacturing_date'] != product.manufacturing_date else None
@@ -88,13 +100,14 @@ def product_update(request, product_id):
             new_product = product.create_new_version(new_product_name, new_quantity_on_stock, new_type, new_manufacturing_date, 
                                                      new_expiration_date, new_critical_level, new_price)
 
-            return redirect('product-list-page')
-        else:
-            print(form.errors)
+            return redirect('product-update-page', product_id=new_product.id)
     else:
         form = ProductForm(instance=product)
 
-    previous_products = Product.objects.filter(original_product_name=product.original_product_name).order_by('-batch_number')
+    if product.original_product is None:
+        previous_products = Product.objects.filter(Q(id=product.id) | Q(original_product=product)).order_by('-batch_number')
+    else:
+        previous_products = Product.objects.filter(Q(id=product.original_product.id) | Q(original_product=product.original_product)).order_by('-batch_number')
 
     return render(request, 'inventory_update.html', {'form': form, 'previous_batch_numbers': previous_batch_numbers, 'product': product, 'previous_products': previous_products})
 

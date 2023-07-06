@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 class Service(models.Model):
     SERVICE_TYPES = (
         ('deworming', 'Deworming'),
@@ -21,9 +20,10 @@ class Service(models.Model):
     date_added = models.DateTimeField(auto_now=True)
     control_number = models.IntegerField(default=1)
     active = models.BooleanField(default=True)
-    previous_version = models.TextField(blank=True, null=True)  
-    updated_version = models.TextField(blank=True, null=True) 
-    original_service_type = models.CharField(max_length=50, null=True)
+    
+    previous_version = models.CharField(blank=True, null=True)  
+    updated_version = models.CharField(blank=True, null=True) 
+    original_service = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
     
     def create_new_version(self, new_service_type=None, new_fee=None, new_remarks=None):
         previous_version = None
@@ -55,7 +55,7 @@ class Service(models.Model):
 
         new_service = Service.objects.create(
             service_type=service_type,
-            original_service_type=self.original_service_type,
+            original_service=self if self.original_service is None else self.original_service,
             fee=fee,
             remarks=remarks,
             control_number=self.control_number + 1,

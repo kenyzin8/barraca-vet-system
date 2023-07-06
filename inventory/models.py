@@ -27,12 +27,13 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     date_added = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
-    previous_version = models.TextField(null=True, blank=True)
-    updated_version = models.TextField(null=True, blank=True)
-    original_product_name = models.CharField(max_length=255, null=True)
+
+    previous_version = models.CharField(null=True, blank=True)
+    updated_version = models.CharField(null=True, blank=True)
+    original_product = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.product_name} - {self.price}"
+        return f"{self.product_name}"
 
     def create_new_version(self, product_name=None, quantity_on_stock=None, type=None, 
                         manufacturing_date=None, expiration_date=None, critical_level=None, price=None):
@@ -84,7 +85,7 @@ class Product(models.Model):
             critical_level = self.critical_level
 
         if price and price != self.price:
-            batch_number = self.batch_number + 1
+            #batch_number = self.batch_number + 1
             previous_version = f"Price: ₱ {self.price}"
             updated_version = f"Price: ₱ {price}"
             price = price
@@ -98,7 +99,7 @@ class Product(models.Model):
             product_name=product_name,
             quantity_on_stock=quantity_on_stock,
             type=type,
-            batch_number=batch_number,
+            batch_number=self.batch_number + 1,
             manufacturing_date=manufacturing_date,
             expiration_date=expiration_date,
             critical_level=critical_level,
@@ -106,7 +107,7 @@ class Product(models.Model):
             active=True,
             previous_version=previous_version,
             updated_version=updated_version,
-            original_product_name=self.original_product_name
+            original_product=self if self.original_product is None else self.original_product
         )
 
         return new_product

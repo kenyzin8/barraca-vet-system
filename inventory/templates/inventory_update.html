@@ -113,7 +113,7 @@
                                 {% for old_product in previous_products %}
                                 <tr>
                                     <td>{{ old_product.id }}</td>
-                                    <td>{{ old_product.batch_number }}</td>
+                                    <td>{{ old_product.batch_number }} {% if product.id == old_product.id %}(Current){% endif %}</td>
                                     <td>{{ old_product.previous_version }}</td>
                                     <td>{{ old_product.updated_version }}</td>
                                     <td>{{ old_product.date_added }}</td>

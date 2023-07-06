@@ -11,5 +11,9 @@ urlpatterns = [
     path('rebook_appointment/move', views.rebook_appointment, name='rebook_appointment'),
     path('set_appointment/check-if-full', views.check_if_full, name='check_if_full'),
     path('set_appointment/get-pets', views.get_pets, name='get_pets'),
-    path('set_appointment/done', views.set_appointment_done, name='mark_as_done')
+    path('set_appointment/done', views.set_appointment_done, name='mark_as_done'),
+    path('disable_day', views.disable_day, name='disable_day'),
+    path('get_disabled_days', views.get_disabled_days, name='get_disabled_days'),
+    path('is_day_disabled', views.is_day_disabled, name='is_day_disabled'),
+    path('enable_day', views.enable_day, name='enable_day'),
 ]

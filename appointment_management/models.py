@@ -3,10 +3,33 @@ from record_management.models import Pet, Client
 from services.models import Service
 from core.semaphore import send_sms
 
+class DoctorSchedule(models.Model):
+    time_of_the_day_choices = [('morning', 'Morning'), ('afternoon', 'Afternoon'), ('whole_day', 'Whole Day')]
+    date = models.DateField()
+    reason = models.CharField(max_length=100)
+    isActive = models.BooleanField(default=True)
+    timeOfTheDay = models.CharField(max_length=10, choices=time_of_the_day_choices)
+
+    def __str__(self):
+        return f'{self.date} - {self.timeOfTheDay}'
+
+    def send_message_to_client(self):
+        if self.timeOfTheDay == 'whole_day':
+            appointments = Appointment.objects.filter(date=self.date, isActive=True)
+        else:
+            appointments = Appointment.objects.filter(date=self.date, timeOfTheDay=self.timeOfTheDay, isActive=True)
+
+        for appointment in appointments:
+            send_sms(appointment.client.contact_number, f'Hello {appointment.client.full_name}, your appointment on {self.date} {appointment.timeOfTheDay} has been cancelled due to {self.reason}. Please rebook your appointment on our webiste or contact the clinic to do it for you. Thank you!')
+
+    class Meta:
+        verbose_name = "Doctor Schedule"
+        verbose_name_plural = "Doctor Schedules"
+
 class Appointment(models.Model):
 
-    time_of_the_day_choices = [('morning', 'Morning'), ('afternoon', 'Afternoon')]
     status_choices = [('pending', 'Pending'), ('rebook', 'Rebook'), ('cancelled', 'Cancelled'), ('done', 'Done')]
+    time_of_the_day_choices = [('morning', 'Morning'), ('afternoon', 'Afternoon')]
 
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)

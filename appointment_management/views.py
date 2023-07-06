@@ -15,17 +15,80 @@ from django.utils import timezone
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Q
 from django.forms.models import model_to_dict
+from django.core import serializers
 
 from core.decorators import staff_required
-from .models import Appointment
+from .models import Appointment, DoctorSchedule
 
-from .forms import AppointmentForm, RebookAppointmentForm
+from .forms import AppointmentForm, RebookAppointmentForm, DisableDayForm
 
 import json
 import requests
 import time
 
 MAX_APPOINTMENTS_PER_DAY = 8
+
+@login_required 
+@staff_required
+def disable_day(request):
+    if request.method == 'POST':
+        form = DisableDayForm(request.POST)
+
+        if form.is_valid():
+            disable_day = form.save(commit=False)
+            disable_day.date = request.POST.get('date')
+            disable_day.isActive = True
+            disable_day.save()
+
+            if disable_day.timeOfTheDay == 'whole_day':
+                Appointment.objects.filter(date=disable_day.date).update(status='rebook')
+            else:
+                Appointment.objects.filter(date=disable_day.date, timeOfTheDay=disable_day.timeOfTheDay).update(status='rebook')
+
+            disable_day.send_message_to_client()
+
+            return JsonResponse({'status': 'success'}, status=200)
+
+        else:
+            return JsonResponse({'status': 'error', 'message': str(form.errors)}, status=400)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+
+@login_required
+@staff_required
+def get_disabled_days(request):
+    disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay')
+    disabled_days_list = list(disabled_days)
+
+    return JsonResponse(disabled_days_list, safe=False)
+
+@login_required
+@staff_required
+def is_day_disabled(request):
+    if request.method == 'GET':
+        selected_date = request.GET.get('date')
+        disabled_day = DoctorSchedule.objects.filter(date=selected_date, isActive=True).first()
+
+        if disabled_day:
+            return JsonResponse({
+                'is_disabled': True,
+                'time_of_the_day': disabled_day.timeOfTheDay
+            }, status=200)
+        else:
+            return JsonResponse({
+                'is_disabled': False,
+                'time_of_the_day': None
+            }, status=200)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+
+@login_required 
+@staff_required
+def enable_day(request):
+    date = request.POST.get('date')
+    date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+    DoctorSchedule.objects.filter(date=date_obj).delete()
+    return JsonResponse({'success': True})
 
 @login_required
 @staff_required
@@ -48,6 +111,7 @@ def calendar(request):
 
     form = AppointmentForm()
     rebook_form = RebookAppointmentForm()
+    disable_day_form = DisableDayForm()
 
     context = {
         'clients': clients_list,
@@ -55,6 +119,7 @@ def calendar(request):
         'form': form,
         'rebook_appointments': rebook_appointments,
         'rebook_form': rebook_form,
+        'disable_day_form': disable_day_form,
     }
 
     return render(request, 'calendar.html', context)

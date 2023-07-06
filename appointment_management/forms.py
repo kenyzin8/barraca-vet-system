@@ -1,5 +1,5 @@
 from django import forms
-from .models import Appointment
+from .models import DoctorSchedule, Appointment
 from record_management.models import Client, Pet
 from services.models import Service
 from django.db.models import Q
@@ -49,5 +49,20 @@ class RebookAppointmentForm(forms.ModelForm):
     timeOfTheDay = forms.ChoiceField(
         choices=Appointment.time_of_the_day_choices,
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-rebook'}),
+        label='Time of the Day'
+    )
+
+class DisableDayForm(forms.ModelForm):
+    class Meta:
+        model = DoctorSchedule
+        fields = ['reason', 'timeOfTheDay']
+
+    reason = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label='Reason')
+    
+    timeOfTheDay = forms.ChoiceField(
+        choices=DoctorSchedule.time_of_the_day_choices,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-disable'}),
         label='Time of the Day'
     )

@@ -24,6 +24,18 @@
   background-color: #ff3d3d70 !important;
 }
 
+.calendar-container .day-disabled-morning {
+  background-color: #001e5570 !important;
+}
+
+.calendar-container .day-disabled-afternoon {
+  background-color: #00502170 !important;
+}
+
+.calendar-container .day-disabled-whole-day {
+  background-color: #ff3d3d70 !important;
+}
+
 .calendar-container .fc-popover
 {
   background-color: white;

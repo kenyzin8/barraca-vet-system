@@ -1034,6 +1034,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             $('#addAppointmentModal').modal('hide');
                             var currentView = calendar.view;
                             localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                            history.pushState({}, null, location.pathname);
                             location.reload();
                         }
                     },

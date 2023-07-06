@@ -20,7 +20,7 @@ from django.core import serializers
 from core.decorators import staff_required
 from .models import Appointment, DoctorSchedule
 
-from .forms import AppointmentForm, RebookAppointmentForm, DisableDayForm
+from .forms import AppointmentForm, RebookAppointmentForm, DisableDayForm, AppointmentFormClient
 
 import json
 import requests
@@ -28,6 +28,8 @@ import time
 
 MAX_APPOINTMENTS_PER_DAY = 8
 
+
+#--------------------ADMIN SIDE------------------------------------
 @login_required 
 @staff_required
 def disable_day(request):
@@ -93,7 +95,6 @@ def enable_day(request):
 @login_required
 @staff_required
 def calendar(request):
-
     clients_list = Client.objects.all().order_by('id')
     rebook_appointments = Appointment.objects.filter(status='rebook')
 
@@ -122,7 +123,7 @@ def calendar(request):
         'disable_day_form': disable_day_form,
     }
 
-    return render(request, 'calendar.html', context)
+    return render(request, 'admin/calendar.html', context)
 
 @csrf_exempt
 @login_required
@@ -328,3 +329,105 @@ def set_appointment_done(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+
+#--------------------CLIENT SIDE------------------------------------
+@login_required
+def client_calendar(request):
+    client = Client.objects.get(user=request.user)
+    pet_id = request.GET.get('pet_id')
+    if pet_id:
+        form = AppointmentFormClient(request.POST or None, initial={'pet': pet_id}, request=request)
+        #form.fields['pet'].widget.attrs['disabled'] = True
+    else:
+        form = AppointmentFormClient(request.POST or None, request=request)
+    rebook_appointments = Appointment.objects.filter(status='rebook', client=client)
+    rebook_form = RebookAppointmentForm()
+    context = {
+        'form': form,
+        'client': client,
+        'rebook_appointments': rebook_appointments,
+        'rebook_form': rebook_form
+    }
+
+    return render(request, 'client/calendar.html', context)
+
+@login_required
+@csrf_exempt
+def set_appointment_client(request):
+    if request.method == 'POST':
+        try:
+            pet_id = request.POST['pet']
+            time_of_day = request.POST['timeOfTheDay']
+            iso_timestamp = request.POST['date']
+            
+            datetime_object = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
+            
+            datetime_object = datetime_object.replace(tzinfo=timezone.utc).astimezone(timezone.get_current_timezone())
+
+            date = datetime_object.date().isoformat()
+
+            service_id = request.POST['purpose']
+            status = 'pending'
+            
+            appointment = Appointment(client_id=request.user.client.id, pet_id=pet_id, timeOfTheDay=time_of_day, 
+                                      date=date, purpose_id=service_id, status=status, isActive=True)
+            appointment.save()
+            
+            return JsonResponse({'message': 'Appointment created successfully'})
+        except MultiValueDictKeyError:
+            return JsonResponse({'error': 'One of the required keys is missing from the form data'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+@login_required
+@staff_required
+def get_appointments_client(request):
+    appointments = Appointment.objects.filter(client=request.user.client, status='pending', isActive=True).order_by('-timeOfTheDay')
+
+    event_list = []
+    for appointment in appointments:
+        event = {
+            'id': appointment.id,
+            'title': f'#{appointment.id} - {appointment.client.full_name}',
+            'start': appointment.date.isoformat(),
+            'color': appointment.getTimeOfDayColor(),
+            'extendedProps': {
+                'client_id': appointment.client.id,
+                'client': appointment.client.full_name,
+                'contact_number': appointment.client.contact_number,
+                'pet': appointment.pet.name,  
+                'pet_id': appointment.pet.id,
+                'timeOfTheDay': appointment.get_timeOfTheDay_display(),
+                'timeOfTheDay_val': appointment.timeOfTheDay,
+                'purpose': appointment.purpose.service_type,
+                'purpose_id': appointment.purpose.id,
+                'current_date': appointment.date.isoformat(),
+            }
+        }
+        event_list.append(event)
+
+    return JsonResponse(event_list, safe=False)
+
+@login_required
+def is_all_my_pets_scheduled(request):
+    client_pets = Pet.objects.filter(client=request.user.client)
+    pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook']).values_list('pet', flat=True).distinct()
+
+    if client_pets.count() == pets_with_appointments.count():
+        return JsonResponse({'all_scheduled': True})
+    else:
+        return JsonResponse({'all_scheduled': False})
+
+@login_required
+def get_appointments_count(request):
+    appointments = Appointment.objects.filter(status__in=['pending', 'rebook'])
+    appointment_counts = {}
+    for appointment in appointments:
+        date_str = appointment.date.strftime('%Y-%m-%d')
+        if date_str in appointment_counts:
+            appointment_counts[date_str] += 1
+        else:
+            appointment_counts[date_str] = 1
+
+    return JsonResponse(appointment_counts)

@@ -1,0 +1,1089 @@
+{% extends 'customer_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Calendar | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<link rel="stylesheet" href="{% static 'css/calendar/fullcalendar-custom.css' %}">
+<script src="{% static 'plugins/fullcalendar/js/index.global.js' %}"></script>
+<!-- <script src="{% static 'js/calendar/fullcalendar-settings.js' %}"></script> -->
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<!-- <script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script> -->
+<script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
+<script src="{% static 'js/sms/send_sms.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="calendar-container mt-4">
+    <div class="card mb-5 card-collapsable card-waves animated--fade-in-up ">
+        <a class="card-header" href="#collapseCardExample" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                Calendar
+          <div class="card-collapsable-arrow">
+              <i class="fas fa-chevron-down"></i>
+          </div>
+        </a>
+        <div class="collapse show" id="collapseCardExample">
+          <div class="card-body animated--fade-in-up flex-container">
+            <div class="parent-container">
+                
+                <div id='external-events' {% if not rebook_appointments %} style="display: none;"{% endif %}>
+                    <div class="height-wrapper">
+                        <h4>Rebook List</h4>
+                        <div id='external-events-list'>
+                            {% if rebook_appointments %}
+                            {% for appointment in rebook_appointments %}
+                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-pet-id="{{ appointment.pet.id }}" data-purpose-id="{{ appointment.purpose.id }}" data-time-of-day="{{ appointment.timeOfTheDay }}">
+                                    <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.client.full_name }}</div>
+                                </div>
+                            {% endfor %}
+                            {% else %}
+                            <span class="small"><< Empty >></span>
+                            {% endif %}
+                        </div>
+                        <p>
+                            <span>View your appointment and click rebook to add here. <br><br><br>Note that dropping only works for <b>Month</b> and <b>Year</b> calendar view.</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div id='calendar-wrap'>
+                    <div id='calendar'></div>
+                </div>
+            </div>
+          </div>
+          <div class="card-footer small text-muted">Legend: <span style="color: #3788d8;">Morning</span> | <span style="color: green">Afternoon</span> | <span style="color: darkorange">Pending Rebook</span></div>
+        </div>
+      </div>
+</div>
+
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="eventModalLabel">
+             <!-- Event start will be displayed here -->
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="eventModalBody">
+          <!-- Event title will be displayed here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-dark btn-sm" id="deleteEvent">Cancel Appointment</button>
+          <button type="button" class="btn btn-dark btn-sm" id="rebookEvent">Rebook</button>
+          <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+      </div>
+      </div>
+    </div>
+</div>  
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="confirmationModalLabel">Send SMS Confirmation</h5>
+            <button id="close-sms-confirmation-button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to remind this client?<br><br>
+            <b>Name:</b> <span id="clientName"></span><br>
+            <b>Phone Number:</b> <span id="clientPhoneNumber"></span>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelSMSButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button id="sendSMSButton" type="button" class="btn btn-success btn-sm" onclick="sendSMS(document.getElementById('hiddenClientPhone').value, document.getElementById('hiddenAppointmentID').value)">
+                Yes
+                <span id="smsSendingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+            </button>
+        </div>
+        </div>
+    </div>
+</div>   
+
+<div class="modal fade" id="bulkConfirmationModal" tabindex="-1" aria-labelledby="bulkConfirmationModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkConfirmationModalLabel">Send Bulk SMS Confirmation</h5>
+                <button id="closeBulkSMSButton" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bulk-modal-body">
+                Are you sure you want to send SMS reminders to all clients?
+            </div>
+            <div class="modal-footer">
+                <button id="cancelBulkSMSButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button id="sendBulkSMSButton" type="button" class="btn btn-success btn-sm" onclick="sendBulkSMS()">
+                    Yes
+                    <span id="bulkSMSSendingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="messageModalLabel">SMS Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="messageModalBody">
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dayChoiceModal" tabindex="-1" aria-labelledby="dayChoiceModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="dayChoiceModalLabel">Select Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="messageModalBody">
+            Day Clicked: <span class="day-clicked"></span>
+        </div>
+        <div class="modal-footer">
+            <button id="add-appointment-day-choice" class="btn btn-dark btn-sm">Add Appointment</button>
+            <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="disableDayModal" tabindex="-1" aria-labelledby="disableDayModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="disableDayModalLabel">Disable Day Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Day Clicked: <span class="day-clicked"></span> <br><br>
+                Are you sure you want to disable this day?
+                <br><br>
+                <form method="POST" id="disableDayForm">
+                {% csrf_token %}
+                {{ disable_day_form.as_p }}
+                <input type="hidden" id="selectedDateToDisable" name="date">
+            </div>
+            <div class="modal-footer">
+                <button id="cancelDisableDayModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">No</button>
+                <button id="yesDisableDayModalButton" type="submit" class="btn btn-danger btn-sm">Yes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="enableDayModal" tabindex="-1" aria-labelledby="enableDayModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="enableDayModalLabel">Enable Day Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Day Clicked: <span class="day-clicked"></span> <br><br>
+                Are you sure you want to enable this day?
+                <input type="hidden" id="selectedDateToEnable" name="date">
+            </div>
+            <div class="modal-footer">
+                <button id="cancelEnableDayModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">No</button>
+                <button id="yesEnableDayModalButton" type="submit" class="btn btn-danger btn-sm">Yes</button>
+            </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="addAppointmentModal" tabindex="-1" aria-labelledby="addAppointmentModal" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="addAppointmentModalLabel">Add Appointment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="addAppointmentModalBody">
+            <form method="POST" id="appointmentForm">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="hidden" id="selectedDate" name="date">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-dark btn-sm">Submit</button>
+            </form>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAppointmentModal" tabindex="-1" aria-labelledby="deleteAppointmentModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="deleteAppointmentModalLabel">Cancel Appointment Confirmation</h5>
+            <button id="close-sms-confirmation-button" type="button" class="btn-close cancelDeleteAppointmentButton" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to cancel this appointment?<br><br>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelDeleteAppointmentButton" type="button" class="btn btn-dark btn-sm cancelDeleteAppointmentButton" data-bs-dismiss="modal">No</button>
+            <button id="yesDeleteAppointmentButton" type="button" class="btn btn-danger btn-sm">
+                Yes
+            </button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="rebookConfirmAppointmentModal" tabindex="-1" aria-labelledby="rebookConfirmAppointmentModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="rebookConfirmAppointmentModalLabel">Rebook Appointment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="rebookConfirmAppointmentModalBody">
+            <form method="POST" id="rebookAppointmentForm">
+                {% csrf_token %}
+                {{ rebook_form.as_p }}
+                <input type="hidden" id="selectedDate" name="date">
+                <p><b>Old Date:</b> <span id="oldDate"></span></p>
+                <p><b>New Date:</b> <span id="newDate"></span></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-dark btn-sm">Submit</button>
+            </form>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="doneAppointmentModal" tabindex="-1" aria-labelledby="doneAppointmentModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="doneAppointmentModalLabel">Appointment Done Confirmation</h5>
+            <button id="close-sms-confirmation-button" type="button" class="btn-close cancelDoneAppointmentButton" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you this appointment is done?<br><br>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelDoneAppointmentButton" type="button" class="btn btn-dark btn-sm cancelDoneAppointmentButton" data-bs-dismiss="modal">No</button>
+            <button id="yesDoneAppointmentButton" type="button" class="btn btn-danger btn-sm">
+                Yes
+            </button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="rebookConfModal" tabindex="-1" aria-labelledby="rebookConfModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="rebookConfModalLabel">Appointment Rebook Confirmation</h5>
+            <button id="cancelRebookConfButton" type="button" class="btn-close cancelRebookConfButton" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to add this appointment to rebook list?<br><br>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelRebookConfButton" type="button" class="btn btn-dark btn-sm cancelRebookConfButton" data-bs-dismiss="modal">No</button>
+            <button id="yesRebookConfButton" type="button" class="btn btn-danger btn-sm">
+                Yes
+            </button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Oh no!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKErrorModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<input id="hiddenClientPhone" value="" hidden>
+<input id="hiddenAppointmentID" value="" hidden>
+<div id="sms-data" data-url="{% url 'send_sms_to_client' %}"></div>
+
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+function showError(message) {
+    $('#errorModal .modal-body').text(message);
+    $('#errorModal').modal('show');
+}
+
+function formatDates(date) {
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const day = String(date.getDate()).padStart(2, '0');
+    const monthIndex = date.getMonth();
+    const year = date.getFullYear();
+
+    return monthNames[monthIndex] + ' ' + day + ', ' + year;
+}
+
+function formatStringDate(dateString) {
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    const parts = dateString.split('-');
+    const year = parts[0];
+    const month = parts[1] - 1;
+    const day = parts[2];
+
+    const date = new Date(year, month, day);
+
+    return monthNames[date.getMonth()] + ' ' + String(date.getDate()).padStart(2, '0') + ', ' + year;
+}
+
+function getEventCounts(events) {
+    const eventCounts = {};
+
+    events.forEach(event => {
+        const date = FullCalendar.formatDate(event.start, {
+            timeZone: 'local',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        eventCounts[date] = (eventCounts[date] || 0) + 1;
+    });
+
+    return eventCounts;
+}
+
+function toLocalDate(date) {
+    var localOffset = date.getTimezoneOffset() * 60000;
+    var localTime = date.getTime();
+    var utcTime = localTime - localOffset;
+    var targetDate = new Date(utcTime);
+    var dd = String(targetDate.getDate()).padStart(2, '0');
+    var mm = String(targetDate.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = targetDate.getFullYear();
+    return yyyy + '-' + mm + '-' + dd;
+}
+
+function getInitialView() {
+    return window.innerWidth <= 576 ? 'listYear' : 'dayGridMonth';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    var appointmentIdToMarkDone;
+
+    const datatablesSimple = document.getElementById('datatablesSimple');
+    var dataTable = null;
+    if (datatablesSimple) {
+        dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+            paging: true,
+            perPageSelect: [5, 10, 25, 50],
+            perPage: 10,
+            fixedHeight: true,
+            sortable: true,
+            searchable: true,
+            hiddenHeader: false,
+        });
+
+        dataTable.on('datatable.update', () => {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.page', function(page) {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.search', function(query, matched) {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.sort', function(column, direction) {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        var searchInput = document.querySelector('.datatable-input');
+
+        searchInput.addEventListener('search', function(e) {
+            if (e.target.value == '') {
+                dataTable.search('');
+            }
+        });
+    }
+
+    let _appointmentCounts = {};
+
+    function setAppointmentCounts(appointmentCounts)
+    {
+        _appointmentCounts = appointmentCounts;
+    }
+
+    $.ajax({
+        url: '{% url "get_appointments_count" %}',
+        async: false,
+        method: 'GET',
+        success: function(response) {
+            setAppointmentCounts(response);
+        }
+    });
+
+    console.log(_appointmentCounts);
+
+    $.ajax({
+        type: 'GET',
+        url: '{% url "get_disabled_days" %}',
+        dataType: 'json',
+        success: function(response) {
+            var disabledDays = response;
+            
+            var calendarEl = document.getElementById('calendar');
+            var containerEl = document.getElementById('external-events-list');
+            new FullCalendar.Draggable(containerEl, {
+                itemSelector: '.fc-event',
+                eventData: function(eventEl) {
+                    return {
+                        title: eventEl.innerText.trim()
+                    }
+                }
+            });
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                themeSystem: 'bootstrap5',
+                eventOrder: 'none',
+                lazyFetching: true,
+                progressiveEventRendering: true,
+                views: {
+                    listDay: {
+                        buttonText: 'Day'
+                    },
+                    dayGridMonth: {
+                        buttonText: 'Month'
+                    },
+                    multiMonthYear: {
+                        buttonText: 'Year'
+                    },
+                    listYear: {
+                        buttonText: 'All'
+                    },
+                    listMonth: {
+                        buttonText: 'Month'
+                    }
+                },
+                buttonText: {
+                    today: 'Today',
+                },
+                allDayText: '',
+                firstDay: 1,
+                noEventsText: 'No appointments to show',
+                initialDate: getCurrentDateString(),
+                initialView: getInitialView(),
+                navLinks: true, // can click day/week names to navigate views
+                selectable: true,
+                selectMirror: true,
+                editable: true,
+                droppable: true,
+                dayMaxEvents: false, // allow "more" link when too many events
+                hiddenDays: [0],
+                select: function(arg) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url "is_all_my_pets_scheduled" %}',
+                        success: function(response) {
+                            console.log(response)
+                            if (response.all_scheduled) {
+                                showError("All of your pets are scheduled, please cancel or rebook.");
+                            } 
+                            else 
+                            {
+                                let date = arg.start;
+                                let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+
+                                if (_appointmentCounts[dateString] && _appointmentCounts[dateString] >= 8) {
+                                    showError(`${formatStringDate(dateString)} is fully booked. Try another day.`);
+                                    return;
+                                }
+
+                                window.selectedDate = date;
+                                
+                                $('.day-clicked').text(formatStringDate(dateString));
+
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '{% url "is_day_disabled" %}',
+                                    data: { 'date': dateString },
+                                    success: function(response) {
+                                        if (response.is_disabled) {
+                                            $('#selectedDateToEnable').val(dateString);
+                                            if (response.time_of_the_day === 'whole_day') {
+                                                showError("This date is disabled for the whole day by the clinic staff.");
+                                            } else {
+                                                if (response.time_of_the_day === 'morning') {
+                                                    $('#id_timeOfTheDay option[value="morning"]').hide();
+                                                    $('#id_timeOfTheDay').val('afternoon');
+                                                } else if (response.time_of_the_day === 'afternoon') {
+                                                    $('#id_timeOfTheDay option[value="afternoon"]').hide();
+                                                    $('#id_timeOfTheDay').val('morning');
+                                                }
+                                                $('#enable-day-choice').removeAttr('hidden');
+                                                $('#disable-day-choice').attr('hidden', true);
+                                                $('#dayChoiceModal').modal('show');
+                                            }
+                                        } else {
+                                            $('.day-clicked').text(formatStringDate(dateString));
+                                            $('#disable-day-choice').removeAttr('hidden');
+                                            $('#enable-day-choice').attr('hidden', true);
+
+                                            let currentDate = new Date();
+                                            currentDate.setHours(0, 0, 0, 0);
+
+                                            if (date < currentDate) {
+                                                showError('Cannot add appointments in the past.');
+                                                return;
+                                            }
+
+                                            $('#dayChoiceModal').modal('show');
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                },
+                eventClick: function(arg) {
+
+                    var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+                    const dateString = arg.event.start;
+                    const date = new Date(dateString);
+                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    const day = monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
+
+                    const details = [
+                        `<strong>Client:</strong> ${arg.event.extendedProps.client}`,
+                        `<strong>Pet:</strong> ${arg.event.extendedProps.pet}`,
+                        `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay}`,
+                        `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`
+                    ].join('<br>');
+
+                    document.getElementById('eventModalLabel').innerText = "#" + arg.event.id + " - " + day;
+                    document.getElementById('eventModalBody').innerHTML = details;
+                    eventModal.show();
+
+                    var popover = document.querySelector('.fc-popover');
+                    if (popover) {
+                        popover.style.display = 'none';
+                    }
+
+                    var deleteAppointmentModal = new bootstrap.Modal(document.getElementById('deleteAppointmentModal'));
+
+                    document.getElementById('deleteEvent').onclick = function() {
+                        eventModal.hide();
+                        deleteAppointmentModal.show();
+                    };
+
+                    document.getElementById('yesDeleteAppointmentButton').onclick = function() {
+                        $.ajax({
+                            type: 'POST',
+                            url: '{% url "cancel_appointment" %}',
+                            data: {
+                                'appointment_id': arg.event.id,
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                if (response.status === 'Appointment cancelled successfully') {
+                                    arg.event.remove();
+                                    eventModal.hide();
+                                    deleteAppointmentModal.hide();
+                                }
+                            },
+                            error: function(error) {
+                                console.log(error);
+                            }
+                        });
+                    };
+
+                    var cancelDeleteAppointmentButton = document.getElementsByClassName('cancelDeleteAppointmentButton');
+                    for (var i = 0; i < cancelDeleteAppointmentButton.length; i++) {
+                        cancelDeleteAppointmentButton[i].onclick = function() {
+                            deleteAppointmentModal.hide();
+                            eventModal.show();
+                        };
+                    }
+
+                    document.getElementById('rebookEvent').onclick = function() {
+                        eventModal.hide();
+                        $('#rebookConfModal').modal('show');
+                    };
+
+                    document.getElementById('yesRebookConfButton').onclick = function() {
+                        $.ajax({
+                            type: 'POST',
+                            url: '{% url "add_to_rebook_list" %}',
+                            data: {
+                                'appointment_id': arg.event.id,
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                if (response.status === 'Appointment rebooked successfully') {
+                                    arg.event.remove();
+                                    eventModal.hide();
+
+                                    var currentView = calendar.view;
+                                    localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                                    location.reload();
+                                }
+                            },
+                            error: function(error) {
+                                console.log(error);
+                            }
+                        });
+                    }
+
+                    var cancelRebookConfButtons = document.getElementsByClassName('cancelRebookConfButton');
+                    for (var i = 0; i < cancelRebookConfButtons.length; i++) {
+                        cancelRebookConfButtons[i].onclick = function() {
+                            $('#rebookConfModal').modal('hide');
+                            eventModal.show();
+                        };
+                    }
+                },
+
+                events: "{% url 'client-get-appointments' %}",
+                dayCellClassNames: function(info) {
+                    const date = FullCalendar.formatDate(info.date, {
+                        timeZone: 'local',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+
+                    const parts = date.split('/');
+                    const formattedDate = `${parts[2]}-${parts[0]}-${parts[1]}`;
+
+                    let timeOfDay = null;
+                    let disableDayObject = disabledDays.find(obj => obj.date == formattedDate);
+                    if (disableDayObject) {
+                        timeOfDay = disableDayObject.timeOfTheDay;
+                    }
+
+                    if (_appointmentCounts[formattedDate] === 8) {
+                        return ['day-full'];
+                    } else if (timeOfDay) {
+                        if (timeOfDay === "morning") {
+                            return ['day-disabled-morning'];
+                        } 
+                        else if (timeOfDay === "afternoon") {
+                            return ['day-disabled-afternoon']; 
+                        }
+                        else if (timeOfDay === "whole_day")
+                        {
+                            return ['day-disabled-whole-day'];
+                        }
+                    } else {
+                        return ['day-available'];
+                    }
+                },
+                selectAllow: function(selectInfo) {
+                    var dayBeforeEndDate = new Date(selectInfo.end);
+                    dayBeforeEndDate.setDate(dayBeforeEndDate.getDate() - 1);
+                    return FullCalendar.formatDate(selectInfo.start, {
+                        timeZone: 'local',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    }) === FullCalendar.formatDate(dayBeforeEndDate, {
+                        timeZone: 'local',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                },
+                eventDrop: function(info) {
+                    let date = info.event.start;
+                    let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+                    let currentDate = new Date();
+                    currentDate.setHours(0, 0, 0, 0);
+
+                    if (date < currentDate) {
+                        showError('Cannot rebook appointments to a date in the past.');
+                        info.revert();
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url "is_day_disabled" %}',
+                        data: { 'date': dateString },
+                        success: function(response) {
+                            if (response.is_disabled && response.time_of_the_day === 'whole_day') {
+                                showError('This date is disabled for the whole day.');
+                                info.revert();
+                            } else {
+                                if (response.is_disabled) {
+                                    if (response.time_of_the_day === 'morning') {
+                                        $('#id_timeOfTheDay-rebook option[value="morning"]').hide();
+                                        $('#id_timeOfTheDay-rebook').val('afternoon');
+                                    } else if (response.time_of_the_day === 'afternoon') {
+                                        $('#id_timeOfTheDay-rebook option[value="afternoon"]').hide();
+                                        $('#id_timeOfTheDay-rebook').val('morning');
+                                    }
+                                } else {
+                                    $('#id_timeOfTheDay-rebook option[value="morning"]').show();
+                                    $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
+                                }
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url "check_if_full" %}',
+                                    data: {
+                                        'selected_date': dateString,
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                    },
+                                    success: function(response) {
+                                        if (response.status === 'full') {
+                                            showError('This date is full.');
+                                            info.revert();
+                                        } else {
+                                            info.revert();
+                                            $('#clientName-rebook').text(info.event.extendedProps.client);
+                                            $('#oldDate').text(formatStringDate(info.event.extendedProps.current_date));
+                                            $('#newDate').text(formatStringDate(dateString));
+                                            $('#rebookConfirmAppointmentModal').modal('show');
+                                            var start = info.event.start;
+                                            var dateObj = new Date(start.getTime() - (start.getTimezoneOffset() * 60000));
+                                            var date = dateObj.toISOString().slice(0, 10);
+
+                                            window.eventId = info.event.id;
+                                            window.newDate = date;
+
+                                            var url = "{% url 'get_pets' %}";
+                                            var clientId = info.event.extendedProps.client_id;
+                                            var select_pet = $("#id_pet-rebook");
+                                            $.ajax({
+                                                url: url,
+                                                data: {
+                                                    'client_id': clientId
+                                                },
+                                                success: function(data) {
+
+                                                    select_pet.html('');
+                                                    $.each(data, function(index, text) {
+                                                        select_pet.append(
+                                                            $('<option></option>').val(text.id).html(text.name)
+                                                        );
+                                                    });
+                                                    select_pet.val(info.event.extendedProps.pet_id);
+                                                }
+                                            });
+
+                                            var select_purpose = $("#id_purpose-rebook");
+                                            select_purpose.val(info.event.extendedProps.purpose_id);
+
+                                            var select_timeOfDay = $("#id_timeOfTheDay-rebook");
+                                            // select_timeOfDay.val(info.event.extendedProps.timeOfTheDay_val);
+                                        }
+                                    },
+                                    error: function(error) {
+                                        console.log(error);
+                                    }
+                                });
+                            }
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
+                },
+                drop: function(arg) {
+                    console.log("test")
+                    let currentDate = new Date();
+                    currentDate.setHours(0, 0, 0, 0);
+
+                    let date = new Date(arg.dateStr + "T00:00:00");
+                    if (date < currentDate) {
+                        showError('Cannot rebook appointments to a date in the past.');
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url "is_day_disabled" %}',
+                        data: { 'date': arg.dateStr },
+                        success: function(response) {
+                            if (response.is_disabled && response.time_of_the_day === 'whole_day') {
+                                showError('This date is disabled for the whole day.');
+                            } else {
+                                if (response.is_disabled) {
+                                    if (response.time_of_the_day === 'morning') {
+                                        $('#id_timeOfTheDay-rebook option[value="morning"]').hide();
+                                        $('#id_timeOfTheDay-rebook').val('afternoon');
+                                    } else if (response.time_of_the_day === 'afternoon') {
+                                        $('#id_timeOfTheDay-rebook option[value="afternoon"]').hide();
+                                        $('#id_timeOfTheDay-rebook').val('morning');
+                                    }
+                                } else {
+                                    $('#id_timeOfTheDay-rebook option[value="morning"]').show();
+                                    $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
+                                }
+
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url "check_if_full" %}',
+                                    data: {
+                                        'selected_date': arg.dateStr,
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                    },
+                                    success: function(response) {
+                                        if (response.status === 'full') {
+                                            showError('This date is full.');
+                                        } else {
+                                            $('#clientName-rebook').text(arg.draggedEl.innerText);
+                                            $('#oldDate').text("From Rebook List");
+                                            $('#newDate').text(arg.dateStr);
+                                            $('#rebookConfirmAppointmentModal').modal('show');
+
+                                            window.eventId = arg.draggedEl.id;
+                                            window.newDate = arg.dateStr;
+
+                                            var clientId = arg.draggedEl.dataset.clientId;
+                                            var petId = arg.draggedEl.dataset.petId;
+                                            var purposeId = arg.draggedEl.dataset.purposeId;
+                                            var timeOfDay = arg.draggedEl.dataset.timeOfDay;
+                                            var url = "{% url 'get_pets' %}";
+
+                                            $.ajax({
+                                                url: url,
+                                                data: {
+                                                    'client_id': clientId
+                                                },
+                                                success: function(data) {
+                                                    var select = $("#id_pet-rebook");
+                                                    select.html('');
+                                                    $.each(data, function(index, text) {
+                                                        select.append(
+                                                            $('<option></option>').val(text.id).html(text.name)
+                                                        );
+                                                    });
+                                                }
+                                            });
+
+                                            var select_purpose = $("#id_purpose-rebook");
+                                            select_purpose.val(purposeId);
+
+                                            var select_timeOfDay = $("#id_timeOfTheDay-rebook");
+                                            // select_timeOfDay.val(timeOfDay);
+                                        }
+                                    },
+                                    error: function(error) {
+                                        console.log(error);
+                                    }
+                                });
+                            }
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
+                },
+                eventReceive: function(info) {
+                    info.revert();
+                },
+            });
+
+            $('#addAppointmentModal').on('hidden.bs.modal', function (e) {
+                $('#id_timeOfTheDay option[value="morning"]').show();
+                $('#id_timeOfTheDay option[value="afternoon"]').show();
+                $('#id_timeOfTheDay').val('morning');
+            });
+
+            $('#rebookConfirmAppointmentModal').on('hidden.bs.modal', function (e) {
+                $('#id_timeOfTheDay-rebook option[value="morning"]').show();
+                $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
+                $('#id_timeOfTheDay-rebook').val('morning');
+            });
+            
+            $('#enableDayModal').on('hidden.bs.modal', function (e) {
+                $('#id_timeOfTheDay option[value="morning"]').show();
+                $('#id_timeOfTheDay option[value="afternoon"]').show();
+                $('#id_timeOfTheDay').val('morning');
+            });
+            
+            $('#add-appointment-day-choice').click(function() {
+                $('#dayChoiceModal').modal('hide');
+                let date = window.selectedDate;
+                let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+
+                let currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);
+
+                if (date < currentDate) {
+                    showError('Cannot add appointments in the past.');
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "check_if_full" %}',
+                    data: {
+                        'selected_date': dateString,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'full') {
+                            showError('This date is full.');
+                        } else {
+                            $('#selectedDate').val(dateString);
+                            $('#addAppointmentModal').modal('show');
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            $('#rebookAppointmentForm').submit(function(e) {
+                e.preventDefault();
+
+                var appointment_id = window.eventId;
+                var new_date = window.newDate;
+                var time_of_day = $('#id_timeOfTheDay-rebook').val();
+                var pet = $('#id_pet-rebook').val();
+                var purpose = $('#id_purpose-rebook').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "rebook_appointment" %}',
+                    data: {
+                        'appointment_id': appointment_id,
+                        'new_date': new_date,
+                        'time_of_day': time_of_day,
+                        'pet': pet,
+                        'purpose': purpose,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'Appointment rebooked successfully') {
+                            var draggedEl = document.getElementById(appointment_id);
+                            if (draggedEl) {
+                                draggedEl.parentNode.removeChild(draggedEl);
+                            }
+                        }
+
+                        $('#rebookConfirmAppointmentModal').modal('hide');
+                        var currentView = calendar.view;
+                        localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                        location.reload();
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            $('#appointmentForm').on('submit', function(e) {
+                e.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "client-add-appointment" %}',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.message === 'Appointment created successfully') {
+                            calendar.unselect();
+                            $('#addAppointmentModal').modal('hide');
+                            var currentView = calendar.view;
+                            localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                            location.reload();
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            calendar.render();
+
+            var calendarDate = localStorage.getItem('calendarDate');
+            if (calendarDate) {
+                calendar.gotoDate(new Date(calendarDate));
+                localStorage.removeItem('calendarDate');
+            }
+
+            function updateCalendarOptions() {
+                if (window.innerWidth <= 576) {
+                    calendar.setOption('headerToolbar', {
+                        left: 'title',
+                        center: 'listMonth,listYear',
+                        right: 'today prev,next'
+                    });
+
+                } else {
+                    calendar.setOption('headerToolbar', {
+                        left: 'today prev,next',
+                        center: 'title',
+                        right: 'listDay,dayGridMonth,multiMonthYear,listYear'
+                    });
+                }
+            }
+
+            updateCalendarOptions();
+
+            function getCurrentDateString() {
+                const currentDate = new Date();
+                const year = currentDate.getFullYear();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
+                const day = String(currentDate.getDate()).padStart(2, '0');
+
+                return `${year}-${month}-${day}`;
+            }
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+});
+</script>
+
+{% endblock %}

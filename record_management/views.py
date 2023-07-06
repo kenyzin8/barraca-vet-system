@@ -21,6 +21,8 @@ from core.decorators import staff_required
 from django.core.cache import cache
 from django.db import transaction
 
+from appointment_management.models import Appointment
+
 from django.conf import settings
 
 OTP_EXPIRATION_MINUTE = settings.OTP_EXPIRATION_MINUTES
@@ -406,11 +408,12 @@ def register_pet(request):
 @login_required
 def view_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
+    appointment = Appointment.objects.filter(pet=pet, client=request.user.client).order_by('-id').first()
 
     if pet.client != request.user.client:
         return redirect('pet-list-page')
 
-    context = {'pet': pet}
+    context = {'pet': pet, 'appointment': appointment}
     return render(request, 'client/view_pet.html', context)
 
 @login_required
@@ -451,6 +454,11 @@ def pet_list(request):
     pets = Pet.objects.filter(client=request.user.client).order_by('-id')
     context = {'pets': pets}
     return render(request, 'client/pet_list.html', context)
+
+@login_required
+def does_pet_have_appointment(request, pet_id):
+    has_appointment = Appointment.objects.filter(pet_id=pet_id, status__in=['pending', 'rebook']).exclude(status='cancelled').exists()
+    return JsonResponse({'has_appointment': has_appointment})
 
 #--------------------ADMIN-SIDE-BACKEND--------------------
 from django.db.models import Count

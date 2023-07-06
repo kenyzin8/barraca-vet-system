@@ -34,7 +34,7 @@
                         <div class="nav-link-icon"><i data-feather="credit-card"></i></div>
                         Pet Health Card
                     </a> -->
-                    <a class="animated--fade-in-up nav-link" href="#">
+                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'client_calendar' %}active{% endif %}" href="{% url 'client_calendar' %}">
                         <div class="nav-link-icon"><i data-feather="calendar"></i></div>
                         Appointments
                     </a>

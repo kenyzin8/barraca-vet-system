@@ -21,7 +21,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout-page'),
     path('otp/', views.otp_view, name='otp_view'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),
-
+    path('does_pet_have_appointment/<int:pet_id>/', views.does_pet_have_appointment, name='does_pet_have_appointment'),
     #BACKEND-ADMIN-SIDE
     path('admin/account-settings/', views.admin_profile_view, name='admin-account-settings-page'),
     path('admin/password-settings/', views.admin_change_password_view, name='admin-password-settings-page'),

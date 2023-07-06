@@ -77,7 +77,7 @@
             <div class="card-body">
                 <center><h5 class="card-title mt-3 mb-4">{{ pet.name }}</h5></center>
                 <a href="{% url 'view-pet-page' pet.id %}" class="btn btn-dark custom-btn lift lift-sm">View Pet</a>
-                <a href="#" class="btn btn-dark custom-btn mt-2 lift lift-sm">Set Appointment</a>
+                <a href="#" data-pet-id="{{ pet.id }}" class="btn btn-dark custom-btn mt-2 lift lift-sm check-appointment">Set Appointment</a>
             </div>
         </div>
         {% endif %}
@@ -85,10 +85,45 @@
     </div>
 </div>
 
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Oh no!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKErrorModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
 {% endblock %}
 
 {% block extrascripts %}
+<script>
+    function showError(message) {
+        $('#errorModal .modal-body').text(message);
+        $('#errorModal').modal('show');
+    }
 
-
-
+    $(".check-appointment").on('click', function(e){
+    e.preventDefault();
+    const petId = $(this).data('pet-id');
+    $.ajax({
+        url: `{% url "does_pet_have_appointment" pet_id=0 %}`.replace('0', petId),
+        method: 'GET',
+        success: function(response) {
+            if (response.has_appointment) {
+                showError("This pet already has an appointment. Click view pet to check your pet's appointment.");
+            } else {
+                window.location.href = `{% url 'client_calendar' %}?pet_id=${petId}`;
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

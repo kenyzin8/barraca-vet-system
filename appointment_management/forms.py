@@ -30,6 +30,34 @@ class AppointmentForm(forms.ModelForm):
         label='Time of the Day'
     )
 
+class AppointmentFormClient(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['pet', 'timeOfTheDay', 'purpose']
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
+        super(AppointmentFormClient, self).__init__(*args, **kwargs)
+        if request:
+            pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__client=request.user.client).values_list('pet', flat=True)
+            self.fields['pet'].queryset = Pet.objects.filter(client=request.user.client).exclude(id__in=pets_with_appointments)
+
+    pet = forms.ModelChoiceField(
+        queryset=Pet.objects.none(),  # set the initial queryset to none
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet'}), 
+    )
+    purpose = forms.ModelChoiceField(
+        # filter only active services and only the name should be displayed
+        queryset=Service.objects.filter(active=True),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Service'
+    )
+    timeOfTheDay = forms.ChoiceField(
+        choices=Appointment.time_of_the_day_choices,
+        widget=forms.Select(attrs={'class': 'form-select'}), 
+        label='Time of the Day'
+    )
+
 class RebookAppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment

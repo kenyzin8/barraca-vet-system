@@ -16,4 +16,10 @@ urlpatterns = [
     path('get_disabled_days', views.get_disabled_days, name='get_disabled_days'),
     path('is_day_disabled', views.is_day_disabled, name='is_day_disabled'),
     path('enable_day', views.enable_day, name='enable_day'),
+    #client
+    path('appointments/', views.client_calendar, name='client_calendar'),
+    path('appointments/add', views.set_appointment_client, name='client-add-appointment'),
+    path('appointments/get', views.get_appointments_client, name='client-get-appointments'),
+    path('appointments/check-appointments', views.is_all_my_pets_scheduled, name='is_all_my_pets_scheduled'),
+    path('appointments/get-appountments-count', views.get_appointments_count, name='get_appointments_count'),
 ]

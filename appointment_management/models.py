@@ -45,6 +45,9 @@ class Appointment(models.Model):
     def setActive(self, isActive):
         self.isActive = isActive
 
+    def getDate(self):
+        return self.date.strftime('%B %d, %Y')
+
     def setActiveOnStatus(self):
         if self.status == 'Cancelled':
             self.isActive = False
@@ -61,6 +64,14 @@ class Appointment(models.Model):
             return 'default'
         else:
             return 'green'
+
+    def isAllMyPetScheduled(self):
+        appointments = Appointment.objects.filter(client=self.client, isActive=True)
+        pets = Pet.objects.filter(client=self.client, isActive=True)
+        for pet in pets:
+            if pet not in [appointment.pet for appointment in appointments]:
+                return False
+        return True
 
     class Meta:
         verbose_name = "Appointment"

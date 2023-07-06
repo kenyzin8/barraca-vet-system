@@ -84,16 +84,19 @@
                                 <p>Gender: {{ pet.gender }}</p>
                                 <p>Color: {{ pet.color }}</p>
                                 <p>Weight: {{ pet.weight }}</p>
+                                {% if appointment.pet == pet %}<p>Appointment: {{ appointment.date }} {{ appointment.timeOfTheDay }} for {{ appointment.purpose }}</p>{% endif %}
                                 <!-- <p>Owner: {{ pet.client }}</p> -->
                             </div>
                             <div class="col-md-6">
                                 <img src="{{ pet.picture.url }}" alt="{{ pet.name }}" class="img-fluid" style="border-radius: 10px;">
                             </div>
+                            <div>
+                                <br>
+                                <a href="{% url 'update-pet-page' pet.id %}" class="btn btn-dark lift lift-sm">Update</a>
+                                <!-- <a href="{% url 'delete-pet-page' pet.id %}" class="btn btn-dark">Delete</a> -->
+                                <button class="btn btn-dark lift lift-sm" data-bs-toggle="modal" data-bs-target="#deletePetModal" data-pet-id="{{ pet.id }}">Delete</button>
+                            </div>
                         </div>
-                        <br>
-                        <a href="{% url 'update-pet-page' pet.id %}" class="btn btn-dark lift lift-sm">Update</a>
-                        <!-- <a href="{% url 'delete-pet-page' pet.id %}" class="btn btn-dark">Delete</a> -->
-                        <button class="btn btn-dark lift lift-sm" data-bs-toggle="modal" data-bs-target="#deletePetModal" data-pet-id="{{ pet.id }}">Delete</button>
                     </div>
                     
                     <!-- Wizard tab pane item 2-->

@@ -34,7 +34,7 @@
                             {% if rebook_appointments %}
                             {% for appointment in rebook_appointments %}
                                 <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-pet-id="{{ appointment.pet.id }}" data-purpose-id="{{ appointment.purpose.id }}" data-time-of-day="{{ appointment.timeOfTheDay }}">
-                                    <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.client.full_name }}</div>
+                                    <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.pet.name }}</div>
                                 </div>
                             {% endfor %}
                             {% else %}
@@ -52,7 +52,12 @@
                 </div>
             </div>
           </div>
-          <div class="card-footer small text-muted">Legend: <span style="color: #3788d8;">Morning</span> | <span style="color: green">Afternoon</span> | <span style="color: darkorange">Pending Rebook</span></div>
+            <div class="card-footer small text-muted">
+                Legend: 
+                <span class="badge" style="background: #3788d8;">Morning</span> 
+                <span class="badge" style="background: green;">Afternoon</span> 
+                <span class="badge" style="background: darkorange;">Pending Rebook</span>
+            </div>
         </div>
       </div>
 </div>

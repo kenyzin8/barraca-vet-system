@@ -20,7 +20,7 @@ from django.core import serializers
 from core.decorators import staff_required
 from .models import Appointment, DoctorSchedule
 
-from .forms import AppointmentForm, RebookAppointmentForm, DisableDayForm, AppointmentFormClient
+from .forms import AppointmentForm, RebookAppointmentForm, DisableDayForm, AppointmentFormClient, RebookAppointmentFormClient
 
 import json
 import requests
@@ -342,7 +342,9 @@ def client_calendar(request):
     else:
         form = AppointmentFormClient(request.POST or None, request=request)
     rebook_appointments = Appointment.objects.filter(status='rebook', client=client)
-    rebook_form = RebookAppointmentForm()
+
+    rebook_form = RebookAppointmentFormClient(request.POST or None, request=request)
+
     context = {
         'form': form,
         'client': client,
@@ -431,3 +433,19 @@ def get_appointments_count(request):
             appointment_counts[date_str] = 1
 
     return JsonResponse(appointment_counts)
+
+@login_required
+@staff_required
+def get_pets_client(request):
+    client_id = request.GET.get('client_id')
+    selected_pet_id = request.GET.get('selected_pet_id')
+
+    pets_with_appointments = Appointment.objects.exclude(
+        status__in=['cancelled', 'done']).filter(pet__client=client_id).values_list('pet', flat=True)
+    
+    pets_without_appointments = Pet.objects.filter(client=client_id).exclude(id__in=pets_with_appointments).values('id', 'name')
+    selected_pet = Pet.objects.filter(id=selected_pet_id).values('id', 'name')
+
+    pets = pets_without_appointments | selected_pet
+    
+    return JsonResponse(list(pets), safe=False)

@@ -869,23 +869,24 @@ document.addEventListener('DOMContentLoaded', function() {
                                     window.eventId = info.event.id;
                                     window.newDate = date;
 
-                                    var url = "{% url 'get_pets' %}";
+                                    var url = "{% url 'client-get-pets' %}";
                                     var clientId = info.event.extendedProps.client_id;
+                                    var selectedPetId = info.event.extendedProps.pet_id;
                                     var select_pet = $("#id_pet-rebook");
                                     $.ajax({
                                         url: url,
                                         data: {
-                                            'client_id': clientId
+                                            'client_id': clientId,
+                                            'selected_pet_id': selectedPetId
                                         },
                                         success: function(data) {
-
                                             select_pet.html('');
                                             $.each(data, function(index, text) {
                                                 select_pet.append(
                                                     $('<option></option>').val(text.id).html(text.name)
                                                 );
                                             });
-                                            select_pet.val(info.event.extendedProps.pet_id);
+                                            select_pet.val(selectedPetId);
                                         }
                                     });
 
@@ -955,12 +956,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                     var petId = arg.draggedEl.dataset.petId;
                                     var purposeId = arg.draggedEl.dataset.purposeId;
                                     var timeOfDay = arg.draggedEl.dataset.timeOfDay;
-                                    var url = "{% url 'get_pets' %}";
+
+                                    var url = "{% url 'client-get-pets' %}";
 
                                     $.ajax({
                                         url: url,
                                         data: {
-                                            'client_id': clientId
+                                            'client_id': clientId,
+                                            'selected_pet_id': petId  // Include the selected pet ID
                                         },
                                         success: function(data) {
                                             var select = $("#id_pet-rebook");
@@ -970,8 +973,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     $('<option></option>').val(text.id).html(text.name)
                                                 );
                                             });
+                                            // After appending all the options, set the selected one
+                                            select.val(petId);
                                         }
                                     });
+
 
                                     var select_purpose = $("#id_purpose-rebook");
                                     select_purpose.val(purposeId);

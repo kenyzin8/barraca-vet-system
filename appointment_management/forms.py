@@ -43,7 +43,7 @@ class AppointmentFormClient(forms.ModelForm):
             self.fields['pet'].queryset = Pet.objects.filter(client=request.user.client).exclude(id__in=pets_with_appointments)
 
     pet = forms.ModelChoiceField(
-        queryset=Pet.objects.none(),  # set the initial queryset to none
+        queryset=Pet.objects.none(),  
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet'}), 
     )
     purpose = forms.ModelChoiceField(
@@ -74,6 +74,33 @@ class RebookAppointmentForm(forms.ModelForm):
         label='Service'
     )
 
+    timeOfTheDay = forms.ChoiceField(
+        choices=Appointment.time_of_the_day_choices,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-rebook'}),
+        label='Time of the Day'
+    )
+
+class RebookAppointmentFormClient(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['pet_rebook', 'purpose', 'timeOfTheDay']
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
+        super(RebookAppointmentFormClient, self).__init__(*args, **kwargs)
+        if request:
+            pets_with_appointments = Appointment.objects.exclude(status__in=['cancelled', 'done']).filter(pet__client=request.user.client).values_list('pet', flat=True)
+            self.fields['pet_rebook'].queryset = Pet.objects.filter(client=request.user.client).exclude(id__in=pets_with_appointments)
+            
+    pet_rebook = forms.ModelChoiceField(
+        queryset=Pet.objects.none(),  
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet-rebook', 'name': 'pet-rebook'}), 
+    )
+    purpose = forms.ModelChoiceField(
+        queryset=Service.objects.filter(active=True),
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_purpose-rebook'}),
+        label='Service'
+    )
     timeOfTheDay = forms.ChoiceField(
         choices=Appointment.time_of_the_day_choices,
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-rebook'}),

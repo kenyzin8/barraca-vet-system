@@ -22,4 +22,5 @@ urlpatterns = [
     path('appointments/get', views.get_appointments_client, name='client-get-appointments'),
     path('appointments/check-appointments', views.is_all_my_pets_scheduled, name='is_all_my_pets_scheduled'),
     path('appointments/get-appountments-count', views.get_appointments_count, name='get_appointments_count'),
+    path('appointments/get-pets', views.get_pets_client, name='client-get-pets'),
 ]

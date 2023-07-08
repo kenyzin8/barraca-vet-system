@@ -549,8 +549,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    console.log(_appointmentCounts);
-
     $.ajax({
         type: 'GET',
         url: '{% url "get_disabled_days" %}',
@@ -611,7 +609,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         type: 'GET',
                         url: '{% url "is_all_my_pets_scheduled" %}',
                         success: function(response) {
-                            console.log(response)
                             if (response.all_scheduled) {
                                 showError("All of your pets are scheduled, please cancel or rebook.");
                             } 
@@ -629,44 +626,41 @@ document.addEventListener('DOMContentLoaded', function() {
                                 
                                 $('.day-clicked').text(formatStringDate(dateString));
 
-                                $.ajax({
-                                    type: 'GET',
-                                    url: '{% url "is_day_disabled" %}',
-                                    data: { 'date': dateString },
-                                    success: function(response) {
-                                        if (response.is_disabled) {
-                                            $('#selectedDateToEnable').val(dateString);
-                                            if (response.time_of_the_day === 'whole_day') {
-                                                showError("This date is disabled for the whole day by the clinic staff.");
-                                            } else {
-                                                if (response.time_of_the_day === 'morning') {
-                                                    $('#id_timeOfTheDay option[value="morning"]').hide();
-                                                    $('#id_timeOfTheDay').val('afternoon');
-                                                } else if (response.time_of_the_day === 'afternoon') {
-                                                    $('#id_timeOfTheDay option[value="afternoon"]').hide();
-                                                    $('#id_timeOfTheDay').val('morning');
-                                                }
-                                                $('#enable-day-choice').removeAttr('hidden');
-                                                $('#disable-day-choice').attr('hidden', true);
-                                                $('#dayChoiceModal').modal('show');
-                                            }
-                                        } else {
-                                            $('.day-clicked').text(formatStringDate(dateString));
-                                            $('#disable-day-choice').removeAttr('hidden');
-                                            $('#enable-day-choice').attr('hidden', true);
-
-                                            let currentDate = new Date();
-                                            currentDate.setHours(0, 0, 0, 0);
-
-                                            if (date < currentDate) {
-                                                showError('Cannot add appointments in the past.');
-                                                return;
-                                            }
-
-                                            $('#dayChoiceModal').modal('show');
-                                        }
-                                    }
+                                let disabledDay = disabledDays.find(function(day) {
+                                    return day.date === dateString;
                                 });
+
+                                if (disabledDay) {
+                                    $('#selectedDateToEnable').val(dateString);
+                                    if (disabledDay.timeOfTheDay === 'whole_day') {
+                                        showError("This date is disabled for the whole day by the clinic staff.");
+                                    } else {
+                                        if (disabledDay.timeOfTheDay === 'morning') {
+                                            $('#id_timeOfTheDay option[value="morning"]').hide();
+                                            $('#id_timeOfTheDay').val('afternoon');
+                                        } else if (disabledDay.timeOfTheDay === 'afternoon') {
+                                            $('#id_timeOfTheDay option[value="afternoon"]').hide();
+                                            $('#id_timeOfTheDay').val('morning');
+                                        }
+                                        $('#enable-day-choice').removeAttr('hidden');
+                                        $('#disable-day-choice').attr('hidden', true);
+                                        $('#dayChoiceModal').modal('show');
+                                    }
+                                } else {
+                                    $('.day-clicked').text(formatStringDate(dateString));
+                                    $('#disable-day-choice').removeAttr('hidden');
+                                    $('#enable-day-choice').attr('hidden', true);
+
+                                    let currentDate = new Date();
+                                    currentDate.setHours(0, 0, 0, 0);
+
+                                    if (date < currentDate) {
+                                        showError('Cannot add appointments in the past.');
+                                        return;
+                                    }
+
+                                    $('#dayChoiceModal').modal('show');
+                                }
                             }
                         }
                     });
@@ -830,92 +824,85 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
 
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url "is_day_disabled" %}',
-                        data: { 'date': dateString },
-                        success: function(response) {
-                            if (response.is_disabled && response.time_of_the_day === 'whole_day') {
-                                showError('This date is disabled for the whole day.');
-                                info.revert();
-                            } else {
-                                if (response.is_disabled) {
-                                    if (response.time_of_the_day === 'morning') {
-                                        $('#id_timeOfTheDay-rebook option[value="morning"]').hide();
-                                        $('#id_timeOfTheDay-rebook').val('afternoon');
-                                    } else if (response.time_of_the_day === 'afternoon') {
-                                        $('#id_timeOfTheDay-rebook option[value="afternoon"]').hide();
-                                        $('#id_timeOfTheDay-rebook').val('morning');
-                                    }
-                                } else {
-                                    $('#id_timeOfTheDay-rebook option[value="morning"]').show();
-                                    $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
-                                }
-
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '{% url "check_if_full" %}',
-                                    data: {
-                                        'selected_date': dateString,
-                                        'csrfmiddlewaretoken': '{{ csrf_token }}'
-                                    },
-                                    success: function(response) {
-                                        if (response.status === 'full') {
-                                            showError('This date is full.');
-                                            info.revert();
-                                        } else {
-                                            info.revert();
-                                            $('#clientName-rebook').text(info.event.extendedProps.client);
-                                            $('#oldDate').text(formatStringDate(info.event.extendedProps.current_date));
-                                            $('#newDate').text(formatStringDate(dateString));
-                                            $('#rebookConfirmAppointmentModal').modal('show');
-                                            var start = info.event.start;
-                                            var dateObj = new Date(start.getTime() - (start.getTimezoneOffset() * 60000));
-                                            var date = dateObj.toISOString().slice(0, 10);
-
-                                            window.eventId = info.event.id;
-                                            window.newDate = date;
-
-                                            var url = "{% url 'get_pets' %}";
-                                            var clientId = info.event.extendedProps.client_id;
-                                            var select_pet = $("#id_pet-rebook");
-                                            $.ajax({
-                                                url: url,
-                                                data: {
-                                                    'client_id': clientId
-                                                },
-                                                success: function(data) {
-
-                                                    select_pet.html('');
-                                                    $.each(data, function(index, text) {
-                                                        select_pet.append(
-                                                            $('<option></option>').val(text.id).html(text.name)
-                                                        );
-                                                    });
-                                                    select_pet.val(info.event.extendedProps.pet_id);
-                                                }
-                                            });
-
-                                            var select_purpose = $("#id_purpose-rebook");
-                                            select_purpose.val(info.event.extendedProps.purpose_id);
-
-                                            var select_timeOfDay = $("#id_timeOfTheDay-rebook");
-                                            // select_timeOfDay.val(info.event.extendedProps.timeOfTheDay_val);
-                                        }
-                                    },
-                                    error: function(error) {
-                                        console.log(error);
-                                    }
-                                });
-                            }
-                        },
-                        error: function(error) {
-                            console.log(error);
-                        }
+                    let disabledDay = disabledDays.find(function(day) {
+                        return day.date === dateString;
                     });
+
+                    if (disabledDay && disabledDay.timeOfTheDay === 'whole_day') {
+                        showError('This date is disabled for the whole day.');
+                        info.revert();
+                    } else {
+                        if (disabledDay) {
+                            if (disabledDay.timeOfTheDay === 'morning') {
+                                $('#id_timeOfTheDay-rebook option[value="morning"]').hide();
+                                $('#id_timeOfTheDay-rebook').val('afternoon');
+                            } else if (disabledDay.timeOfTheDay === 'afternoon') {
+                                $('#id_timeOfTheDay-rebook option[value="afternoon"]').hide();
+                                $('#id_timeOfTheDay-rebook').val('morning');
+                            }
+                        } else {
+                            $('#id_timeOfTheDay-rebook option[value="morning"]').show();
+                            $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
+                        }
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '{% url "check_if_full" %}',
+                            data: {
+                                'selected_date': dateString,
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                if (response.status === 'full') {
+                                    showError('This date is full.');
+                                    info.revert();
+                                } else {
+                                    info.revert();
+                                    $('#clientName-rebook').text(info.event.extendedProps.client);
+                                    $('#oldDate').text(formatStringDate(info.event.extendedProps.current_date));
+                                    $('#newDate').text(formatStringDate(dateString));
+                                    $('#rebookConfirmAppointmentModal').modal('show');
+                                    var start = info.event.start;
+                                    var dateObj = new Date(start.getTime() - (start.getTimezoneOffset() * 60000));
+                                    var date = dateObj.toISOString().slice(0, 10);
+
+                                    window.eventId = info.event.id;
+                                    window.newDate = date;
+
+                                    var url = "{% url 'get_pets' %}";
+                                    var clientId = info.event.extendedProps.client_id;
+                                    var select_pet = $("#id_pet-rebook");
+                                    $.ajax({
+                                        url: url,
+                                        data: {
+                                            'client_id': clientId
+                                        },
+                                        success: function(data) {
+
+                                            select_pet.html('');
+                                            $.each(data, function(index, text) {
+                                                select_pet.append(
+                                                    $('<option></option>').val(text.id).html(text.name)
+                                                );
+                                            });
+                                            select_pet.val(info.event.extendedProps.pet_id);
+                                        }
+                                    });
+
+                                    var select_purpose = $("#id_purpose-rebook");
+                                    select_purpose.val(info.event.extendedProps.purpose_id);
+
+                                    var select_timeOfDay = $("#id_timeOfTheDay-rebook");
+                                    // select_timeOfDay.val(info.event.extendedProps.timeOfTheDay_val);
+                                }
+                            },
+                            error: function(error) {
+                                console.log(error);
+                            }
+                        });
+                    }
                 },
                 drop: function(arg) {
-                    console.log("test")
                     let currentDate = new Date();
                     currentDate.setHours(0, 0, 0, 0);
 
@@ -925,85 +912,79 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
 
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url "is_day_disabled" %}',
-                        data: { 'date': arg.dateStr },
-                        success: function(response) {
-                            if (response.is_disabled && response.time_of_the_day === 'whole_day') {
-                                showError('This date is disabled for the whole day.');
-                            } else {
-                                if (response.is_disabled) {
-                                    if (response.time_of_the_day === 'morning') {
-                                        $('#id_timeOfTheDay-rebook option[value="morning"]').hide();
-                                        $('#id_timeOfTheDay-rebook').val('afternoon');
-                                    } else if (response.time_of_the_day === 'afternoon') {
-                                        $('#id_timeOfTheDay-rebook option[value="afternoon"]').hide();
-                                        $('#id_timeOfTheDay-rebook').val('morning');
-                                    }
-                                } else {
-                                    $('#id_timeOfTheDay-rebook option[value="morning"]').show();
-                                    $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
-                                }
-
-                                $.ajax({
-                                    type: 'POST',
-                                    url: '{% url "check_if_full" %}',
-                                    data: {
-                                        'selected_date': arg.dateStr,
-                                        'csrfmiddlewaretoken': '{{ csrf_token }}'
-                                    },
-                                    success: function(response) {
-                                        if (response.status === 'full') {
-                                            showError('This date is full.');
-                                        } else {
-                                            $('#clientName-rebook').text(arg.draggedEl.innerText);
-                                            $('#oldDate').text("From Rebook List");
-                                            $('#newDate').text(arg.dateStr);
-                                            $('#rebookConfirmAppointmentModal').modal('show');
-
-                                            window.eventId = arg.draggedEl.id;
-                                            window.newDate = arg.dateStr;
-
-                                            var clientId = arg.draggedEl.dataset.clientId;
-                                            var petId = arg.draggedEl.dataset.petId;
-                                            var purposeId = arg.draggedEl.dataset.purposeId;
-                                            var timeOfDay = arg.draggedEl.dataset.timeOfDay;
-                                            var url = "{% url 'get_pets' %}";
-
-                                            $.ajax({
-                                                url: url,
-                                                data: {
-                                                    'client_id': clientId
-                                                },
-                                                success: function(data) {
-                                                    var select = $("#id_pet-rebook");
-                                                    select.html('');
-                                                    $.each(data, function(index, text) {
-                                                        select.append(
-                                                            $('<option></option>').val(text.id).html(text.name)
-                                                        );
-                                                    });
-                                                }
-                                            });
-
-                                            var select_purpose = $("#id_purpose-rebook");
-                                            select_purpose.val(purposeId);
-
-                                            var select_timeOfDay = $("#id_timeOfTheDay-rebook");
-                                            // select_timeOfDay.val(timeOfDay);
-                                        }
-                                    },
-                                    error: function(error) {
-                                        console.log(error);
-                                    }
-                                });
-                            }
-                        },
-                        error: function(error) {
-                            console.log(error);
-                        }
+                    let disabledDay = disabledDays.find(function(day) {
+                        return day.date === arg.dateStr;
                     });
+
+                    if (disabledDay && disabledDay.timeOfTheDay === 'whole_day') {
+                        showError('This date is disabled for the whole day.');
+                    } else {
+                        if (disabledDay) {
+                            if (disabledDay.timeOfTheDay === 'morning') {
+                                $('#id_timeOfTheDay-rebook option[value="morning"]').hide();
+                                $('#id_timeOfTheDay-rebook').val('afternoon');
+                            } else if (disabledDay.timeOfTheDay === 'afternoon') {
+                                $('#id_timeOfTheDay-rebook option[value="afternoon"]').hide();
+                                $('#id_timeOfTheDay-rebook').val('morning');
+                            }
+                        } else {
+                            $('#id_timeOfTheDay-rebook option[value="morning"]').show();
+                            $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
+                        }
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '{% url "check_if_full" %}',
+                            data: {
+                                'selected_date': arg.dateStr,
+                                'csrfmiddlewaretoken': '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                if (response.status === 'full') {
+                                    showError('This date is full.');
+                                } else {
+                                    $('#clientName-rebook').text(arg.draggedEl.innerText);
+                                    $('#oldDate').text("From Rebook List");
+                                    $('#newDate').text(arg.dateStr);
+                                    $('#rebookConfirmAppointmentModal').modal('show');
+
+                                    window.eventId = arg.draggedEl.id;
+                                    window.newDate = arg.dateStr;
+
+                                    var clientId = arg.draggedEl.dataset.clientId;
+                                    var petId = arg.draggedEl.dataset.petId;
+                                    var purposeId = arg.draggedEl.dataset.purposeId;
+                                    var timeOfDay = arg.draggedEl.dataset.timeOfDay;
+                                    var url = "{% url 'get_pets' %}";
+
+                                    $.ajax({
+                                        url: url,
+                                        data: {
+                                            'client_id': clientId
+                                        },
+                                        success: function(data) {
+                                            var select = $("#id_pet-rebook");
+                                            select.html('');
+                                            $.each(data, function(index, text) {
+                                                select.append(
+                                                    $('<option></option>').val(text.id).html(text.name)
+                                                );
+                                            });
+                                        }
+                                    });
+
+                                    var select_purpose = $("#id_purpose-rebook");
+                                    select_purpose.val(purposeId);
+
+                                    var select_timeOfDay = $("#id_timeOfTheDay-rebook");
+                                    // select_timeOfDay.val(timeOfDay);
+                                }
+                            },
+                            error: function(error) {
+                                console.log(error);
+                            }
+                        });
+                    }
                 },
                 eventReceive: function(info) {
                     info.revert();

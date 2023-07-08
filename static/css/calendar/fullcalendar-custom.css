@@ -126,6 +126,12 @@
 
 #external-events .fc-event {
   margin: 3px 0;
+  cursor: pointer;
+}
+
+.fc-h-event {
+  background-color: darkorange;
+  border: none;
   cursor: move;
 }
 

@@ -33,7 +33,7 @@
                         <div id='external-events-list'>
                             {% if rebook_appointments %}
                             {% for appointment in rebook_appointments %}
-                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-pet-id="{{ appointment.pet.id }}" data-purpose-id="{{ appointment.purpose.id }}" data-time-of-day="{{ appointment.timeOfTheDay }}">
+                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }}" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.timeOfTheDay }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
                                     <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.client.full_name }}</div>
                                 </div>
                             {% endfor %}
@@ -101,6 +101,27 @@
           <button type="button" class="btn btn-dark btn-sm" id="rebookEvent">Rebook</button>
           <button type="button" class="btn btn-dark btn-sm" id="doneEvent">Appointment Done</button>
           <!-- <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button> -->
+      </div>
+      </div>
+    </div>
+</div>  
+
+<div class="modal fade" id="rebookListAppointmentModal" tabindex="-1" aria-labelledby="rebookListAppointmentLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rebookListAppointmentLabel">
+             <!-- Event start will be displayed here -->
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="rebookListAppointmentBody">
+          <!-- Event title will be displayed here -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-dark btn-sm" id="deleteRebookList">Cancel Appointment</button>
+            <button type="button" class="btn btn-dark btn-sm" id="doneRebookList">Appointment Done</button>
+            <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
       </div>
       </div>
     </div>
@@ -422,6 +443,98 @@ function getInitialView() {
     return window.innerWidth <= 576 ? 'listYear' : 'dayGridMonth';
 }
 
+function showAppointmentDetails(appointmentId) {
+    let appointment = document.getElementById(appointmentId);
+
+    let client = appointment.getAttribute('data-client-name');
+    let pet = appointment.getAttribute('data-pet-rname');
+    let purpose = appointment.getAttribute('data-purpose-val');
+    let timeOfDay = appointment.getAttribute('data-time-of-day')
+
+    timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
+
+    const details = [
+        `<strong>Client:</strong> ${client}`,
+        `<strong>Pet:</strong> ${pet}`,
+        `<strong>Time of the Day:</strong> ${timeOfDay}`,
+        `<strong>Purpose:</strong> ${purpose}`
+    ].join('<br>');
+
+    document.getElementById('rebookListAppointmentLabel').innerText = "#" + appointmentId + " from Rebook List";
+    document.getElementById('rebookListAppointmentBody').innerHTML = details;
+
+    document.getElementById('doneRebookList').onclick = function() {
+        $('#rebookListAppointmentModal').modal('hide');
+        $('#doneAppointmentModal').modal('show');
+    };
+
+    document.getElementById('yesDoneAppointmentButton').onclick = function() {
+        $.ajax({
+            type: 'POST',
+            url: '{% url "mark_as_done" %}',
+            data: {
+                'appointment_id': appointmentId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'Appointment marked as done successfully') {
+                    appointment.remove();
+                    $('#doneAppointmentModal').modal('hide');
+                    location.reload();
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    };
+
+    var cancelDoneAppointmentButton = document.getElementsByClassName('cancelDoneAppointmentButton');
+    for (var i = 0; i < cancelDoneAppointmentButton.length; i++) {
+        cancelDoneAppointmentButton[i].onclick = function() {
+            $('#doneAppointmentModal').modal('hide');
+            $('#rebookListAppointmentModal').modal('show');
+        };
+    }
+
+    document.getElementById('deleteRebookList').onclick = function() {
+        $('#rebookListAppointmentModal').modal('hide');
+        $('#deleteAppointmentModal').modal('show');
+    };
+
+    document.getElementById('yesDeleteAppointmentButton').onclick = function() {
+        $.ajax({
+            type: 'POST',
+            url: '{% url "cancel_appointment" %}',
+            data: {
+                'appointment_id': appointmentId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'Appointment cancelled successfully') {
+                    appointment.remove();
+                    $('#deleteAppointmentModal').modal('hide');
+                    location.reload();
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    };
+
+    var cancelDeleteAppointmentButton = document.getElementsByClassName('cancelDeleteAppointmentButton');
+    for (var i = 0; i < cancelDeleteAppointmentButton.length; i++) {
+        cancelDeleteAppointmentButton[i].onclick = function() {
+            $('#deleteAppointmentModal').modal('hide');
+            $('#rebookListAppointmentModal').modal('show');
+        };
+    }
+
+
+    $('#rebookListAppointmentModal').modal('show');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
 
     var appointmentIdToMarkDone;
@@ -484,6 +597,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    
     $.ajax({
         type: 'GET',
         url: '{% url "get_disabled_days" %}',
@@ -495,6 +609,10 @@ document.addEventListener('DOMContentLoaded', function() {
             var containerEl = document.getElementById('external-events-list');
             new FullCalendar.Draggable(containerEl, {
                 itemSelector: '.fc-event',
+                droppable: true,
+                eventDragStart: function(info) {
+                    alert(info)
+                },
                 eventData: function(eventEl) {
                     return {
                         title: eventEl.innerText.trim()
@@ -539,43 +657,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 droppable: true,
                 dayMaxEvents: false, // allow "more" link when too many events
                 hiddenDays: [0],
-                select: function(arg) {
-                    let date = arg.start;
-                    window.selectedDate = date;
-                    let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-
-                    $('.day-clicked').text(formatStringDate(dateString));
-
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url "is_day_disabled" %}',
-                        data: { 'date': dateString },
-                        success: function(response) {
-                            if (response.is_disabled) {
-                                $('#selectedDateToEnable').val(dateString);
-                                if (response.time_of_the_day === 'whole_day') {
-                                    $('#enableDayModal').modal('show');
-                                } else {
-                                    if (response.time_of_the_day === 'morning') {
-                                        $('#id_timeOfTheDay option[value="morning"]').hide();
-                                        $('#id_timeOfTheDay').val('afternoon');
-                                    } else if (response.time_of_the_day === 'afternoon') {
-                                        $('#id_timeOfTheDay option[value="afternoon"]').hide();
-                                        $('#id_timeOfTheDay').val('morning');
-                                    }
-                                    $('#enable-day-choice').removeAttr('hidden');
-                                    $('#disable-day-choice').attr('hidden', true);
-                                    $('#dayChoiceModal').modal('show');
-                                }
-                            } else {
-                                $('.day-clicked').text(formatStringDate(dateString));
-                                $('#disable-day-choice').removeAttr('hidden');
-                                $('#enable-day-choice').attr('hidden', true);
-                                $('#dayChoiceModal').modal('show');
-                            }
-                        }
-                    });
-                },
                 eventClick: function(arg) {
 
                     var eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
@@ -710,93 +791,42 @@ document.addEventListener('DOMContentLoaded', function() {
                         };
                     }
                 },
-
                 events: "{% url 'get_appointments' %}",
-                dayCellClassNames: function(info) {
-                    const eventCounts = getEventCounts(calendar.getEvents());
-                    const date = FullCalendar.formatDate(info.date, {
-                        timeZone: 'local',
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit'
-                    });
+                select: function(arg) {
+                    let date = arg.start;
+                    window.selectedDate = date;
+                    let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
-                    const parts = date.split('/');
-                    const formattedDate = `${parts[2]}-${parts[0]}-${parts[1]}`;
+                    $('.day-clicked').text(formatStringDate(dateString));
 
-                    let timeOfDay = null;
-                    let disableDayObject = disabledDays.find(obj => obj.date == formattedDate);
-                    if (disableDayObject) {
-                        timeOfDay = disableDayObject.timeOfTheDay;
-                    }
-
-                    if (eventCounts[date] === 8) {
-                        return ['day-full'];
-                    } else if (timeOfDay) {
-                        if (timeOfDay === "morning") {
-                            return ['day-disabled-morning'];
-                        } 
-                        else if (timeOfDay === "afternoon") {
-                            return ['day-disabled-afternoon']; 
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url "is_day_disabled" %}',
+                        data: { 'date': dateString },
+                        success: function(response) {
+                            if (response.is_disabled) {
+                                $('#selectedDateToEnable').val(dateString);
+                                if (response.time_of_the_day === 'whole_day') {
+                                    $('#enableDayModal').modal('show');
+                                } else {
+                                    if (response.time_of_the_day === 'morning') {
+                                        $('#id_timeOfTheDay option[value="morning"]').hide();
+                                        $('#id_timeOfTheDay').val('afternoon');
+                                    } else if (response.time_of_the_day === 'afternoon') {
+                                        $('#id_timeOfTheDay option[value="afternoon"]').hide();
+                                        $('#id_timeOfTheDay').val('morning');
+                                    }
+                                    $('#enable-day-choice').removeAttr('hidden');
+                                    $('#disable-day-choice').attr('hidden', true);
+                                    $('#dayChoiceModal').modal('show');
+                                }
+                            } else {
+                                $('.day-clicked').text(formatStringDate(dateString));
+                                $('#disable-day-choice').removeAttr('hidden');
+                                $('#enable-day-choice').attr('hidden', true);
+                                $('#dayChoiceModal').modal('show');
+                            }
                         }
-                        else if (timeOfDay === "whole_day")
-                        {
-                            return ['day-disabled-whole-day'];
-                        }
-                    } else {
-                        return ['day-available'];
-                    }
-                },
-                navLinkDayClick: function(date, jsEvent) {
-                    jsEvent.preventDefault();
-
-                    var events = calendar.getEvents();
-                    var dateStr = date.toISOString();
-
-                    var eventsOnDate = events.filter(function(event) {
-                        return event.start.toISOString().substring(0, 10) === dateStr.substring(0, 10);
-                    });
-
-                    if (eventsOnDate.length === 0) {
-                        return;
-                    }
-
-                    $(".appointment-table-title").text(formatDates(date) + ' | Appointments');
-                    $(".appointment-table").removeAttr("hidden");
-
-                    dataTable.rows.remove([0, 1, 2, 3, 4, 5, 6, 7])
-
-                    eventsOnDate.forEach(function(event, index) {
-                        var row = [
-                            event.id,
-                            event.extendedProps.client,
-                            event.extendedProps.contact_number,
-                            "<button type='button' class='btn btn-primary btn-sm lift lift-sm' onclick='confirmSendSMS(\"" +
-                            event.id + "\", \"" +
-                            event.extendedProps.client + "\", \"" +
-                            event.extendedProps.contact_number + "\"" +
-                            ")'>Notify</button>"
-                        ];
-                        dataTable.rows.add(row); // Add the row
-                    });
-
-                    $('html, body').animate({
-                        scrollTop: $(".appointments-list-table").offset().top
-                    }, 100);
-                },
-                selectAllow: function(selectInfo) {
-                    var dayBeforeEndDate = new Date(selectInfo.end);
-                    dayBeforeEndDate.setDate(dayBeforeEndDate.getDate() - 1);
-                    return FullCalendar.formatDate(selectInfo.start, {
-                        timeZone: 'local',
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit'
-                    }) === FullCalendar.formatDate(dayBeforeEndDate, {
-                        timeZone: 'local',
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit'
                     });
                 },
                 eventDrop: function(info) {
@@ -984,6 +1014,93 @@ document.addEventListener('DOMContentLoaded', function() {
                         error: function(error) {
                             console.log(error);
                         }
+                    });
+                },
+                dayCellClassNames: function(info) {
+                    const eventCounts = getEventCounts(calendar.getEvents());
+                    const date = FullCalendar.formatDate(info.date, {
+                        timeZone: 'local',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+
+                    const parts = date.split('/');
+                    const formattedDate = `${parts[2]}-${parts[0]}-${parts[1]}`;
+
+                    let timeOfDay = null;
+                    let disableDayObject = disabledDays.find(obj => obj.date == formattedDate);
+                    if (disableDayObject) {
+                        timeOfDay = disableDayObject.timeOfTheDay;
+                    }
+
+                    if (eventCounts[date] === 8) {
+                        return ['day-full'];
+                    } else if (timeOfDay) {
+                        if (timeOfDay === "morning") {
+                            return ['day-disabled-morning'];
+                        } 
+                        else if (timeOfDay === "afternoon") {
+                            return ['day-disabled-afternoon']; 
+                        }
+                        else if (timeOfDay === "whole_day")
+                        {
+                            return ['day-disabled-whole-day'];
+                        }
+                    } else {
+                        return ['day-available'];
+                    }
+                },
+                navLinkDayClick: function(date, jsEvent) {
+                    jsEvent.preventDefault();
+
+                    var events = calendar.getEvents();
+                    var dateStr = date.toISOString();
+
+                    var eventsOnDate = events.filter(function(event) {
+                        return event.start.toISOString().substring(0, 10) === dateStr.substring(0, 10);
+                    });
+
+                    if (eventsOnDate.length === 0) {
+                        return;
+                    }
+
+                    $(".appointment-table-title").text(formatDates(date) + ' | Appointments');
+                    $(".appointment-table").removeAttr("hidden");
+
+                    dataTable.rows.remove([0, 1, 2, 3, 4, 5, 6, 7])
+
+                    eventsOnDate.forEach(function(event, index) {
+                        var row = [
+                            event.id,
+                            event.extendedProps.client,
+                            event.extendedProps.contact_number,
+                            "<button type='button' class='btn btn-primary btn-sm lift lift-sm' onclick='confirmSendSMS(\"" +
+                            event.id + "\", \"" +
+                            event.extendedProps.client + "\", \"" +
+                            event.extendedProps.contact_number + "\"" +
+                            ")'>Notify</button>"
+                        ];
+                        dataTable.rows.add(row); // Add the row
+                    });
+
+                    $('html, body').animate({
+                        scrollTop: $(".appointments-list-table").offset().top
+                    }, 100);
+                },
+                selectAllow: function(selectInfo) {
+                    var dayBeforeEndDate = new Date(selectInfo.end);
+                    dayBeforeEndDate.setDate(dayBeforeEndDate.getDate() - 1);
+                    return FullCalendar.formatDate(selectInfo.start, {
+                        timeZone: 'local',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    }) === FullCalendar.formatDate(dayBeforeEndDate, {
+                        timeZone: 'local',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
                     });
                 },
                 eventReceive: function(info) {

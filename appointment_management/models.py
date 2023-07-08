@@ -61,7 +61,7 @@ class Appointment(models.Model):
 
     def getTimeOfDayColor(self):
         if self.timeOfTheDay == 'morning':
-            return 'default'
+            return '#3788d8'
         else:
             return 'green'
 

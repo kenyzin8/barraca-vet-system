@@ -443,8 +443,8 @@ def get_pets_client(request):
     pets_with_appointments = Appointment.objects.exclude(
         status__in=['cancelled', 'done']).filter(pet__client=client_id).values_list('pet', flat=True)
     
-    pets_without_appointments = Pet.objects.filter(client=client_id).exclude(id__in=pets_with_appointments).values('id', 'name')
-    selected_pet = Pet.objects.filter(id=selected_pet_id).values('id', 'name')
+    pets_without_appointments = Pet.objects.filter(client=client_id, is_active=True).exclude(id__in=pets_with_appointments).values('id', 'name')
+    selected_pet = Pet.objects.filter(id=selected_pet_id, is_active=True).values('id', 'name')
 
     pets = pets_without_appointments | selected_pet
     

@@ -28,7 +28,7 @@ class DoctorSchedule(models.Model):
 
 class Appointment(models.Model):
 
-    status_choices = [('pending', 'Pending'), ('rebook', 'Rebook'), ('cancelled', 'Cancelled'), ('done', 'Done')]
+    status_choices = [('pending', 'Pending'), ('rebook', 'Rebook'), ('cancelled', 'Cancelled'), ('done', 'Done'), ('petdeleted', 'Pet Deleted')]
     time_of_the_day_choices = [('morning', 'Morning'), ('afternoon', 'Afternoon')]
 
     client = models.ForeignKey(Client, on_delete=models.CASCADE)

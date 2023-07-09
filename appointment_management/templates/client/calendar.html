@@ -963,7 +963,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         url: url,
                                         data: {
                                             'client_id': clientId,
-                                            'selected_pet_id': petId  // Include the selected pet ID
+                                            'selected_pet_id': petId  
                                         },
                                         success: function(data) {
                                             var select = $("#id_pet-rebook");
@@ -973,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     $('<option></option>').val(text.id).html(text.name)
                                                 );
                                             });
-                                            // After appending all the options, set the selected one
+
                                             select.val(petId);
                                         }
                                     });

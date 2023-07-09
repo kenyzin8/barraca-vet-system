@@ -434,6 +434,21 @@ def update_pet(request, pet_id):
     context = {'form': form, 'pet': pet}
     return render(request, 'client/update_pet.html', context)
 
+# @login_required
+# def delete_pet(request, pet_id):
+#     pet = get_object_or_404(Pet, id=pet_id)
+    
+#     if pet.client != request.user.client:
+#         return redirect('pet-list-page')
+
+#     if request.method == 'POST':
+#         #set is_active to False
+#         pet.is_active = False
+#         pet.save()
+#         return JsonResponse({'result': 'success'})
+#     else:
+#         return JsonResponse({'result': 'error', 'message': 'Invalid request method'})
+
 @login_required
 def delete_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
@@ -442,9 +457,17 @@ def delete_pet(request, pet_id):
         return redirect('pet-list-page')
 
     if request.method == 'POST':
-        #set is_active to False
+        #set pet as inactive
         pet.is_active = False
         pet.save()
+
+        appointments = Appointment.objects.filter(pet=pet)
+        if appointments:
+            for appointment in appointments:
+                appointment.status = 'cancelled'
+                appointment.isActive = False
+                appointment.save()
+
         return JsonResponse({'result': 'success'})
     else:
         return JsonResponse({'result': 'error', 'message': 'Invalid request method'})

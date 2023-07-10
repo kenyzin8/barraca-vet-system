@@ -138,6 +138,6 @@ def check_product_expiry(request, product_id):
 @staff_required
 @login_required
 def reorder_list(request):
-    products = Product.objects.filter(quantity_on_stock__lte=F('critical_level')).order_by('-id')
+    products = Product.objects.filter(quantity_on_stock__lte=F('critical_level'), active=True).order_by('-id')
     context = {'products': products}
     return render(request, 'reorder_list.html', context)

@@ -1,34 +1,26 @@
 
-body {
-    overflow: auto;
-}
-
-.header-barraca
-{
+.header-barraca {
   font-size: 4rem;
-  margin-top: 110px
+  margin-top: 110px;
 }
 
-.title-barraca
-{
+.title-barraca {
   text-align: center;
   margin-bottom: 20px;
   cursor: default;
 }
 
-.description-barraca
-{
+.description-barraca {
   font-size: 1.5rem;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  /* margin: 0 auto; ALTERNATIVE */ 
+  /* margin: 0 auto; ALTERNATIVE */
   line-height: 1.2;
   font-weight: 500;
 }
 
-.btn-dark
-{
+.btn-dark {
   background: #121212;
 }
 
@@ -55,54 +47,52 @@ body {
   background-color: #f8f9fa;
 }
 
-body
-{
+body {
   background: white;
 }
 
-.barraca-title
-{
+.barraca-title {
   padding-top: 50px;
   cursor: default;
 }
 
-.barraca-title a
-{
-  color:#121212;
+.barraca-title a {
+  color: #121212;
 }
 
-.title-barraca h1
-{
+.title-barraca h1 {
   font-weight: 600;
 }
 
-.mb-3 button
-{
+.mb-3 button {
   background: #121212;
   border: none;
   width: 50%;
 }
 
-.mb-3 button:hover
-{
+.mb-3 button:hover {
   background: #2b2b2b;
 }
 
-.forgot-pass
-{
-  color: #9b9b9b;
+.forgot-pass {
+  color: #363d47;
   margin: 0 auto;
 }
 
-.create-acc
-{
-  color: #9b9b9b;
+.create-acc {
   margin: 0 auto;
+  transition: transform 0.3s ease-in-out;
 }
 
-.footer-barraca
-{
-  color: #9b9b9b;
+.create-acc:hover {
+  transform: scale(1.2);
+  text-decoration: none; 
+  font-weight: 500; 
+  color: white !important;
+}
+
+.footer-barraca {
+  color: #363d47;
   cursor: default;
 }
 
@@ -115,13 +105,13 @@ body
 }
 
 #layoutAuthentication {
-margin-top: 132px;
+  margin-top: 132px;
 }
 
 @media (max-width: 1200px) {
-    body {
-        overflow: auto;
-    }
+  body {
+    overflow: auto;
+  }
   /* Add fixed-top to your title */
   .barraca-title {
     position: static;
@@ -130,9 +120,8 @@ margin-top: 132px;
     padding-top: 50px;
   }
 
-  .title-barraca
-  {
-    margin-top: 50px
+  .title-barraca {
+    margin-top: 50px;
   }
 
   .footer-admin {
@@ -141,11 +130,11 @@ margin-top: 132px;
 
   #layoutAuthentication {
     min-height: none;
-    }
+  }
 
   .header-barraca {
     font-size: 4rem;
-    margin-top: 20px
+    margin-top: 20px;
   }
 
   .description-barraca {
@@ -159,8 +148,7 @@ margin-top: 132px;
     margin-top: -30px;
   }
 
-  .row
-  {
+  .row {
     margin: 0 auto;
     text-align: center;
   }
@@ -171,16 +159,15 @@ margin-top: 132px;
 
   .create-acc {
     margin-bottom: 20px;
-  }  
+  }
 
-  #layoutAuthentication
-  {
+  #layoutAuthentication {
     margin-top: 0px;
   }
 }
 
 .wider-input {
-  width: 100%; 
+  width: 100%;
 }
 
 .get-started-button {
@@ -190,13 +177,12 @@ margin-top: 132px;
   height: 100%; /* or any desired height */
 }
 
-.multitext-custom
-{
+.multitext-custom {
   height: 104px;
 }
 
-.form-select, .datatable-selector 
-{
+.form-select,
+.datatable-selector {
   color: #69707aab;
 }
 
@@ -214,4 +200,91 @@ margin-top: 132px;
 
 .datatable-input::-moz-cancel {
   display: none;
+}
+
+.form-control, .datatable-input {
+  display: block;
+  width: 100%;
+  padding: 0.875rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  color: #363d47;
+  background-color: rgba(255, 255, 255, 0.7); 
+  backdrop-filter: blur(10px); 
+  background-clip: padding-box;
+  border: 1px solid #363d47; 
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0.35rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control::placeholder {
+  color: #363d47;
+  opacity: 1;
+}
+
+.form-control:-ms-input-placeholder { 
+  color: #363d47;
+}
+
+.form-control::-ms-input-placeholder { 
+  color: #363d47;
+}
+
+.form-control:focus
+{
+  color: #363d47;
+  background-color: rgba(255, 255, 255, 0.7); 
+  border-color: #363d47;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(54, 61, 71, 0.25);
+}
+
+.form-select, .datatable-input {
+  display: block;
+  width: 100%;
+  padding: 0.875rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  color: #363d47;
+  background-color: rgba(255, 255, 255, 0.7); 
+  backdrop-filter: blur(10px); 
+  background-clip: padding-box;
+  border: 1px solid #363d47; 
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0.35rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-select::placeholder {
+  color: #363d47;
+  opacity: 1;
+}
+
+.form-select:-ms-input-placeholder { 
+  color: #363d47;
+}
+
+.form-select::-ms-input-placeholder { 
+  color: #363d47;
+}
+
+.form-select:focus
+{
+  color: #363d47;
+  background-color: rgba(255, 255, 255, 0.7); 
+  border-color: #363d47;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(54, 61, 71, 0.25);
+}
+
+.main-button:active
+{
+  background:#363d47 !important;
 }

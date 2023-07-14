@@ -103,66 +103,6 @@
     </div>
 </div>  
 
-<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true" data-bs-backdrop='static'>
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="confirmationModalLabel">Send SMS Confirmation</h5>
-            <button id="close-sms-confirmation-button" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            Are you sure you want to remind this client?<br><br>
-            <b>Name:</b> <span id="clientName"></span><br>
-            <b>Phone Number:</b> <span id="clientPhoneNumber"></span>
-        </div>
-        <div class="modal-footer">
-            <button id="cancelSMSButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Cancel</button>
-            <button id="sendSMSButton" type="button" class="btn btn-success btn-sm" onclick="sendSMS(document.getElementById('hiddenClientPhone').value, document.getElementById('hiddenAppointmentID').value)">
-                Yes
-                <span id="smsSendingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
-            </button>
-        </div>
-        </div>
-    </div>
-</div>   
-
-<div class="modal fade" id="bulkConfirmationModal" tabindex="-1" aria-labelledby="bulkConfirmationModalLabel" aria-hidden="true" data-bs-backdrop='static'>
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="bulkConfirmationModalLabel">Send Bulk SMS Confirmation</h5>
-                <button id="closeBulkSMSButton" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body bulk-modal-body">
-                Are you sure you want to send SMS reminders to all clients?
-            </div>
-            <div class="modal-footer">
-                <button id="cancelBulkSMSButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Cancel</button>
-                <button id="sendBulkSMSButton" type="button" class="btn btn-success btn-sm" onclick="sendBulkSMS()">
-                    Yes
-                    <span id="bulkSMSSendingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div> 
-
-<div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true" data-bs-backdrop='static'>
-    <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-        <h5 class="modal-title" id="messageModalLabel">SMS Status</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body" id="messageModalBody">
-        </div>
-        <div class="modal-footer">
-        <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
-        </div>
-    </div>
-    </div>
-</div>
-
 <div class="modal fade" id="dayChoiceModal" tabindex="-1" aria-labelledby="dayChoiceModalLabel" aria-hidden="true" data-bs-backdrop='static'>
     <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -180,51 +120,6 @@
     </div>
     </div>
 </div>
-
-<div class="modal fade" id="disableDayModal" tabindex="-1" aria-labelledby="disableDayModalLabel" aria-hidden="true" data-bs-backdrop='static'>
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="disableDayModalLabel">Disable Day Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Day Clicked: <span class="day-clicked"></span> <br><br>
-                Are you sure you want to disable this day?
-                <br><br>
-                <form method="POST" id="disableDayForm">
-                {% csrf_token %}
-                {{ disable_day_form.as_p }}
-                <input type="hidden" id="selectedDateToDisable" name="date">
-            </div>
-            <div class="modal-footer">
-                <button id="cancelDisableDayModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">No</button>
-                <button id="yesDisableDayModalButton" type="submit" class="btn btn-danger btn-sm">Yes</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div> 
-
-<div class="modal fade" id="enableDayModal" tabindex="-1" aria-labelledby="enableDayModalLabel" aria-hidden="true" data-bs-backdrop='static'>
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="enableDayModalLabel">Enable Day Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Day Clicked: <span class="day-clicked"></span> <br><br>
-                Are you sure you want to enable this day?
-                <input type="hidden" id="selectedDateToEnable" name="date">
-            </div>
-            <div class="modal-footer">
-                <button id="cancelEnableDayModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">No</button>
-                <button id="yesEnableDayModalButton" type="submit" class="btn btn-danger btn-sm">Yes</button>
-            </div>
-        </div>
-    </div>
-</div> 
 
 <div class="modal fade" id="addAppointmentModal" tabindex="-1" aria-labelledby="addAppointmentModal" aria-hidden="true" data-bs-backdrop='static'>
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -291,26 +186,6 @@
     </div>
     </div>
 </div>
-
-<div class="modal fade" id="doneAppointmentModal" tabindex="-1" aria-labelledby="doneAppointmentModalLabel" aria-hidden="true" data-bs-backdrop='static'>
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="doneAppointmentModalLabel">Appointment Done Confirmation</h5>
-            <button id="close-sms-confirmation-button" type="button" class="btn-close cancelDoneAppointmentButton" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            Are you sure you this appointment is done?<br><br>
-        </div>
-        <div class="modal-footer">
-            <button id="cancelDoneAppointmentButton" type="button" class="btn btn-dark btn-sm cancelDoneAppointmentButton" data-bs-dismiss="modal">No</button>
-            <button id="yesDoneAppointmentButton" type="button" class="btn btn-danger btn-sm">
-                Yes
-            </button>
-        </div>
-        </div>
-    </div>
-</div> 
 
 <div class="modal fade" id="rebookConfModal" tabindex="-1" aria-labelledby="rebookConfModalLabel" aria-hidden="true" data-bs-backdrop='static'>
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -708,6 +583,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                     arg.event.remove();
                                     eventModal.hide();
                                     deleteAppointmentModal.hide();
+                                    var currentView = calendar.view;
+                                    localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                                    location.reload();
                                 }
                             },
                             error: function(error) {

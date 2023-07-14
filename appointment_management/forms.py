@@ -95,6 +95,7 @@ class RebookAppointmentFormClient(forms.ModelForm):
     pet_rebook = forms.ModelChoiceField(
         queryset=Pet.objects.none(),  
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet-rebook', 'name': 'pet-rebook'}), 
+        label="Pet"
     )
     purpose = forms.ModelChoiceField(
         queryset=Service.objects.filter(active=True),

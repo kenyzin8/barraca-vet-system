@@ -57,7 +57,6 @@ def disable_day(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
 @login_required
-@staff_required
 def get_disabled_days(request):
     disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay')
     disabled_days_list = list(disabled_days)
@@ -213,7 +212,6 @@ def get_appointments(request):
     return JsonResponse(event_list, safe=False)
 
 @login_required
-@staff_required
 @csrf_exempt
 def cancel_appointment(request):
     if request.method == 'POST':
@@ -230,7 +228,6 @@ def cancel_appointment(request):
         return JsonResponse({"status": "Invalid request method"})
 
 @login_required
-@staff_required
 @csrf_exempt
 def add_to_rebook_list(request):
     if request.method == 'POST':
@@ -247,7 +244,6 @@ def add_to_rebook_list(request):
         return JsonResponse({'status': 'Invalid method'}, status=400)
 
 @login_required
-@staff_required
 @csrf_exempt
 def rebook_appointment(request):
     if request.method == 'POST':
@@ -260,14 +256,12 @@ def rebook_appointment(request):
         try:
             appointment = Appointment.objects.get(id=appointment_id)
             
-            # Assigning the new values to the appointment
             appointment.date = new_date_str
             appointment.pet_id = pet_id
             appointment.purpose_id = purpose_id
             appointment.timeOfTheDay = time_of_the_day
             appointment.status = "pending"
             
-            # Saving the appointment
             appointment.save()
             
             return JsonResponse({'status': 'Appointment rebooked successfully'}, status=200)
@@ -280,7 +274,6 @@ def rebook_appointment(request):
         return JsonResponse({'status': 'Invalid method'}, status=400)
 
 @login_required
-@staff_required
 @csrf_exempt
 def check_if_full(request):
     if request.method == 'POST':
@@ -383,7 +376,6 @@ def set_appointment_client(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @login_required
-@staff_required
 def get_appointments_client(request):
     appointments = Appointment.objects.filter(client=request.user.client, status='pending', isActive=True).order_by('-timeOfTheDay')
 
@@ -435,7 +427,6 @@ def get_appointments_count(request):
     return JsonResponse(appointment_counts)
 
 @login_required
-@staff_required
 def get_pets_client(request):
     client_id = request.GET.get('client_id')
     selected_pet_id = request.GET.get('selected_pet_id')

@@ -701,6 +701,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                     arg.event.remove();
                                     eventModal.hide();
                                     deleteAppointmentModal.hide();
+                                    var currentView = calendar.view;
+                                    localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                                    location.reload();
                                 }
                             },
                             error: function(error) {

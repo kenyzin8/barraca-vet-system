@@ -17,12 +17,21 @@
           .btn:disabled, .btn.disabled, fieldset:disabled .btn {
               background-color: #69707a;
           }
+          body {
+            overflow: auto !important; 
+            background: url("{% static 'images/bg_dogs.png' %}") no-repeat center fixed !important; 
+            height: auto !important;
+            -webkit-background-size: cover !important;
+            -moz-background-size: cover !important;
+            -o-background-size: cover !important;
+            background-size: cover !important;
+          }
         </style>
     </head>
     <body>
 
         <center>
-          <div class="large fixed-top text-dark fw-bold barraca-title">
+          <div class="large text-dark fw-bold barraca-title">
             <a href="{% url 'home' %}">
               Barraca Veterinary Clinic
             </a>
@@ -55,7 +64,7 @@
               {% endif %}
           </div>
           <div class="mb-3">
-              <button type="submit" class="btn btn-primary rounded" id="get-started-button" {% if otp_expired %}disabled{% endif %}>Get Started</button>
+              <button type="submit" class="btn btn-primary rounded main-button" id="get-started-button" {% if otp_expired %}disabled{% endif %}>Get Started</button>
           </div>
         </form>
         <!-- Form Group (login box)-->
@@ -66,7 +75,7 @@
           <a class="small forgot-pass" href="{% url 'login-page' %}">Login with another account</a>
         </div>   
       </div>
-      <div id="layoutAuthentication">
+      <!-- <div id="layoutAuthentication">
           <div id="layoutAuthentication_footer">
               <footer class="footer-admin mt-auto footer-dark fixed-bottom">
                   <div class="container-xl px-4">
@@ -81,7 +90,7 @@
                   </div>
               </footer>
           </div>
-      </div>
+      </div> -->
       <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
           <div class="modal-content">

@@ -13,9 +13,19 @@
         <link href="{% static 'plugins/sb-admin/css/styles.css' %}" rel="stylesheet" />
         <link rel="stylesheet" href="{% static 'css/login.css' %}">
         <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}"></script>
+        <style>
+          body {
+            overflow: auto !important; 
+            background: url("{% static 'images/bg_dogs.png' %}") no-repeat center fixed !important; 
+            height: auto !important;
+            -webkit-background-size: cover !important;
+            -moz-background-size: cover !important;
+            -o-background-size: cover !important;
+            background-size: cover !important;
+          }
+        </style>
     </head>
     <body>
-
         <center>
           <div class="large text-dark fw-bold barraca-title">
             <a href="{% url 'home' %}">
@@ -36,11 +46,9 @@
       <div class="container form-container">
         <form method="post">
           {% csrf_token %}
-          <!-- Form Group (email address)-->
           <div class="mb-3">
               {{ form.username }}
           </div>
-          <!-- Form Group (password)-->
           <div class="mb-3">
               {{ form.password }}
           </div>
@@ -60,20 +68,20 @@
               {% endif %}
           </div>
           <div class="mb-3">
-            <button type="submit" class="btn btn-primary rounded">Get Started</button>
+            <button type="submit" class="btn btn-primary rounded main-button">Get Started</button>
           </div>
           <!-- Form Group (login box)-->
           <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-              <a class="small forgot-pass" href="{% url 'forgot-password-page' %}">Forgot Password?</a>
+              <a class="small forgot-pass link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'forgot-password-page' %}">Forgot Password?</a>
           </div>
           <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-            <a class="small create-acc" href="{% url 'register-user-page' %}">Create Account</a>
+            <a class="small create-acc link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'register-user-page' %}">Create Account</a>
           </div>
         </form>
       </div>
-      <div id="layoutAuthentication">
+      <!-- <div id="layoutAuthentication">
           <div id="layoutAuthentication_footer">
-              <footer class="footer-admin mt-auto footer-dark fixed-bottom mt-5">
+              <footer class="footer-admin mt-auto footer-dark static-bottom">
                   <div class="container-xl px-4">
                       <div class="row">
                           <div class="col-md-6 small footer-barraca">&copy; Barraca Veterinary Clinic {% now "Y" %}</div>
@@ -86,7 +94,7 @@
                   </div>
               </footer>
           </div>
-      </div>
+      </div> -->
       <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
           <div class="modal-content">

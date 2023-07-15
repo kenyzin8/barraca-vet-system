@@ -351,12 +351,16 @@ $(document).ready(function() {
                             if(parseFloat(stockQuantity) == 0) {
                                 $('#errorModal .modal-body').text("The product is out of stock.");
                                 $('#errorModal').modal('show');
+                                $this.prop('disabled', false);
+                                $this.find('.add-text').text("Add");
                                 return;
                             }
                             else if(parseFloat(quantity) > stockQuantity) {
                                 $('#errorModal .modal-body').text("The entered quantity is greater than the stock quantity.");
                                 $('#errorModal').modal('show');
                                 quantityInput.focus();
+                                $this.prop('disabled', false);
+                                $this.find('.add-text').text("Add");
                                 return;
                             }
                             else if(parseFloat(quantity) <= 0)
@@ -364,6 +368,8 @@ $(document).ready(function() {
                                 $('#errorModal .modal-body').text("The entered quantity is invalid.");
                                 $('#errorModal').modal('show');
                                 quantityInput.focus();
+                                $this.prop('disabled', false);
+                                $this.find('.add-text').text("Add");
                                 return;
                             }
                         }

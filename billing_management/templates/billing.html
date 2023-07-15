@@ -174,9 +174,9 @@ window.addEventListener('DOMContentLoaded', event => {
                     </tr>
                     <tr>
                         <td class="text-end pb-0" colspan="3"><!-- empty for spacing --></td>
-                        <td class="text-end pb-0" style="padding-top: 20px;">
-                            <a href="{% url 'billing-page' %}" id="cancel-button" type="button" class="btn btn-danger lift lift-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Cancel Transaction">Cancel</a>
-                            <a href="#" id="paid-button" type="button" class="btn btn-success lift lift-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Submit Transaction">Paid</a>
+                        <td class="text-end pb-0 billing-buttons" style="padding-top: 20px;">
+                            <a href="{% url 'billing-page' %}" id="cancel-button" type="button" class="btn btn-danger lift lift-sm mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Cancel Transaction">Cancel</a>
+                            <a href="#" id="paid-button" type="button" class="btn btn-success lift lift-sm mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Submit Transaction">Paid</a>
                         </td>
                     </tr>
                 </tbody>
@@ -366,7 +366,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                                 </span>
                                             </td>
                                             <td>
-                                                <input type="number" class="form-control product-quantity" min="1" step="0.01" value="1" style="width: 80px;">
+                                                <input type="number" class="form-control product-quantity" min="1" step="0.01" value="1" style="width: 80px;" onkeydown="javascript: return event.keyCode !== 69">
                                             </td>
                                             <td>
                                                 <span class="product-price">

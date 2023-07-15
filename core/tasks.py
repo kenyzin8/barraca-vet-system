@@ -6,7 +6,7 @@ from record_management.models import Client, Pet
 from appointment_management.models import Appointment
 from core.semaphore import send_sms
 
-@shared_task
+@shared_task(name="Debug Barraca")
 def print_hello_world():
     #send_sms("09772381588", "Welcome to Barraca Clinic!")
     print("Hello World")
@@ -25,13 +25,13 @@ def update_past_doctor_schedules():
         schedule.isActive = False
         schedule.save()
 
-@shared_task
+@shared_task(name="Clean Up Calendar")
 def update_past_appointments():
     update_past_appointments()
     update_past_doctor_schedules()
     return "Calendar Updated"
 
-@shared_task
+@shared_task(name="Weekly Reminder")
 def send_weekly_reminder():
     appointments = Appointment.objects.filter(date__gte=datetime.now().date())
     for appointment in appointments:
@@ -40,7 +40,7 @@ def send_weekly_reminder():
     return "Weekly Reminder Sent"
 
 
-@shared_task
+@shared_task(name="Daily Reminder")
 def send_daily_reminder():
     appointments = Appointment.objects.filter(date__gte=datetime.now().date())
     for appointment in appointments:

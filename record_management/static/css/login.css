@@ -162,6 +162,11 @@ body {
   #layoutAuthentication {
     margin-top: 0px;
   }
+
+  #timer
+  {
+    padding-bottom: 20px;
+  }
 }
 
 .wider-input {

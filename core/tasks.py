@@ -33,7 +33,7 @@ def update_past_appointments():
 
 @shared_task(name="Weekly Reminder")
 def send_weekly_reminder():
-    appointments = Appointment.objects.filter(date__gte=datetime.now().date())
+    appointments = Appointment.objects.filter(date__gte=datetime.now().date(), isActive=True, status='pending')
     for appointment in appointments:
         if appointment.date - timedelta(weeks=1) == datetime.now().date():
             appointment.remindClient()
@@ -42,7 +42,7 @@ def send_weekly_reminder():
 
 @shared_task(name="Daily Reminder")
 def send_daily_reminder():
-    appointments = Appointment.objects.filter(date__gte=datetime.now().date())
+    appointments = Appointment.objects.filter(date__gte=datetime.now().date(), isActive=True, status='pending')
     for appointment in appointments:
         if appointment.date - timedelta(days=1) == datetime.now().date():
             appointment.remindClient()

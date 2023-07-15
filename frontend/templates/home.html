@@ -57,7 +57,7 @@
       at Barraca Veterinary Clinic, we connect with your pets for better health and wellness.
     </p>
     <br>
-    <a role="button" class="btn btn-dark shadow-sm rounded" href="{% if user.is_authenticated %}#{% else %}{% url 'register-user-page' %}{% endif %}" style="font-weight: bold;">Book for free &nbsp;<i class="fa-solid fa-arrow-right"></i></a> 
+    <a role="button" class="btn btn-dark shadow-sm rounded" href="{% if user.is_authenticated %}{% url 'client_calendar' %}{% else %}{% url 'register-user-page' %}{% endif %}" style="font-weight: bold;">Book for free &nbsp;<i class="fa-solid fa-arrow-right"></i></a> 
   <div class="text-center">
     <div class="overflow-hidden">
       

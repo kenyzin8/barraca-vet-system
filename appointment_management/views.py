@@ -185,7 +185,7 @@ def set_appointment(request):
 @login_required
 @staff_required
 def get_appointments(request):
-    appointments = Appointment.objects.filter(status='pending', isActive=True).order_by('-timeOfTheDay')
+    appointments = Appointment.objects.filter(status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
 
     event_list = []
     for appointment in appointments:
@@ -377,7 +377,7 @@ def set_appointment_client(request):
 
 @login_required
 def get_appointments_client(request):
-    appointments = Appointment.objects.filter(client=request.user.client, status='pending', isActive=True).order_by('-timeOfTheDay')
+    appointments = Appointment.objects.filter(client=request.user.client, status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
 
     event_list = []
     for appointment in appointments:

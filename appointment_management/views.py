@@ -338,11 +338,20 @@ def client_calendar(request):
 
     rebook_form = RebookAppointmentFormClient(request.POST or None, request=request)
 
+    appointment_id = request.GET.get('appointment_id')
+    appointment = None
+    if appointment_id:
+        try:
+            appointment = Appointment.objects.get(id=appointment_id, isActive=True, client=client)
+        except Appointment.DoesNotExist:
+            pass
+
     context = {
         'form': form,
         'client': client,
         'rebook_appointments': rebook_appointments,
-        'rebook_form': rebook_form
+        'rebook_form': rebook_form,
+        'appointment': appointment
     }
 
     return render(request, 'client/calendar.html', context)

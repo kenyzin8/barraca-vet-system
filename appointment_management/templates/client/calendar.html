@@ -226,6 +226,16 @@
 
 <input id="hiddenClientPhone" value="" hidden>
 <input id="hiddenAppointmentID" value="" hidden>
+<input id="viewAppointmentFromOtherModuleData" 
+        data-appointment-pet="{{ appointment.pet }}"
+        data-appointment-id="{{ appointment.id }}" 
+        data-appointment-timeOfDay="{{ appointment.timeOfTheDay }}"
+        data-appointment-purpose="{{ appointment.purpose }}"
+        data-appointment-date="{{ appointment.date.isoformat }}"
+        data-appointment-dateNONISO="{{ appointment.date }}"
+        data-appointment-status="{{ appointment.status }}"
+        hidden>
+
 <div id="sms-data" data-url="{% url 'send_sms_to_client' %}"></div>
 
 {% endblock %}
@@ -345,6 +355,69 @@ function showAppointmentDetails(appointmentId) {
 
     $('#rebookListAppointmentModal').modal('show');
 }
+
+function showAppointmentDetailsFromOtherModule() {
+    let appointmentElement = document.getElementById('viewAppointmentFromOtherModuleData');
+    
+    let appointmentId = appointmentElement.getAttribute('data-appointment-id');
+    
+    if (appointmentId) {
+        let pet = appointmentElement.getAttribute('data-appointment-pet');
+        let timeOfDay = appointmentElement.getAttribute('data-appointment-timeOfDay');
+        let purpose = appointmentElement.getAttribute('data-appointment-purpose');
+        let date = appointmentElement.getAttribute('data-appointment-dateNONISO');
+        let status = appointmentElement.getAttribute('data-appointment-status');
+        
+        timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
+
+        const details = [
+            `<strong>Pet:</strong> ${pet}`,
+            `<strong>Time of the Day:</strong> ${timeOfDay}`,
+            `<strong>Purpose:</strong> ${purpose}`
+        ].join('<br>');
+
+        let _date = status != "pending" ? "From Rebook List" : date;
+
+        document.getElementById('rebookListAppointmentLabel').innerText = "#" + appointmentId + " - " + _date;
+        document.getElementById('rebookListAppointmentBody').innerHTML = details;
+
+        document.getElementById('deleteRebookList').onclick = function() {
+            $('#rebookListAppointmentModal').modal('hide');
+            $('#deleteAppointmentModal').modal('show');
+        };
+
+        document.getElementById('yesDeleteAppointmentButton').onclick = function() {
+            $.ajax({
+                type: 'POST',
+                url: '{% url "cancel_appointment" %}',
+                data: {
+                    'appointment_id': appointmentId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'Appointment cancelled successfully') {
+                        $('#deleteAppointmentModal').modal('hide');
+                        location.reload();
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        };
+
+        var cancelDeleteAppointmentButton = document.getElementsByClassName('cancelDeleteAppointmentButton');
+        for (var i = 0; i < cancelDeleteAppointmentButton.length; i++) {
+            cancelDeleteAppointmentButton[i].onclick = function() {
+                $('#deleteAppointmentModal').modal('hide');
+                $('#rebookListAppointmentModal').modal('show');
+            };
+        }
+
+        $('#rebookListAppointmentModal').modal('show');
+    }
+}
+
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -991,10 +1064,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
             calendar.render();
 
+            let params = new URLSearchParams(window.location.search);
+            let appointmentId = params.get('appointment_id');
+
             var calendarDate = localStorage.getItem('calendarDate');
             if (calendarDate) {
                 calendar.gotoDate(new Date(calendarDate));
                 localStorage.removeItem('calendarDate');
+            }
+
+            if (appointmentId) {
+                let appointmentDate = document.getElementById('viewAppointmentFromOtherModuleData').getAttribute('data-appointment-date');
+                let appointmentElement = document.getElementById('viewAppointmentFromOtherModuleData');
+                let status = appointmentElement.getAttribute('data-appointment-status');
+                console.log(status)
+                if(status == "pending")
+                {
+                    calendar.gotoDate(new Date(appointmentDate));
+                }
+                
+                // calendar.changeView('listDay');
+
+                showAppointmentDetailsFromOtherModule();
+                params.delete('appointment_id');
+                history.pushState({}, null, location.pathname);
             }
 
             function updateCalendarOptions() {

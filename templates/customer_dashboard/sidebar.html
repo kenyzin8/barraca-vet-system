@@ -20,12 +20,12 @@
                         Visit Site
                     </a>
                     {% with request.resolver_match.url_name as current_url_name %}
-                    <div class="sidenav-menu-heading animated--fade-in-up">Home</div>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'customer-dashboard' %}active{% endif %}" href="{% url 'customer-dashboard' %}">
+                    <div class="sidenav-menu-heading">Home</div>
+                    <a class="nav-link {% if current_url_name == 'customer-dashboard' %}active{% endif %}" href="{% url 'customer-dashboard' %}">
                         <div class="nav-link-icon"><i data-feather="activity"></i></div>
                         Dashboard
                     </a>
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'pet-list-page' or current_url_name == 'register-pet-page' or current_url_name == 'view-pet-page' or current_url_name == 'update-pet-page' or current_url_name == 'delete-pet-page' or current_url_name == 'pet-success-page' %} active {% endif %}" href="{% url 'pet-list-page' %}">
+                    <a class="nav-link {% if current_url_name == 'pet-list-page' or current_url_name == 'register-pet-page' or current_url_name == 'view-pet-page' or current_url_name == 'update-pet-page' or current_url_name == 'delete-pet-page' or current_url_name == 'pet-success-page' %} active {% endif %}" href="{% url 'pet-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="gitlab"></i></div>
                         My Pets
                     </a>
@@ -34,7 +34,7 @@
                         <div class="nav-link-icon"><i data-feather="credit-card"></i></div>
                         Pet Health Card
                     </a> -->
-                    <a class="animated--fade-in-up nav-link {% if current_url_name == 'client_calendar' %}active{% endif %}" href="{% url 'client_calendar' %}">
+                    <a class="nav-link {% if current_url_name == 'client_calendar' %}active{% endif %}" href="{% url 'client_calendar' %}">
                         <div class="nav-link-icon"><i data-feather="calendar"></i></div>
                         Appointments
                     </a>
@@ -46,7 +46,7 @@
                 </div>
             </div>
             <!-- Sidenav Footer-->
-            <div class="sidenav-footer animated--fade-in-up">
+            <div class="sidenav-footer">
                 <div class="sidenav-footer-content">
                     <div class="sidenav-footer-subtitle">Logged in as:</div>
                     <div class="sidenav-footer-title">{{ user.client }}</div>

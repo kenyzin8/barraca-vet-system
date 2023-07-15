@@ -77,7 +77,11 @@
             <div class="card-body">
                 <center><h5 class="card-title mt-3 mb-4">{{ pet.name }}</h5></center>
                 <a href="{% url 'view-pet-page' pet.id %}" class="btn btn-dark custom-btn lift lift-sm">View Pet</a>
-                <a href="#" data-pet-id="{{ pet.id }}" class="btn btn-dark custom-btn mt-2 lift lift-sm check-appointment">Set Appointment</a>
+                {% if not pet.has_active_appointment %}
+                <a href="#" data-pet-id="{{ pet.id }}" class="btn btn-dark custom-btn mt-2 lift lift-sm set-appointment">Set Appointment</a>
+                {% else %}
+                <a href="#" data-pet-id="{{ pet.id }}" data-appointment-id="{{ pet.active_appointment_id }}" class="btn btn-dark custom-btn mt-2 lift lift-sm view-appointment">View Appointment</a>
+                {% endif %}
             </div>
         </div>
         {% endif %}
@@ -110,20 +114,33 @@
         $('#errorModal').modal('show');
     }
 
-    $(".check-appointment").on('click', function(e){
-    e.preventDefault();
-    const petId = $(this).data('pet-id');
-    $.ajax({
-        url: `{% url "does_pet_have_appointment" pet_id=0 %}`.replace('0', petId),
-        method: 'GET',
-        success: function(response) {
-            if (response.has_appointment) {
-                showError("This pet already has an appointment. Click view pet to check your pet's appointment.");
-            } else {
-                window.location.href = `{% url 'client_calendar' %}?pet_id=${petId}`;
+    $(".set-appointment").on('click', function(e){
+        e.preventDefault();
+        const petId = $(this).data('pet-id');
+        $.ajax({
+            url: `{% url "does_pet_have_appointment" pet_id=0 %}`.replace('0', petId),
+            method: 'GET',
+            success: function(response) {
+                if (response.has_appointment) {
+                    showError("This pet already has an appointment. Click view pet to check your pet's appointment.");
+                } else {
+                    window.location.href = `{% url 'client_calendar' %}?pet_id=${petId}`;
+                }
             }
+        });
+    });
+
+    $(".view-appointment").on('click', function(e){
+        e.preventDefault();
+
+        const appointmentId = $(this).data('appointment-id');
+
+        if (appointmentId) {
+            window.location.href = `{% url 'client_calendar' %}?appointment_id=${appointmentId}`;
+        } else {
+            showError("This pet does not have an appointment. Click set appointment to set an appointment for this pet.");
         }
     });
-});
 </script>
+
 {% endblock %}

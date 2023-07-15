@@ -408,7 +408,7 @@ def register_pet(request):
 @login_required
 def view_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
-    appointment = Appointment.objects.filter(pet=pet, client=request.user.client).order_by('-id').first()
+    appointment = Appointment.objects.filter(pet=pet, client=request.user.client, isActive=True).order_by('-id').first()
 
     if pet.client != request.user.client:
         return redirect('pet-list-page')
@@ -474,9 +474,14 @@ def delete_pet(request, pet_id):
 
 @login_required
 def pet_list(request):
-    pets = Pet.objects.filter(client=request.user.client).order_by('-id')
+    pets = Pet.objects.filter(client=request.user.client, is_active=True).order_by('-id')
+    for pet in pets:
+        pet.has_active_appointment = pet.appointment_set.filter(isActive=True, pet=pet)
+        if pet.has_active_appointment.exists():
+            pet.active_appointment_id = pet.has_active_appointment.first().id
     context = {'pets': pets}
     return render(request, 'client/pet_list.html', context)
+
 
 @login_required
 def does_pet_have_appointment(request, pet_id):

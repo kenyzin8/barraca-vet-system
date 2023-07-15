@@ -84,7 +84,14 @@
                                 <p>Gender: {{ pet.gender }}</p>
                                 <p>Color: {{ pet.color }}</p>
                                 <p>Weight: {{ pet.weight }}</p>
-                                {% if appointment.pet == pet %}<p>Appointment: {{ appointment.date }} {{ appointment.timeOfTheDay }} for {{ appointment.purpose }}</p>{% endif %}
+                                {% if appointment.pet == pet %}
+                                <p>
+                                    Appointment: {{ appointment.date }} {{ appointment.timeOfTheDay }} for {{ appointment.purpose }} 
+                                    <a class="btn btn-datatable btn-icon btn-transparent-dark view-appointment" href="#" data-pet-id="{{ pet.id }}" data-appointment-id="{{ appointment.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="View Appointment" style="margin-bottom: 4px;">
+                                        <i data-feather="external-link"></i>
+                                    </a>
+                                </p>
+                                {% endif %}
                                 <!-- <p>Owner: {{ pet.client }}</p> -->
                             </div>
                             <div class="col-md-6">
@@ -163,6 +170,18 @@
           });
         }
       });
+    });
+
+    $(".view-appointment").on('click', function(e){
+        e.preventDefault();
+
+        const appointmentId = $(this).data('appointment-id');
+
+        if (appointmentId) {
+            window.location.href = `{% url 'client_calendar' %}?appointment_id=${appointmentId}`;
+        } else {
+            showError("This pet does not have an appointment. Click set appointment to set an appointment for this pet.");
+        }
     });
 </script>
     

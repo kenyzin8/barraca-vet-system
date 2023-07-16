@@ -20,6 +20,7 @@ urlpatterns = [
     path('admin/get_max_appointments/', views.get_max_appointments, name='get_max_appointments'),
     path('admin/get_date_slots/', views.get_date_slots, name='get_date_slots'),
     path('admin/adjust_slot/', permission_required('appointment_management.add_appointment', raise_exception=True)(views.adjust_slots), name='adjust_slots'),
+    path('admin/get-all-data/', views.get_all_data, name='get_all_data'),
     #client
     path('appointments/', views.client_calendar, name='client_calendar'),
     path('appointments/add/', views.set_appointment_client, name='client-add-appointment'),
@@ -27,4 +28,5 @@ urlpatterns = [
     path('appointments/check-appointments/', views.is_all_my_pets_scheduled, name='is_all_my_pets_scheduled'),
     path('appointments/get-appointments-count/', views.get_appointments_count, name='get_appointments_count'),
     path('appointments/get-pets/', views.get_pets_client, name='client-get-pets'),
+    path('appointments/get-all-data/', views.get_all_data_client, name='get_all_data_client'),
 ]

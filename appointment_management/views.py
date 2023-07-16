@@ -239,7 +239,6 @@ def set_appointment(request):
 @staff_required
 def get_appointments(request):
     appointments = Appointment.objects.filter(status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
-
     event_list = []
     for appointment in appointments:
         event = {
@@ -527,3 +526,124 @@ def get_pets_client(request):
     pets = pets_without_appointments | selected_pet
     
     return JsonResponse(list(pets), safe=False)
+
+
+@login_required
+@staff_required
+def get_all_data(request):
+    # Get appointments
+    appointments = Appointment.objects.filter(status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
+    event_list = []
+    for appointment in appointments:
+        event = {
+            'id': appointment.id,
+            'title': f'{appointment.client.full_name}',
+            'start': appointment.date.isoformat(),
+            'color': appointment.getTimeOfDayColor(),
+            'extendedProps': {
+                'client_id': appointment.client.id,
+                'client': appointment.client.full_name,
+                'contact_number': appointment.client.contact_number,
+                'pet': appointment.pet.name,  
+                'pet_id': appointment.pet.id,
+                'timeOfTheDay': appointment.get_timeOfTheDay_display(),
+                'timeOfTheDay_val': appointment.timeOfTheDay,
+                'purpose': appointment.purpose.service_type,
+                'purpose_id': appointment.purpose.id,
+                'current_date': appointment.date.isoformat(),
+                'day_sms_reminder': appointment.daily_reminder_sent,
+                'week_sms_reminder': appointment.weekly_reminder_sent,
+            }
+        }
+        event_list.append(event)
+
+    # Get disabled days
+    disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay')
+    disabled_days_list = list(disabled_days)
+
+    # Get max appointments
+    max_appointments = MaximumAppointment.load()
+
+    # Get date slots
+    date_slots = DateSlot.objects.filter(isActive=True).values('date', 'slots')
+    date_slots_list = list(date_slots)
+
+    # Construct response data
+    data = {
+        'appointments': event_list,
+        'disabled_days': disabled_days_list,
+        'max_appointments': max_appointments.max_appointments,
+        'date_slots': date_slots_list,
+    }
+
+    return JsonResponse(data, safe=False)
+
+@login_required
+def get_all_data_client(request):
+    # Get appointments count
+    appointments = Appointment.objects.filter(status__in=['pending', 'rebook'])
+    appointment_counts = {}
+    for appointment in appointments:
+        date_str = appointment.date.strftime('%Y-%m-%d')
+        if date_str in appointment_counts:
+            appointment_counts[date_str] += 1
+        else:
+            appointment_counts[date_str] = 1
+
+    # Get appointments
+    appointments = Appointment.objects.filter(client=request.user.client, status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
+    event_list = []
+    for appointment in appointments:
+        event = {
+            'id': appointment.id,
+            'title': f'{appointment.pet.name}',
+            'start': appointment.date.isoformat(),
+            'color': appointment.getTimeOfDayColor(),
+            'extendedProps': {
+                'client_id': appointment.client.id,
+                'client': appointment.client.full_name,
+                'contact_number': appointment.client.contact_number,
+                'pet': appointment.pet.name,  
+                'pet_id': appointment.pet.id,
+                'timeOfTheDay': appointment.get_timeOfTheDay_display(),
+                'timeOfTheDay_val': appointment.timeOfTheDay,
+                'purpose': appointment.purpose.service_type,
+                'purpose_id': appointment.purpose.id,
+                'current_date': appointment.date.isoformat(),
+                'day_sms_reminder': appointment.daily_reminder_sent,
+                'week_sms_reminder': appointment.weekly_reminder_sent,
+            }
+        }
+        event_list.append(event)
+
+    # Get disabled days
+    disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay')
+    disabled_days_list = list(disabled_days)
+
+    # Get max appointments
+    max_appointments = MaximumAppointment.load()
+
+    # Get date slots
+    date_slots = DateSlot.objects.filter(isActive=True).values('date', 'slots')
+    date_slots_list = list(date_slots)
+
+    # Check if all pets are scheduled
+    client_pets = Pet.objects.filter(client=request.user.client, is_active=True)
+    pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True).values_list('pet', flat=True).distinct()
+
+    if client_pets.count() == pets_with_appointments.count():
+        all_scheduled = True
+    else:
+        all_scheduled = False
+
+    # Construct response data
+    data = {
+        'appointment_counts': appointment_counts,
+        'appointments': event_list,
+        'disabled_days': disabled_days_list,
+        'max_appointments': max_appointments.max_appointments,
+        'date_slots': date_slots_list,
+        'all_scheduled': all_scheduled
+    }
+
+    return JsonResponse(data, safe=False)

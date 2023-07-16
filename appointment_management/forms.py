@@ -39,7 +39,7 @@ class AppointmentFormClient(forms.ModelForm):
         request = kwargs.pop('request', None)
         super(AppointmentFormClient, self).__init__(*args, **kwargs)
         if request:
-            pets_with_appointments = Appointment.objects.exclude(status__in=['cancelled', 'done']).filter(pet__client=request.user.client).values_list('pet', flat=True)
+            pets_with_appointments = Appointment.objects.exclude(status__in=['cancelled', 'done']).filter(pet__client=request.user.client, isActive=True).values_list('pet', flat=True)
             self.fields['pet'].queryset = Pet.objects.filter(client=request.user.client, is_active=True).exclude(id__in=pets_with_appointments)
 
     pet = forms.ModelChoiceField(

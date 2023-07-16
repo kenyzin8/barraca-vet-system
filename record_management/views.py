@@ -485,7 +485,7 @@ def pet_list(request):
 
 @login_required
 def does_pet_have_appointment(request, pet_id):
-    has_appointment = Appointment.objects.filter(pet_id=pet_id, status__in=['pending', 'rebook']).exclude(status='cancelled').exists()
+    has_appointment = Appointment.objects.filter(pet_id=pet_id, status__in=['pending', 'rebook'], isActive=True).exclude(status='cancelled').exists()
     return JsonResponse({'has_appointment': has_appointment})
 
 #--------------------ADMIN-SIDE-BACKEND--------------------

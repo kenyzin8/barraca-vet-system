@@ -492,8 +492,8 @@ def get_appointments_client(request):
 
 @login_required
 def is_all_my_pets_scheduled(request):
-    client_pets = Pet.objects.filter(client=request.user.client)
-    pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook']).values_list('pet', flat=True).distinct()
+    client_pets = Pet.objects.filter(client=request.user.client, is_active=True)
+    pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True).values_list('pet', flat=True).distinct()
 
     if client_pets.count() == pets_with_appointments.count():
         return JsonResponse({'all_scheduled': True})

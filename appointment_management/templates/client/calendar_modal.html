@@ -1,0 +1,164 @@
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="eventModalLabel">
+             <!-- Event start will be displayed here -->
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="eventModalBody">
+          <!-- Event title will be displayed here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-dark btn-sm" id="deleteEvent">Cancel Appointment</button>
+          <button type="button" class="btn btn-dark btn-sm" id="rebookEvent">Rebook</button>
+          <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+      </div>
+      </div>
+    </div>
+</div>  
+
+<div class="modal fade" id="rebookListAppointmentModal" tabindex="-1" aria-labelledby="rebookListAppointmentLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rebookListAppointmentLabel">
+             <!-- Event start will be displayed here -->
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="rebookListAppointmentBody">
+          <!-- Event title will be displayed here -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-dark btn-sm" id="deleteRebookList">Cancel Appointment</button>
+            <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+      </div>
+      </div>
+    </div>
+</div>  
+
+<div class="modal fade" id="dayChoiceModal" tabindex="-1" aria-labelledby="dayChoiceModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="dayChoiceModalLabel">Select Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="messageModalBody">
+            <span class="fw-700">Day Clicked:</span> <span class="day-clicked"></span> <br>
+            <span class="fw-700">Available Slots:</span> <span class="available-slots"></span> <br>
+            <!-- <span class="fw-700">Slots:</span> <span class="slots"></span> <br> -->
+            <span class="fw-700">Availability:</span> <span class="availability"></span>
+        </div>
+        <div class="modal-footer">
+            <button id="add-appointment-day-choice" class="btn btn-dark btn-sm">Add Appointment</button>
+            <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addAppointmentModal" tabindex="-1" aria-labelledby="addAppointmentModal" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="addAppointmentModalLabel">Add Appointment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="addAppointmentModalBody">
+            <form method="POST" id="appointmentForm">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="hidden" id="selectedDate" name="date">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-dark btn-sm">Submit</button>
+            </form>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAppointmentModal" tabindex="-1" aria-labelledby="deleteAppointmentModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="deleteAppointmentModalLabel">Cancel Appointment Confirmation</h5>
+            <button id="close-sms-confirmation-button" type="button" class="btn-close cancelDeleteAppointmentButton" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to cancel this appointment?<br><br>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelDeleteAppointmentButton" type="button" class="btn btn-dark btn-sm cancelDeleteAppointmentButton" data-bs-dismiss="modal">No</button>
+            <button id="yesDeleteAppointmentButton" type="button" class="btn btn-danger btn-sm">
+                Yes
+            </button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="rebookConfirmAppointmentModal" tabindex="-1" aria-labelledby="rebookConfirmAppointmentModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="rebookConfirmAppointmentModalLabel">Rebook Appointment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="rebookConfirmAppointmentModalBody">
+            <form method="POST" id="rebookAppointmentForm">
+                {% csrf_token %}
+                {{ rebook_form.as_p }}
+                <input type="hidden" id="selectedDate" name="date">
+                <p><b>Old Date:</b> <span id="oldDate"></span></p>
+                <p><b>New Date:</b> <span id="newDate"></span></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-dark btn-sm">Submit</button>
+            </form>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="modal fade" id="rebookConfModal" tabindex="-1" aria-labelledby="rebookConfModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="rebookConfModalLabel">Appointment Rebook Confirmation</h5>
+            <button id="cancelRebookConfButton" type="button" class="btn-close cancelRebookConfButton" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to add this appointment to rebook list?<br><br>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelRebookConfButton" type="button" class="btn btn-dark btn-sm cancelRebookConfButton" data-bs-dismiss="modal">No</button>
+            <button id="yesRebookConfButton" type="button" class="btn btn-danger btn-sm">
+                Yes
+            </button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Oh no!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKErrorModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 

@@ -16,18 +16,18 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.core import serializers
+from django.db.models import Count
 
 from core.decorators import staff_required
-from .models import Appointment, DoctorSchedule
+from .models import Appointment, DoctorSchedule, MaximumAppointment, DateSlot
 
-from .forms import AppointmentForm, RebookAppointmentForm, DisableDayForm, AppointmentFormClient, RebookAppointmentFormClient
+from .forms import AppointmentForm, RebookAppointmentForm, DisableDayForm, AppointmentFormClient, RebookAppointmentFormClient, DateSlotForm
 
 import json
 import requests
 import time
 
 MAX_APPOINTMENTS_PER_DAY = 8
-
 
 #--------------------ADMIN SIDE------------------------------------
 @login_required 
@@ -37,15 +37,21 @@ def disable_day(request):
         form = DisableDayForm(request.POST)
 
         if form.is_valid():
+            date = request.POST.get('date')
+
+            existing_disabled_day = DoctorSchedule.objects.filter(date=date, isActive=True).first()
+            if existing_disabled_day:
+                return JsonResponse({'status': 'error', 'message': 'This date is already disabled, please refresh the page.'}, status=400)
+
             disable_day = form.save(commit=False)
-            disable_day.date = request.POST.get('date')
+            disable_day.date = date
             disable_day.isActive = True
             disable_day.save()
 
             if disable_day.timeOfTheDay == 'whole_day':
-                Appointment.objects.filter(date=disable_day.date).update(status='rebook')
+                Appointment.objects.filter(date=disable_day.date, isActive=True, status='pending').update(status='rebook')
             else:
-                Appointment.objects.filter(date=disable_day.date, timeOfTheDay=disable_day.timeOfTheDay).update(status='rebook')
+                Appointment.objects.filter(date=disable_day.date, timeOfTheDay=disable_day.timeOfTheDay, isActive=True, status='pending').update(status='rebook')
 
             disable_day.send_message_to_client()
 
@@ -55,6 +61,39 @@ def disable_day(request):
             return JsonResponse({'status': 'error', 'message': str(form.errors)}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+
+@login_required
+def get_max_appointments(request):
+    max_appointments = MaximumAppointment.load()
+    return JsonResponse({'max_appointments': max_appointments.max_appointments}, status=200)
+
+@login_required
+def get_date_slots(request):
+    date_slots = DateSlot.objects.filter(isActive=True).values('date', 'slots')
+    date_slots_list = list(date_slots)
+
+    return JsonResponse(date_slots_list, safe=False)
+
+@csrf_exempt
+def adjust_slots(request):
+    if request.method == "POST":
+        form = DateSlotForm(request.POST)
+        if form.is_valid():
+            dateSlot, created = DateSlot.objects.get_or_create(date=request.POST.get('date'), defaults={'slots': form.cleaned_data.get('slots')})
+            
+            if not created:
+                appointment_count = Appointment.objects.filter(date=request.POST.get('date'), isActive=True, status='pending').count()
+                
+                if form.cleaned_data.get('slots') < appointment_count:
+                    return JsonResponse({'status': 'error', 'message': f'There are already {appointment_count} appointments on this date. Please choose a number value greater than or equal to this.'})
+
+                dateSlot.slots = form.cleaned_data.get('slots')
+                dateSlot.save()
+                
+            return JsonResponse({'status': 'success', 'message': 'Slots adjusted successfully'})
+        else:
+            errors = form.errors.as_json()
+            return JsonResponse({'status': 'error', 'message': 'Failed to adjust slots', 'errors': errors})
 
 @login_required
 def get_disabled_days(request):
@@ -86,10 +125,18 @@ def is_day_disabled(request):
 @login_required 
 @staff_required
 def enable_day(request):
-    date = request.POST.get('date')
-    date_obj = datetime.strptime(date, '%Y-%m-%d').date()
-    DoctorSchedule.objects.filter(date=date_obj).delete()
-    return JsonResponse({'success': True})
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        date_obj = datetime.strptime(date, '%Y-%m-%d').date()
+        existing_doctor_schedule = DoctorSchedule.objects.filter(date=date_obj).first()
+        
+        if not existing_doctor_schedule:
+            return JsonResponse({'status': 'error', 'message': 'This date is already enabled, please refresh the page.'}, status=400)
+
+        DoctorSchedule.objects.filter(date=date_obj).delete()
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
 @login_required
 @staff_required
@@ -112,6 +159,7 @@ def calendar(request):
     form = AppointmentForm()
     rebook_form = RebookAppointmentForm()
     disable_day_form = DisableDayForm()
+    slots_form = DateSlotForm()
 
     context = {
         'clients': clients_list,
@@ -120,6 +168,7 @@ def calendar(request):
         'rebook_appointments': rebook_appointments,
         'rebook_form': rebook_form,
         'disable_day_form': disable_day_form,
+        'slots_form': slots_form,
     }
 
     return render(request, 'admin/calendar.html', context)
@@ -162,12 +211,16 @@ def set_appointment(request):
             time_of_day = request.POST['timeOfTheDay']
 
             iso_timestamp = request.POST['date']
-            print(iso_timestamp)
+
             datetime_object = datetime.fromisoformat(iso_timestamp.replace("Z", "+00:00"))
             
             datetime_object = datetime_object.replace(tzinfo=timezone.utc).astimezone(timezone.get_current_timezone())
 
             date = datetime_object.date().isoformat()
+
+            disabled_day = DoctorSchedule.objects.filter(date=date).first()
+            if disabled_day and disabled_day.isActive and (disabled_day.timeOfTheDay == time_of_day or disabled_day.timeOfTheDay == 'whole_day'):
+                return JsonResponse({'status': 'error', 'message': 'The chosen date and time is disabled for appointments'}, status=400)
 
             service_id = request.POST['purpose']
             status = 'pending'
@@ -191,7 +244,8 @@ def get_appointments(request):
     for appointment in appointments:
         event = {
             'id': appointment.id,
-            'title': f'#{appointment.id} - {appointment.client.full_name}',
+            #'title': f'#{appointment.id} - {appointment.client.full_name}',
+            'title': f'{appointment.client.full_name}',
             'start': appointment.date.isoformat(),
             'color': appointment.getTimeOfDayColor(),
             'extendedProps': {
@@ -210,7 +264,7 @@ def get_appointments(request):
             }
         }
         event_list.append(event)
-
+        
     return JsonResponse(event_list, safe=False)
 
 @login_required
@@ -220,6 +274,8 @@ def cancel_appointment(request):
         appointment_id = request.POST.get('appointment_id')
         try:
             appointment = Appointment.objects.get(id=appointment_id)
+            if appointment.status == 'cancelled':
+                return JsonResponse({"status": "error", "message": "This appointment is already cancelled, please refresh the page."}, status=400)
             appointment.isActive = False
             appointment.status = 'cancelled'
             appointment.save()
@@ -236,6 +292,8 @@ def add_to_rebook_list(request):
         appointment_id = request.POST.get('appointment_id')
         try:
             appointment = Appointment.objects.get(id=appointment_id)
+            if appointment.status == 'rebook':
+                return JsonResponse({"status": "error", "message": "This appointment is already marked for rebooking, please refresh the page."}, status=400)
             appointment.status = "rebook"
             #appointment.isActive = False
             appointment.save()
@@ -257,6 +315,11 @@ def rebook_appointment(request):
 
         try:
             appointment = Appointment.objects.get(id=appointment_id)
+
+            disabled_day = DoctorSchedule.objects.filter(date=new_date_str, isActive=True).first() 
+            if disabled_day:
+                if disabled_day.timeOfTheDay == 'whole_day' or disabled_day.timeOfTheDay == time_of_the_day:
+                    return JsonResponse({'status': 'error', 'message': 'The chosen date is disabled, please refresh the page.'}, status=400)
             
             appointment.date = new_date_str
             appointment.pet_id = pet_id
@@ -283,7 +346,9 @@ def check_if_full(request):
         try:
             selected_date = datetime.strptime(selected_date_str.split('T')[0], "%Y-%m-%d").date()  # convert string to date
             num_appointments = Appointment.objects.filter(date=selected_date, status='pending').count()
-            if num_appointments >= 8:
+            date_slot = DateSlot.objects.filter(date=selected_date).first()
+            max_slots = date_slot.slots if date_slot else 8
+            if num_appointments >= max_slots:
                 return JsonResponse({'status': 'full'}, status=200)
             else:
                 return JsonResponse({'status': 'not full'}, status=200)
@@ -296,7 +361,7 @@ def check_if_full(request):
 @staff_required
 def get_pets(request):
     client_id = request.GET.get('client_id')
-    pets = Pet.objects.filter(client=client_id).values('id', 'name')
+    pets = Pet.objects.filter(client=client_id, is_active=True).values('id', 'name')
     return JsonResponse(list(pets), safe=False)
 
 # @login_required
@@ -314,6 +379,10 @@ def set_appointment_done(request):
         try:
             appointment_id = request.POST.get('appointment_id')
             appointment = Appointment.objects.get(id=appointment_id)
+            
+            if appointment.status == 'done':
+                return JsonResponse({'status': 'error', 'message': 'This appointment is already marked as done, please refresh the page.'}, status=400)
+                
             appointment.status = 'done'
             appointment.isActive = False
             appointment.save()
@@ -373,6 +442,10 @@ def set_appointment_client(request):
 
             date = datetime_object.date().isoformat()
 
+            disabled_day = DoctorSchedule.objects.filter(date=date).first()
+            if disabled_day and disabled_day.isActive and (disabled_day.timeOfTheDay == time_of_day or disabled_day.timeOfTheDay == 'whole_day'):
+                return JsonResponse({'status': 'error', 'message': 'The chosen date and time is disabled for appointments'}, status=400)
+
             service_id = request.POST['purpose']
             status = 'pending'
             
@@ -394,7 +467,8 @@ def get_appointments_client(request):
     for appointment in appointments:
         event = {
             'id': appointment.id,
-            'title': f'#{appointment.id} - {appointment.pet.name}',
+            #'title': f'#{appointment.id} - {appointment.pet.name}',
+            'title': f'{appointment.pet.name}',
             'start': appointment.date.isoformat(),
             'color': appointment.getTimeOfDayColor(),
             'extendedProps': {

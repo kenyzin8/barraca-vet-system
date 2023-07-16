@@ -1,5 +1,5 @@
 from django import forms
-from .models import DoctorSchedule, Appointment
+from .models import DoctorSchedule, Appointment, DateSlot, MaximumAppointment
 from record_management.models import Client, Pet
 from services.models import Service
 from django.db.models import Q
@@ -40,7 +40,7 @@ class AppointmentFormClient(forms.ModelForm):
         super(AppointmentFormClient, self).__init__(*args, **kwargs)
         if request:
             pets_with_appointments = Appointment.objects.exclude(status__in=['cancelled', 'done']).filter(pet__client=request.user.client).values_list('pet', flat=True)
-            self.fields['pet'].queryset = Pet.objects.filter(client=request.user.client).exclude(id__in=pets_with_appointments)
+            self.fields['pet'].queryset = Pet.objects.filter(client=request.user.client, is_active=True).exclude(id__in=pets_with_appointments)
 
     pet = forms.ModelChoiceField(
         queryset=Pet.objects.none(),  
@@ -122,3 +122,18 @@ class DisableDayForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-disable'}),
         label='Time of the Day'
     )
+
+class DateSlotForm(forms.ModelForm):
+    class Meta:
+        model = DateSlot
+        fields = ['slots']
+
+    slots = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1}), 
+        label='Slots'
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(DateSlotForm, self).__init__(*args, **kwargs)
+        max_appointments = MaximumAppointment.load().max_appointments  
+        self.fields['slots'].widget.attrs['max'] = max_appointments 

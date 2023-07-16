@@ -3,6 +3,40 @@ from record_management.models import Pet, Client
 from services.models import Service
 from core.semaphore import send_sms
 
+class MaximumAppointment(models.Model):
+    max_appointments = models.IntegerField(default=8)
+
+    def __str__(self):
+        return f'{self.max_appointments}'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(MaximumAppointment, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    class Meta:
+        verbose_name = "Maximum Appointment"
+        verbose_name_plural = "Maximum Appointments"
+
+class DateSlot(models.Model):
+    date = models.DateField()
+    slots = models.IntegerField(default=8)
+    isActive = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.date}'
+
+    class Meta:
+        verbose_name = "Date Slot"
+        verbose_name_plural = "Date Slots"
+
 class DoctorSchedule(models.Model):
     time_of_the_day_choices = [('morning', 'Morning'), ('afternoon', 'Afternoon'), ('whole_day', 'Whole Day')]
     date = models.DateField()
@@ -27,7 +61,6 @@ class DoctorSchedule(models.Model):
         verbose_name_plural = "Doctor Schedules"
 
 class Appointment(models.Model):
-
     status_choices = [('pending', 'Pending'), ('rebook', 'Rebook'), ('cancelled', 'Cancelled'), ('done', 'Done'), ('petdeleted', 'Pet Deleted')]
     time_of_the_day_choices = [('morning', 'Morning'), ('afternoon', 'Afternoon')]
 

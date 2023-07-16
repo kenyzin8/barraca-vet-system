@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from datetime import datetime, timedelta 
-from django.contrib.auth.decorators import permission_required
 
 import json
 import time
@@ -552,7 +551,6 @@ def admin_change_otp_view(request):
         
     return render(request, 'admin/admin_otp_settings.html', {'two_factor_form': two_factor_form, 'sms_number': request.user.client.contact_number})
 
-@permission_required('record_management.add_client', raise_exception=True)
 @staff_required
 @login_required
 def client_module(request):
@@ -560,7 +558,6 @@ def client_module(request):
     context = {'clients': clients}
     return render(request, 'admin/client_module.html', context)
 
-@permission_required('record_management.add_client', raise_exception=True)
 @staff_required
 @login_required
 def admin_view_client(request, client_id):
@@ -570,7 +567,6 @@ def admin_view_client(request, client_id):
     context = {'client': client, 'pets': pets}
     return render(request, 'admin/view_client.html', context)
 
-@permission_required('record_management.add_pet', raise_exception=True)
 @staff_required
 @login_required
 def pet_module(request):
@@ -578,7 +574,6 @@ def pet_module(request):
     context = {'pets': pets}
     return render(request, 'admin/pet_module.html', context)
 
-@permission_required('record_management.add_pet', raise_exception=True)
 @staff_required
 @login_required
 def admin_view_pet(request, pet_id):
@@ -587,7 +582,6 @@ def admin_view_pet(request, pet_id):
     context = {'pet': pet}
     return render(request, 'admin/view_pet.html', context)
 
-@permission_required('record_management.add_pet', raise_exception=True)
 @staff_required
 @login_required
 def admin_update_pet(request, pet_id):

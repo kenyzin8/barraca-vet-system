@@ -17,9 +17,7 @@ from django.db import transaction
 from uuid import uuid4
 import json
 from datetime import datetime, timedelta, time
-from django.contrib.auth.decorators import permission_required
 
-@permission_required('billing_management.add_billing')
 @login_required
 @staff_required
 def bill(request):

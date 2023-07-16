@@ -8,9 +8,7 @@ from .forms import ProductForm
 from django.http import JsonResponse
 from django.db.models import F, Q
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import permission_required
 
-@permission_required('inventory.add_product')
 @staff_required
 @login_required
 def product_list(request):

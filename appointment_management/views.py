@@ -16,7 +16,6 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.core import serializers
-from django.contrib.auth.decorators import permission_required
 
 from core.decorators import staff_required
 from .models import Appointment, DoctorSchedule
@@ -92,7 +91,6 @@ def enable_day(request):
     DoctorSchedule.objects.filter(date=date_obj).delete()
     return JsonResponse({'success': True})
 
-@permission_required('appointment_management.add_appointment')
 @login_required
 @staff_required
 def calendar(request):

@@ -62,17 +62,17 @@ def disable_day(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
-@login_required
-def get_max_appointments(request):
-    max_appointments = MaximumAppointment.load()
-    return JsonResponse({'max_appointments': max_appointments.max_appointments}, status=200)
+# @login_required
+# def get_max_appointments(request):
+#     max_appointments = MaximumAppointment.load()
+#     return JsonResponse({'max_appointments': max_appointments.max_appointments}, status=200)
 
-@login_required
-def get_date_slots(request):
-    date_slots = DateSlot.objects.filter(isActive=True).values('date', 'slots')
-    date_slots_list = list(date_slots)
+# @login_required
+# def get_date_slots(request):
+#     date_slots = DateSlot.objects.filter(isActive=True).values('date', 'slots')
+#     date_slots_list = list(date_slots)
 
-    return JsonResponse(date_slots_list, safe=False)
+#     return JsonResponse(date_slots_list, safe=False)
 
 @csrf_exempt
 def adjust_slots(request):
@@ -95,12 +95,12 @@ def adjust_slots(request):
             errors = form.errors.as_json()
             return JsonResponse({'status': 'error', 'message': 'Failed to adjust slots', 'errors': errors})
 
-@login_required
-def get_disabled_days(request):
-    disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay')
-    disabled_days_list = list(disabled_days)
+# @login_required
+# def get_disabled_days(request):
+#     disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay')
+#     disabled_days_list = list(disabled_days)
 
-    return JsonResponse(disabled_days_list, safe=False)
+#     return JsonResponse(disabled_days_list, safe=False)
 
 @login_required
 @staff_required
@@ -235,36 +235,36 @@ def set_appointment(request):
     else:
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
-@login_required
-@staff_required
-def get_appointments(request):
-    appointments = Appointment.objects.filter(status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
-    event_list = []
-    for appointment in appointments:
-        event = {
-            'id': appointment.id,
-            #'title': f'#{appointment.id} - {appointment.client.full_name}',
-            'title': f'{appointment.client.full_name}',
-            'start': appointment.date.isoformat(),
-            'color': appointment.getTimeOfDayColor(),
-            'extendedProps': {
-                'client_id': appointment.client.id,
-                'client': appointment.client.full_name,
-                'contact_number': appointment.client.contact_number,
-                'pet': appointment.pet.name,  
-                'pet_id': appointment.pet.id,
-                'timeOfTheDay': appointment.get_timeOfTheDay_display(),
-                'timeOfTheDay_val': appointment.timeOfTheDay,
-                'purpose': appointment.purpose.service_type,
-                'purpose_id': appointment.purpose.id,
-                'current_date': appointment.date.isoformat(),
-                'day_sms_reminder': appointment.daily_reminder_sent,
-                'week_sms_reminder': appointment.weekly_reminder_sent,
-            }
-        }
-        event_list.append(event)
+# @login_required
+# @staff_required
+# def get_appointments(request):
+#     appointments = Appointment.objects.filter(status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
+#     event_list = []
+#     for appointment in appointments:
+#         event = {
+#             'id': appointment.id,
+#             #'title': f'#{appointment.id} - {appointment.client.full_name}',
+#             'title': f'{appointment.client.full_name}',
+#             'start': appointment.date.isoformat(),
+#             'color': appointment.getTimeOfDayColor(),
+#             'extendedProps': {
+#                 'client_id': appointment.client.id,
+#                 'client': appointment.client.full_name,
+#                 'contact_number': appointment.client.contact_number,
+#                 'pet': appointment.pet.name,  
+#                 'pet_id': appointment.pet.id,
+#                 'timeOfTheDay': appointment.get_timeOfTheDay_display(),
+#                 'timeOfTheDay_val': appointment.timeOfTheDay,
+#                 'purpose': appointment.purpose.service_type,
+#                 'purpose_id': appointment.purpose.id,
+#                 'current_date': appointment.date.isoformat(),
+#                 'day_sms_reminder': appointment.daily_reminder_sent,
+#                 'week_sms_reminder': appointment.weekly_reminder_sent,
+#             }
+#         }
+#         event_list.append(event)
         
-    return JsonResponse(event_list, safe=False)
+#     return JsonResponse(event_list, safe=False)
 
 @login_required
 @csrf_exempt
@@ -458,59 +458,59 @@ def set_appointment_client(request):
     else:
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
-@login_required
-def get_appointments_client(request):
-    appointments = Appointment.objects.filter(client=request.user.client, status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
+# @login_required
+# def get_appointments_client(request):
+#     appointments = Appointment.objects.filter(client=request.user.client, status='pending', isActive=True, pet__is_active=True).order_by('-timeOfTheDay')
 
-    event_list = []
-    for appointment in appointments:
-        event = {
-            'id': appointment.id,
-            #'title': f'#{appointment.id} - {appointment.pet.name}',
-            'title': f'{appointment.pet.name}',
-            'start': appointment.date.isoformat(),
-            'color': appointment.getTimeOfDayColor(),
-            'extendedProps': {
-                'client_id': appointment.client.id,
-                'client': appointment.client.full_name,
-                'contact_number': appointment.client.contact_number,
-                'pet': appointment.pet.name,  
-                'pet_id': appointment.pet.id,
-                'timeOfTheDay': appointment.get_timeOfTheDay_display(),
-                'timeOfTheDay_val': appointment.timeOfTheDay,
-                'purpose': appointment.purpose.service_type,
-                'purpose_id': appointment.purpose.id,
-                'current_date': appointment.date.isoformat(),
-                'day_sms_reminder': appointment.daily_reminder_sent,
-                'week_sms_reminder': appointment.weekly_reminder_sent,
-            }
-        }
-        event_list.append(event)
+#     event_list = []
+#     for appointment in appointments:
+#         event = {
+#             'id': appointment.id,
+#             #'title': f'#{appointment.id} - {appointment.pet.name}',
+#             'title': f'{appointment.pet.name}',
+#             'start': appointment.date.isoformat(),
+#             'color': appointment.getTimeOfDayColor(),
+#             'extendedProps': {
+#                 'client_id': appointment.client.id,
+#                 'client': appointment.client.full_name,
+#                 'contact_number': appointment.client.contact_number,
+#                 'pet': appointment.pet.name,  
+#                 'pet_id': appointment.pet.id,
+#                 'timeOfTheDay': appointment.get_timeOfTheDay_display(),
+#                 'timeOfTheDay_val': appointment.timeOfTheDay,
+#                 'purpose': appointment.purpose.service_type,
+#                 'purpose_id': appointment.purpose.id,
+#                 'current_date': appointment.date.isoformat(),
+#                 'day_sms_reminder': appointment.daily_reminder_sent,
+#                 'week_sms_reminder': appointment.weekly_reminder_sent,
+#             }
+#         }
+#         event_list.append(event)
 
-    return JsonResponse(event_list, safe=False)
+#     return JsonResponse(event_list, safe=False)
 
-@login_required
-def is_all_my_pets_scheduled(request):
-    client_pets = Pet.objects.filter(client=request.user.client, is_active=True)
-    pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True).values_list('pet', flat=True).distinct()
+# @login_required
+# def is_all_my_pets_scheduled(request):
+#     client_pets = Pet.objects.filter(client=request.user.client, is_active=True)
+#     pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True).values_list('pet', flat=True).distinct()
 
-    if client_pets.count() == pets_with_appointments.count():
-        return JsonResponse({'all_scheduled': True})
-    else:
-        return JsonResponse({'all_scheduled': False})
+#     if client_pets.count() == pets_with_appointments.count():
+#         return JsonResponse({'all_scheduled': True})
+#     else:
+#         return JsonResponse({'all_scheduled': False})
 
-@login_required
-def get_appointments_count(request):
-    appointments = Appointment.objects.filter(status__in=['pending', 'rebook'])
-    appointment_counts = {}
-    for appointment in appointments:
-        date_str = appointment.date.strftime('%Y-%m-%d')
-        if date_str in appointment_counts:
-            appointment_counts[date_str] += 1
-        else:
-            appointment_counts[date_str] = 1
+# @login_required
+# def get_appointments_count(request):
+#     appointments = Appointment.objects.filter(status__in=['pending', 'rebook'])
+#     appointment_counts = {}
+#     for appointment in appointments:
+#         date_str = appointment.date.strftime('%Y-%m-%d')
+#         if date_str in appointment_counts:
+#             appointment_counts[date_str] += 1
+#         else:
+#             appointment_counts[date_str] = 1
 
-    return JsonResponse(appointment_counts)
+#     return JsonResponse(appointment_counts)
 
 @login_required
 def get_pets_client(request):
@@ -526,7 +526,6 @@ def get_pets_client(request):
     pets = pets_without_appointments | selected_pet
     
     return JsonResponse(list(pets), safe=False)
-
 
 @login_required
 @staff_required

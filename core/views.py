@@ -11,6 +11,9 @@ def get_notifications(request):
     notifications_list = list(notifications.values())
     return JsonResponse(notifications_list, safe=False)
 
+def handler403(request, exception):
+    return render(request, '404.html', {}, status=403)
+
 def handler404(request, exception):
     return render(request, '404.html', {}, status=404)
 

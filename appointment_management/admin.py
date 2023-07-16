@@ -7,7 +7,7 @@ class DoctorScheduleAdmin(admin.ModelAdmin):
     search_fields = ('date', 'reason', 'isActive', 'timeOfTheDay')
 
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ('client', 'pet', 'timeOfTheDay', 'date', 'purpose', 'status', 'isActive')
+    list_display = ('client', 'pet', 'timeOfTheDay', 'date', 'purpose', 'status', 'isActive', 'weekly_reminder_sent', 'daily_reminder_sent')
     search_fields = ('client', 'pet', 'timeOfTheDay', 'date', 'purpose', 'status', 'isActive')
 
 admin.site.register(Appointment, AppointmentAdmin)

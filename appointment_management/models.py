@@ -39,6 +39,9 @@ class Appointment(models.Model):
     status = models.CharField(max_length=10, choices=status_choices)
     isActive = models.BooleanField(default=True)
 
+    weekly_reminder_sent = models.BooleanField(default=False)
+    daily_reminder_sent = models.BooleanField(default=False)
+
     def __str__(self):
         return f'{self.client} ({self.pet}) - {self.date} - {self.timeOfTheDay}'
 
@@ -54,10 +57,15 @@ class Appointment(models.Model):
         else:
             self.isActive = True
 
-    def remindClient(self):
+    def remindClient(self, reminder_type):
         phone_number = self.client.contact_number
         message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} Appointment for {self.pet.name} on {self.date} at {self.timeOfTheDay}. Thank you!'
         send_sms(phone_number, message)
+        if reminder_type == 'weekly':
+            self.weekly_reminder_sent = True
+        elif reminder_type == 'daily':
+            self.daily_reminder_sent = True
+        self.save()
 
     def getTimeOfDayColor(self):
         if self.timeOfTheDay == 'morning':

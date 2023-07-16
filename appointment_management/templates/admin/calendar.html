@@ -33,7 +33,7 @@
                         <div id='external-events-list'>
                             {% if rebook_appointments %}
                             {% for appointment in rebook_appointments %}
-                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }}" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.timeOfTheDay }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
+                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }}" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.timeOfTheDay }}" data-daySMS-sent="{{ appointment.daily_reminder_sent }}" data-weekSMS-sent="{{ appointment.weekly_reminder_sent }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
                                     <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.client.full_name }}</div>
                                 </div>
                             {% endfor %}
@@ -665,15 +665,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
                     const day = monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear();
 
+                    var isDaySentIcon = arg.event.extendedProps.day_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
+                    var isWeekSentIcon = arg.event.extendedProps.week_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
+
                     const details = [
                         `<strong>Client:</strong> ${arg.event.extendedProps.client}`,
                         `<strong>Pet:</strong> ${arg.event.extendedProps.pet}`,
                         `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay}`,
-                        `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`
+                        `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`,
+                        `<strong>Day Before SMS Status: </strong> <span>${isDaySentIcon}<span>`,
+                        `<strong>Week Before SMS Status: </strong> <span>${isWeekSentIcon}<span>`,
                     ].join('<br>');
 
                     document.getElementById('eventModalLabel').innerText = "#" + arg.event.id + " - " + day;
                     document.getElementById('eventModalBody').innerHTML = details;
+                    feather.replace();
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
                     eventModal.show();
 
                     var popover = document.querySelector('.fc-popover');

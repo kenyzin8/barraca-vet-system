@@ -1,4 +1,6 @@
 {% load static %}
+{% load templatetags %}
+
 <div id="layoutSidenav">
     <div id="layoutSidenav_nav">
         <nav class="sidenav shadow-right sidenav-light">
@@ -25,19 +27,26 @@
                         <div class="nav-link-icon"><i data-feather="activity"></i></div>
                         Dashboard
                     </a>
+                    {% if request.user|has_permission:'record_management.add_client' %}
                     <a class=" nav-link {% if current_url_name == 'user-list-page' %}active{% endif %}" href="{% url 'user-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
                         Manage Users
                     </a>
+                    {% endif %}
                     <!-- <a class="nav-link {% if current_url_name == 'sms-history' %}active{% endif %}" href="{% url 'sms-history' %}">
                         <div class="nav-link-icon"><i data-feather="send"></i></div>
                         SMS History
                     </a> -->
+                    {% if request.user|has_permission:'record_management.add_client' or request.user|has_permission:'record_management.add_pet' %}
                     <div class="sidenav-menu-heading ">Record</div>
+                    {% endif %}
+                    {% if request.user|has_permission:'record_management.add_client' %}
                     <a class=" nav-link {% if current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
                         Clients
                     </a>
+                    {% endif %}
+                    {% if request.user|has_permission:'record_management.add_pet' %}
                     <a class=" nav-link {% if current_url_name == 'admin-pet-list-page' or current_url_name == 'admin-view-pet-page' or current_url_name == 'admin-update-pet-page' %}active{% endif %}" href="{% url 'admin-pet-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="gitlab"></i></div>
                         Pets
@@ -54,15 +63,19 @@
                         <div class="nav-link-icon"><i data-feather="heart"></i></div>
                         Consultation
                     </a>
+                    {% endif %}
+                    {% if request.user|has_permission:'appointment_management.add_appointment' %}
                     <div class="sidenav-menu-heading ">Appointment</div>
                     <a class=" nav-link {% if current_url_name == 'admin-calendar' %}active{% endif %} " href="{% url 'admin-calendar' %}">
                         <div class="nav-link-icon"><i data-feather="calendar"></i></div>
                         Calendar
                     </a>
+                    {% endif %}
                     <!-- <a class=" nav-link" href="#">
                         <div class="nav-link-icon"><i data-feather="clock"></i></div>
                         Appointment History
                     </a> -->
+                    {% if request.user|has_permission:'billing_management.add_billing' %}
                     <div class="sidenav-menu-heading ">Billing</div>
                     <a class=" nav-link {% if current_url_name == 'billing-page' or current_url_name == 'billing-client-page' %}active{% endif %}" href="{% url 'billing-page' %}">
                         <div class="nav-link-icon"><i data-feather="dollar-sign"></i></div>
@@ -72,6 +85,8 @@
                         <div class="nav-link-icon"><i data-feather="paperclip"></i></div>
                         Sales
                     </a>
+                    {% endif %}
+                    {% if request.user|has_permission:'inventory.add_product' %}
                     <div class="sidenav-menu-heading ">Inventory & Services</div>
                     <a class=" nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="box"></i></div>
@@ -85,7 +100,9 @@
                         <div class="nav-link-icon"><i data-feather="list"></i></div>
                         Reorder List
                     </a>
+                    {% endif %}
                     {% endwith %}
+                    {% if request.user.is_superuser %}
                     <style>
                         .superadmin-card
                         {
@@ -114,13 +131,16 @@
                             </center>
                         </div>
                     </div>
+                    {% endif %}
                 </div>
             </div>
             <!-- Sidenav Footer-->
             <div class="sidenav-footer">
                 <div class="sidenav-footer-content">
                     <div class="sidenav-footer-subtitle">Logged in as:</div>
-                    <div class="sidenav-footer-title">{{ user.client }}</div>
+                    <div class="sidenav-footer-title">
+                        {{ user.client }}{% for group in user.groups.all %} ({{ group.name }}){% endfor %}
+                    </div>
                 </div>
             </div>
         </nav>

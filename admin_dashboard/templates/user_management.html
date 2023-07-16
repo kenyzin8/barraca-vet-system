@@ -20,11 +20,12 @@
                     <tr>
                         <th>#</th>
                         <th>Client Profile</th>
+                        <th>Username</th>
                         <th>E-mail</th>
                         <th>Date Joined</th>
                         <th>Last Login</th>
                         <th>Status</th>
-                        <th>Permission</th>
+                        <th>Roles</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -46,7 +47,7 @@
                                 {% endif %} -->
                             </div>
                         </td>
-
+                        <td>{{ user.username }}</td>
                         <td>
                             {% if user.email %}
                             {{ user.email }}
@@ -70,21 +71,19 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if user.is_staff %}
-                            <span class="badge bg-orange ">
-                                Staff
-                            </span>
-                            {% endif %}
                             {% if user.is_superuser %}
-                            <span class="badge bg-dark">
-                                Superuser
-                            </span>
+                                <span class="badge bg-dark">Superuser</span>
+                            {% elif user.is_staff %}
+                                <span class="badge bg-orange">Staff</span>
                             {% endif %}
+
                             {% if not user.is_staff and not user.is_superuser %}
-                            <span class="badge bg-warning">
-                                Client
-                            </span>
+                                <span class="badge bg-warning">Client</span>
                             {% endif %}
+                        
+                            {% for group in user.groups.all %}
+                                <span class="badge bg-primary">{{ group.name }}</span>
+                            {% endfor %}
                         </td>
                         <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Update User">

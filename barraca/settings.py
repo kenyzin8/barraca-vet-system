@@ -217,8 +217,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Celery settings
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
-CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
-#CELERY_RESULT_BACKEND = 'django-db'
+#CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
+CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'

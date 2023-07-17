@@ -55,7 +55,12 @@ def disable_day(request):
 
             disable_day.send_message_to_client()
 
-            return JsonResponse({'status': 'success'}, status=200)
+            disabled_day_dict = model_to_dict(disable_day, exclude=['id', 'isActive', 'reason'])
+
+            disabled_day_dict['date'] = disable_day.date
+            disabled_day_dict['timeOfTheDay'] = disable_day.timeOfTheDay
+
+            return JsonResponse({'status': 'success', 'disabled_day': disabled_day_dict}, status=200)
 
         else:
             return JsonResponse({'status': 'error', 'message': str(form.errors)}, status=400)
@@ -78,19 +83,30 @@ def disable_day(request):
 def adjust_slots(request):
     if request.method == "POST":
         form = DateSlotForm(request.POST)
+        
         if form.is_valid():
             dateSlot, created = DateSlot.objects.get_or_create(date=request.POST.get('date'), defaults={'slots': form.cleaned_data.get('slots')})
             
+            date = request.POST.get('date')
+            slots = form.cleaned_data.get('slots')
+
             if not created:
                 appointment_count = Appointment.objects.filter(date=request.POST.get('date'), isActive=True, status='pending').count()
                 
                 if form.cleaned_data.get('slots') < appointment_count:
                     return JsonResponse({'status': 'error', 'message': f'There are already {appointment_count} appointments on this date. Please choose a number value greater than or equal to this.'})
 
-                dateSlot.slots = form.cleaned_data.get('slots')
+                dateSlot.slots = slots
                 dateSlot.save()
-                
-            return JsonResponse({'status': 'success', 'message': 'Slots adjusted successfully'})
+
+            return JsonResponse({
+                'status': 'success', 
+                'message': 'Slots adjusted successfully',
+                'dateSlot': {
+                    'date': date,
+                    'slots': slots
+                }
+            })
         else:
             errors = form.errors.as_json()
             return JsonResponse({'status': 'error', 'message': 'Failed to adjust slots', 'errors': errors})
@@ -229,7 +245,17 @@ def set_appointment(request):
                                       date=date, purpose_id=service_id, status=status, isActive=True)
             appointment.save()
             
-            return JsonResponse({'message': 'Appointment created successfully'})
+            appointment_dict = model_to_dict(appointment)
+
+            appointment_dict['pet'] = model_to_dict(appointment.pet, exclude=['picture'])
+            appointment_dict['client'] = model_to_dict(appointment.client)
+            appointment_dict['color'] = appointment.getTimeOfDayColor()
+            appointment_dict['timeOfTheDay'] = appointment.get_timeOfTheDay_display()
+            appointment_dict['timeOfTheDay_val'] = appointment.timeOfTheDay
+            appointment_dict['purpose'] = appointment.purpose.service_type
+            appointment_dict['purpose_id'] = appointment.purpose.id
+ 
+            return JsonResponse({'message': 'Appointment created successfully', 'appointment': appointment_dict})
         except MultiValueDictKeyError:
             return JsonResponse({'error': 'One of the required keys is missing from the form data'}, status=400)
     else:
@@ -278,7 +304,8 @@ def cancel_appointment(request):
             appointment.isActive = False
             appointment.status = 'cancelled'
             appointment.save()
-            return JsonResponse({"status": "Appointment cancelled successfully"})
+
+            return JsonResponse({"status": "Appointment cancelled successfully", "pet": model_to_dict(appointment.pet, exclude=['picture']),"appointment_date": appointment.date.strftime("%Y-%m-%d")})
         except Appointment.DoesNotExist:
             return JsonResponse({"status": "Appointment does not exist"})
     else:
@@ -294,6 +321,7 @@ def add_to_rebook_list(request):
             if appointment.status == 'rebook':
                 return JsonResponse({"status": "error", "message": "This appointment is already marked for rebooking, please refresh the page."}, status=400)
             appointment.status = "rebook"
+            #appointment.date = None
             #appointment.isActive = False
             appointment.save()
             return JsonResponse({'status': 'Appointment rebooked successfully'}, status=200)
@@ -327,8 +355,18 @@ def rebook_appointment(request):
             appointment.status = "pending"
             
             appointment.save()
-            
-            return JsonResponse({'status': 'Appointment rebooked successfully'}, status=200)
+        
+            appointment_dict = model_to_dict(appointment)
+
+            appointment_dict['pet'] = model_to_dict(appointment.pet, exclude=['picture'])
+            appointment_dict['client'] = model_to_dict(appointment.client)
+            appointment_dict['color'] = appointment.getTimeOfDayColor()
+            appointment_dict['timeOfTheDay'] = appointment.get_timeOfTheDay_display()
+            appointment_dict['timeOfTheDay_val'] = appointment.timeOfTheDay
+            appointment_dict['purpose'] = appointment.purpose.service_type
+            appointment_dict['purpose_id'] = appointment.purpose.id
+
+            return JsonResponse({'status' : 'Appointment rebooked successfully', 'appointment' : appointment_dict}, status=200)
 
         except Appointment.DoesNotExist:
             return JsonResponse({'status': 'Appointment not found'}, status=404)
@@ -385,14 +423,19 @@ def set_appointment_done(request):
             appointment.status = 'done'
             appointment.isActive = False
             appointment.save()
-            return JsonResponse({'status': 'Appointment marked as done successfully'})
+
+            # get the appointment's date
+            if appointment.date:
+                appointment_date = appointment.date.strftime("%Y-%m-%d")
+                return JsonResponse({'status': 'Appointment marked as done successfully.', 'appointment_date': appointment_date})
+            else:
+                return JsonResponse({'status': 'Appointment marked as done successfully.'})
         except Appointment.DoesNotExist:
-            return JsonResponse({'status': 'error', 'message': 'Appointment not found'}, status=404)
+            return JsonResponse({'status': 'error', 'message': 'Appointment not found.'}, status=404)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     else:
-        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
-
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
 #--------------------CLIENT SIDE------------------------------------
 @login_required
@@ -452,7 +495,17 @@ def set_appointment_client(request):
                                       date=date, purpose_id=service_id, status=status, isActive=True)
             appointment.save()
             
-            return JsonResponse({'message': 'Appointment created successfully'})
+            appointment_dict = model_to_dict(appointment)
+
+            appointment_dict['pet'] = model_to_dict(appointment.pet, exclude=['picture'])
+            appointment_dict['client'] = model_to_dict(appointment.client)
+            appointment_dict['color'] = appointment.getTimeOfDayColor()
+            appointment_dict['timeOfTheDay'] = appointment.get_timeOfTheDay_display()
+            appointment_dict['timeOfTheDay_val'] = appointment.timeOfTheDay
+            appointment_dict['purpose'] = appointment.purpose.service_type
+            appointment_dict['purpose_id'] = appointment.purpose.id
+ 
+            return JsonResponse({'message': 'Appointment created successfully', 'appointment': appointment_dict})
         except MultiValueDictKeyError:
             return JsonResponse({'error': 'One of the required keys is missing from the form data'}, status=400)
     else:
@@ -537,7 +590,7 @@ def get_all_data(request):
         event = {
             'id': appointment.id,
             'title': f'{appointment.client.full_name}',
-            'start': appointment.date.isoformat(),
+            'start': appointment.date.isoformat() if appointment.date is not None else '',
             'color': appointment.getTimeOfDayColor(),
             'extendedProps': {
                 'client_id': appointment.client.id,
@@ -549,7 +602,7 @@ def get_all_data(request):
                 'timeOfTheDay_val': appointment.timeOfTheDay,
                 'purpose': appointment.purpose.service_type,
                 'purpose_id': appointment.purpose.id,
-                'current_date': appointment.date.isoformat(),
+                'current_date': appointment.date.isoformat() if appointment.date is not None else '',
                 'day_sms_reminder': appointment.daily_reminder_sent,
                 'week_sms_reminder': appointment.weekly_reminder_sent,
             }
@@ -580,7 +633,7 @@ def get_all_data(request):
 @login_required
 def get_all_data_client(request):
     # Get appointments count
-    appointments = Appointment.objects.filter(status__in=['pending', 'rebook'])
+    appointments = Appointment.objects.filter(status='pending', isActive=True)
     appointment_counts = {}
     for appointment in appointments:
         date_str = appointment.date.strftime('%Y-%m-%d')

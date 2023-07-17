@@ -6,7 +6,12 @@
         $('#errorModal .modal-body').text(message);
         $('#errorModal').modal('show');
     }
-    
+ 
+    function showSuccess(message) {
+        $('#successModal .modal-body').text(message);
+        $('#successModal').modal('show');
+    }
+
     function formatDates(date) {
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const day = String(date.getDate()).padStart(2, '0');
@@ -44,28 +49,27 @@
     
         return eventCounts;
     }
-    
-    function toLocalDate(date) {
-        var localOffset = date.getTimezoneOffset() * 60000;
-        var localTime = date.getTime();
-        var utcTime = localTime - localOffset;
-        var targetDate = new Date(utcTime);
-        var dd = String(targetDate.getDate()).padStart(2, '0');
-        var mm = String(targetDate.getMonth() + 1).padStart(2, '0'); //January is 0!
-        var yyyy = targetDate.getFullYear();
-        return yyyy + '-' + mm + '-' + dd;
-    }
-    
+        
     function getInitialView() {
         return window.innerWidth <= 576 ? 'listYear' : 'dayGridMonth';
     }
-    function getDayOfYear(date) {
-        var start = new Date(date.getFullYear(), 0, 0);
-        var diff = date - start;
-        var oneDay = 1000 * 60 * 60 * 24;
-        var day = Math.floor(diff / oneDay);
-        return day;
+
+    function showRebookList()
+    {
+        var rebookList = document.getElementById('external-events-list');
+        if (rebookList.children.length === 0) {
+            document.getElementById('external-events').style.display = 'block';
+        }
     }
+
+    function hideRebookList()
+    {
+        var rebookList = document.getElementById('external-events-list');
+        if (rebookList.children.length === 0) {
+            document.getElementById('external-events').style.display = 'none';
+        }
+    }
+
     function showAppointmentDetails(appointmentId) {
         let appointment = document.getElementById(appointmentId);
     
@@ -103,9 +107,13 @@
                     'csrfmiddlewaretoken': '{{ csrf_token }}'
                 },
                 success: function(response) {
-                    if (response.status === 'Appointment marked as done successfully') {
+                    if (response.status === 'Appointment marked as done successfully.') {
                         appointment.remove();
-                        location.reload();
+                        $('#doneAppointmentModal').modal('hide');
+                        showSuccess(response.status);
+                        hideRebookList();
+                    } else {
+                        showError(response.message);
                     }
                 },
                 error: function(error) {
@@ -139,7 +147,9 @@
                     if (response.status === 'Appointment cancelled successfully') {
                         appointment.remove();
                         $('#deleteAppointmentModal').modal('hide');
-                        location.reload();
+                        showSuccess(response.status + '.');
+                        hideRebookList();
+                        // location.reload();
                     }
                 },
                 error: function(error) {
@@ -160,10 +170,230 @@
     
         $('#rebookListAppointmentModal').modal('show');
     }
+   
+    function _showAppointmentDetails(event) {
+        let appointment = document.getElementById(event.id);
+
+        let client = event.extendedProps.client;
+        let pet = event.extendedProps.pet;
+        let purpose = event.extendedProps.purpose;
+        let timeOfDay = event.extendedProps.timeOfTheDay;
     
+        timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
+    
+        const details = [
+            `<strong>Client:</strong> ${client}`,
+            `<strong>Pet:</strong> ${pet}`,
+            `<strong>Time of the Day:</strong> ${timeOfDay}`,
+            `<strong>Purpose:</strong> ${purpose}`
+        ].join('<br>');
+    
+        document.getElementById('rebookListAppointmentLabel').innerText = "#" + event.id + " from Rebook List";
+        document.getElementById('rebookListAppointmentBody').innerHTML = details;
+    
+        document.getElementById('doneRebookList').onclick = function() {
+            $('#rebookListAppointmentModal').modal('hide');
+            $('#doneAppointmentModal').modal('show');
+        };
+    
+        document.getElementById('yesDoneAppointmentButton').onclick = function() {
+            $('#doneAppointmentModal').modal('hide');
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "mark_as_done" %}',
+                data: {
+                    'appointment_id': event.id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'Appointment marked as done successfully.') {
+                        appointment.remove();
+                        $('#doneAppointmentModal').modal('hide');
+                        showSuccess(response.status);
+                        hideRebookList();
+                        // location.reload();
+                    }
+                },
+                error: function(error) {
+                    showError(error.responseJSON.message);
+                }
+            });
+        };
+    
+        var cancelDoneAppointmentButton = document.getElementsByClassName('cancelDoneAppointmentButton');
+        for (var i = 0; i < cancelDoneAppointmentButton.length; i++) {
+            cancelDoneAppointmentButton[i].onclick = function() {
+                $('#doneAppointmentModal').modal('hide');
+                $('#rebookListAppointmentModal').modal('show');
+            };
+        }
+    
+        document.getElementById('deleteRebookList').onclick = function() {
+            $('#rebookListAppointmentModal').modal('hide');
+            $('#deleteAppointmentModal').modal('show');
+        };
+    
+        document.getElementById('yesDeleteAppointmentButton').onclick = function() {
+            $.ajax({
+                type: 'POST',
+                url: '{% url "cancel_appointment" %}',
+                data: {
+                    'appointment_id': event.id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.status === 'Appointment cancelled successfully') {
+                        appointment.remove();
+                        $('#deleteAppointmentModal').modal('hide');
+                        showSuccess(response.status + ".");
+                        hideRebookList();
+                        // location.reload();
+                    }
+                },
+                error: function(error) {
+                    $('#deleteAppointmentModal').modal('hide');
+                    showError(error.responseJSON.message);
+                }
+            });
+        };
+    
+        var cancelDeleteAppointmentButton = document.getElementsByClassName('cancelDeleteAppointmentButton');
+        for (var i = 0; i < cancelDeleteAppointmentButton.length; i++) {
+            cancelDeleteAppointmentButton[i].onclick = function() {
+                $('#deleteAppointmentModal').modal('hide');
+                $('#rebookListAppointmentModal').modal('show');
+            };
+        }
+    
+    
+        $('#rebookListAppointmentModal').modal('show');
+    }
+
+    function updateSlots(info, dateString, dateSlots, maxAppointments, allAppointments, slotElements) {
+        var oldDate = new Date(info.oldEvent.start);
+        var oldDateString = oldDate.getFullYear() + '-' + String(oldDate.getMonth() + 1).padStart(2, '0') + '-' + String(oldDate.getDate()).padStart(2, '0');
+
+        if(info.type != "from_rebook_list"){
+            var oldEventCount = allAppointments.filter(function(event) {
+                var _date = new Date(event.start);
+                var _formattedDate = _date.getFullYear() + '-' + (_date.getMonth() + 1).toString().padStart(2, '0') + '-' + _date.getDate().toString().padStart(2, '0');
+                return _formattedDate === oldDateString;
+            }).length;
+
+            var oldSlots = (dateSlots[oldDateString] || maxAppointments);
+
+            var [currentUsedSlots, totalSlots] = slotElements[oldDateString].textContent.split('/').map(Number);
+
+            if (oldEventCount < oldSlots) {
+                currentUsedSlots++;
+            }
+
+            slotElements[oldDateString].textContent = `${currentUsedSlots}/${oldSlots}`;
+        }
+
+        if(info.type != "mark_done")
+        {
+            var newEventCount = allAppointments.filter(function(event) {
+                var _date = new Date(event.start);
+                var _formattedDate = _date.getFullYear() + '-' + (_date.getMonth() + 1).toString().padStart(2, '0') + '-' + _date.getDate().toString().padStart(2, '0');
+                return _formattedDate === dateString;
+            }).length;
+
+            var newSlots = (dateSlots[dateString] || maxAppointments); 
+
+            var newDateStringSlotElement = slotElements[dateString].textContent;
+            slotElements[dateString].textContent = `${newSlots - newEventCount}/${newSlots}`; 
+        }
+    }
+    
+    function updateTimeOfTheDayCell(date, timeOfDayInfo, timeOfTheDayElements)
+    {
+        var timeOfTheDayElement = timeOfTheDayElements[date];
+
+        var _info = timeOfDayInfo[date];
+
+        console.log(_info.el.classList.contains('day-disabled-whole-day'));
+        console.log(_info.el.classList.contains('day-disabled-morning'));
+        console.log(_info.el.classList.contains('day-disabled-afternoon'));
+        console.log(_info.el.classList.contains('day-disabled-full'));
+        console.log(_info.el.classList.contains('day-available'));
+
+        _info.el.querySelector('.fc-daygrid-day-top').removeChild(timeOfTheDayElement);
+
+        if (_info.el.classList.contains('day-disabled-whole-day')) 
+        {
+            timeOfTheDayElement.textContent = `Disabled`;
+        }
+
+        if(_info.el.classList.contains('day-disabled-morning'))
+        {
+            timeOfTheDayElement.textContent = `Afternoon Available`;
+        }
+
+        if(_info.el.classList.contains('day-disabled-afternoon'))
+        {
+            timeOfTheDayElement.textContent = `Morning Available`;
+        }
+
+        if (_info.el.classList.contains('day-full')) {
+            timeOfTheDayElement.textContent = `Full`;
+        }
+
+        if (_info.el.classList.contains('day-available')) {
+            timeOfTheDayElement.textContent = ``;
+        }
+
+        _info.el.querySelector('.fc-daygrid-day-top').appendChild(timeOfTheDayElement);
+    }
+
+    function updateTimeOfTheDayCellRebook(date, oldDate, timeOfDayInfo, timeOfTheDayElements) {
+        function updateTimeOfTheDayCell(date) {
+            if (timeOfTheDayElements[date] && timeOfDayInfo[date]) {
+                var timeOfTheDayElement = timeOfTheDayElements[date];
+                var _info = timeOfDayInfo[date];
+
+                console.log(_info.el.classList.contains('day-disabled-whole-day'));
+                console.log(_info.el.classList.contains('day-disabled-morning'));
+                console.log(_info.el.classList.contains('day-disabled-afternoon'));
+                console.log(_info.el.classList.contains('day-full'));
+
+                _info.el.querySelector('.fc-daygrid-day-top').removeChild(timeOfTheDayElement);
+
+                if (_info.el.classList.contains('day-disabled-whole-day')) {
+                    timeOfTheDayElement.textContent = `Disabled`;
+                }
+
+                if(_info.el.classList.contains('day-disabled-morning')) {
+                    timeOfTheDayElement.textContent = `Afternoon Available`;
+                }
+
+                if(_info.el.classList.contains('day-disabled-afternoon')) {
+                    timeOfTheDayElement.textContent = `Morning Available`;
+                }
+
+                if (_info.el.classList.contains('day-full')) {
+                    timeOfTheDayElement.textContent = `Full`;
+                }
+
+                _info.el.querySelector('.fc-daygrid-day-top').appendChild(timeOfTheDayElement);
+            }
+        }
+
+        updateTimeOfTheDayCell(date);
+
+        if (oldDate) {
+            updateTimeOfTheDayCell(oldDate);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        var debugcounter = 0;
         var appointmentIdToMarkDone;
-    
+        var timeOfTheDayElements = {};
+        var timeOfDayInfo = {};
+        var slotElements = {};
+
         const datatablesSimple = document.getElementById('datatablesSimple');
         var dataTable = null;
         if (datatablesSimple) {
@@ -229,11 +459,12 @@
             success: function(response)
             {
                 var allAppointments = response.appointments;
-                
+
                 var disabledDays = response.disabled_days;
+
                 var maxAppointments = response.max_appointments;
                 var dateSlots = {};
-                console.log(response.date_slots)
+
                 for (var i=0; i < response.date_slots.length; i++) {
                     // var date = new Date(response[i].date).toDateString();
                     dateSlots[response.date_slots[i].date] = response.date_slots[i].slots;
@@ -342,12 +573,41 @@
                                 },
                                 success: function(response) {
                                     if (response.status === 'Appointment cancelled successfully') {
+                                        // arg.event.remove();
+                                        // eventModal.hide();
+                                        // deleteAppointmentModal.hide();
+                                        // showSuccess(response.status + ".");
+                                        // // var currentView = calendar.view;
+                                        // // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                                        // // location.reload();
+
+                                        var appointmentDate = new Date(response.appointment_date);
+
+                                        var index = allAppointments.findIndex((event) => {
+                                            return Number(event.id) === Number(arg.event.id);
+                                        });
+
+                                        if (index > -1) {
+                                            allAppointments.splice(index, 1);
+                                        }
+
+                                        var info = {
+                                            event: {
+                                                id: arg.event.id
+                                            },
+                                            oldEvent: {
+                                                start: response.appointment_date
+                                            },
+                                            type: 'mark_done'
+                                        };
+                                        
+                                        updateSlots(info, appointmentDate, dateSlots, maxAppointments, allAppointments, slotElements);
                                         arg.event.remove();
-                                        eventModal.hide();
-                                        deleteAppointmentModal.hide();
-                                        var currentView = calendar.view;
-                                        localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
-                                        location.reload();
+                                        updateTimeOfTheDayCell(response.appointment_date, timeOfDayInfo, timeOfTheDayElements);
+                                        $('#deleteAppointmentModal').modal('hide');
+                                        showSuccess(response.status);
+                                        hideRebookList();
+                                        
                                     }
                                 },
                                 error: function(error) {
@@ -380,12 +640,69 @@
                                 },
                                 success: function(response) {
                                     if (response.status === 'Appointment rebooked successfully') {
-                                        arg.event.remove();
-                                        eventModal.hide();
+                                        var oldDate = new Date(arg.event.start);
+                                        var oldDateString = oldDate.getFullYear() + '-' + String(oldDate.getMonth() + 1).padStart(2, '0') + '-' + String(oldDate.getDate()).padStart(2, '0');
+                                        
+                                        var info = {
+                                            event: {
+                                                id: arg.event.id
+                                            },
+                                            oldEvent: {
+                                                start: oldDateString
+                                            }
+                                        };
 
-                                        var currentView = calendar.view;
-                                        localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
-                                        location.reload();
+                                        var index = allAppointments.findIndex((event) => {
+                                            return Number(event.id) === Number(arg.event.id);
+                                        });
+
+                                        if (index > -1) {
+                                            allAppointments.splice(index, 1);
+                                        }
+                                        
+                                        updateSlots(info, oldDateString, dateSlots, maxAppointments, allAppointments, slotElements);
+
+                                        var rebookList = document.getElementById('external-events-list');
+
+                                        showRebookList();
+
+                                        var rebookEvent = document.createElement('div');
+                                        rebookEvent.classList.add('fc-event', 'fc-h-event', 'fc-daygrid-event', 'fc-daygrid-block-event', 'custom-rebook-color');
+                                        rebookEvent.id = arg.event.id;
+
+                                        rebookEvent.dataset.clientId = arg.event.extendedProps.client_id;
+                                        rebookEvent.dataset.clientName = arg.event.extendedProps.client;
+                                        rebookEvent.dataset.petId = arg.event.extendedProps.pet_id;
+                                        rebookEvent.dataset.petName = arg.event.extendedProps.pet;
+                                        rebookEvent.dataset.purposeId = arg.event.extendedProps.purpose_id;
+                                        rebookEvent.dataset.purposeVal = arg.event.extendedProps.purpose;
+                                        rebookEvent.dataset.timeOfDay = arg.event.extendedProps.timeOfTheDay_val;
+                                        rebookEvent.dataset.daySmsSent = arg.event.extendedProps.day_sms_reminder;
+                                        rebookEvent.dataset.weekSmsSent = arg.event.extendedProps.week_sms_reminder;
+                                        rebookEvent.dataset.contactNumber = arg.event.extendedProps.contact_number;
+                                        rebookEvent.dataset.currentDate = arg.event.extendedProps.current_date;
+
+                                        rebookEvent.onclick = function() { _showAppointmentDetails(arg.event); };
+
+                                        var eventMainDiv = document.createElement('div');
+                                        eventMainDiv.classList.add('fc-event-main');
+                                        eventMainDiv.innerHTML = '#' + arg.event.id + ' - '+ arg.event.extendedProps.client; // update this line according to your needs
+                                        rebookEvent.appendChild(eventMainDiv);
+                                        rebookList.appendChild(rebookEvent);
+
+                                        arg.event.remove();
+                                        updateTimeOfTheDayCell(oldDateString, timeOfDayInfo, timeOfTheDayElements);
+
+                                        eventModal.hide();
+                                        $('#rebookConfModal').modal('hide');
+                                        showSuccess("Appointment #" + arg.event.id + " has been added to rebook list.");
+                                        // arg.event.remove();
+                                        // eventModal.hide();
+                                        // $('#rebookConfModal').modal('hide');
+                                        // showSuccess(response.status + ".");
+                                        // // var currentView = calendar.view;
+                                        // // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                                        // // location.reload();
                                     }
                                 },
                                 error: function(error) {
@@ -414,16 +731,42 @@
                                 type: 'POST',
                                 url: '{% url "mark_as_done" %}',
                                 data: {
-                                    'appointment_id': appointmentIdToMarkDone,
+                                    'appointment_id': arg.event.id,
                                     'csrfmiddlewaretoken': '{{ csrf_token }}'
                                 },
                                 success: function(response) {
-                                    if (response.status === 'Appointment marked as done successfully') {
+                                    if (response.status === 'Appointment marked as done successfully.') {
+                                        var appointmentDate = new Date(response.appointment_date);
+
+                                        var index = allAppointments.findIndex((event) => {
+                                            return Number(event.id) === Number(arg.event.id);
+                                        });
+
+                                        if (index > -1) {
+                                            allAppointments.splice(index, 1);
+                                        }
+
+                                        var info = {
+                                            event: {
+                                                id: arg.event.id
+                                            },
+                                            oldEvent: {
+                                                start: response.appointment_date
+                                            },
+                                            type: 'mark_done'
+                                        };
+                                        
+                                        updateSlots(info, appointmentDate, dateSlots, maxAppointments, allAppointments, slotElements);
+                                        
                                         arg.event.remove();
-                                        eventModal.hide();
-                                        var currentView = calendar.view;
-                                        localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
-                                        location.reload();
+
+                                        updateTimeOfTheDayCell(response.appointment_date, timeOfDayInfo, timeOfTheDayElements);
+
+                                        $('#doneAppointmentModal').modal('hide');
+                                        showSuccess(response.status);
+                                        hideRebookList();
+                                    } else {
+                                        showError(response.message);
                                     }
                                 },
                                 error: function(error) {
@@ -498,6 +841,15 @@
                             $('.day-clicked').text(formatStringDate(dateString));
                             $('#disable-day-choice').removeAttr('hidden');
                             $('#enable-day-choice').attr('hidden', true);
+                            
+                            let currentDate = new Date();
+                            currentDate.setHours(0, 0, 0, 0);
+
+                            if (date < currentDate) {
+                                showError('Cannot add appointments in the past.');
+                                return;
+                            }
+
                             $('#dayChoiceModal').modal('show');
                         }
                     },
@@ -550,16 +902,26 @@
                                         showError('This date is full.');
                                         info.revert();
                                     } else {
-                                        info.revert();
+
+                                        $('#closeRebookConfirmationAppointmentModal').click(function(){
+                                            info.revert();
+                                        });
+
+                                        $('#closeIconRebookConfirmationAppointmentModal').click(function(){
+                                            info.revert();
+                                        });
+
                                         $('#clientName-rebook').text(info.event.extendedProps.client);
                                         $('#oldDate').text(formatStringDate(info.event.extendedProps.current_date));
                                         $('#newDate').text(formatStringDate(dateString));
                                         $('#rebookConfirmAppointmentModal').modal('show');
+                                        
                                         var start = info.event.start;
                                         var dateObj = new Date(start.getTime() - (start.getTimezoneOffset() * 60000));
                                         var date = dateObj.toISOString().slice(0, 10);
 
                                         window.eventId = info.event.id;
+                                        window.oldDate = info.oldEvent.start;
                                         window.newDate = date;
 
                                         var clientId = info.event.extendedProps.client_id;
@@ -596,6 +958,7 @@
                         }
                     },
                     drop: function(arg) {
+
                         let currentDate = new Date();
                         currentDate.setHours(0, 0, 0, 0);
 
@@ -645,6 +1008,7 @@
                                         $('#rebookConfirmAppointmentModal').modal('show');
 
                                         window.eventId = arg.draggedEl.id;
+                                        window.oldDate = "from_rebook_list";
                                         window.newDate = arg.dateStr;
 
                                         var clientId = arg.draggedEl.dataset.clientId;
@@ -683,6 +1047,7 @@
                         }
                     },
                     dayCellClassNames: function(info) {
+                        debugcounter++;
                         const eventCounts = getEventCounts(calendar.getEvents());
                         const date = FullCalendar.formatDate(info.date, {
                             timeZone: 'local',
@@ -705,22 +1070,31 @@
                         if (slots === undefined) {
                             slots = maxAppointments;
                         }
-                        
-                        if (eventCounts[date] === slots || slots === 0) {
-                            
+                       
+                        if (eventCounts[date] === slots || slots === 0) 
+                        {
+                            // console.log(debugcounter, date, "day-full")
                             return ['day-full'];
-                        } else if (timeOfDay) {
+                        } 
+                        else if (timeOfDay) 
+                        {
                             if (timeOfDay === "morning") {
+                                // console.log(debugcounter, date, "day-disabled-morning")
                                 return ['day-disabled-morning'];
                             } 
                             else if (timeOfDay === "afternoon") {
+                                // console.log(debugcounter, date, "day-disabled-afternoon")
                                 return ['day-disabled-afternoon']; 
                             }
                             else if (timeOfDay === "whole_day")
                             {
+                                // console.log(debugcounter, date, "day-disabled-whole-day")
                                 return ['day-disabled-whole-day'];
                             }
-                        } else {
+                        } 
+                        else 
+                        {
+                            // console.log(debugcounter, date, "day-available")
                             return ['day-available'];
                         }
                     },
@@ -735,11 +1109,11 @@
                         today.setHours(0,0,0,0); 
 
                         var formattedDate = date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
-
+                        
                         var timeOfTheDayElement = document.createElement('div');
                         timeOfTheDayElement.style.position = 'absolute';
                         timeOfTheDayElement.style.left = '5px';
-                        timeOfTheDayElement.style.bottom = '5px'; 
+                        timeOfTheDayElement.style.bottom = '0px'; 
                         timeOfTheDayElement.style.fontSize = '0.8em';
                         timeOfTheDayElement.style.zIndex = '1'; 
 
@@ -786,6 +1160,10 @@
                             slotElement.textContent = ``;
                         }
 
+                        slotElements[formattedDate] = slotElement;
+                        timeOfTheDayElements[formattedDate] = timeOfTheDayElement;
+                        timeOfDayInfo[formattedDate] = info;
+                        
                         info.el.querySelector('.fc-daygrid-day-top').appendChild(slotElement);
                         info.el.querySelector('.fc-daygrid-day-top').appendChild(timeOfTheDayElement);
                     },
@@ -879,9 +1257,18 @@
                         success: function(response) {
                             if (response.success) {
                                 $('#enableDayModal').modal('hide');
-                                var currentView = calendar.view;
-                                localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
-                                location.reload();
+
+                                const indexToRemove = disabledDays.findIndex(day => day.date === date);
+                                if (indexToRemove !== -1) {
+                                    disabledDays.splice(indexToRemove, 1);
+                                }
+
+                                calendar.render();
+                                
+                                updateTimeOfTheDayCell(date, timeOfDayInfo, timeOfTheDayElements);
+                                // var currentView = calendar.view;
+                                // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                                // location.reload();
                             }
                         },
                         error: function(error) {
@@ -919,9 +1306,12 @@
                         success: function(response) {
                             if (response.status === 'success') {
                                 $('#disableDayModal').modal('hide');
-                                var currentView = calendar.view;
-                                localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
-                                location.reload();
+                                disabledDays.push(response.disabled_day);
+                                calendar.render();
+                                updateTimeOfTheDayCell(response.disabled_day.date, timeOfDayInfo, timeOfTheDayElements);
+                                // var currentView = calendar.view;
+                                // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                                // location.reload();
                             } else {
                                 showError(response.message);
                             }
@@ -956,12 +1346,33 @@
                         success: function(response) {
                             if (response.status === 'success') {
                                 $('#adjustSlotModal').modal('hide');
-                                var currentView = calendar.view;
-                                localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
-                                location.reload();
+
+                                var date = response.dateSlot.date;
+                                var slots = response.dateSlot.slots;
+                                dateSlots[date] = slots;
+  
+                                var dateString = date;
+                                var movedEventId = null;
+                                var allAppointmentsForDate = allAppointments.filter(function(event) {
+                                    var _date = new Date(event.start);
+                                    var _formattedDate = _date.getFullYear() + '-' + (_date.getMonth() + 1).toString().padStart(2, '0') + '-' + _date.getDate().toString().padStart(2, '0');
+                                    return _formattedDate === dateString;
+                                });
+                                var info = {
+                                    event: {
+                                        id: movedEventId
+                                    },
+                                    oldEvent: {
+                                        start: dateString
+                                    }
+                                };
+                                
+                                updateSlots(info, dateString, dateSlots, maxAppointments, allAppointmentsForDate, slotElements);
+                                
+                                showSuccess(response.message);
                             } else {
                                 $('#adjustSlotModal').modal('hide');
-                                showError(response.message);
+                                showError(response.message + ".");
                             }
                         },
                         error: function(error) {
@@ -1005,7 +1416,7 @@
                         },
                         success: function(response) {
                             if (response.status === 'full') {
-                                showError('This date is full.');
+                                showError('This date is full, please refresh the page.');
                             } else {
                                 $('#selectedDate').val(dateString);
                                 $('#addAppointmentModal').modal('show');
@@ -1022,6 +1433,7 @@
 
                     var appointment_id = window.eventId;
                     var new_date = window.newDate;
+                    var old_date = window.oldDate;
                     var time_of_day = $('#id_timeOfTheDay-rebook').val();
                     var pet = $('#id_pet-rebook').val();
                     var purpose = $('#id_purpose-rebook').val();
@@ -1039,16 +1451,111 @@
                         },
                         success: function(response) {
                             if (response.status === 'Appointment rebooked successfully') {
-                                var draggedEl = document.getElementById(appointment_id);
+                                var draggedEl = document.getElementById(response.appointment.id); //for rebook
+                                
                                 if (draggedEl) {
                                     draggedEl.parentNode.removeChild(draggedEl);
+                                    hideRebookList();
+
+                                    var c = calendar.addEvent({
+                                        id: response.appointment.id,
+                                        title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                        start: response.appointment.date,
+                                        color: response.appointment.color,
+                                        extendedProps: {
+                                            'client_id': response.appointment.client.id,
+                                            'client': response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                            'contact_number': response.appointment.client.contact_number,
+                                            'pet': response.appointment.pet.name,
+                                            'pet_id': response.appointment.pet.id,
+                                            'timeOfTheDay': response.appointment.timeOfTheDay,
+                                            'timeOfTheDay_val': response.appointment.timeOfTheDay_val,
+                                            'purpose': response.appointment.purpose,
+                                            'purpose_id': response.appointment.purpose_id,
+                                            'current_date': response.appointment.date,
+                                            'day_sms_reminder': response.appointment.daily_reminder_sent,
+                                            'week_sms_reminder': response.appointment.weekly_reminder_sent,
+                                        }
+                                    });
                                 }
+
+                                var _event = calendar.getEventById(response.appointment.id);
+      
+                                if (_event) {
+                                    _event.setProp('color', response.appointment.color);
+                                }
+
+                                if(old_date != "from_rebook_list")
+                                {
+                                    var info = { 
+                                        event: _event, 
+                                        oldEvent: {
+                                            start: old_date
+                                        }
+                                    };
+                                }
+                                else
+                                {
+                                    var info = { 
+                                        event: _event, 
+                                        oldEvent: {
+                                            start: old_date
+                                        },
+                                        type: "from_rebook_list"
+                                    };
+                                    
+                                    allAppointments.push({
+                                        id: response.appointment.id,
+                                        title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                        start: dateString,
+                                        color: response.appointment.color,
+                                        extendedProps: {
+                                            'client_id': response.appointment.client.id,
+                                            'client': response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                            'contact_number': response.appointment.client.contact_number,
+                                            'pet': response.appointment.pet.name,
+                                            'pet_id': response.appointment.pet.id,
+                                            'timeOfTheDay': response.appointment.timeOfTheDay,
+                                            'timeOfTheDay_val': response.appointment.timeOfTheDay_val,
+                                            'purpose': response.appointment.purpose,
+                                            'purpose_id': response.appointment.purpose_id,
+                                            'current_date': response.appointment.date,
+                                            'day_sms_reminder': response.appointment.daily_reminder_sent,
+                                            'week_sms_reminder': response.appointment.weekly_reminder_sent,
+                                        }
+                                    });
+                                }
+                                
+                                var dateString = new_date;
+                                var movedEventId = info.event.id;  
+
+                                for (var i = 0; i < allAppointments.length; i++) {
+                                    if (allAppointments[i].id == movedEventId) {
+                                        var newStart = new Date(info.event.start);
+                                        var formattedNewStart = newStart.getFullYear() + '-' + String(newStart.getMonth() + 1).padStart(2, '0') + '-' + String(newStart.getDate()).padStart(2, '0');
+                                        allAppointments[i].start = formattedNewStart;
+                                        break;
+                                    }
+                                }
+
+                                updateSlots(info, dateString, dateSlots, maxAppointments, allAppointments, slotElements);
+
+                                $('#rebookConfirmAppointmentModal').modal('hide');
+
+                                showSuccess(response.status + ".");
+
+                                var oldDate = new Date("Wed Jul 26 2023 00:00:00 GMT+0800 (Philippine Standard Time)");
+                                var year = oldDate.getFullYear();
+                                var month = (oldDate.getMonth() + 1).toString().padStart(2, '0');
+                                var day = oldDate.getDate().toString().padStart(2, '0');
+                                var formattedOldDate = year + '-' + month + '-' + day;
+
+                                updateTimeOfTheDayCellRebook(dateString, formattedOldDate, timeOfDayInfo, timeOfTheDayElements);
                             }
 
-                            $('#rebookConfirmAppointmentModal').modal('hide');
-                            var currentView = calendar.view;
-                            localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
-                            location.reload();
+                            // var currentView = calendar.view;
+                            // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                            // location.reload();
                         },
                         error: function(error) {
                             $('#rebookConfirmAppointmentModal').modal('hide');
@@ -1056,7 +1563,6 @@
                         }
                     });
                 });
-
 
                 $('#appointmentForm').on('submit', function(e) {
                     e.preventDefault();
@@ -1067,28 +1573,67 @@
                         data: $(this).serialize(),
                         success: function(response) {
                             if (response.message === 'Appointment created successfully') {
-                                // var title = $('#id_client option:selected').text();
-                                // var timeOfDay = $('#id_timeOfTheDay').val();
-                                // var _color = null;
+                                var c = calendar.addEvent({
+                                    id: response.appointment.id,
+                                    title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                    start: response.appointment.date,
+                                    color: response.appointment.color,
+                                    extendedProps: {
+                                        'client_id': response.appointment.client.id,
+                                        'client': response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                        'contact_number': response.appointment.client.contact_number,
+                                        'pet': response.appointment.pet.name,
+                                        'pet_id': response.appointment.pet.id,
+                                        'timeOfTheDay': response.appointment.timeOfTheDay,
+                                        'timeOfTheDay_val': response.appointment.timeOfTheDay_val,
+                                        'purpose': response.appointment.purpose,
+                                        'purpose_id': response.appointment.purpose_id,
+                                        'current_date': response.appointment.date,
+                                        'day_sms_reminder': response.appointment.daily_reminder_sent,
+                                        'week_sms_reminder': response.appointment.weekly_reminder_sent,
+                                    }
+                                });
 
-                                // if (timeOfDay === 'morning') {
-                                //     _color = '#3788d8';
-                                // } else if (timeOfDay === 'afternoon') {
-                                //     _color = 'green';
-                                // }
+                                var info = { 
+                                    event: c,
+                                    oldEvent: {
+                                        start: c.start
+                                    }
+                                };
+                                
+                                var dateString = response.appointment.date.split("T")[0]; 
 
-                                // calendar.addEvent({
-                                //     title: title,
-                                //     start: $('#selectedDate').val(),
-                                //     allDay: true,
-                                //     color: _color
-                                // });
+                                allAppointments.push({
+                                    id: response.appointment.id,
+                                    title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                    start: dateString,
+                                    color: response.appointment.color,
+                                    extendedProps: {
+                                        'client_id': response.appointment.client.id,
+                                        'client': response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                        'contact_number': response.appointment.client.contact_number,
+                                        'pet': response.appointment.pet.name,
+                                        'pet_id': response.appointment.pet.id,
+                                        'timeOfTheDay': response.appointment.timeOfTheDay,
+                                        'timeOfTheDay_val': response.appointment.timeOfTheDay_val,
+                                        'purpose': response.appointment.purpose,
+                                        'purpose_id': response.appointment.purpose_id,
+                                        'current_date': response.appointment.date,
+                                        'day_sms_reminder': response.appointment.daily_reminder_sent,
+                                        'week_sms_reminder': response.appointment.weekly_reminder_sent,
+                                    }
+                                });
 
+                                updateSlots(info, dateString, dateSlots, maxAppointments, allAppointments, slotElements);
+                                updateTimeOfTheDayCell(dateString, timeOfDayInfo, timeOfTheDayElements);
                                 calendar.unselect();
+
+                                showSuccess(response.message + ".");
+
                                 $('#addAppointmentModal').modal('hide');
-                                var currentView = calendar.view;
-                                localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
-                                location.reload();
+                                // var currentView = calendar.view;
+                                // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
+                                // location.reload();
                             }
                         },
                         error: function(error) {

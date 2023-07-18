@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'appointment_management',
     'customer_dashboard',
     'billing_management',
+    'inventory_services_management',
     'inventory',
     'services',
     #STORAGES

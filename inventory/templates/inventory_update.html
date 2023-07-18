@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load humanize %}
+{% load templatetags %}
 
 {% block title %} Update Item | Barraca Veterinary Clinic {% endblock %}
 
@@ -44,41 +45,41 @@
                             {% csrf_token %}
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputFirstName">Name</label>
+                                    <label class="small mb-1" for="inputName">Name</label>
                                     {{ form.product_name }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputFirstName">Quantity</label>
+                                    <label class="small mb-1" for="inputQuantity">Quantity</label>
                                     {{ form.quantity_on_stock }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLastName">Type</label>
+                                    <label class="small mb-1" for="inputType">Type</label>
                                     {{ form.type }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputOrgName">Current Batch Number</label>
-                                    <input type="text" class="form-control" value="{{ product.batch_number }}" disabled>
+                                    <label class="small mb-1" for="inputBatch">Current Batch Number</label>
+                                    {{ form.batch_number }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Manufacturing Date</label>
+                                    <label class="small mb-1" for="inputMfg">Manufacturing Date</label>
                                     {{ form.manufacturing_date }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputOrgName">Expiration Date</label>
+                                    <label class="small mb-1" for="inputExp">Expiration Date</label>
                                     {{ form.expiration_date }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Critical Level</label>
+                                    <label class="small mb-1" for="inputCrit">Critical Level</label>
                                     {{ form.critical_level }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Price (₱)</label>
+                                    <label class="small mb-1" for="inputPrice">Price (₱)</label>
                                     {{ form.price }}
                                 </div>
                             </div>
@@ -103,27 +104,47 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>BN</th>
+                                    <th>Field</th>
                                     <th>Old Version</th>
                                     <th>New Version</th>
                                     <th>Date Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for old_product in previous_products %}
+                                {% for change in product.changes_log reversed %}
                                 <tr>
-                                    <td>{{ old_product.id }}</td>
-                                    <td>{{ old_product.batch_number }} {% if product.id == old_product.id %}(Current){% endif %}</td>
-                                    <td>{{ old_product.previous_version }}</td>
-                                    <td>{{ old_product.updated_version }}</td>
-                                    <td>{{ old_product.date_added }}</td>
+                                    <td>{{ change.update_id }}</td>
+                                    <td>
+                                        {% for field, values in change.items %}
+                                            {% if field != 'update_id' and field != 'date' %}
+                                                {{ field }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for field, values in change.items %}
+                                            {% if field != 'update_id' and field != 'date' %}
+                                                {{ values.0 }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for field, values in change.items %}
+                                            {% if field != 'update_id' and field != 'date' %}
+                                                {{ values.1 }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ change.date }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
+                            
                         </table>
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
 </main>

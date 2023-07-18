@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from inventory.models import Product, ProductType
 from services.models import Service
 from record_management.models import Client
-from .models import Billing, BillingProduct, format_billing_number
+from .models import Billing, BillingProduct, BillingService, format_billing_number
 from django.db.models import Max
 from django.utils import timezone
 from decimal import Decimal
@@ -107,6 +107,10 @@ def post_bill(request):
             billing_product.save()
             product.quantity_on_stock -= Decimal(pq['quantity'])
             product.save()
+
+        for service in services:
+            billing_service = BillingService(billing=bill, service=service)
+            billing_service.save()
 
         bill.services.set(services)
         bill.products.set(products)

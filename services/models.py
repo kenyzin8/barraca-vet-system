@@ -1,5 +1,23 @@
 from django.db import models
 
+import datetime
+
+# class ServiceRemarks(models.Model):
+#     remarks = models.CharField(max_length=20)
+#     active = models.BooleanField(default=True)
+#     def __str__(self):
+#         return f"{self.remarks}"
+
+#     @classmethod
+#     def load(cls):
+#         obj, created = cls.objects.get_or_create(pk=1, remarks='without_medicine')
+#         obj, created = cls.objects.get_or_create(pk=2, remarks='with_medicine')
+#         return obj
+
+#     class Meta:
+#         verbose_name = "Service Remark"
+#         verbose_name_plural = "Service Remarks"
+
 class Service(models.Model):
     SERVICE_TYPES = (
         ('deworming', 'Deworming'),
@@ -18,53 +36,43 @@ class Service(models.Model):
     fee = models.DecimalField(max_digits=10, decimal_places=2)
     remarks = models.CharField(max_length=20, choices=REMARKS_TYPES)
     date_added = models.DateTimeField(auto_now=True)
-    control_number = models.IntegerField(default=1)
+    control_number = models.CharField(max_length=50, default=1)
     active = models.BooleanField(default=True)
     
-    previous_version = models.CharField(blank=True, null=True)  
-    updated_version = models.CharField(blank=True, null=True) 
-    original_service = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
-    
-    def create_new_version(self, new_service_type=None, new_fee=None, new_remarks=None):
-        previous_version = None
-        updated_version = None
+    changes_log = models.JSONField(default=dict, blank=True)
 
-        if new_service_type and new_service_type != self.service_type:
-            previous_version = f"Service Type: {self.service_type}"
-            updated_version = f"Service Type: {new_service_type}"
-            service_type = new_service_type
-        else:
-            service_type = self.service_type
+    def save(self, *args, **kwargs):
+        if self.pk is not None:
+            orig = Service.objects.get(pk=self.pk)
+            changes = {}
 
-        if new_fee and new_fee != self.fee:
-            previous_version = f"Fee: ₱ {self.fee}"
-            updated_version = f"Fee: ₱ {new_fee}"
-            fee = new_fee
-        else:
-            fee = self.fee
+            if orig.service_type != self.service_type:
+                changes['service_type'] = [orig.service_type, self.service_type]
+            if orig.fee != self.fee:
+                changes['fee'] = [str(orig.fee), str(self.fee)]
+            if orig.remarks != self.remarks:
+                changes['remarks'] = [orig.remarks, self.remarks]
+            if orig.control_number != self.control_number:
+                changes['control_number'] = [str(orig.control_number), str(self.control_number)]
+            if orig.active != self.active:
+                changes['active'] = [orig.active, self.active]
+            
+            if changes:
+                if self.changes_log:
+                    update_id = self.changes_log[-1].get('update_id', 0) + 1
+                else:
+                    update_id = 1
+                
+                changes['update_id'] = update_id
+                changes['date'] = datetime.datetime.now().strftime("%B %d, %Y %I:%M %p")
 
-        if new_remarks and new_remarks != self.remarks:
-            previous_version = f"Remarks: {self.remarks}"
-            updated_version = f"Remarks: {new_remarks}"
-            remarks = new_remarks
-        else:
-            remarks = self.remarks
+                if self.changes_log:
+                    self.changes_log.append(changes)
+                else:
+                    self.changes_log = [changes]
 
-        self.active = False
-        self.save()
+        super().save(*args, **kwargs)
 
-        new_service = Service.objects.create(
-            service_type=service_type,
-            original_service=self if self.original_service is None else self.original_service,
-            fee=fee,
-            remarks=remarks,
-            control_number=self.control_number + 1,
-            active=True,
-            previous_version=previous_version,
-            updated_version=updated_version
-        )
-
-        return new_service
 
     def __str__(self):
         return f"{self.service_type}"

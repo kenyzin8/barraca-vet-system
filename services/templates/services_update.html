@@ -64,10 +64,6 @@
                                     <label class="small mb-1" for="inputLastName">Remarks</label>
                                     {{ form.remarks }}
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLastName">Current Control Number</label>
-                                    <input type="control_number" class="form-control" value="{{ service.control_number }}" disabled>
-                                </div>
                             </div>
                             
                             <button id="submit-button" class="btn btn-dark lift lift-sm" type="submit" disabled>Update Service</button>
@@ -92,20 +88,38 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>CN</th>
+                                    <th>Field</th>
                                     <th>Old Version</th>
                                     <th>New Version</th>
                                     <th>Date Updated</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for old_service in previous_services %}
+                                {% for change in service.changes_log reversed %}
                                 <tr>
-                                    <td>{{ old_service.id }}</td>
-                                    <td>{{ old_service.control_number }} {% if service.id == old_service.id %}(Current){% endif %}</td>
-                                    <td>{{ old_service.previous_version }}</td>
-                                    <td>{{ old_service.updated_version }}</td>
-                                    <td>{{ old_service.date_added }}</td>
+                                    <td>{{ change.update_id }}</td>
+                                    <td>
+                                        {% for field, values in change.items %}
+                                            {% if field != 'update_id' and field != 'date' %}
+                                                {{ field }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for field, values in change.items %}
+                                            {% if field != 'update_id' and field != 'date' %}
+                                                {{ values.0 }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% for field, values in change.items %}
+                                            {% if field != 'update_id' and field != 'date' %}
+                                                {{ values.1 }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ change.date }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

@@ -396,10 +396,9 @@ def rebook_appointment(request):
         return JsonResponse({'status': 'Invalid method'}, status=400)
 
 @login_required
-@csrf_exempt
 def check_if_full(request):
-    if request.method == 'POST':
-        selected_date_str = request.POST.get('selected_date')
+    if request.method == 'GET':
+        selected_date_str = request.GET.get('selected_date')
         try:
             selected_date = datetime.strptime(selected_date_str.split('T')[0], "%Y-%m-%d").date()  # convert string to date
             num_appointments = Appointment.objects.filter(date=selected_date, status='pending').count()

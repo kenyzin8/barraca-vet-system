@@ -891,11 +891,10 @@
                             }
                             
                             $.ajax({
-                                type: 'POST',
+                                type: 'GET',
                                 url: '{% url "check_if_full" %}',
                                 data: {
                                     'selected_date': dateString,
-                                    'csrfmiddlewaretoken': '{{ csrf_token }}'
                                 },
                                 success: function(response) {
                                     if (response.status === 'full') {
@@ -992,11 +991,10 @@
                             }
 
                             $.ajax({
-                                type: 'POST',
+                                type: 'GET',
                                 url: '{% url "check_if_full" %}',
                                 data: {
                                     'selected_date': arg.dateStr,
-                                    'csrfmiddlewaretoken': '{{ csrf_token }}'
                                 },
                                 success: function(response) {
                                     if (response.status === 'full') {
@@ -1191,6 +1189,8 @@
                                 event.id,
                                 event.extendedProps.client,
                                 event.extendedProps.contact_number,
+                                event.extendedProps.day_sms_reminder == false ? '<span class="badge bg-warning">Pending</span>' : '<span class="badge bg-success">Sent</span>',
+                                event.extendedProps.week_sms_reminder == false ? '<span class="badge bg-warning">Pending</span>' : '<span class="badge bg-success">Sent</span>',
                                 "<button type='button' class='btn btn-primary btn-sm lift lift-sm' onclick='confirmSendSMS(\"" +
                                 event.id + "\", \"" +
                                 event.extendedProps.client + "\", \"" +
@@ -1411,11 +1411,10 @@
                     }
 
                     $.ajax({
-                        type: 'POST',
+                        type: 'GET',
                         url: '{% url "check_if_full" %}',
                         data: {
                             'selected_date': dateString,
-                            'csrfmiddlewaretoken': '{{ csrf_token }}'
                         },
                         success: function(response) {
                             if (response.status === 'full') {

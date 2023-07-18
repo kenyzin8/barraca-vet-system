@@ -20,10 +20,10 @@ class Billing(models.Model):
     
     def get_total(self):
         total = 0
-        for service in self.services.all():
-            total += service.fee
+        for service in self.billing_services.all():
+            total += service.price_at_time_of_purchase
         for billing_product in self.billing_products.all():
-            total += billing_product.product.price * billing_product.quantity
+            total += billing_product.price_at_time_of_purchase * billing_product.quantity
         return total
 
     def get_billing_number(self):
@@ -39,6 +39,14 @@ class BillingProduct(models.Model):
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_products')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.DecimalField(default=1.000, max_digits=10, decimal_places=3, validators=[MinValueValidator(0.01)])
+    
+    price_at_time_of_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def save(self, *args, **kwargs):
+        print(self.pk)
+        if not self.pk:
+            self.price_at_time_of_purchase = self.product.price
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.billing} - {self.product} ({self.quantity})"
@@ -46,6 +54,14 @@ class BillingProduct(models.Model):
 class BillingService(models.Model):
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_services')
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
+
+    price_at_time_of_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def save(self, *args, **kwargs):
+        print(self.pk)
+        if not self.pk:
+            self.price_at_time_of_purchase = self.service.fee
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.billing} - {self.service}"

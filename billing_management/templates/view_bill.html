@@ -84,18 +84,18 @@
                 </thead>
                 <tbody class="tbody-services">
                     {% if bill.services.all %}
-                    {% for service in bill.services.all %}
+                    {% for service in bill.billing_services.all %}
                     <tr>
                         <td>
                             <div class="fw-bold">
-                                {{ service.service_type }}
+                                {{ service.service.service_type }}
                             </div>
-                            <div class="small text-muted d-none d-md-block">{{ service.get_remarks_display }}</div>
+                            <div class="small text-muted d-none d-md-block">{{ service.service.get_remarks_display }}</div>
                         </td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold service-price">
-                            ₱ {{ service.fee|intcomma }}
+                            ₱ {{ service.price_at_time_of_purchase|intcomma }}
                         </td>
                     </tr>
                     {% endfor %}
@@ -133,7 +133,7 @@
                     <tr>
                         <td>
                             <div class="fw-bold">
-                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.product.price|intcomma }}</span> x <span class="product-quantity">{{ product.quantity|floatformat:2 }})</span>
+                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.price_at_time_of_purchase|intcomma }}</span> x <span class="product-quantity">{{ product.quantity|floatformat:2 }})</span>
                             </div>
                             <div class="small text-muted d-none d-md-block" id="productType">{{ product.product.type }}</div>
                         </td> 

@@ -2,7 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import date
 import datetime
+from django.contrib.auth.models import User as AuthUser, Group as AuthGroup
 
+class User(AuthUser):
+    class Meta:
+        proxy = True
+
+class Group(AuthGroup):
+    class Meta:
+        proxy = True
+        
 class Client(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='client')
     first_name = models.CharField(max_length=30)

@@ -10,6 +10,7 @@ class Product(InventoryProduct):
 class ProductType(InventoryProductType):
     class Meta:
         proxy = True
+        verbose_name = 'Product Type'
 
 class Service(ServicesService):
     class Meta:

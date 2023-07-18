@@ -399,8 +399,8 @@
         if (datatablesSimple) {
             dataTable = new simpleDatatables.DataTable(datatablesSimple, {
                 paging: true,
-                perPageSelect: [5, 10, 25, 50],
-                perPage: 10,
+                perPageSelect: [5, 8, 10, 25],
+                perPage: 8,
                 fixedHeight: true,
                 sortable: true,
                 searchable: true,
@@ -1266,6 +1266,7 @@
                                 calendar.render();
                                 
                                 updateTimeOfTheDayCell(date, timeOfDayInfo, timeOfTheDayElements);
+                                showSuccess(response.message);
                                 // var currentView = calendar.view;
                                 // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
                                 // location.reload();
@@ -1308,7 +1309,9 @@
                                 $('#disableDayModal').modal('hide');
                                 disabledDays.push(response.disabled_day);
                                 calendar.render();
+                                console.log(response.disabled_day)
                                 updateTimeOfTheDayCell(response.disabled_day.date, timeOfDayInfo, timeOfTheDayElements);
+                                showSuccess(`${response.disabled_day.date} has been disabled for ${response.disabled_day.timeOfTheDay}. Reason: ${response.disabled_day.reason}`);
                                 // var currentView = calendar.view;
                                 // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
                                 // location.reload();

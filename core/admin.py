@@ -5,7 +5,11 @@ from django.contrib.admin.models import LogEntry
 from django_celery_beat.models import ClockedSchedule, CrontabSchedule, IntervalSchedule, PeriodicTask, SolarSchedule
 from django_celery_results.models import TaskResult, GroupResult
 
-from .models import Notification
+from .models import Notification, SMSLogs
+
+class SMSLogsAdmin(admin.ModelAdmin):
+    list_display = ('text', 'date_created', 'client', 'sms_type')
+    search_fields = ('text', 'client__first_name', 'client__last_name')
 
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ('text', 'date_created', 'content_type', 'object_id', 'content_object')
@@ -36,6 +40,7 @@ class LogEntryAdmin(admin.ModelAdmin):
 
 
 admin.site.unregister(User)
+admin.site.register(SMSLogs, SMSLogsAdmin)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Notification, NotificationAdmin)
 admin.site.unregister(ClockedSchedule)

@@ -1,3 +1,4 @@
+{% load static %}
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true" data-bs-backdrop='static'>
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -175,6 +176,26 @@
         </div>
         <div class="modal-footer">
             <button id="OKSuccessModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="guideModal" tabindex="-1" aria-labelledby="guideModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="guideModalLabel">Guide</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <center>
+                <img src="{% static 'images/guide.png' %}" alt="Guide">
+            </center>
+            
+        </div>
+        <div class="modal-footer">
+            <button id="OKGuideModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
         </div>
         </div>
     </div>

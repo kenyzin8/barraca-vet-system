@@ -1,5 +1,6 @@
 from django.db import models
 from record_management.models import Pet, Client
+from core.models import SMSLogs
 from services.models import Service
 from core.semaphore import send_sms
 
@@ -7,7 +8,7 @@ class MaximumAppointment(models.Model):
     max_appointments = models.IntegerField(default=8)
 
     def __str__(self):
-        return f'{self.max_appointments}'
+        return f'Maximum Appointment: {self.max_appointments}'
 
     def save(self, *args, **kwargs):
         self.pk = 1
@@ -94,10 +95,19 @@ class Appointment(models.Model):
         phone_number = self.client.contact_number
         message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} Appointment for {self.pet.name} on {self.date} at {self.timeOfTheDay}. Thank you!'
         send_sms(phone_number, message)
+
+        SMSLogs.objects.create(
+            text = message,
+            client = self.client,
+            sms_type = reminder_type
+        )
+    
         if reminder_type == 'weekly':
             self.weekly_reminder_sent = True
         elif reminder_type == 'daily':
             self.daily_reminder_sent = True
+        elif reminder_type == 'renotify':
+            pass
         self.save()
 
     def getTimeOfDayColor(self):

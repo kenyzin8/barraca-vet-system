@@ -206,3 +206,15 @@
     height: 500px;
   }
 }
+
+@media (min-width: 577px) {
+  .mobile-only {
+      display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .desktop-only {
+      display: none;
+  }
+}

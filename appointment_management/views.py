@@ -59,6 +59,7 @@ def disable_day(request):
 
             disabled_day_dict['date'] = disable_day.date
             disabled_day_dict['timeOfTheDay'] = disable_day.timeOfTheDay
+            disabled_day_dict['reason'] = disable_day.reason
 
             return JsonResponse({'status': 'success', 'disabled_day': disabled_day_dict}, status=200)
 
@@ -150,7 +151,7 @@ def enable_day(request):
             return JsonResponse({'status': 'error', 'message': 'This date is already enabled, please refresh the page.'}, status=400)
 
         DoctorSchedule.objects.filter(date=date_obj).delete()
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'message': f'{date} has been enabled.'}, status=200)
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
@@ -202,13 +203,13 @@ def send_sms_to_client(request):
                 for appointment_id in appointment_ids:
                     try:
                         appointment = Appointment.objects.get(pk=appointment_id)
-                        appointment.remindClient()
+                        appointment.remindClient('renotify')
                     except Appointment.DoesNotExist:
                         return JsonResponse({"status": "error", "message": f"No appointment found with ID {appointment_id}"})
             elif type(appointment_ids) == int:
                 try:
                     appointment = Appointment.objects.get(pk=appointment_ids)
-                    appointment.remindClient()
+                    appointment.remindClient('renotify')
                 except Appointment.DoesNotExist:
                     return JsonResponse({"status": "error", "message": f"No appointment found with ID {appointment_ids}"})
 
@@ -241,6 +242,15 @@ def set_appointment(request):
             service_id = request.POST['purpose']
             status = 'pending'
             
+            date_slot = DateSlot.objects.filter(date=date).first()
+            if date_slot:
+                slots_remaining = DateSlot.objects.filter(date=date).first().slots - Appointment.objects.filter(date=date, isActive=True).count()
+                if slots_remaining != 1:
+                    slots_remaining -= 1
+
+                if slots_remaining <= 0:
+                    return JsonResponse({'status': 'error', 'message': 'No more slots available for this date.'}, status=400)
+
             appointment = Appointment(client_id=client_id, pet_id=pet_id, timeOfTheDay=time_of_day, 
                                       date=date, purpose_id=service_id, status=status, isActive=True)
             appointment.save()
@@ -341,13 +351,23 @@ def rebook_appointment(request):
         time_of_the_day = request.POST.get('time_of_day')
 
         try:
+            
             appointment = Appointment.objects.get(id=appointment_id)
 
             disabled_day = DoctorSchedule.objects.filter(date=new_date_str, isActive=True).first() 
             if disabled_day:
                 if disabled_day.timeOfTheDay == 'whole_day' or disabled_day.timeOfTheDay == time_of_the_day:
                     return JsonResponse({'status': 'error', 'message': 'The chosen date is disabled, please refresh the page.'}, status=400)
-            
+
+            date_slot = DateSlot.objects.filter(date=new_date_str).first()
+            if date_slot:
+                slots_remaining = DateSlot.objects.filter(date=date).first().slots - Appointment.objects.filter(date=new_date_str, isActive=True).count()
+                if slots_remaining != 1:
+                    slots_remaining -= 1
+
+                if slots_remaining <= 0:
+                    return JsonResponse({'status': 'error', 'message': 'No more slots available for this date.'}, status=400)
+
             appointment.date = new_date_str
             appointment.pet_id = pet_id
             appointment.purpose_id = purpose_id
@@ -459,12 +479,24 @@ def client_calendar(request):
         except Appointment.DoesNotExist:
             pass
 
+    today = datetime.now().date()
+    today_date_slots = DateSlot.objects.filter(date=today, isActive=True).first()
+    if today_date_slots is None:
+        slotsAvailableToday = 0
+    else:
+        today_appointments = Appointment.objects.filter(date=today, isActive=True)
+
+        slots_taken = sum(appointment.slots_taken for appointment in today_appointments)
+
+        slotsAvailableToday = today_date_slots.slots - slots_taken
+
     context = {
         'form': form,
         'client': client,
         'rebook_appointments': rebook_appointments,
         'rebook_form': rebook_form,
-        'appointment': appointment
+        'appointment': appointment,
+        'slotsAvailableToday': slotsAvailableToday,
     }
 
     return render(request, 'client/calendar.html', context)
@@ -488,11 +520,21 @@ def set_appointment_client(request):
             if disabled_day and disabled_day.isActive and (disabled_day.timeOfTheDay == time_of_day or disabled_day.timeOfTheDay == 'whole_day'):
                 return JsonResponse({'status': 'error', 'message': 'The chosen date and time is disabled for appointments'}, status=400)
 
+            date_slot = DateSlot.objects.filter(date=date).first()
+            if date_slot:
+                slots_remaining = DateSlot.objects.filter(date=date).first().slots - Appointment.objects.filter(date=date, isActive=True).count()
+                if slots_remaining != 1:
+                    slots_remaining -= 1
+
+                if slots_remaining <= 0:
+                    return JsonResponse({'status': 'error', 'message': 'No more slots available for this date.'}, status=400)
+
             service_id = request.POST['purpose']
             status = 'pending'
             
             appointment = Appointment(client_id=request.user.client.id, pet_id=pet_id, timeOfTheDay=time_of_day, 
                                       date=date, purpose_id=service_id, status=status, isActive=True)
+               
             appointment.save()
             
             appointment_dict = model_to_dict(appointment)
@@ -688,6 +730,9 @@ def get_all_data_client(request):
     else:
         all_scheduled = False
 
+    # Get my pets
+    my_pets = Pet.objects.filter(client=request.user.client, is_active=True).values('id', 'name')
+
     # Construct response data
     data = {
         'appointment_counts': appointment_counts,
@@ -695,7 +740,8 @@ def get_all_data_client(request):
         'disabled_days': disabled_days_list,
         'max_appointments': max_appointments.max_appointments,
         'date_slots': date_slots_list,
-        'all_scheduled': all_scheduled
+        'all_scheduled': all_scheduled,
+        'my_pets': list(my_pets),
     }
 
     return JsonResponse(data, safe=False)

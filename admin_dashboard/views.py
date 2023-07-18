@@ -5,12 +5,14 @@ from core.semaphore import fetch_sms_data
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import Http404
+from django.core.serializers.json import DjangoJSONEncoder
 
 from core.decorators import staff_required
 
 from record_management.models import Client, Pet
 from billing_management.models import Billing
 from appointment_management.models import Appointment
+from core.models import SMSLogs
 
 import urllib.parse
 import requests
@@ -30,7 +32,7 @@ def admin_dashboard(request):
 
     # Get total gross revenue for today
     today = datetime.now()
-    today_bills = Billing.objects.filter(date_created__year=today.year, date_created__month=today.month, date_created__day=today.day)
+    today_bills = Billing.objects.filter(date_created__year=today.year, date_created__month=today.month, date_created__day=today.day, isActive=True)
     total_revenue = 0
     for bill in today_bills:
         total_revenue += bill.get_total()
@@ -44,6 +46,23 @@ def admin_dashboard(request):
     today_done_appointments = Appointment.objects.filter(date__year=today.year, date__month=today.month, date__day=today.day, isActive=True, status='done')
     done_appointment_count = today_appointments.count()
 
+    monthly_revenue = [0]*12
+
+    current_year_bills = Billing.objects.filter(date_created__year=today.year, isActive=True)
+
+    for month in range(1, 13): 
+        month_bills = current_year_bills.filter(date_created__month=month)
+        for bill in month_bills:
+            monthly_revenue[month-1] += bill.get_total() 
+
+    current_year = datetime.now().year
+    start_year = current_year - 6
+    yearly_revenue = {}
+
+    for year in range(start_year, current_year + 1): 
+        year_bills = Billing.objects.filter(date_created__year=year, isActive=True)
+        yearly_revenue[str(year)] = sum(bill.get_total() for bill in year_bills)
+
     context = {
         'client_count': client_count, 
         'pet_count': pet_count, 
@@ -51,6 +70,8 @@ def admin_dashboard(request):
         'upcoming_appointments': upcoming_appointments,
         'appointment_count': appointment_count,
         'done_appointment_count': done_appointment_count,
+        'monthly_revenue': json.dumps(monthly_revenue, cls=DjangoJSONEncoder),
+        'yearly_revenue': json.dumps(yearly_revenue, cls=DjangoJSONEncoder),
     }
     
     return render(request, 'admin_dashboard.html', context)
@@ -81,4 +102,6 @@ def sms_history(request):
 
         sms_data.sort(key=lambda x: x['created_at'], reverse=True)
 
-    return render(request, "sms_history.html", {"sms_data": sms_data, "message": message})
+    sms_logs = SMSLogs.objects.all().order_by('-id')
+
+    return render(request, "sms_history.html", {"sms_data": sms_data, "message": message, "sms_logs": sms_logs})

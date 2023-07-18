@@ -170,11 +170,13 @@
             </div>
         </div>
     </div>
+    {{ monthly_revenue|json_script:"monthly-revenue-data" }}
+    {{ yearly_revenue|json_script:"yearly-revenue-data" }}
 {% endblock %}
 
 {% block extrascripts %}
 <script src="{% static 'plugins/Chart.js/Chart.min.js' %}"></script>
-<script src="{% static 'plugins/sb-admin/assets/demo/chart-area-demo.js' %}"></script>
+<script src="{% static 'plugins/sb-admin/assets/demo/chart-area-demo.js' %}"></script> 
 <script src="{% static 'plugins/sb-admin/assets/demo/chart-bar-demo.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script>

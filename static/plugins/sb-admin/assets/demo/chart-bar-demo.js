@@ -28,18 +28,27 @@ function number_format(number, decimals, dec_point, thousands_sep) {
     return s.join(dec);
 }
 
+var yearlyRevenueDict = document.getElementById('yearly-revenue-data').textContent;
+yearlyRevenueDict = JSON.parse(yearlyRevenueDict);
+yearlyRevenueDict = JSON.parse(yearlyRevenueDict);
+var yearlyLabels = Object.keys(yearlyRevenueDict);
+yearlyRevenueDict = Object.values(yearlyRevenueDict);
+var yearlyRevenue = yearlyRevenueDict.map(Number);
+
+var highestValue = Math.max.apply(Math, yearlyRevenue);
+
 // Bar Chart Example
 var ctx = document.getElementById("myBarChart");
 var myBarChart = new Chart(ctx, {
     type: "bar",
     data: {
-        labels: ["2017", "2019", "2020", "2021", "2022", "2023"],
+        labels: yearlyLabels,
         datasets: [{
             label: "Revenue",
             backgroundColor: "rgba(0, 97, 242, 1)",
             hoverBackgroundColor: "rgba(0, 97, 242, 0.9)",
             borderColor: "#4e73df",
-            data: [4215, 5312, 6251, 7841, 9821, 14984],
+            data: yearlyRevenue,
             maxBarThickness: 25
         }]
     },
@@ -69,12 +78,10 @@ var myBarChart = new Chart(ctx, {
             yAxes: [{
                 ticks: {
                     min: 0,
-                    max: 15000,
                     maxTicksLimit: 5,
                     padding: 10,
-                    // Include a dollar sign in the ticks
                     callback: function(value, index, values) {
-                        return "₱" + number_format(value);
+                        return "₱" + value;
                     }
                 },
                 gridLines: {
@@ -105,7 +112,7 @@ var myBarChart = new Chart(ctx, {
                 label: function(tooltipItem, chart) {
                     var datasetLabel =
                         chart.datasets[tooltipItem.datasetIndex].label || "";
-                    return datasetLabel + ": ₱" + number_format(tooltipItem.yLabel);
+                    return datasetLabel + ": ₱" + tooltipItem.yLabel;
                 }
             }
         }

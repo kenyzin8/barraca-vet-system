@@ -10,6 +10,12 @@ class MaximumAppointmentAdmin(admin.ModelAdmin):
     list_display = ('max_appointments',)
     search_fields = ('max_appointments',)
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 class DoctorScheduleAdmin(admin.ModelAdmin):
     list_display = ('date', 'reason', 'isActive', 'timeOfTheDay')
     search_fields = ('date', 'reason', 'isActive', 'timeOfTheDay')

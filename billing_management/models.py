@@ -16,6 +16,7 @@ class Billing(models.Model):
     services = models.ManyToManyField(Service, through='BillingService')
     products = models.ManyToManyField(Product, through='BillingProduct')
     date_created = models.DateTimeField(auto_now_add=True)
+    isActive = models.BooleanField(default=True)
     
     def get_total(self):
         total = 0

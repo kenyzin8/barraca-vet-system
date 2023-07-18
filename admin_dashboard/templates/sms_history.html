@@ -6,41 +6,138 @@
 {% block extrastyles %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
+<script>
 
+window.addEventListener('DOMContentLoaded', event => {
+    const datatablesSimple = document.getElementById('datatablesSimple2');
+    if (datatablesSimple) {
+        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+            paging: true,
+            perPageSelect: [5, 10, 25, 50],
+            perPage: 10,
+            fixedHeight: true,
+            sortable: true,
+            searchable: true,
+            hiddenHeader: false,
+        });
+
+        window.dataTable = dataTable;
+
+        dataTable.on('datatable.update', () => {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.page', function(page) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.search', function(query, matched) {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.sort', function(column, direction) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        var searchInput = document.querySelector('.datatable-input');
+        
+        searchInput.addEventListener('search', function(e) {
+            if (e.target.value == '') {
+                dataTable.search('');
+            }
+        });
+    }
+});
+</script>
 <script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-<div class="card mb-4 mt-5 animated--fade-in-up">
-    <div class="card-header">SMS History</div>
-    <div class="card-body">
-        {% if message %}
-        <p>{{ message }}</p>
-        {% else %}
-        <table id="datatablesSimple" class="sms-history-table">
-            <thead>
-                <tr>
-                    <th>Message ID</th>
-                    <th>Status</th>
-                    {% comment %} <th>Message</th> {% endcomment %}
-                    <th>Recipient</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for sms in sms_data %}
-                <tr>
-                    <td><span style="font-weight: 600;">{{ sms.message_id }}</span></td>
-                    <td><span class="badge bg-success rounded-pill">{{ sms.status }}</span></td>
-                    {% comment %} <td>{{ sms.message }}</td> {% endcomment %}
-                    <td>{{ sms.recipient }}</td>
-                    <td>{{ sms.created_at }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% endif %}
-        <span style="font-style: italic; font-size: 12px">Only shows 50 SMS history. For more detailed view of history, visit Semaphore dashboard.</span>
+<div class="card card-collapsable mb-3 mt-5 animated--fade-in-up">
+    <a class="card-header" href="#collapseCardSemaphore" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardSemaphore">
+        SMS History - Semaphore
+        <div class="card-collapsable-arrow">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </a>
+    <div class="collapse show" id="collapseCardSemaphore">
+        <div class="card-body">
+            <table id="datatablesSimple" class="sms-history-table">
+                <thead>
+                    <tr>
+                        <th>Message ID</th>
+                        <th>Status</th>
+                        {% comment %} <th>Message</th> {% endcomment %}
+                        <th>Recipient</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sms in sms_data %}
+                    <tr>
+                        <td><span style="font-weight: 600;">{{ sms.message_id }}</span></td>
+                        <td><span class="badge bg-success rounded-pill">{{ sms.status }}</span></td>
+                        {% comment %} <td>{{ sms.message }}</td> {% endcomment %}
+                        <td>{{ sms.recipient }}</td>
+                        <td>{{ sms.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <span style="font-style: italic; font-size: 12px">Only shows 50 SMS history. For more detailed view of history, visit Semaphore dashboard.</span>
+        </div>
+    </div>
+</div>
+<div class="card card-collapsable mb-3 animated--fade-in-up">
+    <a class="card-header" href="#collapseCardSystem" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardSystem">
+        SMS History - System
+        <div class="card-collapsable-arrow">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </a>
+    <div class="collapse show" id="collapseCardSystem">
+        <div class="card-body">
+            <table id="datatablesSimple2" class="sms-history-table">
+                <thead>
+                    <tr>
+                        <th>Message ID</th>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sms in sms_logs %}
+                    <tr>
+                        <td><span style="font-weight: 600;">{{ sms.id }}</span></td>
+                        <td><span class="badge bg-success rounded-pill">{{ sms.client.full_name }}</span> <span class="badge bg-success rounded-pill">{{ sms.client.contact_number }}</span></td>
+                        <td>{{ sms.sms_type }}</td>
+                        <td>{{ sms.date_created }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

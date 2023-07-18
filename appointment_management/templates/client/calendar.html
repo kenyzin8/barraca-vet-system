@@ -16,12 +16,20 @@
 
 {% block content %}
 <div class="calendar-container mt-4">
-    <div class="card mb-5 card-collapsable card-waves animated--fade-in-up ">
+    <div class="card mb-5 card-collapsable card-waves animated--fade-in-up">
         <a class="card-header" href="#collapseCardExample" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
-                Calendar
-          <div class="card-collapsable-arrow">
-              <i class="fas fa-chevron-down"></i>
-          </div>
+            Calendar
+            <!-- <div>            
+                <br>
+                <small class="text-muted fw-100">Slots available today: {{ slotsAvailableToday }}</small>
+            </div> -->
+
+            <div>
+                <div class="card-collapsable-arrow">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+
         </a>
         <div class="collapse show" id="collapseCardExample">
           <div class="card-body animated--fade-in-up flex-container">
@@ -37,8 +45,6 @@
                                     <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.pet.name }}</div>
                                 </div>
                             {% endfor %}
-                            {% else %}
-                            <span class="small"><< Empty >></span>
                             {% endif %}
                         </div>
                         <p>
@@ -53,10 +59,23 @@
             </div>
           </div>
             <div class="card-footer small text-muted">
-                Legend: 
-                <span class="badge" style="background: #3788d8;">Morning</span> 
-                <span class="badge" style="background: green;">Afternoon</span> 
-                <span class="badge" style="background: darkorange;">Pending Rebook</span>
+                <div class="container">
+                    <div class="row desktop-only">
+                        <div class="col text-start">
+                            Legend:&nbsp;
+                            <span class="badge" style="background: #3788d8;">Morning</span> 
+                            <span class="badge" style="background: green;">Afternoon</span> 
+                            <span class="badge" style="background: darkorange;">Pending Rebook</span>
+                        </div>
+                        <div class="col text-end">
+                            <button class="btn btn-xs btn-transparent-dark" type="button" data-bs-toggle="modal" data-bs-target="#guideModal">Guide</button>
+                        </div>
+                    </div>
+                
+                    <div class="row mobile-only">
+                        Please visit the desktop version of this page to add appointment. Mobile version is for viewing only.
+                    </div>
+                </div>                
             </div>
         </div>
       </div>

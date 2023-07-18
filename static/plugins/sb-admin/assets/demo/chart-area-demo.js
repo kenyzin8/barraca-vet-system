@@ -32,7 +32,6 @@ var monthlyRevenueString = JSON.parse(document.getElementById('monthly-revenue-d
 var monthlyRevenue = JSON.parse(monthlyRevenueString);
 monthlyRevenue = monthlyRevenue.map(Number);
 
-// Area Chart Example
 var ctx = document.getElementById("myAreaChart");
 var myLineChart = new Chart(ctx, {
     type: "line",

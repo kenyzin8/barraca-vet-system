@@ -1193,6 +1193,19 @@
 
                                 if(old_date != "from_rebook_list")
                                 {
+                                    _event.setExtendedProp('client_id', response.appointment.client.id);
+                                    _event.setExtendedProp('client', response.appointment.client.first_name + " " + response.appointment.client.last_name);
+                                    _event.setExtendedProp('contact_number', response.appointment.client.contact_number);
+                                    _event.setExtendedProp('pet', response.appointment.pet.name);
+                                    _event.setExtendedProp('pet_id', response.appointment.pet.id);
+                                    _event.setExtendedProp('timeOfTheDay', response.appointment.timeOfTheDay);
+                                    _event.setExtendedProp('timeOfTheDay_val', response.appointment.timeOfTheDay_val);
+                                    _event.setExtendedProp('purpose', response.appointment.purpose);
+                                    _event.setExtendedProp('purpose_id', response.appointment.purpose_id);
+                                    _event.setExtendedProp('current_date', response.appointment.date);
+                                    _event.setExtendedProp('day_sms_reminder', response.appointment.daily_reminder_sent);
+                                    _event.setExtendedProp('week_sms_reminder', response.appointment.weekly_reminder_sent);
+
                                     var info = { 
                                         event: _event, 
                                         oldEvent: {

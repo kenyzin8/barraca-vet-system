@@ -17,7 +17,7 @@ function getCookie(name)
     return cookieValue;
 }
 
-function sendSMS(client_ids) {
+function sendSMS(phone_number, appointment_id) {
     const smsData = document.getElementById('sms-data');
     const sendSmsUrl = smsData.getAttribute('data-url');
     const csrftoken = getCookie('csrftoken');
@@ -59,14 +59,16 @@ function sendSMS(client_ids) {
         }
     };
 
+    xhr.send("phone_numbers=" + JSON.stringify(phone_number) + 
+    "&appointment_id=" + appointment_id);
 
-    xhr.send("client_ids=" + JSON.stringify(client_ids));
 }
 
-function confirmSendSMS(client_id, first_name, last_name, contact_number) {
-    document.getElementById("hiddenClientId").value = client_id;
+function confirmSendSMS(appointment_id, client, contact_number) {
+    document.getElementById("hiddenClientPhone").value = contact_number;
+    document.getElementById("hiddenAppointmentID").value = appointment_id;
 
-    document.getElementById("clientName").textContent = first_name + ' ' + last_name;
+    document.getElementById("clientName").textContent = client;
     document.getElementById("clientPhoneNumber").textContent = contact_number;
 
     var confirmModal = new bootstrap.Modal(document.getElementById('confirmationModal'), {});
@@ -103,8 +105,8 @@ function sendBulkSMS() {
     closeBulkSMSButton.disabled = true;
     bulkSMSSendingSpinner.classList.remove("d-none");
 
-    const allClientIDs = Array.from(document.querySelectorAll(".appointments-list-table tbody tr")).map((row) => row.children[0].textContent);
-
+    const allPhoneNumbers = Array.from(document.querySelectorAll(".appointments-list-table tbody tr")).map((row) => row.children[2].textContent);
+    const allAppointmentIDs = Array.from(document.querySelectorAll(".appointments-list-table tbody tr")).map((row) => row.children[0].textContent);
     const xhr = new XMLHttpRequest();
     xhr.open("POST", sendSmsUrl, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -131,5 +133,5 @@ function sendBulkSMS() {
             messageModal.show();
         }
     };
-    xhr.send("client_ids=" + JSON.stringify(allClientIDs));
+    xhr.send("phone_numbers=" + JSON.stringify(allPhoneNumbers) + "&appointment_id=" + JSON.stringify(allAppointmentIDs));
 }

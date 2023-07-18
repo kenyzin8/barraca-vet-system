@@ -12,6 +12,8 @@ window.addEventListener('DOMContentLoaded', event => {
             hiddenHeader: false,
         });
 
+        window.dataTable = dataTable;
+
         dataTable.on('datatable.update', () => {
             feather.replace();
             

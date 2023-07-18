@@ -16,10 +16,21 @@ function getInitialView() {
 document.addEventListener('DOMContentLoaded', function() 
 {
   var calendarEl = document.getElementById('calendar');
-
+  var containerEl = document.getElementById('external-events-list');
+  new FullCalendar.Draggable(containerEl, {
+    itemSelector: '.fc-event',
+    eventData: function(eventEl) {
+      return {
+        title: eventEl.innerText.trim()
+      }
+    }
+  });
+  
   var calendar = new FullCalendar.Calendar(calendarEl, 
   {
     themeSystem: 'bootstrap5',
+    lazyFetching: true,
+    progressiveEventRendering: true,
     views: {
       listDay: { buttonText: 'Day' },
       dayGridMonth: { buttonText: 'Month' },
@@ -28,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function()
       listMonth: {buttonText: 'Month'}
     },
     buttonText: {
-          today: 'Today',
+      today: 'Today',
     },
     allDayText: '',
     firstDay: 1,
@@ -38,6 +49,10 @@ document.addEventListener('DOMContentLoaded', function()
     navLinks: true, // can click day/week names to navigate views
     selectable: true,
     selectMirror: true,
+    editable: true,
+    droppable: true,
+    dayMaxEvents: true, // allow "more" link when too many events
+    hiddenDays: [ 0 ],
     select: function(arg) 
     {
       var title = prompt('Create Appointment:');
@@ -77,44 +92,42 @@ document.addEventListener('DOMContentLoaded', function()
         eventModal.hide();
       };
     },
-    editable: false,
-    dayMaxEvents: true, // allow "more" link when too many events
     events: [
       {
         title: 'Kent Jamila',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'John Jamila',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Susie Jamila',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Kharyl Caye Domalogdog',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Kotlin Molk',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Simon Walker',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Yvette Mae Barraca',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Erika Mae Barraca',
-        start: '2023-04-11'
+        start: '2023-07-11'
       },
       {
         title: 'Kent John Jin',
-        start: '2023-04-15',
+        start: '2023-07-15',
         // display: 'background',
         // color: "red"
       }
@@ -140,7 +153,21 @@ document.addEventListener('DOMContentLoaded', function()
       var dayBeforeEndDate = new Date(selectInfo.end);
       dayBeforeEndDate.setDate(dayBeforeEndDate.getDate() - 1);
       return FullCalendar.formatDate(selectInfo.start, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' }) === FullCalendar.formatDate(dayBeforeEndDate, { timeZone: 'local', year: 'numeric', month: '2-digit', day: '2-digit' });
-    }
+    },
+    eventDrop: function(info) {
+      if (!confirm("Are you sure you want to rebook this client?")) {
+        info.revert();
+      }
+    },
+    drop: function(arg) {
+      if (!confirm("Are you sure you want to rebook this client?")) {
+        arg.revert();
+      }
+      else
+      {
+        arg.draggedEl.parentNode.removeChild(arg.draggedEl);
+      }
+    },
   });
 
   calendar.render();

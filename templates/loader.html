@@ -11,12 +11,12 @@
        }, 300);
 
        $(document).ajaxStart(function() {
-        console.log('ajaxStart')
+
            $('#fullscreen-spinner').removeClass('d-none'); 
        });
 
        $(document).ajaxStop(function() {
-        console.log('ajaxStop')
+
            setTimeout(function() {
                $('#fullscreen-spinner').addClass('d-none');
            }, 100);

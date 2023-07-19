@@ -65,7 +65,7 @@
     function showRebookList()
     {
         var rebookList = document.getElementById('external-events-list');
-        console.log(rebookList.children.length);
+
         if (rebookList.children.length === 0) {
             document.getElementById('external-events').style.display = 'block';
         }
@@ -440,7 +440,6 @@
                     // var date = new Date(response[i].date).toDateString();
                     dateSlots[response.date_slots[i].date] = response.date_slots[i].slots;
                 }
-                var isAllPetsScheduled = response.all_scheduled;
 
                 var calendarEl = document.getElementById('calendar');
                 var containerEl = document.getElementById('external-events-list');
@@ -491,83 +490,96 @@
                     dayMaxEvents: false, // allow "more" link when too many events
                     hiddenDays: [0],
                     select: function(arg) {
-                        if (isAllPetsScheduled.all_scheduled) {
-                            showError("All of your pets are scheduled, please cancel or rebook.");
-                        } 
-                        else 
-                        {
-                            let date = arg.start;
-                            let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
-                            $('.day-clicked').text(formatStringDate(dateString));
-
-                            let totalAppointmentsForDate = _appointmentCounts[dateString] || 0;
-
-                            let availableSlots = dateSlots[dateString] == undefined ? 
-                                (maxAppointments - totalAppointmentsForDate) : 
-                                (dateSlots[dateString] - totalAppointmentsForDate);
-
-                            $('.available-slots').text(availableSlots + " / " + (dateSlots[dateString] || maxAppointments));
-
-                            if (availableSlots <= 0) {
-                                $('#add-appointment-day-choice').prop('disabled', true);
-                            } else {
-                                $('#add-appointment-day-choice').prop('disabled', false);
-                            }
-
-                            if (_appointmentCounts[dateString] && _appointmentCounts[dateString] >= 8) {
-                                showError(`${formatStringDate(dateString)} is fully booked. Try another day.`);
-                                return;
-                            }
-
-                            window.selectedDate = date;
-                            
-                            $('.day-clicked').text(formatStringDate(dateString));
-
-                            let disabledDay = disabledDays.find(function(day) {
-                                return day.date === dateString;
-                            });
-
-                            if (disabledDay) {
-                                $('#selectedDateToEnable').val(dateString);
-                                if (disabledDay.timeOfTheDay === 'whole_day') {
-                                    showError("This date is disabled for the whole day by the clinic staff.");
+                        $.ajax({
+                            type: 'GET',
+                            url: '{% url "is_all_my_pets_scheduled" %}',
+                            dataType: 'json',
+                            success: function(response)
+                            {
+                                if (response.all_scheduled) {
+                                    showError("All of your pets are scheduled, please cancel one of your appointment. You can only have one appointment per pet at a time. If you don't see your appointment on the calendar, please refresh the page.");
                                 } 
-                                else if(availableSlots <= 0)
+                                else 
                                 {
-                                    showError("This date is full, please select another date.");
-                                }
-                                else {
-                                    if (disabledDay.timeOfTheDay === 'morning') {
-                                        $('.availability').text("Afternoon");
-                                        $('#id_timeOfTheDay option[value="morning"]').hide();
-                                        $('#id_timeOfTheDay').val('afternoon');
-                                    } else if (disabledDay.timeOfTheDay === 'afternoon') {
-                                        $('.availability').text("Morning");
-                                        $('#id_timeOfTheDay option[value="afternoon"]').hide();
-                                        $('#id_timeOfTheDay').val('morning');
+                                    let date = arg.start;
+                                    let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+
+                                    $('.day-clicked').text(formatStringDate(dateString));
+
+                                    let totalAppointmentsForDate = _appointmentCounts[dateString] || 0;
+
+                                    let availableSlots = dateSlots[dateString] == undefined ? 
+                                        (maxAppointments - totalAppointmentsForDate) : 
+                                        (dateSlots[dateString] - totalAppointmentsForDate);
+                                    
+                                    $('.available-slots').text(availableSlots + " / " + (dateSlots[dateString] || maxAppointments));
+
+                                    if (availableSlots <= 0) {
+                                        $('#add-appointment-day-choice').prop('disabled', true);
+                                    } else {
+                                        $('#add-appointment-day-choice').prop('disabled', false);
                                     }
-                                    $('#enable-day-choice').removeAttr('hidden');
-                                    $('#disable-day-choice').attr('hidden', true);
-                                    $('#dayChoiceModal').modal('show');
+
+                                    if (_appointmentCounts[dateString] && _appointmentCounts[dateString] >= 8) {
+                                        showError(`${formatStringDate(dateString)} is fully booked. Try another day.`);
+                                        return;
+                                    }
+
+                                    window.selectedDate = date;
+                                    
+                                    $('.day-clicked').text(formatStringDate(dateString));
+
+                                    let disabledDay = disabledDays.find(function(day) {
+                                        return day.date === dateString;
+                                    });
+
+                                    if (disabledDay) {
+                                        $('#selectedDateToEnable').val(dateString);
+                                        if (disabledDay.timeOfTheDay === 'whole_day') {
+                                            showError("This date is disabled for the whole day by the clinic staff.");
+                                        } 
+                                        else if(availableSlots <= 0)
+                                        {
+                                            showError("This date is full, please select another date.");
+                                        }
+                                        else {
+                                            if (disabledDay.timeOfTheDay === 'morning') {
+                                                $('.availability').text("Afternoon");
+                                                $('#id_timeOfTheDay option[value="morning"]').hide();
+                                                $('#id_timeOfTheDay').val('afternoon');
+                                            } else if (disabledDay.timeOfTheDay === 'afternoon') {
+                                                $('.availability').text("Morning");
+                                                $('#id_timeOfTheDay option[value="afternoon"]').hide();
+                                                $('#id_timeOfTheDay').val('morning');
+                                            }
+                                            $('#enable-day-choice').removeAttr('hidden');
+                                            $('#disable-day-choice').attr('hidden', true);
+                                            $('#dayChoiceModal').modal('show');
+                                        }
+                                    } else {
+                                        $('.availability').text("Whole Day");
+                                        $('.day-clicked').text(formatStringDate(dateString));
+                                        $('#disable-day-choice').removeAttr('hidden');
+                                        $('#enable-day-choice').attr('hidden', true);
+
+                                        let currentDate = new Date();
+                                        currentDate.setHours(0, 0, 0, 0);
+
+                                        if (date < currentDate) {
+                                            showError('Cannot add appointments in the past.');
+                                            return;
+                                        }
+
+                                        $('#dayChoiceModal').modal('show');
+                                    }
                                 }
-                            } else {
-                                $('.availability').text("Whole Day");
-                                $('.day-clicked').text(formatStringDate(dateString));
-                                $('#disable-day-choice').removeAttr('hidden');
-                                $('#enable-day-choice').attr('hidden', true);
-
-                                let currentDate = new Date();
-                                currentDate.setHours(0, 0, 0, 0);
-
-                                if (date < currentDate) {
-                                    showError('Cannot add appointments in the past.');
-                                    return;
-                                }
-
-                                $('#dayChoiceModal').modal('show');
+                            },
+                            error: function(response)
+                            {
+                                showError(response);
                             }
-                        }
+                        });
                     },
                     eventClick: function(arg) {
 
@@ -618,7 +630,7 @@
                                             if (index > -1) {
                                                 allAppointments.splice(index, 1);
                                             }
-
+                                            
                                             var info = {
                                                 event: {
                                                     id: arg.event.id
@@ -635,8 +647,8 @@
                                             $('#deleteAppointmentModal').modal('hide');
                                             showSuccess(response.status);
                                             hideRebookList();
-                                            
-                                            $("#id_pet").append($('<option></option>').val(response.pet.id).html(response.pet.name));
+
+                                            $("#id_pet").append($('<option></option>').val(response.pet.id).html(`${response.pet.name} (${response.pet.species})`));
                                     }
                                 },
                                 error: function(error) {
@@ -1091,7 +1103,7 @@
                         showError('Cannot add appointments in the past.');
                         return;
                     }
-
+                    
                     $.ajax({
                         type: 'GET',
                         url: '{% url "check_if_full" %}',
@@ -1331,6 +1343,10 @@
                                     params.delete('pet_id');
                                     history.pushState({}, null, location.pathname);
                                 }
+
+                                $("#id_pet option[value='" + response.appointment.pet.id + "']").remove();
+
+                                var url = "{% url 'client-get-pets' %}";
 
                                 $('#addAppointmentModal').modal('hide');
                             }

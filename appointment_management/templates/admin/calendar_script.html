@@ -51,7 +51,7 @@
     }
         
     function getInitialView() {
-        return window.innerWidth <= 576 ? 'listYear' : 'dayGridMonth';
+        return window.innerWidth <= 576 ? 'dayGridMonth' : 'dayGridMonth';
     }
 
     function showRebookList()
@@ -504,7 +504,7 @@
                             buttonText: 'All'
                         },
                         listMonth: {
-                            buttonText: 'Month'
+                            buttonText: 'List Month'
                         }
                     },
                     buttonText: {
@@ -1671,7 +1671,7 @@
                     if (window.innerWidth <= 576) {
                         calendar.setOption('headerToolbar', {
                             left: 'title',
-                            center: 'listMonth,listYear',
+                            center: 'dayGridMonth,listMonth,listYear',
                             right: 'today prev,next'
                         });
 

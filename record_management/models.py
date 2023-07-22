@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from datetime import date
 import datetime
 from django.contrib.auth.models import User as AuthUser, Group as AuthGroup
+from django.apps import apps
 
 class User(AuthUser):
     class Meta:
@@ -40,7 +41,6 @@ class Client(models.Model):
     class Meta:
         verbose_name_plural = "Clients"
 
-
 class Pet(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
@@ -73,3 +73,66 @@ class Pet(models.Model):
 
     class Meta:
         verbose_name_plural = "Pets"
+
+class PetHealthCard(models.Model):
+
+    TREATMENTS_LIST = (
+        ('deworming', 'Deworming'),
+        ('vaccination', 'Vaccination'),
+    )
+
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
+    visit_date = models.DateTimeField(auto_now=True)
+    next_treatment = models.OneToOneField('appointment_management.Appointment', on_delete=models.CASCADE)
+    treatment = models.CharField(max_length=20, choices=TREATMENTS_LIST)
+    medicine_used = models.CharField(max_length=100)
+    isActive = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.pet.name} - {self.treatment}"
+
+class PetMedicalPrescription(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
+    medicines = models.ManyToManyField('inventory.Product', through='PrescriptionMedicines')
+    date_prescribed = models.DateTimeField(auto_now=True)
+    isActive = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.pet.name} - {self.date_prescribed}"
+
+class PrescriptionMedicines(models.Model):
+    MEDICINES_FORM_LIST = (
+        ('tablet', 'Tablet'),
+        ('capsule', 'Capsule'),
+        ('syrup', 'Syrup'),
+        ('injection', 'Injection'),
+    )
+
+    prescription = models.ForeignKey(PetMedicalPrescription, on_delete=models.CASCADE)
+    medicine = models.ForeignKey('inventory.Product', on_delete=models.CASCADE, related_name='prescription_medicines', null=True)
+    strength = models.CharField(max_length=100)
+    form = models.CharField(max_length=20, choices=MEDICINES_FORM_LIST)
+    quantity = models.CharField(max_length=100)
+    dosage = models.CharField(max_length=100)
+    frequency = models.CharField(max_length=100)
+    remarks = models.CharField(max_length=100)
+
+    #extra attributes if medicine is not around on the inventory
+    extra_medicine = models.CharField(max_length=100, null=True)
+    def __str__(self):
+        return f"{self.prescription.pet.name} - {self.medicine.name}"
+
+class PetMedicalRecord(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
+    visit_date = models.DateTimeField(auto_now=True)
+    lab_results = models.CharField(max_length=100)
+    findings = models.CharField(max_length=100)
+    temperature = models.DecimalField(max_digits=5, decimal_places=2)
+    diagnosis = models.CharField(max_length=100)
+    treatment = models.CharField(max_length=100)
+    medical_images = models.ImageField(upload_to='public/images/')
+    isActive = models.BooleanField(default=True)
+    prescription = models.OneToOneField(PetMedicalPrescription, null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.pet.name} - {self.visit_date}"

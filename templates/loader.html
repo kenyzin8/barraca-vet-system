@@ -11,15 +11,11 @@
        }, 300);
 
        $(document).ajaxStart(function() {
-
            $('#fullscreen-spinner').removeClass('d-none'); 
        });
 
        $(document).ajaxStop(function() {
-
-           setTimeout(function() {
-               $('#fullscreen-spinner').addClass('d-none');
-           }, 100);
+            $('#fullscreen-spinner').addClass('d-none');
        });
    });
 </script>

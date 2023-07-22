@@ -59,7 +59,7 @@
     }
     
     function getInitialView() {
-        return window.innerWidth <= 576 ? 'listYear' : 'dayGridMonth';
+        return window.innerWidth <= 576 ? 'dayGridMonth' : 'dayGridMonth';
     }
 
     function showRebookList()
@@ -471,7 +471,7 @@
                             buttonText: 'All'
                         },
                         listMonth: {
-                            buttonText: 'Month'
+                            buttonText: 'List Month'
                         }
                     },
                     buttonText: {
@@ -489,8 +489,97 @@
                     droppable: true,
                     dayMaxEvents: false, // allow "more" link when too many events
                     hiddenDays: [0],
-                    select: function(arg) {
+                    navLinkDayClick: function(date, jsEvent) {
+                        $.ajax({
+                            type: 'GET',
+                            url: '{% url "is_all_my_pets_scheduled" %}',
+                            dataType: 'json',
+                            success: function(response)
+                            {
+                                if (response.all_scheduled) {
+                                    showError("All of your pets are scheduled, please cancel one of your appointment. You can only have one appointment per pet at a time. If you don't see your appointment on the calendar, please refresh the page.");
+                                } 
+                                else 
+                                {
+                                    let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
+                                    $('.day-clicked').text(formatStringDate(dateString));
+
+                                    let totalAppointmentsForDate = _appointmentCounts[dateString] || 0;
+
+                                    let availableSlots = dateSlots[dateString] == undefined ? 
+                                        (maxAppointments - totalAppointmentsForDate) : 
+                                        (dateSlots[dateString] - totalAppointmentsForDate);
+                                    
+                                    $('.available-slots').text(availableSlots + " / " + (dateSlots[dateString] || maxAppointments));
+
+                                    if (availableSlots <= 0) {
+                                        $('#add-appointment-day-choice').prop('disabled', true);
+                                    } else {
+                                        $('#add-appointment-day-choice').prop('disabled', false);
+                                    }
+
+                                    if (_appointmentCounts[dateString] && _appointmentCounts[dateString] >= 8) {
+                                        showError(`${formatStringDate(dateString)} is fully booked. Try another day.`);
+                                        return;
+                                    }
+
+                                    window.selectedDate = date;
+                                    
+                                    $('.day-clicked').text(formatStringDate(dateString));
+
+                                    let disabledDay = disabledDays.find(function(day) {
+                                        return day.date === dateString;
+                                    });
+
+                                    if (disabledDay) {
+                                        $('#selectedDateToEnable').val(dateString);
+                                        if (disabledDay.timeOfTheDay === 'whole_day') {
+                                            showError("This date is disabled for the whole day by the clinic staff.");
+                                        } 
+                                        else if(availableSlots <= 0)
+                                        {
+                                            showError("This date is full, please select another date.");
+                                        }
+                                        else {
+                                            if (disabledDay.timeOfTheDay === 'morning') {
+                                                $('.availability').text("Afternoon");
+                                                $('#id_timeOfTheDay option[value="morning"]').hide();
+                                                $('#id_timeOfTheDay').val('afternoon');
+                                            } else if (disabledDay.timeOfTheDay === 'afternoon') {
+                                                $('.availability').text("Morning");
+                                                $('#id_timeOfTheDay option[value="afternoon"]').hide();
+                                                $('#id_timeOfTheDay').val('morning');
+                                            }
+                                            $('#enable-day-choice').removeAttr('hidden');
+                                            $('#disable-day-choice').attr('hidden', true);
+                                            $('#dayChoiceModal').modal('show');
+                                        }
+                                    } else {
+                                        $('.availability').text("Whole Day");
+                                        $('.day-clicked').text(formatStringDate(dateString));
+                                        $('#disable-day-choice').removeAttr('hidden');
+                                        $('#enable-day-choice').attr('hidden', true);
+
+                                        let currentDate = new Date();
+                                        currentDate.setHours(0, 0, 0, 0);
+
+                                        if (date < currentDate) {
+                                            showError('Cannot add appointments in the past.');
+                                            return;
+                                        }
+
+                                        $('#dayChoiceModal').modal('show');
+                                    }
+                                }
+                            },
+                            error: function(response)
+                            {
+                                showError(response);
+                            }
+                        });
+                    },
+                    select: function(arg) {
                         $.ajax({
                             type: 'GET',
                             url: '{% url "is_all_my_pets_scheduled" %}',
@@ -754,7 +843,6 @@
                             };
                         }
                     },
-
                     events: allAppointments,
                     dayCellClassNames: function(info) {
                         debugCounter++;
@@ -824,6 +912,7 @@
                         slotElement.style.left = '5px';
                         slotElement.style.top = '5px';
                         slotElement.style.fontSize = '0.8em';
+                        slotElement.classList.add('slot-element');
 
                         var totalEventCountForDate = _appointmentCounts[formattedDate] || 0;
                         
@@ -1389,7 +1478,7 @@
                     if (window.innerWidth <= 576) {
                         calendar.setOption('headerToolbar', {
                             left: 'title',
-                            center: 'listMonth,listYear',
+                            center: 'dayGridMonth,listMonth,listYear',
                             right: 'today prev,next'
                         });
 

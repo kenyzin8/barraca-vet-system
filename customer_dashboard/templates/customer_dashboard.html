@@ -48,23 +48,23 @@
 {% endblock %}
 
 {% block content %}
-    <!-- <div class="row mt-5 animated--fade-in-up">
-        <div class="col-xxl-4 col-xl-12 mb-4">
-            <div class="card h-100">
-                <div class="card-body h-100 p-5">
-                    <div class="row align-items-center">
-                        <div class="col-xl-8 col-xxl-12">
-                            <div class="text-center text-xl-start text-xxl-center mb-4 mb-xl-0 mb-xxl-4">
-                                <h1 class="text-primary">Welcome to Barraca<br>Veterinary Clinic!</h1>
-                                <p class="text-gray-700 mb-0">I am Dr. Yvette Mae Barraca, and I am glad you found this page! Feel free to navigate in this page. I am happy to serve you!</p>
-                            </div>
+<!-- <div class="row mt-5 animated--fade-in-up">
+    <div class="col-xxl-4 col-xl-12 mb-4">
+        <div class="card h-100">
+            <div class="card-body h-100 p-5">
+                <div class="row align-items-center">
+                    <div class="col-xl-8 col-xxl-12">
+                        <div class="text-center text-xl-start text-xxl-center mb-4 mb-xl-0 mb-xxl-4">
+                            <h1 class="text-primary">Welcome to Barraca<br>Veterinary Clinic!</h1>
+                            <p class="text-gray-700 mb-0">I am Dr. Yvette Mae Barraca, and I am glad you found this page! Feel free to navigate in this page. I am happy to serve you!</p>
                         </div>
-                        <div class="col-xl-4 col-xxl-12 text-center"><img class="img-fluid" src="{% static 'plugins/sb-admin/assets/img/illustrations/at-work.svg' %}" style="max-width: 26rem" /></div>
                     </div>
+                    <div class="col-xl-4 col-xxl-12 text-center"><img class="img-fluid" src="{% static 'plugins/sb-admin/assets/img/illustrations/at-work.svg' %}" style="max-width: 26rem" /></div>
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
+</div> -->
     <div class="row mt-5 animated--fade-in-up">
         <div class="col-lg-6 col-xl-3 mb-4">
             <div class="card bg-success text-white card-equal-height">
@@ -83,20 +83,24 @@
                 </div>
             </div>
         </div>
-        {% for pet in pets %}
-        <div class="col-lg-6 col-xl-3 mb-4">
+        {% for pet_appointment in pets_appointments %}
+        <div class="col-lg-6 col-xl-3 mb-4" style="cursor: default;">
             <div class="card card-custom-height card-darken-image">
-                    <img class="card-img " src="{{ pet.picture.url }}" alt="{{ pet.name }}">
+                <img class="card-img " src="{{ pet_appointment.pet.picture.url }}" alt="{{ pet_appointment.pet.name }}">
                 <div class="card-img-overlay">
-                    <h5 class="card-title text-white">{{ pet.name }}</h5>
-                    <p class="card-text text-white">{{ pet.breed }}</p>
+                    <h5 class="card-title text-white">{{ pet_appointment.pet.name }}</h5>
+                    <p class="card-text text-white">{{ pet_appointment.pet.breed }}<br><br>
+                    {% if pet_appointment.first_appointment %}
+                        <span class="text-muted text-xs opacity-50">Next Appointment: <br>
+                        {{ pet_appointment.first_appointment.date }} - {{ pet_appointment.first_appointment.purpose.service_type }}<br>
+                    {% endif %}
+                    </span>
+                    </p>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
-    
-    
     
     <div class="card mb-4">
         <div class="card-header">My Appointments</div>
@@ -111,25 +115,26 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for appointment in my_appointment %}
                     <tr>
-                        <td>August 5</td>
-                        <td><div class="badge bg-primary text-white rounded-pill">Vaccination</div> <div class="badge bg-warning text-white rounded-pill">Check Up</div></td>
-                        <td>Alpha</td>
+                        <td>{{ appointment.date }}</td>
+                        <td><div class="badge bg-warning text-white rounded-pill">{{ appointment.purpose.service_type }}</div></td>
+                        <td>{{ appointment.pet.name }}</td>
                         <td>
                             <button id="dropdownFadeIn" class="btn btn-datatable btn-icon btn-transparent-dark me-2"  type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                             </button>
                             <div class="dropdown-menu animated--fade-in" aria-labelledby="dropdownFadeIn">
-                                <a class="dropdown-item" href="#!">
+                                <a data-pet-id="{{ appointment.pet.id }}" data-appointment-id="{{ appointment.id }}" class="dropdown-item view-appointment" href="#!">
                                     <div class="dropdown-item-icon">
-                                        <i data-feather="user"></i>
+                                        <i data-feather="calendar"></i>
                                     </div>
-                                    View
+                                    View Appointment
                                 </a>
                             </div>
-                            <button class="btn btn-datatable btn-icon btn-transparent-dark"><i data-feather="check"></i></button>
                         </td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -141,7 +146,83 @@
 <!-- <script src="{% static 'plugins/sb-admin/assets/demo/chart-area-demo.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/assets/demo/chart-bar-demo.js' %}"></script> -->
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
-<script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script>
+<script>
+
+window.addEventListener('DOMContentLoaded', event => {
+    const datatablesSimple = document.getElementById('datatablesSimple');
+    if (datatablesSimple) {
+        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+            paging: false,
+            perPageSelect: [5, 10, 25, 50],
+            perPage: 10,
+            fixedHeight: true,
+            sortable: true,
+            searchable: false,
+            hiddenHeader: false,
+        });
+
+        window.dataTable = dataTable;
+
+        dataTable.on('datatable.update', () => {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.page', function(page) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.search', function(query, matched) {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.sort', function(column, direction) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        var searchInput = document.querySelector('.datatable-input');
+        
+        searchInput.addEventListener('search', function(e) {
+            if (e.target.value == '') {
+                dataTable.search('');
+            }
+        });
+    }
+});
+</script>
 <script src="{% static 'plugins/sb-admin/js/bundle.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/js/litepicker.js' %}"></script>
+<script>
+    $(document).ready(function(){
+        $(".view-appointment").on('click', function(e){
+            e.preventDefault();
+            const appointmentId = $(this).data('appointment-id');
+    
+            if (appointmentId) {
+                window.location.href = `{% url 'client_calendar' %}?appointment_id=${appointmentId}`;
+            } else {
+                showError("This pet does not have an appointment. Click set appointment to set an appointment for this pet.");
+            }
+        });
+    });
+    </script>
 {% endblock %}

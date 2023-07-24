@@ -1,7 +1,7 @@
 :root
 {
-  --fc-button-active-bg-color: lightgreen;
-  --fc-button-active-border-color: lightgreen;
+  --fc-button-active-bg-color: rgb(231, 231, 231);
+  --fc-button-active-border-color: rgb(10, 10, 10);
   /* --fc-button-text-color: white; */
 }
 
@@ -244,7 +244,7 @@
   }
 
   .fc .fc-view-harness {
-    height: 280px !important
+    height: 100% !important
   }
 
 }

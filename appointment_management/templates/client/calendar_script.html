@@ -80,8 +80,9 @@
     }
 
     function showAppointmentDetails(appointmentId) {
+        document.getElementById('deleteRebookList').style.display = 'block';
         let appointment = document.getElementById(appointmentId);
-    
+        console.log(appointment);
         let pet = appointment.getAttribute('data-pet-rname');
         let purpose = appointment.getAttribute('data-purpose-val');
         let timeOfDay = appointment.getAttribute('data-time-of-day')
@@ -138,8 +139,9 @@
     }
 
     function _showAppointmentDetails(event) {
+        document.getElementById('deleteRebookList').style.display = 'block';
         let appointment = document.getElementById(event.id);
-
+        console.log(appointment)
         let client = event.extendedProps.client;
         let pet = event.extendedProps.pet;
         let purpose = event.extendedProps.purpose;
@@ -200,9 +202,10 @@
 
     function showAppointmentDetailsFromOtherModule() {
         let appointmentElement = document.getElementById('viewAppointmentFromOtherModuleData');
-        
+
         let appointmentId = appointmentElement.getAttribute('data-appointment-id');
-        
+        let appointment = document.getElementById(appointmentId);
+
         if (appointmentId) {
             let pet = appointmentElement.getAttribute('data-appointment-pet');
             let timeOfDay = appointmentElement.getAttribute('data-appointment-timeOfDay');
@@ -223,6 +226,9 @@
             document.getElementById('rebookListAppointmentLabel').innerText = "#" + appointmentId + " - " + _date;
             document.getElementById('rebookListAppointmentBody').innerHTML = details;
     
+            //hide deleteRebookList
+            document.getElementById('deleteRebookList').style.display = 'none';
+
             document.getElementById('deleteRebookList').onclick = function() {
                 $('#rebookListAppointmentModal').modal('hide');
                 $('#deleteAppointmentModal').modal('show');
@@ -238,10 +244,11 @@
                     },
                     success: function(response) {
                         if (response.status === 'Appointment cancelled successfully') {
+                            // appointment.remove();
                             $('#deleteAppointmentModal').modal('hide');
                             showSuccess(response.status + ".");
                             hideRebookList();
-                            // location.reload();
+                            location.reload();
                         }
                     },
                     error: function(error) {
@@ -453,6 +460,7 @@
                 });
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
+                    height: window.innerWidth <= 576 ? "auto" : undefined,
                     themeSystem: 'bootstrap5',
                     eventOrder: 'none',
                     lazyFetching: true,

@@ -486,6 +486,7 @@
                 });
 
                 var calendar = new FullCalendar.Calendar(calendarEl, {
+                    height: window.innerWidth <= 576 ? "auto" : undefined,
                     themeSystem: 'bootstrap5',
                     eventOrder: 'none',
                     lazyFetching: true,

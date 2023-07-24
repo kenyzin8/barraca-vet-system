@@ -89,7 +89,10 @@ class PetHealthCard(models.Model):
     isActive = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.pet.name} - {self.treatment}"
+        return f"{self.pet.name} - {self.treatment} - {self.visit_date} - {self.next_treatment.date}"
+    
+    class Meta:
+        verbose_name_plural = "Pet Health Cards"
 
 class PetMedicalPrescription(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
@@ -99,6 +102,9 @@ class PetMedicalPrescription(models.Model):
 
     def __str__(self):
         return f"{self.pet.name} - {self.date_prescribed}"
+
+    class Meta:
+        verbose_name_plural = "Pet Medical Prescriptions"
 
 class PrescriptionMedicines(models.Model):
     MEDICINES_FORM_LIST = (
@@ -118,21 +124,27 @@ class PrescriptionMedicines(models.Model):
     remarks = models.CharField(max_length=100)
 
     #extra attributes if medicine is not around on the inventory
-    extra_medicine = models.CharField(max_length=100, null=True)
+    extra_medicine = models.CharField(max_length=100, null=True, blank=True)
     def __str__(self):
-        return f"{self.prescription.pet.name} - {self.medicine.name}"
+        return f"{self.prescription.pet.name} - {self.medicine.product_name}"
+
+    class Meta:
+        verbose_name_plural = "Prescription Medicines"
 
 class PetMedicalRecord(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
     visit_date = models.DateTimeField(auto_now=True)
-    lab_results = models.CharField(max_length=100)
-    findings = models.CharField(max_length=100)
-    temperature = models.DecimalField(max_digits=5, decimal_places=2)
-    diagnosis = models.CharField(max_length=100)
-    treatment = models.CharField(max_length=100)
-    medical_images = models.ImageField(upload_to='public/images/')
+    lab_results = models.CharField(max_length=100, null=True, blank=True)
+    findings = models.CharField(max_length=100, null=True, blank=True)
+    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    diagnosis = models.CharField(max_length=100, null=True, blank=True)
+    treatment = models.CharField(max_length=100, null=True, blank=True)
+    medical_images = models.ImageField(upload_to='public/images/', null=True, blank=True)
     isActive = models.BooleanField(default=True)
-    prescription = models.OneToOneField(PetMedicalPrescription, null=True, on_delete=models.CASCADE)
+    prescription = models.OneToOneField(PetMedicalPrescription, null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.pet.name} - {self.visit_date}"
+
+    class Meta:
+        verbose_name_plural = "Pet Medical Records"

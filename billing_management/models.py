@@ -51,6 +51,9 @@ class BillingProduct(models.Model):
     def __str__(self):
         return f"{self.billing} - {self.product} ({self.quantity})"
 
+    class Meta:
+        verbose_name_plural = "Billing Products"
+
 class BillingService(models.Model):
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_services')
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
@@ -65,3 +68,6 @@ class BillingService(models.Model):
 
     def __str__(self):
         return f"{self.billing} - {self.service}"
+
+    class Meta:
+        verbose_name_plural = "Billing Services"

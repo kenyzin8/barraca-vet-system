@@ -13,6 +13,22 @@ from copy import deepcopy
 @staff_required
 @login_required
 def product_list(request):
+    products_with_price_changes = Product.objects.none()
+
+    for product in Product.objects.all():
+        for change in product.changes_log:
+            if 'price' in change:
+                products_with_price_changes |= Product.objects.filter(id=product.id)
+                break
+
+    for product in products_with_price_changes:
+        for change in product.changes_log:
+            if 'price' in change:
+                old_price, new_price = change['price']
+                change_date = change['date']
+                update_id = change['update_id']
+                print(f'[{update_id}] - {product.product_name} price changed from {old_price} to {new_price} - Date: {change_date}')
+
     products = Product.objects.filter(active=True).order_by('-id')
     today = datetime.date.today()
     context = {'products': products, 'today': today}

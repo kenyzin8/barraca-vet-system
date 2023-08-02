@@ -14,7 +14,7 @@ import json
 import time
 
 from .forms import *
-from .models import Client, Pet
+from .models import Client, Pet, PrescriptionMedicines
 from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
 from core.decorators import staff_required
@@ -22,6 +22,7 @@ from django.core.cache import cache
 from django.db import transaction
 
 from appointment_management.models import Appointment
+from inventory.models import Product, ProductType
 
 from django.conf import settings
 
@@ -597,3 +598,21 @@ def admin_update_pet(request, pet_id):
     
     context = {'form': form, 'pet': pet}
     return render(request, 'admin/update_pet.html', context)
+
+@staff_required
+@login_required
+def medical_record(request):
+    pets = Pet.objects.filter(is_active=True).order_by('-id')
+
+    types = ProductType.objects.filter(name="Medicines")
+
+    product_dict = {}
+    for t in types:
+        products = Product.objects.filter(type=t, active=True)
+        filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
+        product_dict[t.name] = filtered_products
+
+    formList = PrescriptionMedicines.MEDICINES_FORM_LIST
+
+    context = {'pets': pets, 'product_dict': product_dict, 'formList': formList}
+    return render(request, 'admin/medical_record.html', context)

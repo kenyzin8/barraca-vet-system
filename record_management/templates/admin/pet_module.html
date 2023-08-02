@@ -13,6 +13,11 @@
     .tooltip-inner {
      max-width: none;
     }
+
+    .avatar-img {
+        width: 32px !important;
+        height: 32px !important;
+    }
 </style>
 <script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
 {% endblock %}
@@ -43,7 +48,7 @@
                         <td>{{ pet.id }}</td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <div class="avatar me-2">
+                                <div class="avatar {% if pet.is_active %}avatar-online{% else %}avatar-busy{% endif %} me-2">
                                     <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" loading="lazy"/>
                                 </div>
                                 {{ pet.name }}

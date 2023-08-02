@@ -1,0 +1,379 @@
+<script>
+
+    function showError(message)
+    {
+        $('#errorModal .modal-body').text(message);
+        $('#errorModal').modal('show');
+    }
+    
+    window.addEventListener('DOMContentLoaded', event => {
+        let selectedPetId;
+        let selectedProductIds = new Set();
+    
+        const petTable = document.getElementById('petTable');
+    
+        if (petTable) {
+            let dataTable = new simpleDatatables.DataTable(petTable, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+    
+            window.dataTable = dataTable;
+    
+            dataTable.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+                setupSelectButtons();
+            });
+    
+            dataTable.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+                setupSelectButtons();
+            });
+    
+            dataTable.on('datatable.search', function(query, matched) {
+                feather.replace();
+    
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+                setupSelectButtons();
+            });
+    
+            dataTable.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+                setupSelectButtons();
+            });
+    
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    dataTable.search('');
+                }
+            });
+        }
+    
+        const nextButtons = document.querySelectorAll('.next-button');
+        const previousButtons = document.querySelectorAll('.previous-button');
+        const navLinks = document.querySelectorAll('.nav-item.nav-link');
+    
+        function activateTab(tabIndex) {
+            if (tabIndex >= 0 && tabIndex < navLinks.length) {
+                navLinks[tabIndex].click();
+            }
+        }
+    
+        function navigateTabs(direction) {
+            const activeTab = document.querySelector('.nav-item.nav-link.active');
+            const activeTabIndex = [...navLinks].indexOf(activeTab);
+            const targetTabIndex = activeTabIndex + direction;
+    
+            activateTab(targetTabIndex);
+    
+            if (direction === 1 && targetTabIndex === navLinks.length - 1) {
+                nextButtons.forEach(btn => {
+                    btn.classList.add('disabled');
+                    btn.setAttribute('disabled', true);
+                });
+            } else {
+                nextButtons.forEach(btn => {
+                    btn.classList.remove('disabled');
+                    btn.removeAttribute('disabled');
+                });
+            }
+    
+            if (direction === -1 && targetTabIndex === 0) {
+                previousButtons.forEach(btn => {
+                    btn.classList.add('disabled');
+                    btn.setAttribute('disabled', true);
+                });
+            } else {
+                previousButtons.forEach(btn => {
+                    btn.classList.remove('disabled');
+                    btn.removeAttribute('disabled');
+                });
+            }
+        }
+    
+        nextButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                navigateTabs(1);
+            });
+        });
+    
+        previousButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                navigateTabs(-1);
+            });
+        });
+    
+        function setupSelectButtons() {
+            const selectPetButtons = document.querySelectorAll('.select-pet-button');
+    
+            function deselectAllPets() {
+                selectPetButtons.forEach(button => {
+                    const textSpan = button.querySelector('span');
+                    if (textSpan.textContent === 'Selected') {
+                        textSpan.textContent = 'Select';
+                        textSpan.style.color = 'rgba(33, 40, 50, 0.5)';
+                        textSpan.style.fontWeight = '500';
+                    }
+                });
+            }
+    
+            selectPetButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    deselectAllPets();
+    
+                    const textSpan = event.currentTarget.querySelector('span');
+                    textSpan.textContent = 'Selected';
+                    textSpan.style.color = 'green';
+                    textSpan.style.fontWeight = '600';
+                    const row = event.currentTarget.closest('tr');
+                    selectedPetId = row.cells[0].textContent.trim();
+                });
+            });
+    
+        }
+    
+        setupSelectButtons();
+    
+        $('#addMedicineModal').on('show.bs.modal', function (event) 
+        {
+            {% for type, products in product_dict.items %}
+                const datatablesSimple_products_{{ forloop.counter }} = document.getElementById('table-medicines-{{ forloop.counter }}');
+    
+                if (datatablesSimple_products_{{ forloop.counter }}) {
+                    var dataTable_{{ forloop.counter }} = new simpleDatatables.DataTable(datatablesSimple_products_{{ forloop.counter }}, {
+                        paging: true,
+                        perPageSelect: [5, 10, 25, {% if products_count > 50 %} {{ products_count }} {% else %} 50 {% endif %}],
+                        perPage: 5,
+                        sortable: true,
+                        searchable: true,
+                        hiddenHeader: false,
+                        // labels: {
+                        //     info: `Products Table`,
+                        // },
+                    });
+    
+                    var searchInput = document.querySelector('.datatable-input');
+                    searchInput.addEventListener('search', function(e) {
+                        if (e.target.value == '') {
+                            dataTable_{{ forloop.counter }}.search('');
+                        }
+                    });
+                }
+    
+                $(datatablesSimple_products_{{ forloop.counter }}).find('.add-product').each(function() {
+                    var productId = $(this).data('product-id');
+                    var row = $(this).closest('tr');
+                    if (selectedProductIds.has(productId)) {
+                        row.find('.add-product').prop('disabled', true); 
+                        row.find('.add-text').text("Added");
+                    } 
+    
+                    $.ajax({
+                        url: '/admin/inventory/check-expiry/' + productId + '/',
+                        method: 'GET',
+                        success: function(data) {
+                            var stockExpiry = data.expiry;
+        
+                            if(stockExpiry != null) {
+                                var stockExpiryDate = new Date(stockExpiry);
+                                var today = new Date();
+        
+                                if(stockExpiryDate < today) {
+                                    row.find('.add-product').prop('disabled', true);
+                                }
+                            }
+                        }
+                    });
+    
+                    $.ajax({
+                        url: '/admin/inventory/check-quantity/' + productId + '/',
+                        method: 'GET',
+                        success: function(data) {
+                            var stockQuantity = data.quantity;
+        
+                            if(stockQuantity != null) {
+                                if(parseFloat(stockQuantity) == 0) {
+                                    row.find('.add-product').prop('disabled', true);
+                                }
+                            }
+                        }
+                    });
+                });
+                var searchInput = document.querySelector('.datatable-input');
+    
+                searchInput.addEventListener('search', function(e) {
+                    if (e.target.value == '') {
+                        datatablesSimple_products_{{ forloop.counter }}.search('');
+                    }
+                });
+            {% endfor %}
+        });
+    
+        $(document).on('click', '.add-product', function() 
+        { 
+            $(this).attr('data-active-ajax', true);
+            var $this = $(this);
+    
+            var productId = $(this).data('product-id');
+            
+            if (selectedProductIds.has(productId)) {
+                $this.prop('disabled', true);
+                return;
+            }
+    
+            var row = $(this).closest('tr');
+            var productName = row.find('.product-name').text();
+            var productStrength = row.find('.product-strength').val();
+            var productForm = row.find('.product-form option:selected').text();
+            var quantityInput = row.find('.product-quantity');
+            var quantity = quantityInput.val();
+            var productDosage = row.find('.product-dosage').val();
+            var productFrequency = row.find('.product-frequency').val();
+    
+            if(productStrength == null || productStrength == "") {
+                showError("Please enter the strength of the medicine.");
+                return;
+            }
+            if(productForm == null || productForm == "----") {
+                showError("Please select form.");
+                return;
+            }
+            else if((quantity.split('.')[1] || []).length > 2)
+            {
+                showError("Only 2 decimal points for the quantity.");
+                quantityInput.focus();
+                return;
+            }
+            else if(productDosage == null || productDosage == "") {
+                showError("Please enter the dosage of the medicine.");
+                return;
+            }
+            else if(productFrequency == null || productFrequency == "") {
+                showError("Please enter the frequency of the medicine.");
+                return;
+            }
+            else if(parseFloat(quantity) <= 0)
+            {
+                showError("The entered quantity is invalid.");
+                return;
+            }
+
+
+            var activeAjaxRequests = 0;
+            
+            $(document).ajaxStart(function() {
+                activeAjaxRequests++;
+                if (activeAjaxRequests === 1) { 
+    
+                    var $this = $('.add-product[data-active-ajax="true"]');
+                    $this.prop('disabled', true);
+                    $this.find('.add-text').text("Adding...");
+                    $this.find('.add-product-ajax-loading').removeClass('d-none');
+                }
+            }).ajaxStop(function() {
+                activeAjaxRequests--;
+                if (activeAjaxRequests === 0) { 
+                    var $this = $('.add-product[data-active-ajax="true"]');
+                    // $this.prop('disabled', false);
+                    // $this.find('.add-text').text("Add");
+                    $this.find('.add-product-ajax-loading').addClass('d-none');
+                    $this.removeAttr('data-active-ajax'); 
+                }
+            });
+   
+            $.ajax({
+                    url: '/admin/inventory/check-quantity/' + productId + '/',
+                    method: 'GET',
+                    success: function(data) {
+                        var stockQuantity = data.quantity;
+
+                        if(stockQuantity != null) {
+                            if(parseFloat(stockQuantity) == 0) {
+                                showError("The product is out of stock.");
+                                $this.prop('disabled', false);
+                                $this.find('.add-text').text("Add");
+                                return;
+                            }
+                            else if(parseFloat(quantity) > stockQuantity) {
+                                showError(`You only have ${stockQuantity} of this product in stock.`);
+                                quantityInput.focus();
+                                $this.prop('disabled', false);
+                                $this.find('.add-text').text("Add");
+                                return;
+                            }
+                        }
+
+                        selectedProductIds.add(productId);
+
+                        $this.prop('disabled', true);
+                        $this.find('.add-text').text("Added");
+                        
+                        quantity = parseFloat(quantity);
+                        
+                        var newRow = `
+                            <tr class="selected-product" data-product-id="${productId}" data-product-quantity="${quantity}">
+                                <td>
+                                    <div class="fw-bold">
+                                        ${productName} (<span class="product-quantity">${quantity.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>)
+                                        <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
+                                            <i data-feather="delete"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td class="text-end fw-bold">${productStrength}</td>
+                                <td class="text-end fw-bold">${productForm}</td>
+                                <td class="text-end fw-bold">${productDosage}</td>
+                                <td class="text-end fw-bold">${productFrequency}</td>
+                            </tr>
+                        `;
+                        
+                        $('#total-row').before(newRow);
+                        // $('#addProductModal').modal('hide');
+                        feather.replace();
+                    }
+            });
+    
+        }); 
+        
+        $(document).on('click', '.remove-product', function(e) 
+        {
+            e.preventDefault();
+    
+            var productId = $(this).parents('tr').data('product-id');
+    
+            selectedProductIds.delete(productId);
+    
+            $('.add-product[data-product-id="' + productId + '"]').prop('disabled', false);
+            var addProductButton = $('.add-product[data-product-id="' + productId + '"]');
+            addProductButton.html('<span class="spinner-border spinner-border-sm add-product-ajax-loading d-none" role="status" aria-hidden="true"></span><span class="add-text">Add</span>');
+            addProductButton.prop('disabled', false);
+    
+            $(this).closest('tr').remove();
+        });
+    });
+    </script>

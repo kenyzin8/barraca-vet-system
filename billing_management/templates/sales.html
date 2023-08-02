@@ -80,6 +80,15 @@
             justify-content: center;
             align-items: center;
         }
+
+        .d-flex {
+            flex-flow: column !important;
+        }
+
+        .input-group > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+            border-top-right-radius: 0.35rem;
+            border-bottom-right-radius: 0.35rem;
+        }
     }
 
     .card {
@@ -182,7 +191,7 @@ function initDataTables(tableId) {
                     <a class="nav-item nav-link" id="wizard2-tab" href="#wizard2" data-bs-toggle="tab" role="tab" aria-controls="wizard2" aria-selected="true">
                         <div class="wizard-step-icon"><i data-feather="bar-chart"></i></div>
                         <div class="wizard-step-text">
-                            <div class="wizard-step-text-name">Sales & Services</div>
+                            <div class="wizard-step-text-name">Sales & Services Breakdown</div>
                         </div>
                     </a>
                 </div>
@@ -190,7 +199,7 @@ function initDataTables(tableId) {
             
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-3 mt-3">
-                    <div class="mb-2 mt-5 ">
+                    <div class="mb-2" style="text-align: center;">
                         <span class="fw-700">Gross Revenue: ₱ {{ gross_revenue|floatformat:2|intcomma }}</span>
                     </div>
                     <div class="col-12 col-xl-auto d-flex align-items-center">
@@ -204,7 +213,7 @@ function initDataTables(tableId) {
                 </div>                  
                 <div class="tab-content" id="cardTabContent">
                     <!-- Wizard tab pane item 1-->
-                    <div class="tab-pane py-5 py-xl-2 fade show active" id="wizard1" role="tabpanel" aria-labelledby="wizard1-tab">
+                    <div class="tab-pane py-xl-2 fade show active" id="wizard1" role="tabpanel" aria-labelledby="wizard1-tab">
                         <div class="row justify-content-center">
                             <table id="datatablesSimple">
                                 <thead>

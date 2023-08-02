@@ -32,6 +32,7 @@ urlpatterns = [
     path('admin/pet-list/', permission_required('record_management.add_pet', raise_exception=True)(views.pet_module), name='admin-pet-list-page'),
     path('admin/pet-list/view-pet/<int:pet_id>/', permission_required('record_management.add_pet', raise_exception=True)(views.admin_view_pet), name='admin-view-pet-page'),
     path('admin/pet-list/update-pet/<int:pet_id>/', permission_required('record_management.add_pet', raise_exception=True)(views.admin_update_pet), name='admin-update-pet-page'),
+    path('admin/medical-record/', permission_required('record_management.add_pet', raise_exception=True)(views.medical_record), name='admin-medical-record-page'),
 ]
 
 

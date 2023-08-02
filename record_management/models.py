@@ -111,7 +111,6 @@ class PrescriptionMedicines(models.Model):
         ('tablet', 'Tablet'),
         ('capsule', 'Capsule'),
         ('syrup', 'Syrup'),
-        ('injection', 'Injection'),
     )
 
     prescription = models.ForeignKey(PetMedicalPrescription, on_delete=models.CASCADE)

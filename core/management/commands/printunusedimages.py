@@ -10,9 +10,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
+            self.stdout.write('-' * 80)
             username = input("Please enter your username: ")
             password = getpass("Please enter your password: ")
-
+            
             user = authenticate(username=username, password=password)
 
             if user is None or not user.is_superuser:
@@ -33,11 +34,21 @@ class Command(BaseCommand):
 
             # Find matching files
             matching_files = all_s3_files.intersection(all_django_files)
+
+            unused_files = all_s3_files - all_django_files
+            self.stdout.write('-' * 80)
+            for pet in Pet.objects.all():
+                if pet.picture.name in all_s3_files:
+                    self.stdout.write(f"Matching file for pet {pet.name} (ID: {pet.id}): {pet.picture.name}")
+
+            self.stdout.write(self.style.SUCCESS(f"Found {len(matching_files)} used files."))
+
+            for file_path in unused_files:
+                self.stdout.write(f"Unused file: {file_path}")
             
-            for file_path in matching_files:
-                self.stdout.write(f"Matching file: {file_path}")
-
-            self.stdout.write(self.style.SUCCESS(f"Found {len(matching_files)} matching files."))
-
+            self.stdout.write(self.style.SUCCESS(f"Found {len(unused_files)} unused files."))
+            self.stdout.write('-' * 80)
+            self.stdout.write(self.style.NOTICE(f"Use 'python manage.py cleanunusedimages' to delete unused files."))
+            self.stdout.write('-' * 80)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Error: {e}"))

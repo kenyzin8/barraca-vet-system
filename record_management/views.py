@@ -14,7 +14,8 @@ import json
 import time
 
 from .forms import *
-from .models import Client, Pet, PrescriptionMedicines
+from .models import Client, Pet, PetMedicalPrescription, PrescriptionMedicines, PetTreatment
+
 from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
 from core.decorators import staff_required
@@ -23,6 +24,7 @@ from django.db import transaction
 
 from appointment_management.models import Appointment
 from inventory.models import Product, ProductType
+from services.models import Service
 
 from django.conf import settings
 
@@ -609,7 +611,6 @@ def admin_update_pet(request, pet_id):
 @login_required
 def medical_record(request):
     pets = Pet.objects.filter(is_active=True).order_by('-id')
-
     types = ProductType.objects.filter(name="Medicines")
 
     product_dict = {}
@@ -620,5 +621,89 @@ def medical_record(request):
 
     formList = PrescriptionMedicines.MEDICINES_FORM_LIST
 
-    context = {'pets': pets, 'product_dict': product_dict, 'formList': formList}
-    return render(request, 'admin/medical_record.html', context)
+    services = Service.objects.filter(active=True)
+
+    context = {
+        'pets': pets, 
+        'product_dict': product_dict, 
+        'formList': formList,
+        'services': services  
+    }
+    return render(request, 'admin/consultation_module/consultation_module.html', context)
+
+@staff_required
+@login_required
+def submit_consultation(request):
+    
+    selected_pet_id = request.POST.get('selectedPetId')
+
+    appointment_date = request.POST.get('appointment_date')
+
+    lab_results = request.POST.get('lab_results')
+    temperature = request.POST.get('temperature')
+    weight = request.POST.get('weight')
+    diagnosis = request.POST.get('diagnosis')
+    treatment = request.POST.get('treatment')
+    med_images = request.FILES.get('med_images')
+
+    products_selected = json.loads(request.POST.get('productsSelected'))
+
+    try:
+        with transaction.atomic():
+            selected_pet = Pet.objects.get(pk=selected_pet_id)
+
+            appointment = None
+
+            if appointment_date:
+                appointment_date_obj = datetime.strptime(appointment_date, '%b %d, %Y').date()
+                appointment_time_of_the_day = request.POST.get('appointment_time_of_the_day')
+                appointment_purpose = request.POST.get('appointment_purpose')
+
+                selected_purpose = Service.objects.get(pk=appointment_purpose)
+
+                appointment = Appointment.objects.create(
+                    pet=selected_pet,
+                    client=selected_pet.client,
+                    date=appointment_date_obj,
+                    timeOfTheDay=appointment_time_of_the_day,
+                    purpose=selected_purpose,
+                    status='pending',
+                    isActive=True
+                )
+
+            pet_treatment = PetTreatment.objects.create(
+                pet_id=selected_pet.id,
+                treatment_date=datetime.now(),
+                lab_results=lab_results,
+                treatment_weight=weight,
+                temperature=temperature,
+                diagnosis=diagnosis,
+                treatment=treatment,
+                appointment=appointment if appointment else None,
+                medical_images=med_images,
+                isActive=True
+            )
+
+            if products_selected:
+                pet_medical_prescription = PetMedicalPrescription.objects.create(
+                    pet_id=selected_pet.id,
+                    date_prescribed=datetime.now(),
+                    pet_treatment=pet_treatment,
+                    isActive=True
+                )
+
+                for product_id, product_details in products_selected:
+                    PrescriptionMedicines.objects.create(
+                        prescription=pet_medical_prescription,
+                        medicine_id=product_id,
+                        strength=product_details['strength'],
+                        form=product_details['form'],
+                        quantity=product_details['quantity'],
+                        dosage=product_details['dosage'],
+                        frequency=product_details['frequency'],
+                        remarks=product_details['remarks']
+                    )
+
+            return JsonResponse({'success': True, 'message': 'Consultation submitted successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})

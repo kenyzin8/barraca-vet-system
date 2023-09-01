@@ -1,5 +1,11 @@
 <script>
 
+    function showSuccess(message)
+    {
+        $('#successModal .modal-body').text(message);
+        $('#successModal').modal('show');
+    }
+
     function showError(message)
     {
         $('#errorModal .modal-body').text(message);
@@ -7,9 +13,13 @@
     }
     
     window.addEventListener('DOMContentLoaded', event => {
+
+        let selectedPetName;
         let selectedPetId;
         let selectedProductIds = new Set();
-    
+
+        let productsSelected = new Map();
+
         const petTable = document.getElementById('petTable');
     
         if (petTable) {
@@ -83,7 +93,7 @@
                 navLinks[tabIndex].click();
             }
         }
-    
+
         function navigateTabs(direction) {
             const activeTab = document.querySelector('.nav-item.nav-link.active');
             const activeTabIndex = [...navLinks].indexOf(activeTab);
@@ -152,6 +162,8 @@
                     textSpan.style.fontWeight = '600';
                     const row = event.currentTarget.closest('tr');
                     selectedPetId = row.cells[0].textContent.trim();
+                    selectedPetName = row.cells[1].textContent.trim();
+
                 });
             });
     
@@ -234,6 +246,8 @@
             {% endfor %}
         });
     
+        let productRowIndexMap = new Map();
+
         $(document).on('click', '.add-product', function() 
         { 
             $(this).attr('data-active-ajax', true);
@@ -249,11 +263,13 @@
             var row = $(this).closest('tr');
             var productName = row.find('.product-name').text();
             var productStrength = row.find('.product-strength').val();
-            var productForm = row.find('.product-form option:selected').text();
+            var productForm = row.find('.product-form option:selected').val();
+            var productFormText = row.find('.product-form option:selected').text();
             var quantityInput = row.find('.product-quantity');
             var quantity = quantityInput.val();
             var productDosage = row.find('.product-dosage').val();
             var productFrequency = row.find('.product-frequency').val();
+            var productRemarks = row.find('.product-remarks').val();
     
             if(productStrength == null || productStrength == "") {
                 showError("Please enter the strength of the medicine.");
@@ -330,6 +346,33 @@
 
                         selectedProductIds.add(productId);
 
+                        var productDetails = {
+                            strength: productStrength,
+                            form: productForm,
+                            quantity: quantity,
+                            dosage: productDosage,
+                            frequency: productFrequency,
+                            remarks: productRemarks,
+                        };
+
+                        productsSelected.set(productId, productDetails);
+
+                        let rowObj = {
+                            "#": productId, 
+                            "Product": productName,
+                            "Strength": productStrength,
+                            "Form": productForm,
+                            "Quantity": quantity,
+                            "Dosage": productDosage,
+                            "Frequency": productFrequency,
+                            "Remarks": productRemarks
+                        };
+                        prescriptionSummaryDataTable.insert([rowObj]);
+
+                        let rowIndex = prescriptionSummaryDataTable.rows.dt.data.data.length - 1;
+                        
+                        productRowIndexMap.set(productId, rowIndex);
+
                         $this.prop('disabled', true);
                         $this.find('.add-text').text("Added");
                         
@@ -346,7 +389,7 @@
                                     </div>
                                 </td>
                                 <td class="text-end fw-bold">${productStrength}</td>
-                                <td class="text-end fw-bold">${productForm}</td>
+                                <td class="text-end fw-bold">${productFormText}</td>
                                 <td class="text-end fw-bold">${productDosage}</td>
                                 <td class="text-end fw-bold">${productFrequency}</td>
                             </tr>
@@ -368,12 +411,208 @@
     
             selectedProductIds.delete(productId);
     
+            console.log( prescriptionSummaryDataTable.rows.dt.data.data)
+            console.log(productRowIndexMap)
+
+            let rowIndex = productRowIndexMap.get(productId);
+
+            prescriptionSummaryDataTable.rows.remove(rowIndex);
+
+
+            productRowIndexMap.delete(productId);
+
+            productRowIndexMap.forEach((index, id) => {
+                if (index > rowIndex) {
+                    productRowIndexMap.set(id, index - 1);
+                }
+            });
+
+            console.log( prescriptionSummaryDataTable.rows.dt.data.data)
+            console.log(productRowIndexMap)
+
             $('.add-product[data-product-id="' + productId + '"]').prop('disabled', false);
             var addProductButton = $('.add-product[data-product-id="' + productId + '"]');
             addProductButton.html('<span class="spinner-border spinner-border-sm add-product-ajax-loading d-none" role="status" aria-hidden="true"></span><span class="add-text">Add</span>');
             addProductButton.prop('disabled', false);
     
             $(this).closest('tr').remove();
+        });
+
+
+        $(document).on('click', '.submit-button', function(e)
+        {
+            if(selectedPetId == null)
+            {
+                activateTab(0);
+                showError("Please select a pet.");
+                return;
+            }
+
+            var lab_results = $('#inputLabResults').val();
+            var temperature = $('#inputTemperature').val();
+            var weight = $('#inputTreatmentWeight').val();
+            var diagnosis = $('#inputDiagnosis').val();
+            var treatment = $('#inputTreatment').val();
+
+            if(lab_results == null || lab_results == "")
+            {
+                activateTab(1);
+                showError("Please enter the lab results.");
+                return;
+            }
+            else if(temperature == null || temperature == "")
+            {
+                activateTab(1);
+                showError("Please enter the temperature.");
+                return;
+            }
+            else if(weight == null || weight == "")
+            {
+                activateTab(1);
+                showError("Please enter the weight.");
+                return;
+            }
+            else if(diagnosis == null || diagnosis == "")
+            {
+                activateTab(1);
+                showError("Please enter the diagnosis.");
+                return;
+            }
+            else if(treatment == null || treatment == "")
+            {
+                activateTab(1);
+                showError("Please enter the treatment.");
+                return;
+            }
+
+            var med_images = $('#inputMedImages').val();
+
+            var appointment_date = $('#litepickerSingleDate').val();
+            var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
+            var appointment_purpose = $('#nextAppointmentPurpose').val();
+            
+            var med_images = $('#inputMedImages')[0].files[0];
+            var formData = new FormData();
+            formData.append('productsSelected', JSON.stringify([...productsSelected]));
+            formData.append('selectedPetId', selectedPetId);
+            formData.append('appointment_date', appointment_date);
+            formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
+            formData.append('appointment_purpose', appointment_purpose);
+            formData.append('lab_results', lab_results);
+            formData.append('temperature', temperature);
+            formData.append('weight', weight);
+            formData.append('diagnosis', diagnosis);
+            formData.append('treatment', treatment);
+            formData.append('med_images', med_images);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            $.ajax({
+                url: "{% url 'admin-submit-consultation-page' %}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    showSuccess(response.message);
+                    $(document).on('click', '.successOKBtn', function(e)
+                    {
+                        location.reload();
+                    });
+                },
+                error: function(response)
+                {
+                    showError(data.message);
+                }
+            });
+        });
+
+        function populateTable(tableElement) {
+            if (!tableElement) return;
+            const tableBody = tableElement.querySelector('tbody');
+            let index = 1;
+        
+            tableBody.innerHTML = '';
+            
+            productsSelected.forEach((value, key) => {
+                let row = tableBody.insertRow();
+                
+                let cell1 = row.insertCell(0);
+                cell1.innerHTML = index++;
+
+                let cell2 = row.insertCell(1);
+                cell2.innerHTML = key;
+                
+                let cell3 = row.insertCell(2);
+                cell3.innerHTML = value.strength;
+
+                let cell4 = row.insertCell(3);
+                cell4.innerHTML = value.form;
+
+                let cell5 = row.insertCell(4);
+                cell5.innerHTML = value.quantity;    
+                
+                let cell6 = row.insertCell(5);
+                cell6.innerHTML = value.dosage; 
+
+                let cell7 = row.insertCell(6);
+                cell7.innerHTML = value.frequency; 
+
+                let cell8 = row.insertCell(7);
+                cell8.innerHTML = value.remarks; 
+            });
+        }
+        
+        const prescriptionSummary = document.getElementById('table-medicines-summary');
+        let prescriptionSummaryDataTable;
+
+        if (prescriptionSummary) {
+            
+            prescriptionSummaryDataTable = new simpleDatatables.DataTable(prescriptionSummary, {
+                paging: false,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 10,
+                fixedHeight: false,
+                sortable: false,
+                searchable: false,
+                hiddenHeader: false,
+            });
+
+        }    
+
+        function getTableDataFromSelectedProducts() {
+            let dataArray = [];
+            let index = 1;
+            
+            productsSelected.forEach((value, key) => {
+                let rowObj = {
+                    "#": index++, 
+                    "Product": key,
+                    "Strength": value.strength,
+                    "Form": value.form,
+                    "Quantity": value.quantity,
+                    "Dosage": value.dosage,
+                    "Frequency": value.frequency,
+                    "Remarks": value.remarks
+                };
+
+                dataArray.push(rowObj);
+            });
+            return dataArray;
+        }
+
+        document.getElementById('wizard4-tab').addEventListener('shown.bs.tab', function (event) {
+            
+            $('.selected-pet-name').text(selectedPetName || "None");
+            $('.lab-results').text($('#inputLabResults').val() || "None");
+            $('.treatment-weight').text($('#inputTreatmentWeight').val() || "None");
+            $('.temperature').text($('#inputTemperature').val() || "None");
+            $('.diagnosis').text($('#inputDiagnosis').val() || "None");
+            $('.treatment').text($('#inputTreatment').val() || "None");
+
+            let appointmentDate = $('#litepickerSingleDate').val();
+            let appointmentTimeText = $('#inputNextAppointmentTimeOfTheDay option:selected').text();
+            $('.next-appointment').text((appointmentDate && appointmentTimeText) ? (appointmentDate + ' - ' + appointmentTimeText) : "None");   
+            let rows = prescriptionSummaryDataTable.rows;
         });
     });
     </script>

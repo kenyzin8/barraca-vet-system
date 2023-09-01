@@ -1,0 +1,57 @@
+<div class="tab-pane py-2 py-xl-2 fade show active" id="wizard1" role="tabpanel" aria-labelledby="wizard1-tab">
+    <div class="row justify-content-center">
+        <div class="col-xxl-10 col-xl-8">
+            <h3 class="text-primary">Step 1</h3>
+            <h5 class="card-title mb-4 fw-100">Find a pet and click select</h5>
+            <table id="petTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Pet</th>
+                        <th>Species</th>
+                        <th>Owner</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pet in pets %}
+                    <tr>
+                        <td>{{ pet.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-2">
+                                    <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" loading="lazy"/>
+                                </div>
+                                <span class="pet-name">{{ pet.name }}</span>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
+                                    <i data-feather="external-link"></i>
+                                </a>
+                            </div>
+                        </td>
+                        <td>{{ pet.species }}</td>
+                        <td >
+                            {{ pet.client.full_name }}
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' pet.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
+                                <i data-feather="external-link"></i>
+                            </a>
+                            {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}
+                            (You)
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-transparent-dark select-pet-button">
+                                <span class="small">Select</span> 
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <hr class="my-4" />
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-light disabled previous-button" type="button" disabled>Previous</button>
+                <button class="btn btn-primary next-button" type="button">Next</button>
+            </div>
+        </div>
+    </div>
+</div>

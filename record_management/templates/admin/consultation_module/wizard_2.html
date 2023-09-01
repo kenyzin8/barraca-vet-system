@@ -1,0 +1,68 @@
+<div class="tab-pane py-2 py-xl-2 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
+    <div class="row justify-content-center">
+        <div class="col-xxl-10 col-xl-8">
+            <h3 class="text-primary">Step 2</h3>
+            <h5 class="card-title mb-4 fw-100">Fill-in medical record fields</h5>
+            <form method="POST" enctype="multipart/form-data" id="medical-record-form">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="small mb-1" for="inputLabResults">Lab Results</label>
+                    <input class="form-control" id="inputLabResults" name="lab_results" type="text" placeholder="Enter lab results"/>
+                </div>
+                <div class="row gx-3">
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputTemperature">Temperature (Celcius)</label>
+                        <input class="form-control" id="inputTemperature" name="temperature" type="number" placeholder="Enter pet temperature"/>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputTreatmentWeight">Weight (kg)</label>
+                        <input class="form-control" id="inputTreatmentWeight" name="weight" type="number" placeholder="Enter pet's weight"/>
+                    </div>
+                </div>
+                <div class="row gx-3">
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputDiagnosis">Diagnosis</label>
+                        <input class="form-control" id="inputDiagnosis" name="diagnosis" type="text" placeholder="Enter diagnosis"/>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputTreatment">Treatment</label>
+                        <input class="form-control" id="inputTreatment" name="treatment" type="text" placeholder="Enter treatment"/>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="small mb-1" for="inputMedImages">Medical Image</label>
+                    <input class="form-control" id="inputMedImages" name="med_images" type="file"/>
+                </div>
+                <hr class="my-4" />
+                <label class="small mb-1 fw-700" for="inputNextAppointment">Next Appointment</label>
+                <div class="row gx-3">
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputNextAppointmentDate">Date</label>
+                        <div class="input-group input-group-joined border-1">
+                            <span class="input-group-text"><i class="text-primary" data-feather="calendar"></i></span>
+                            <input class="form-control ps-0 pointer" name="appointment_date" id="litepickerSingleDate" placeholder="Select date" />
+                        </div>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputNextAppointmentTimeOfTheDay">Time of the Day</label>
+                        <select class="form-select" id="inputNextAppointmentTimeOfTheDay" name="appointment_time_of_the_day">
+                            <option value="morning">Morning</option>
+                            <option value="afternoon">Afternoon</option>
+                        </select>
+                    </div>  
+                </div>
+                <label class="small mb-1" for="nextAppointmentPurpose">Purpose</label>
+                <select class="form-select" id="nextAppointmentPurpose">
+                    {% for service in services %}
+                        <option value="{{ service.id }}" {% if service.service_type == "Check-up" %}selected{% endif %}>{{ service.service_type }}</option>
+                    {% endfor %}
+                </select>                
+                <hr class="my-4" />
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-light previous-button" type="button">Previous</button>
+                    <button class="btn btn-primary next-button" type="button">Next</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

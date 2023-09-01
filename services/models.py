@@ -31,7 +31,7 @@ class Service(models.Model):
     fee = models.DecimalField(max_digits=10, decimal_places=2)
     #remarks = models.CharField(max_length=20, choices=REMARKS_TYPES)
     date_added = models.DateTimeField(auto_now=True)
-    control_number = models.CharField(max_length=50, default=1)
+    control_number = models.CharField(max_length=50, default=1) #DEPRECIATED
     active = models.BooleanField(default=True)
     
     changes_log = models.JSONField(default=dict, blank=True)
@@ -39,14 +39,21 @@ class Service(models.Model):
     def save(self, *args, **kwargs):
         if self.pk is not None:
             orig = Service.objects.get(pk=self.pk)
+
+            if orig.service_type == 'Check-up':
+                if orig.service_type != self.service_type:
+                    raise ValueError("Cannot change the service_type of the 'Check-up' service.")
+                if orig.active != self.active:
+                    raise ValueError("Cannot change the active status of the 'Check-up' service.")
+
             changes = {}
 
             if orig.service_type != self.service_type:
                 changes['service_type'] = [orig.service_type, self.service_type]
             if orig.fee != self.fee:
                 changes['fee'] = [str(orig.fee), str(self.fee)]
-            if orig.remarks != self.remarks:
-                changes['remarks'] = [orig.remarks, self.remarks]
+            #if orig.remarks != self.remarks:
+            #    changes['remarks'] = [orig.remarks, self.remarks]
             if orig.control_number != self.control_number:
                 changes['control_number'] = [str(orig.control_number), str(self.control_number)]
             if orig.active != self.active:
@@ -68,6 +75,21 @@ class Service(models.Model):
 
         super().save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        if self.service_type == 'Check-up':
+            raise ValueError("The 'Check-up' service cannot be deleted.")
+        super(Service, self).delete(*args, **kwargs)
+
+    @classmethod
+    def ensure_checkup_exists(cls):
+        checkup_service, created = cls.objects.get_or_create(service_type='Check-up', defaults={
+            'fee': 500.00, 
+            'active': True
+        })
+        if created:
+            print("Created default 'Check-up' service.")
+        else:
+            print("'Check-up' service already exists.")
 
     def __str__(self):
         return f"{self.service_type}"

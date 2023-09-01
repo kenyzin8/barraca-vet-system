@@ -69,7 +69,7 @@ class Appointment(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
     timeOfTheDay = models.CharField(max_length=10, choices=time_of_the_day_choices)
     date = models.DateField()
-    purpose = models.ForeignKey(Service, on_delete=models.CASCADE)
+    purpose = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=10, choices=status_choices)
     isActive = models.BooleanField(default=True)
 

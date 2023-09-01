@@ -77,15 +77,14 @@
         let pet = appointment.getAttribute('data-pet-rname');
         let purpose = appointment.getAttribute('data-purpose-val');
         let timeOfDay = appointment.getAttribute('data-time-of-day')
-    
         
         timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
-    
+
         const details = [
             `<strong>Client:</strong> ${client}`,
             `<strong>Pet:</strong> ${pet}`,
             `<strong>Time of the Day:</strong> ${timeOfDay}`,
-            `<strong>Purpose:</strong> ${purpose}`
+            purpose == null || purpose == "" ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${purpose}`
         ].join('<br>');
     
         document.getElementById('rebookListAppointmentLabel').innerText = "#" + appointmentId + " from Rebook List";
@@ -181,11 +180,12 @@
     
         timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
     
+        alert(purpose)
         const details = [
             `<strong>Client:</strong> ${client}`,
             `<strong>Pet:</strong> ${pet}`,
             `<strong>Time of the Day:</strong> ${timeOfDay}`,
-            `<strong>Purpose:</strong> ${purpose}`
+            purpose == null || purpose == "" ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${purpose}`
         ].join('<br>');
     
         document.getElementById('rebookListAppointmentLabel').innerText = "#" + event.id + " from Rebook List";
@@ -548,12 +548,11 @@
 
                         var isDaySentIcon = arg.event.extendedProps.day_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
                         var isWeekSentIcon = arg.event.extendedProps.week_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
-
                         const details = [
                             `<strong>Client:</strong> ${arg.event.extendedProps.client}`,
                             `<strong>Pet:</strong> ${arg.event.extendedProps.pet}`,
                             `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay}`,
-                            `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`,
+                            arg.event.extendedProps.purpose == null ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`,
                             `<strong>Day Before SMS Status: </strong> <span>${isDaySentIcon}<span>`,
                             `<strong>Week Before SMS Status: </strong> <span>${isWeekSentIcon}<span>`,
                         ].join('<br>');

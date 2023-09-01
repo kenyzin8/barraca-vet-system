@@ -1,0 +1,171 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block title %} Consultation | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+.nav-wizard .nav-link {
+    padding: 1rem;
+}
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    background-color: #232323;
+}
+.nav-wizard .nav-link.active .wizard-step-icon {
+    color: #232323;
+}
+.nav-wizard .nav-link .wizard-step-text .wizard-step-text-name {
+    color: #232323;
+}
+.nav-wizard .nav-link .wizard-step-icon {
+    background-color: #232323;
+}
+.text-primary {
+    color: #232323 !important;
+}
+.next-button
+{
+    background-color: #232323 !important;
+    border: none;
+}
+.submit-button
+{
+    background-color: green !important;
+    border: none;
+}
+.modal-xl {
+    --bs-modal-width: 1540px;
+}
+.litepicker .container__months {
+    border: 1px solid rgb(161, 161, 161);
+}
+.litepicker .container__footer {
+    border: 1px solid rgb(161, 161, 161);
+}
+.litepicker .container__days .day-item.is-locked {
+    color: red !important;
+}
+.litepicker .container__days .day-item.is-locked:hover {
+    box-shadow: inset 0 0 0 0px var(--litepicker-day-color-hover) !important;
+    cursor: default !important;
+}
+.litepicker .container__months .month-item-header div > .month-item-name, .month-item-year {
+    border: none;
+}
+.litepicker .container__footer .button-apply {
+    background-color: #232323;
+}
+.input-group:not(.has-validation) > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(.form-floating), .input-group:not(.has-validation) > .dropdown-toggle:nth-last-child(n+3), .input-group:not(.has-validation) > .form-floating:not(:last-child) > .form-control, .input-group:not(.has-validation) > .form-floating:not(:last-child) > .datatable-input, .input-group:not(.has-validation) > .form-floating:not(:last-child) > .form-select, .input-group:not(.has-validation) > .form-floating:not(:last-child) > .datatable-selector {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+</style>
+
+{% include 'admin/consultation_module/consultation_module_script.html' %}
+
+{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-5">
+    <!-- Wizard card example with navigation-->
+    <div class="card">
+        <div class="card-header border-bottom">
+            <!-- Wizard navigation-->
+            <div class="nav nav-pills nav-justified flex-column flex-xl-row nav-wizard" id="cardTab" role="tablist">
+                <!-- Wizard navigation item 1-->
+                <a class="nav-item nav-link active" id="wizard1-tab" href="#wizard1" data-bs-toggle="tab" role="tab" aria-controls="wizard1" aria-selected="true">
+                    <div class="wizard-step-icon">1</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Find Pet</div>
+                        <div class="wizard-step-text-details">Locate a pet for consultation</div>
+                    </div>
+                </a>
+                <!-- Wizard navigation item 2-->
+                <a class="nav-item nav-link" id="wizard2-tab" href="#wizard2" data-bs-toggle="tab" role="tab" aria-controls="wizard2" aria-selected="true">
+                    <div class="wizard-step-icon">2</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Medical Form</div>
+                        <div class="wizard-step-text-details">Fill this form for data recording</div>
+                    </div>
+                </a>
+                <!-- Wizard navigation item 3-->
+                <a class="nav-item nav-link" id="wizard3-tab" href="#wizard3" data-bs-toggle="tab" role="tab" aria-controls="wizard3" aria-selected="true">
+                    <div class="wizard-step-icon">3</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Prescription</div>
+                        <div class="wizard-step-text-details">Add a prescription for this record</div>
+                    </div>
+                </a>
+                <!-- Wizard navigation item 4-->
+                <a class="nav-item nav-link" id="wizard4-tab" href="#wizard4" data-bs-toggle="tab" role="tab" aria-controls="wizard4" aria-selected="true">
+                    <div class="wizard-step-icon">4</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Review &amp; Submit</div>
+                        <div class="wizard-step-text-details">Review and submit changes</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="cardTabContent">
+                <!-- Wizard tab pane item 1-->
+                {% include 'admin/consultation_module/wizard_1.html' %}
+                <!-- Wizard tab pane item 2-->
+                {% include 'admin/consultation_module/wizard_2.html' %}
+                <!-- Wizard tab pane item 3-->
+                {% include 'admin/consultation_module/wizard_3.html' %}
+                <!-- Wizard tab pane item 4-->
+                {% include 'admin/consultation_module/wizard_4.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'admin/consultation_module/modals.html' %}
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script src="{% static 'plugins/sb-admin/js/bundle.js' %}" crossorigin="anonymous"></script>
+<script>
+window.addEventListener('DOMContentLoaded', event => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const startDateString = urlParams.get('startDate');
+    const endDateString = urlParams.get('endDate');
+
+    const litepickerSingleDate = document.getElementById('litepickerSingleDate');
+
+    let today = new Date();
+
+    if (litepickerSingleDate) {
+        new Litepicker({
+            element: litepickerSingleDate,
+            format: 'MMM DD, YYYY',
+            plugins: ['mobilefriendly'],
+            header: "Select Date",
+            autoApply: false,
+            dropdowns: {
+                minYear: new Date().getFullYear(),        
+                maxYear: new Date().getFullYear() + 9,   
+                months: true,
+                years: true
+            },
+            lockDays: [
+                '2023-09-02'
+            ],
+            lockDaysFilter: (day) => {
+                const d = day.getDay();
+
+                return [7, 0].includes(d);
+            },
+        });
+    }
+});
+</script>
+{% endblock %}

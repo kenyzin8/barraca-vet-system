@@ -41,6 +41,9 @@ class Client(models.Model):
         elif self.gender == 'Female':
             return female_img
 
+    def get_address(self):
+        return f"{self.street}, {self.barangay}, {self.city}, {self.province}"
+
     class Meta:
         verbose_name_plural = "Clients"
 

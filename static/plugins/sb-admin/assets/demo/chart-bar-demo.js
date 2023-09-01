@@ -1,6 +1,5 @@
 // Set new default font family and font color to mimic Bootstrap's default styling
-(Chart.defaults.global.defaultFontFamily = "Metropolis"),
-'-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontFamily = "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif";
 Chart.defaults.global.defaultFontColor = "#858796";
 
 function number_format(number, decimals, dec_point, thousands_sep) {
@@ -80,7 +79,9 @@ var myBarChart = new Chart(ctx, {
                     min: 0,
                     maxTicksLimit: 5,
                     padding: 10,
+                    fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif", 
                     callback: function(value, index, values) {
+                        value = value.toLocaleString('en-US');
                         return "₱" + value;
                     }
                 },

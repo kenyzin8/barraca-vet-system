@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Client, Pet, PetMedicalRecord
+from .models import Client, Pet
 from .validators import validate_phone_number, validate_image_size
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
@@ -33,7 +33,10 @@ class UserRegistrationForm(UserCreationForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name', 'autocomplete': 'off'}))
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name','autocomplete': 'off'}))
     gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')], widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
-    address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;','autocomplete': 'off'}))
+    street = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Street', 'autocomplete': 'off'}))
+    barangay = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Barangay', 'autocomplete': 'off'}))
+    city = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'City', 'autocomplete': 'off'}))
+    province = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Province', 'autocomplete': 'off'}))
     contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={
                                 'class': 'form-control wider-input', 
                                 'placeholder': 'Contact Number',
@@ -111,12 +114,15 @@ class ClientUpdateForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name'}))
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
     gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
-    address = forms.CharField(required=True, widget=forms.Textarea(attrs={'class': 'form-control wider-input multitext-custom', 'placeholder': 'Address', 'style': 'resize: none;'}))
+    street = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Street'}))
+    barangay = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Barangay'}))
+    city = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'City'}))
+    province = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Province'}))
     #contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number', 'disabled': 'true'}))
 
     class Meta:
         model = Client
-        fields = ('first_name', 'last_name', 'gender', 'address', 'two_auth_enabled',)
+        fields = ('first_name', 'last_name', 'gender', 'street', 'barangay', 'city', 'province', 'two_auth_enabled',)
 
 class PasswordResetStep1(forms.Form):
     username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Username'}))

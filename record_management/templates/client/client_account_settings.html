@@ -62,9 +62,25 @@
                                     {{ user_form.email }}
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="small mb-1" for="inputLocation">Address</label>
-                                {{ client_form.address }}
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLocation">Street</label>
+                                    {{ client_form.street }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLocation">Barangay</label>
+                                    {{ client_form.barangay }}
+                                </div>
+                            </div>
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLocation">City</label>
+                                    {{ client_form.city }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLocation">Province</label>
+                                    {{ client_form.province }}
+                                </div>
                             </div>
                             <!-- <div class="row gx-3 mb-3">
                                 <div class="col-md-6">

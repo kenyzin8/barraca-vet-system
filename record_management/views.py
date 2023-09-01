@@ -139,12 +139,17 @@ def register_user(request):
                 user.is_active = False
                 user.save()
 
-                client = Client(user=user,
-                                first_name=form.cleaned_data['first_name'],
-                                last_name=form.cleaned_data['last_name'],
-                                gender=form.cleaned_data['gender'],
-                                address=form.cleaned_data['address'],
-                                contact_number=form.cleaned_data['contact_number'])
+                client = Client(
+                    user=user,
+                    first_name=form.cleaned_data['first_name'],
+                    last_name=form.cleaned_data['last_name'],
+                    gender=form.cleaned_data['gender'],
+                    street=form.cleaned_data['street'],
+                    barangay=form.cleaned_data['barangay'],
+                    city=form.cleaned_data['city'],
+                    province=form.cleaned_data['province'],
+                    contact_number=form.cleaned_data['contact_number']
+                )
                 client.save()
 
             phone_number = client.contact_number

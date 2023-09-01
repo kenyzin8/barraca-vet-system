@@ -18,7 +18,10 @@ class Client(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female')], default="None")
-    address = models.CharField(max_length=200)
+    street = models.CharField(max_length=200, default="None")
+    barangay = models.CharField(max_length=200, default="None")
+    city = models.CharField(max_length=200, default="None")
+    province = models.CharField(max_length=200, default="None")
     contact_number = models.CharField(max_length=15)
     two_auth_enabled = models.BooleanField(default=False)
 
@@ -74,6 +77,77 @@ class Pet(models.Model):
     class Meta:
         verbose_name_plural = "Pets"
 
+def validate_image_extension(value):
+    import os
+    ext = os.path.splitext(value.name)[1] 
+    valid_extensions = ['.png', '.jpg', '.jpeg']
+    if not ext.lower() in valid_extensions:
+        raise ValidationError(_('Unsupported file extension. Only PNG and JPG files are allowed.'))
+
+class PetTreatment(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
+    treatment_date = models.DateTimeField(auto_now=True)
+    lab_results = models.CharField(max_length=100, null=True, blank=True)
+    treatment_weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    diagnosis = models.CharField(max_length=100, null=True, blank=True)
+    treatment = models.CharField(max_length=100, null=True, blank=True)
+    appointment = models.OneToOneField('appointment_management.Appointment', on_delete=models.CASCADE, null=True, blank=True)
+    medical_images = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
+    isActive = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.pet.name} - {self.treatment}"
+
+    def get_owner(self):
+        return self.pet.client.full_name
+
+    class Meta:
+        verbose_name_plural = "Pet Treatments"
+
+class PetMedicalPrescription(models.Model):
+    pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
+    medicines = models.ManyToManyField('inventory.Product', through='PrescriptionMedicines')
+    date_prescribed = models.DateTimeField(auto_now=True)
+    pet_treatment = models.OneToOneField(PetTreatment, on_delete=models.CASCADE, null=True, blank=True)
+    isActive = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.pet.name} - {self.date_prescribed}"
+
+    class Meta:
+        verbose_name_plural = "Pet Medical Prescriptions"
+
+class PrescriptionMedicines(models.Model):
+    """
+    PRESCRIPTION DETAILS
+    """
+
+    MEDICINES_FORM_LIST = (
+        ('tablet', 'Tablet'),
+        ('capsule', 'Capsule'),
+        ('syrup', 'Syrup'),
+    )
+
+    prescription = models.ForeignKey(PetMedicalPrescription, on_delete=models.CASCADE)
+    medicine = models.ForeignKey('inventory.Product', on_delete=models.CASCADE, related_name='prescription_medicines', null=True)
+    strength = models.CharField(max_length=100)
+    form = models.CharField(max_length=20, choices=MEDICINES_FORM_LIST)
+    quantity = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    dosage = models.CharField(max_length=100)
+    frequency = models.CharField(max_length=100)
+    remarks = models.CharField(max_length=100)
+
+    #extra attributes if medicine is not around on the inventory
+    extra_medicine = models.CharField(max_length=100, null=True, blank=True)
+    def __str__(self):
+        return f"{self.prescription.pet.name} - {self.medicine.product_name}"
+
+    class Meta:
+        verbose_name_plural = "Prescription Medicines"
+
+
+# DEPRECATED: This model is no longer in active use but is preserved for data integrity.
 class PetHealthCard(models.Model):
 
     TREATMENTS_LIST = (
@@ -93,42 +167,6 @@ class PetHealthCard(models.Model):
     
     class Meta:
         verbose_name_plural = "Pet Health Cards"
-
-class PetMedicalPrescription(models.Model):
-    pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
-    medicines = models.ManyToManyField('inventory.Product', through='PrescriptionMedicines')
-    date_prescribed = models.DateTimeField(auto_now=True)
-    isActive = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"{self.pet.name} - {self.date_prescribed}"
-
-    class Meta:
-        verbose_name_plural = "Pet Medical Prescriptions"
-
-class PrescriptionMedicines(models.Model):
-    MEDICINES_FORM_LIST = (
-        ('tablet', 'Tablet'),
-        ('capsule', 'Capsule'),
-        ('syrup', 'Syrup'),
-    )
-
-    prescription = models.ForeignKey(PetMedicalPrescription, on_delete=models.CASCADE)
-    medicine = models.ForeignKey('inventory.Product', on_delete=models.CASCADE, related_name='prescription_medicines', null=True)
-    strength = models.CharField(max_length=100)
-    form = models.CharField(max_length=20, choices=MEDICINES_FORM_LIST)
-    quantity = models.CharField(max_length=100)
-    dosage = models.CharField(max_length=100)
-    frequency = models.CharField(max_length=100)
-    remarks = models.CharField(max_length=100)
-
-    #extra attributes if medicine is not around on the inventory
-    extra_medicine = models.CharField(max_length=100, null=True, blank=True)
-    def __str__(self):
-        return f"{self.prescription.pet.name} - {self.medicine.product_name}"
-
-    class Meta:
-        verbose_name_plural = "Prescription Medicines"
 
 class PetMedicalRecord(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)

@@ -9,12 +9,25 @@ class ProductType(models.Model):
     name = models.CharField(max_length=50)
     active = models.BooleanField(default=True)
 
+    def save(self, *args, **kwargs):
+        if self.pk:
+            orig = ProductType.objects.get(pk=self.pk)
+            if orig.name == "Medicines" and self.name != "Medicines":
+                raise ValueError("The name of the 'Medicines' Product Type cannot be changed.")
+        super(ProductType, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.name == "Medicines":
+            raise ValueError("The 'Medicines' Product Type cannot be deleted.")
+        super(ProductType, self).delete(*args, **kwargs)
+
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = "Product Type"
         verbose_name_plural = "Product Types"
+
 
 class Product(models.Model):
     product_name = models.CharField(max_length=255)

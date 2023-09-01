@@ -4,6 +4,7 @@ from inventory.models import Product
 from services.models import Service
 from record_management.models import Client
 from django.core.validators import MinValueValidator, MaxValueValidator, DecimalValidator
+from record_management.models import PrescriptionMedicines
 
 def format_billing_number(id):
     id_str = str(id)
@@ -36,8 +37,12 @@ class Billing(models.Model):
         verbose_name_plural = "Bills"
 
 class BillingProduct(models.Model):
+    """
+    BILL PRODUCT CART
+    """
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_products')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    prescription_details = models.ForeignKey(PrescriptionMedicines, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.DecimalField(default=1.000, max_digits=10, decimal_places=3, validators=[MinValueValidator(0.01)])
     
     price_at_time_of_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -55,6 +60,9 @@ class BillingProduct(models.Model):
         verbose_name_plural = "Billing Products"
 
 class BillingService(models.Model):
+    """
+    BILL SERVICE CART
+    """
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_services')
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
 

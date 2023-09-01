@@ -27,14 +27,9 @@ class Service(models.Model):
         ('other', 'Other'),
     )
 
-    REMARKS_TYPES = (
-        ('without_medicine', 'Without Medicine'),
-        ('with_medicine', 'With Medicine'),
-    )
-
     service_type = models.CharField(max_length=50)
     fee = models.DecimalField(max_digits=10, decimal_places=2)
-    remarks = models.CharField(max_length=20, choices=REMARKS_TYPES)
+    #remarks = models.CharField(max_length=20, choices=REMARKS_TYPES)
     date_added = models.DateTimeField(auto_now=True)
     control_number = models.CharField(max_length=50, default=1)
     active = models.BooleanField(default=True)

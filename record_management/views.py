@@ -684,6 +684,10 @@ def submit_consultation(request):
                 isActive=True
             )
 
+            if weight:
+                selected_pet.weight = weight
+                selected_pet.save()
+
             if products_selected:
                 pet_medical_prescription = PetMedicalPrescription.objects.create(
                     pet_id=selected_pet.id,

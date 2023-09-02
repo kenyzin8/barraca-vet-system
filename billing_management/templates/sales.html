@@ -283,7 +283,7 @@ function initDataTables(tableId) {
                                                 <tr>
                                                     <td>
                                                         {{ bill.get_billing_number }}
-                                                        <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' billing_product.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
+                                                        <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
                                                             <i data-feather="external-link"></i>
                                                         </a>
                                                     </td>

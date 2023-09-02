@@ -349,7 +349,7 @@ def rebook_appointment(request):
         pet_id = request.POST.get('pet')
         purpose_id = request.POST.get('purpose')
         time_of_the_day = request.POST.get('time_of_day')
-
+        
         try:
             
             appointment = Appointment.objects.get(id=appointment_id)
@@ -361,7 +361,7 @@ def rebook_appointment(request):
 
             date_slot = DateSlot.objects.filter(date=new_date_str).first()
             if date_slot:
-                slots_remaining = DateSlot.objects.filter(date=date).first().slots - Appointment.objects.filter(date=new_date_str, isActive=True).count()
+                slots_remaining = DateSlot.objects.filter(date=new_date_str).first().slots - Appointment.objects.filter(date=new_date_str, isActive=True, status='pending').count()
                 if slots_remaining != 1:
                     slots_remaining -= 1
 

@@ -62,6 +62,9 @@
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl)
                 })
+
+                console.log(selectedPetId)
+
                 setupSelectButtons();
             });
     
@@ -80,6 +83,7 @@
             searchInput.addEventListener('search', function(e) {
                 if (e.target.value == '') {
                     dataTable.search('');
+                    setupSelectButtons();
                 }
             });
         }
@@ -140,7 +144,7 @@
     
         function setupSelectButtons() {
             const selectPetButtons = document.querySelectorAll('.select-pet-button');
-    
+
             function deselectAllPets() {
                 selectPetButtons.forEach(button => {
                     const textSpan = button.querySelector('span');
@@ -151,11 +155,26 @@
                     }
                 });
             }
-    
+
+            function selectPetById() {
+                if (selectedPetId) {
+                    deselectAllPets();
+                    selectPetButtons.forEach(button => {
+                        const row = button.closest('tr');
+                        if (row.cells[0].textContent.trim() === selectedPetId) {
+                            const textSpan = button.querySelector('span');
+                            textSpan.textContent = 'Selected';
+                            textSpan.style.color = 'green';
+                            textSpan.style.fontWeight = '600';
+                        }
+                    });
+                }
+            }
+
             selectPetButtons.forEach(button => {
                 button.addEventListener('click', (event) => {
                     deselectAllPets();
-    
+
                     const textSpan = event.currentTarget.querySelector('span');
                     textSpan.textContent = 'Selected';
                     textSpan.style.color = 'green';
@@ -163,10 +182,10 @@
                     const row = event.currentTarget.closest('tr');
                     selectedPetId = row.cells[0].textContent.trim();
                     selectedPetName = row.cells[1].textContent.trim();
-
                 });
             });
-    
+
+            selectPetById();
         }
     
         setupSelectButtons();

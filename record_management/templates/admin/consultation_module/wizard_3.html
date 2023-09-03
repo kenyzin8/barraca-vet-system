@@ -1,8 +1,24 @@
+{% load static %}
 <div class="tab-pane py-2 py-xl-2 fade" id="wizard3" role="tabpanel" aria-labelledby="wizard3-tab">
     <div class="row justify-content-center">
         <div class="col-xxl-10 col-xl-8">
-            <h3 class="text-primary">Step 3</h3>
-            <h5 class="card-title mb-4 fw-100">Add a prescription if needed</h5>
+            <div class="parent-container">
+                <div class="header-group">
+                    <h3 class="text-primary">Step 3</h3>
+                    <h5 class="card-title mb-4 fw-100">Add a prescription if needed</h5>
+                </div>
+                <div class="selected-pet-info" style="display: none;">
+                    <span class="small">Selected Pet: </span>
+                    <div class="avatar">
+                        <img class="avatar-img img-fluid selected-pet-image" src="{% static 'images/placeholder-consultation.jpg' %}" loading="lazy"/>
+                    </div>
+                    <span class="pet-name selected-pet-name small"></span>
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="#" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
+                        <i data-feather="external-link"></i>
+                    </a>
+                </div>
+            </div>
+
             <div class="table-responsive billing-table">
                 <table class="table table-borderless mb-0 mt-4">
                     <thead class="">

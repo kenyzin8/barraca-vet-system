@@ -100,6 +100,45 @@
     color: #232323 !important;
     font-size: 10px !important;
 }
+
+.parent-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.avatar {
+    margin: 0 10px; 
+}
+
+.header-group {
+    text-align: left;
+    max-width: calc(100% - 200px);
+}
+
+.selected-pet-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 577px) {
+    .parent-container {
+        flex-direction: column; 
+        align-items: center; 
+    }
+    
+    .header-group {
+        text-align: center; 
+    }
+
+    .selected-pet-info {
+        margin-top: 5px; 
+        margin-bottom: 30px;
+    }
+}
 </style>
 
 {% include 'admin/consultation_module/consultation_module_script.html' %}

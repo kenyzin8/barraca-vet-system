@@ -181,7 +181,17 @@
                     textSpan.style.fontWeight = '600';
                     const row = event.currentTarget.closest('tr');
                     selectedPetId = row.cells[0].textContent.trim();
-                    selectedPetName = row.cells[1].textContent.trim();
+                    selectedPetName = row.querySelector('.pet-name').textContent.trim();
+                    const selectedPetImage = row.querySelector('.avatar-img').getAttribute('src');
+                    const selectedPetLink = row.querySelector('.btn-to-pet').getAttribute('href');
+
+                    const selectedPetInfoDivs = document.querySelectorAll('.selected-pet-info');
+                    selectedPetInfoDivs.forEach(div => {
+                        div.querySelector('.selected-pet-image').setAttribute('src', selectedPetImage);
+                        div.querySelector('.selected-pet-name').textContent = selectedPetName;
+                        div.querySelector('.selected-pet-link').setAttribute('href', selectedPetLink);
+                        div.style.display = 'flex'; 
+                    });
                 });
             });
 

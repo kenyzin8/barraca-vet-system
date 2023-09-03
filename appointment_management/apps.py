@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.db import OperationalError
 
 class AppointmentManagementConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -7,4 +8,7 @@ class AppointmentManagementConfig(AppConfig):
 
     def ready(self):
         from .models import MaximumAppointment
-        MaximumAppointment.load()
+        try:
+            MaximumAppointment.load()
+        except OperationalError:
+            pass

@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-
+from django.db import OperationalError
 
 class InventoryConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -7,5 +7,8 @@ class InventoryConfig(AppConfig):
 
     def ready(self):
         from .models import ProductType
-        if not ProductType.objects.filter(name="Medicines").exists():
-            ProductType.objects.create(name="Medicines")
+        try:
+            if not ProductType.objects.filter(name="Medicines").exists():
+                ProductType.objects.create(name="Medicines")
+        except OperationalError:
+            pass

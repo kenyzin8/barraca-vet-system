@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-
+from django.db import OperationalError
 
 class ServicesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -7,4 +7,7 @@ class ServicesConfig(AppConfig):
 
     def ready(self):
         from .models import Service 
-        Service.ensure_checkup_exists()
+        try:
+            Service.ensure_checkup_exists()
+        except OperationalError:
+            pass

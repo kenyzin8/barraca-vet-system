@@ -30,7 +30,7 @@
                                             <th>#</th>
                                             <th>Medicine</th>
                                             <th>Strength</th>
-                                            <th>Form</th>
+                                            <!-- <th>Form</th> -->
                                             <th>Quantity</th>
                                             <th>Dosage</th>
                                             <th>Frequency</th>
@@ -54,14 +54,14 @@
                                             <td>
                                                 <input type="text" class="form-control product-strength" placeholder="Ex. 100mg" required>
                                             </td>
-                                            <td>
+                                            <!-- <td>
                                                 <select type="text" class="form-select product-form" required>
                                                     <option value="">----</option>
                                                     {% for value, form_type in formList %}
                                                         <option value="{{ value }}">{{ form_type }}</option>
                                                     {% endfor %}
                                                 </select>
-                                            </td>
+                                            </td> -->
                                             <td>
                                                 <input type="number" class="form-control product-quantity" min="1" step="0.01" value="1" style="width: 80px;" onkeydown="javascript: return event.keyCode !== 69" required>
                                             </td>

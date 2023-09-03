@@ -9,6 +9,11 @@ class ProductForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control'}),
         decimal_places=2, 
     )
+    volume = forms.DecimalField(
+        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control'}),
+        decimal_places=2, 
+    )  
+    form = forms.ChoiceField(choices=Product.PRODUCT_FORM_LIST, widget=forms.Select(attrs={'id': 'form', 'class': 'form-select'}))
     type = forms.ModelChoiceField(queryset=ProductType.objects.filter(active=True).order_by('-id'), widget=forms.Select(attrs={'id': 'type', 'class': 'form-select'}))
     batch_number = forms.CharField(widget=forms.TextInput(attrs={'id': 'batch_number', 'class': 'form-control', 'list': 'previous-batch-numbers'}))
     manufacturing_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'manufacturing_date', 'class': 'form-control', 'type': 'date'}))
@@ -18,7 +23,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ('product_name', 'quantity_on_stock', 'type', 'batch_number', 'manufacturing_date', 'expiration_date', 'critical_level', 'price')
+        fields = ('product_name', 'quantity_on_stock', 'volume', 'form', 'type', 'batch_number', 'manufacturing_date', 'expiration_date', 'critical_level', 'price')
 
     def clean(self):
         cleaned_data = super().clean()

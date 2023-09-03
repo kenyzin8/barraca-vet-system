@@ -1,4 +1,13 @@
 <script>
+    function validateFile(input) {
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+
+        if(!allowedExtensions.exec(input.value)) {
+            showError('Invalid file type. Only .jpg, .jpeg, and .png files are allowed.');
+            input.value = '';
+            return false;
+        }
+    }
 
     function showSuccess(message)
     {
@@ -20,6 +29,38 @@
 
         let productsSelected = new Map();
 
+        let radioStates = {};
+        
+        let inputTreatment = document.getElementById('inputTreatment');
+        let radios = document.querySelectorAll('input[type="radio"]');
+        
+        radios.forEach(radio => {
+            radio.addEventListener('click', function() {
+                if (radioStates[this.id]) {
+                    this.checked = false;
+                    inputTreatment.value = ''; 
+                    delete radioStates[this.id];
+                } else {
+                    radioStates[this.id] = true;
+                    
+                    radios.forEach(innerRadio => {
+                        if (innerRadio.id !== this.id) {
+                            innerRadio.checked = false;
+                            delete radioStates[innerRadio.id];
+                        }
+                    });
+
+                    if (this.id === 'dewormingRadio') {
+                        inputTreatment.value = 'Deworming';
+                    } else if (this.id === 'vaccRadio') {
+                        inputTreatment.value = 'Vaccination';
+                    }
+                }
+            });
+        });
+
+
+        
         const petTable = document.getElementById('petTable');
     
         if (petTable) {
@@ -292,8 +333,8 @@
             var row = $(this).closest('tr');
             var productName = row.find('.product-name').text();
             var productStrength = row.find('.product-strength').val();
-            var productForm = row.find('.product-form option:selected').val();
-            var productFormText = row.find('.product-form option:selected').text();
+            //var productForm = row.find('.product-form option:selected').val();
+           // var productFormText = row.find('.product-form option:selected').text();
             var quantityInput = row.find('.product-quantity');
             var quantity = quantityInput.val();
             var productDosage = row.find('.product-dosage').val();
@@ -304,10 +345,10 @@
                 showError("Please enter the strength of the medicine.");
                 return;
             }
-            if(productForm == null || productForm == "----") {
-                showError("Please select form.");
-                return;
-            }
+            // else if(productForm == null || productForm == "----") {
+            //     showError("Please select form.");
+            //     return;
+            // }
             else if((quantity.split('.')[1] || []).length > 2)
             {
                 showError("Only 2 decimal points for the quantity.");
@@ -377,7 +418,7 @@
 
                         var productDetails = {
                             strength: productStrength,
-                            form: productForm,
+                            //form: productForm,
                             quantity: quantity,
                             dosage: productDosage,
                             frequency: productFrequency,
@@ -390,7 +431,7 @@
                             "#": productId, 
                             "Product": productName,
                             "Strength": productStrength,
-                            "Form": productForm,
+                            //"Form": productForm,
                             "Quantity": quantity,
                             "Dosage": productDosage,
                             "Frequency": productFrequency,
@@ -418,7 +459,6 @@
                                     </div>
                                 </td>
                                 <td class="text-end fw-bold">${productStrength}</td>
-                                <td class="text-end fw-bold">${productFormText}</td>
                                 <td class="text-end fw-bold">${productDosage}</td>
                                 <td class="text-end fw-bold">${productFrequency}</td>
                             </tr>
@@ -461,7 +501,6 @@
             $(this).closest('tr').remove();
         });
 
-
         $(document).on('click', '.submit-button', function(e)
         {
             if(selectedPetId == null)
@@ -476,6 +515,9 @@
             var weight = $('#inputTreatmentWeight').val();
             var diagnosis = $('#inputDiagnosis').val();
             var treatment = $('#inputTreatment').val();
+
+            var isDeworming = $('#dewormingRadio').is(':checked');
+            var isVaccination = $('#vaccRadio').is(':checked');
 
             if(lab_results == null || lab_results == "")
             {
@@ -527,6 +569,8 @@
             formData.append('diagnosis', diagnosis);
             formData.append('treatment', treatment);
             formData.append('med_images', med_images);
+            formData.append('isDeworming', isDeworming);
+            formData.append('isVaccination', isVaccination);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
             $.ajax({
@@ -639,8 +683,17 @@
             return dataArray;
         }
 
+        document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard1');
+        });
+        document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard2');
+        });
+        document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard3');
+        });
         document.getElementById('wizard4-tab').addEventListener('shown.bs.tab', function (event) {
-            
+            localStorage.setItem('activeTab', 'wizard4');
             $('.selected-pet-name').text(selectedPetName || "None");
             $('.lab-results').text($('#inputLabResults').val() || "None");
             $('.treatment-weight').text($('#inputTreatmentWeight').val() || "None");

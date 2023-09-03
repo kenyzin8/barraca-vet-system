@@ -21,32 +21,42 @@
             <form method="POST" enctype="multipart/form-data" id="medical-record-form">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label class="small mb-1" for="inputLabResults">Lab Results</label>
+                    <label class="small mb-1" for="inputLabResults">Lab Results <span class="text-red">*</span></label>
                     <input class="form-control" id="inputLabResults" name="lab_results" type="text" placeholder="Enter lab results"/>
                 </div>
                 <div class="row gx-3">
                     <div class="mb-3 col-md-6">
-                        <label class="small mb-1" for="inputTemperature">Temperature (Celcius)</label>
+                        <label class="small mb-1" for="inputTemperature">Temperature (Celcius) <span class="text-red">*</span></label>
                         <input class="form-control" id="inputTemperature" name="temperature" type="number" placeholder="Enter pet temperature"/>
                     </div>
                     <div class="mb-3 col-md-6">
-                        <label class="small mb-1" for="inputTreatmentWeight">Weight (kg)</label>
+                        <label class="small mb-1" for="inputTreatmentWeight">Weight (kg) <span class="text-red">*</span></label>
                         <input class="form-control" id="inputTreatmentWeight" name="weight" type="number" placeholder="Enter pet's weight"/>
                     </div>
                 </div>
-                <div class="row gx-3">
-                    <div class="mb-3 col-md-6">
-                        <label class="small mb-1" for="inputDiagnosis">Diagnosis</label>
-                        <input class="form-control" id="inputDiagnosis" name="diagnosis" type="text" placeholder="Enter diagnosis"/>
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label class="small mb-1" for="inputTreatment">Treatment</label>
-                        <input class="form-control" id="inputTreatment" name="treatment" type="text" placeholder="Enter treatment"/>
+                <div class="mb-3">
+                    <label class="small mb-1" for="inputDiagnosis">Diagnosis <span class="text-red">*</span></label>
+                    <input class="form-control" id="inputDiagnosis" name="diagnosis" type="text" placeholder="Enter diagnosis"/>
+                </div>
+                <div class="mb-3">
+                    <label class="small mb-1" for="inputTreatment">Treatment <span class="text-red">*</span></label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="inputTreatment" name="treatment" placeholder="Enter treatment">
+                        <span class="input-group-text bg-white border-start-0">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="treatmentType" id="dewormingRadio" value="deworming">
+                                <label class="form-check-label" for="dewormingRadio">Deworming</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="treatmentType" id="vaccRadio" value="vaccination">
+                                <label class="form-check-label" for="vaccRadio">Vaccination</label>
+                            </div>
+                        </span>
                     </div>
                 </div>
                 <div class="mb-3">
                     <label class="small mb-1" for="inputMedImages">Medical Image</label>
-                    <input class="form-control" id="inputMedImages" name="med_images" type="file"/>
+                    <input class="form-control" id="inputMedImages" name="med_images" type="file" accept=".jpg, .jpeg, .png" onchange="validateFile(this);" />
                 </div>
                 <hr class="my-4" />
                 <label class="small mb-1 fw-700" for="inputNextAppointment">Next Appointment</label>
@@ -81,3 +91,7 @@
         </div>
     </div>
 </div>
+
+<script>
+
+</script>

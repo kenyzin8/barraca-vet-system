@@ -34,6 +34,7 @@ urlpatterns = [
     path('admin/pet-list/update-pet/<int:pet_id>/', permission_required('record_management.add_pet', raise_exception=True)(views.admin_update_pet), name='admin-update-pet-page'),
     path('admin/medical-record/', permission_required('record_management.add_pet', raise_exception=True)(views.medical_record), name='admin-medical-record-page'),
     path('admin/submit-consultation/', permission_required('record_management.add_pet', raise_exception=True)(views.submit_consultation), name='admin-submit-consultation-page'),
+    path('admin/view-prescription/<int:prescription_id>/', permission_required('record_management.add_pet', raise_exception=True)(views.view_prescription), name='admin-view-prescription-page'),
 ]
 
 

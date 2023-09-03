@@ -30,8 +30,37 @@ class ProductType(models.Model):
 
 
 class Product(models.Model):
+
+    PRODUCT_FORM_LIST = (
+        ('tablet', 'Tablet'),
+        ('capsule', 'Capsule'),
+        ('syrup', 'Syrup'),
+        ('granule', 'Granule'),
+        ('chew', 'Chewable'),
+        ('pellet', 'Pellet'),
+        ('injection', 'Injection'),
+        ('liquid', 'Liquid'),
+        ('feed_additive', 'Feed Additive'),
+        ('oral_solution', 'Oral Solution'),
+        ('ear_drop', 'Ear Drop'),
+        ('spot-on', 'Spot-On Treatment'),
+        ('gel', 'Gel'),
+        ('cream', 'Cream'),
+        ('ointment', 'Ointment'),
+        ('lotion', 'Lotion'),
+        ('suspension', 'Suspension'),
+        ('drop', 'Drop'),
+        ('spray', 'Spray'),
+        ('powder', 'Powder'),
+        ('paste', 'Paste'),
+        ('bolus', 'Bolus'),
+        ('other', 'Other'),
+    )
+
     product_name = models.CharField(max_length=255)
     quantity_on_stock = models.DecimalField(default=1.00, max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
+    volume = models.DecimalField(default=1.00, max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
+    form = models.CharField(max_length=20, choices=PRODUCT_FORM_LIST, default='other')
     type = models.ForeignKey(ProductType, on_delete=models.SET_NULL, null=True)
     batch_number = models.CharField(max_length=255, default="-")
     manufacturing_date = models.DateField()
@@ -64,6 +93,10 @@ class Product(models.Model):
                 changes['product_name'] = [orig.product_name, self.product_name]
             if orig.quantity_on_stock != self.quantity_on_stock:
                 changes['quantity_on_stock'] = [str(orig.quantity_on_stock), str(self.quantity_on_stock)]
+            if orig.type != self.volume:
+                changes['volume'] = [str(orig.volume), str(self.volume)]
+            if orig.form != self.form:
+                changes['form'] = [orig.form, self.form]
             if orig.type != self.type:
                 changes['type'] = [str(orig.type), str(self.type)]
             if orig.manufacturing_date != self.manufacturing_date:

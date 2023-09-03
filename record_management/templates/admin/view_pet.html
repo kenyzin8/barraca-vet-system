@@ -1,5 +1,8 @@
 {% extends 'admin_dashboard/base.html' %}
 
+{% load static %}
+{% load humanize %}
+
 {% block title %} Pet - {{ pet.name }} | Barraca Veterinary Clinic {% endblock %}
 
 <a href="{% url 'pet-list-page' %}">Back</a>
@@ -28,7 +31,13 @@
 
     .nav-wizard .nav-link.active .wizard-step-icon i, .nav-wizard .nav-link.active .wizard-step-icon svg, .nav-wizard .nav-link.active .wizard-step-icon .feather 
     {
-    color: #121212;
+        color: #121212;
+    }
+    .card {
+        box-shadow: 0 0rem 0rem 0 rgba(255, 255, 255, 0.15);
+    }
+    .card-header {
+        background-color: rgba(255, 222, 173, 0);
     }
 </style>
 {% endblock %}
@@ -105,14 +114,233 @@
                     <!-- Wizard tab pane item 2-->
                     <div class="tab-pane py-5 py-xl-2 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
                         <div class="row justify-content-center">
-                            Test
+                            <div class="card card-collapsable mb-2">
+                                <a class="card-header" href="#dewCard" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="dewCard">
+                                    Deworming
+                                    <div class="card-collapsable-arrow">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </a>
+                                <div class="collapse show" id="dewCard">
+                                    <div class="card-body">
+                                        <table id="deworming-health-card-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Visit Date</th>
+                                                    <th>Next Deworming</th>
+                                                    <th>Weight</th>
+                                                    <th>Treatment</th>
+                                                    <th>Veterenarian</th>
+                                                    <th>Prescription</th>
+                                                    <th>Medical Image</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for treatment in deworming_health_card %}
+                                                <tr>
+                                                    <td>{{ treatment.id }}</td>
+                                                    <td>
+                                                        <!-- convert date to Dec 25, 2023 12:00 AM format -->
+                                                        {{ treatment.treatment_date|date:"M d, Y" }} {{ treatment.treatment_date|time:"g:i A" }}
+                                                    </td>
+                                                    <td>
+                                                        {% if treatment.appointment %}
+                                                            {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.get_timeOfTheDay_display }}
+                                                        {% else %}
+                                                            <i data-feather="x-square"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ treatment.treatment_weight }}</td>
+                                                    <td>{{ treatment.treatment }}</td>
+                                                    <td>Yvette Mae Barraca</td>
+                                                    <td>
+                                                        {% if treatment.petmedicalprescription %}
+                                                            <a href="{% url 'admin-view-prescription-page' treatment.petmedicalprescription.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Prescription">
+                                                                <i data-feather="list"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <i data-feather="x-square"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if treatment.medical_images %}
+                                                        <a href="{{ treatment.medical_images.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
+                                                            <i data-feather="image"></i>
+                                                        </a>
+                                                        <!-- <span class="small">{{ treatment.medical_images }}</span> -->
+                                                        {% else %}
+                                                            <i data-feather="x-square"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                                            <i data-feather="edit"></i>
+                                                        </a> 
+                                                        <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                                            <i data-feather="trash-2"></i>
+                                                        </a> 
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card card-collapsable">
+                                <a class="card-header" href="#vaccCard" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="vaccCard">
+                                    Vaccination
+                                    <div class="card-collapsable-arrow">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </a>
+                                <div class="collapse show" id="vaccCard">
+                                    <div class="card-body">
+                                        <table id="vaccination-health-card-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Visit Date</th>
+                                                    <th>Next Vaccination</th>
+                                                    <th>Weight</th>
+                                                    <th>Treatment</th>
+                                                    <th>Veterenarian</th>
+                                                    <th>Prescription</th>
+                                                    <th>Medical Image</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for treatment in vaccination_health_card %}
+                                                <tr>
+                                                    <td>{{ treatment.id }}</td>
+                                                    <td>
+                                                        <!-- convert date to Dec 25, 2023 12:00 AM format -->
+                                                        {{ treatment.treatment_date|date:"M d, Y" }} {{ treatment.treatment_date|time:"g:i A" }}
+                                                    </td>
+                                                    <td>
+                                                        {% if treatment.appointment %}
+                                                            {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.get_timeOfTheDay_display }}
+                                                        {% else %}
+                                                            <i data-feather="x-square"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ treatment.treatment_weight }}</td>
+                                                    <td>{{ treatment.treatment }}</td>
+                                                    <td>Yvette Mae Barraca</td>
+                                                    <td>
+                                                        {% if treatment.petmedicalprescription %}
+                                                            <a href="{% url 'admin-view-prescription-page' treatment.petmedicalprescription.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Prescription">
+                                                                <i data-feather="list"></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <i data-feather="x-square"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if treatment.medical_images %}
+                                                        <a href="{{ treatment.medical_images.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
+                                                            <i data-feather="image"></i>
+                                                        </a>
+                                                        <!-- <span class="small">{{ treatment.medical_images }}</span> -->
+                                                        {% else %}
+                                                            <i data-feather="x-square"></i>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                                            <i data-feather="edit"></i>
+                                                        </a> 
+                                                        <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                                            <i data-feather="trash-2"></i>
+                                                        </a> 
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <a href="{% url 'admin-update-pet-page' pet.id %}" class="btn btn-dark mt-4"><i data-feather="plus-circle"></i>&nbsp;Add Treatment</a>
+                        <a href="#" class="btn btn-dark mt-4"><i data-feather="printer"></i>&nbsp;Print</a>
                     </div>
                     <!-- Wizard tab pane item 3-->
                     <div class="tab-pane py-5 py-xl-2 fade" id="wizard3" role="tabpanel" aria-labelledby="wizard3-tab">
                         <div class="row justify-content-center">
-                            Test
+                            <table id="treatment-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th><span class="small">Visit Date</span></th>
+                                        <th><span class="small">Temperature</span></th>
+                                        <th><span class="small">Weight</span></th>
+                                        <th><span class="small">Lab Results</span></th>
+                                        <th><span class="small">Diagnosis</span></th>
+                                        <th><span class="small">Treatment</span></th>
+                                        <th><span class="small">Prescription</span></th>
+                                        <th><span class="small">Next Appointment</span></th>
+                                        <th><span class="small">Medical Image</span></th>
+                                        <th><span class="small">Actions</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for treatment in pet_treatment %}
+                                    <tr>
+                                        <td>{{ treatment.id }}</td>
+                                        <td>
+                                            <!-- convert date to Dec 25, 2023 12:00 AM format -->
+                                            {{ treatment.treatment_date|date:"M d, Y" }} {{ treatment.treatment_date|time:"g:i A" }}
+                                        </td>
+                                        <td>{{ treatment.temperature }}</td>
+                                        <td>{{ treatment.treatment_weight }}</td>
+                                        <td>{{ treatment.lab_results }}</td>
+                                        <td>{{ treatment.diagnosis }}</td>
+                                        <td>{{ treatment.treatment }}</td>
+                                        <td>
+                                            {% if treatment.petmedicalprescription %}
+                                                <a href="{% url 'admin-view-prescription-page' treatment.petmedicalprescription.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Prescription">
+                                                    <i data-feather="list"></i>
+                                                </a>
+                                            {% else %}
+                                                <i data-feather="x-square"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if treatment.appointment %}
+                                                {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.get_timeOfTheDay_display }}
+                                            {% else %}
+                                                <i data-feather="x-square"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if treatment.medical_images %}
+                                            <a href="{{ treatment.medical_images.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
+                                                <i data-feather="image"></i>
+                                            </a>
+                                            <!-- <span class="small">{{ treatment.medical_images }}</span> -->
+                                            {% else %}
+                                                <i data-feather="x-square"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                                <i data-feather="edit"></i>
+                                            </a> 
+                                            <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                                <i data-feather="trash-2"></i>
+                                            </a> 
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
+                        <a href="#" class="btn btn-dark mt-4"><i data-feather="plus-circle"></i>&nbsp;Add Treatment</a>
+                        <a href="#" class="btn btn-dark mt-4"><i data-feather="printer"></i>&nbsp;Print</a>
                     </div>
                 </div>
             </div>
@@ -140,33 +368,245 @@
 {% endblock %}
 
 {% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var deletePetModal = document.getElementById('deletePetModal');
-      deletePetModal.addEventListener('show.bs.modal', function(event) {
-        var button = event.relatedTarget;
-        var petId = button.getAttribute('data-pet-id');
-        var deleteUrl = '{% url "delete-pet-page" 0 %}'.replace('0', petId);
-        var confirmDelete = document.getElementById('confirmDelete');
-        confirmDelete.onclick = function() {
-          fetch(deleteUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': '{{ csrf_token }}'
+    window.addEventListener('DOMContentLoaded', event => {
+        var deletePetModal = document.getElementById('deletePetModal');
+        deletePetModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var petId = button.getAttribute('data-pet-id');
+            var deleteUrl = '{% url "delete-pet-page" 0 %}'.replace('0', petId);
+            var confirmDelete = document.getElementById('confirmDelete');
+            confirmDelete.onclick = function() {
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+                }
+            }).then(function(response) {
+                return response.json();
+            }).then(function(data) {
+                if (data.result === 'success') {
+                location.href = '{% url "admin-pet-list-page" %}';
+                } else {
+                alert('Error: ' + data.message);
+                }
+            });
             }
-          }).then(function(response) {
-            return response.json();
-          }).then(function(data) {
-            if (data.result === 'success') {
-              location.href = '{% url "admin-pet-list-page" %}';
-            } else {
-              alert('Error: ' + data.message);
-            }
-          });
+        });
+
+        const treatment_table = document.getElementById('treatment-table');
+        let treatmentTableObj;
+        if (treatment_table) {
+            treatmentTableObj = new simpleDatatables.DataTable(treatment_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            treatmentTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    treatmentTableObj.search('');
+                }
+            });
         }
-      });
+
+        document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
+            treatmentTableObj.refresh();
+        });
+
+        const deworming_health_card_table = document.getElementById('deworming-health-card-table');
+        let dewormingHealthCardTableObj;
+        if (deworming_health_card_table) {
+            dewormingHealthCardTableObj = new simpleDatatables.DataTable(deworming_health_card_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            dewormingHealthCardTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dewormingHealthCardTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dewormingHealthCardTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dewormingHealthCardTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    dewormingHealthCardTableObj.search('');
+                }
+            });
+        }
+
+        const vacc_health_card_table = document.getElementById('vaccination-health-card-table');
+        let vaccHealthCardTableObj;
+        if (vacc_health_card_table) {
+            vaccHealthCardTableObj = new simpleDatatables.DataTable(vacc_health_card_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            vaccHealthCardTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            vaccHealthCardTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            vaccHealthCardTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            vaccHealthCardTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    vaccHealthCardTableObj.search('');
+                }
+            });
+        }
+        const navLinks = document.querySelectorAll('.nav-item.nav-link');
+    
+        function activateTab(tabIndex) {
+            if (tabIndex >= 0 && tabIndex < navLinks.length) {
+                navLinks[tabIndex].click();
+            }
+        }
+        var activeTab = localStorage.getItem('activeTab');
+        
+        if (activeTab) {
+            if(activeTab == 'wizard1') {
+                activateTab(0);
+            } else if (activeTab == 'wizard2') {
+                activateTab(1);
+            } else if (activeTab == 'wizard3') {
+                activateTab(2);
+            }
+            vaccHealthCardTableObj.refresh();
+            dewormingHealthCardTableObj.refresh();
+            localStorage.removeItem('activeTab');
+        }
+
+        document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard1');
+        });
+
+        document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
+            vaccHealthCardTableObj.refresh();
+            dewormingHealthCardTableObj.refresh();
+            localStorage.setItem('activeTab', 'wizard2');
+        });
+        document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard3');
+        });
     });
 </script>
-    
 {% endblock %}

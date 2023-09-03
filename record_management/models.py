@@ -86,6 +86,7 @@ def validate_image_extension(value):
     import os
     ext = os.path.splitext(value.name)[1] 
     valid_extensions = ['.png', '.jpg', '.jpeg']
+    print(ext)
     if not ext.lower() in valid_extensions:
         raise ValidationError(_('Unsupported file extension. Only PNG and JPG files are allowed.'))
 
@@ -100,6 +101,9 @@ class PetTreatment(models.Model):
     appointment = models.OneToOneField('appointment_management.Appointment', on_delete=models.CASCADE, null=True, blank=True)
     medical_images = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
     isActive = models.BooleanField(default=True)
+
+    isVaccine = models.BooleanField(default=False)
+    isDeworm = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.pet.name} - {self.treatment}"
@@ -137,7 +141,7 @@ class PrescriptionMedicines(models.Model):
     prescription = models.ForeignKey(PetMedicalPrescription, on_delete=models.CASCADE)
     medicine = models.ForeignKey('inventory.Product', on_delete=models.CASCADE, related_name='prescription_medicines', null=True)
     strength = models.CharField(max_length=100)
-    form = models.CharField(max_length=20, choices=MEDICINES_FORM_LIST)
+    #form = models.CharField(max_length=20, choices=MEDICINES_FORM_LIST) DEPRECIATED
     quantity = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     dosage = models.CharField(max_length=100)
     frequency = models.CharField(max_length=100)
@@ -145,9 +149,57 @@ class PrescriptionMedicines(models.Model):
 
     #extra attributes if medicine is not around on the inventory
     extra_medicine = models.CharField(max_length=100, null=True, blank=True)
+    
     def __str__(self):
         return f"{self.prescription.pet.name} - {self.medicine.product_name}"
 
+    def get_medicine_name(self):
+        return self.medicine.product_name
+    
+    def get_prescription_details(self):
+        self.remarks = self.remarks[0].lower() + self.remarks[1:]
+        return f"Administer a {self.strength} {self.medicine.form} of {self.medicine.product_name} {self.medicine.type} to the pet every {self.frequency}, which equates to {self.dosage}. For best results or safety, it's recommended to {self.remarks}."
+
+    def get_quantity_description(self):
+        solid_forms_with_plural = {
+            'tablet': 'tablet',
+            'capsule': 'capsule',
+            'granule': 'granule',
+            'chew': 'chewable',
+            'pellet': 'pellet',
+            'powder': 'powder',
+            'bolus': 'bolus'
+        }
+
+        liquid_forms = {
+            'syrup': 'ml',
+            'liquid': 'ml',
+            'oral_solution': 'ml',
+            'ear_drop': 'ml',
+            'gel': 'ml',
+            'cream': 'ml',
+            'ointment': 'ml',
+            'lotion': 'ml',
+            'suspension': 'ml'
+        }
+
+        if self.medicine.form in solid_forms_with_plural:
+            unit = solid_forms_with_plural[self.medicine.form]
+            return f"{self.medicine.quantity} {unit}{'s' if self.medicine.quantity > 1 else ''}"
+
+        elif self.medicine.form in liquid_forms:
+            return f"- {self.medicine.volume} {liquid_forms[self.medicine.form]}"
+
+        elif self.medicine.form == 'injection':
+            return f"{self.medicine.quantity} injection{'s' if self.medicine.quantity > 1 else ''}"
+        elif self.medicine.form == 'drop':
+            return f"{self.medicine.quantity} drop{'s' if self.medicine.quantity > 1 else ''}"
+        elif self.medicine.form == 'spray':
+            return f"{self.medicine.quantity} spray{'s' if self.medicine.quantity > 1 else ''}"
+        else:
+            return ""
+
+        
     class Meta:
         verbose_name_plural = "Prescription Medicines"
 

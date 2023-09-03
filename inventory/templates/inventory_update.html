@@ -45,7 +45,7 @@
                             {% csrf_token %}
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputName">Name</label>
+                                    <label class="small mb-1" for="inputProductName">Name</label>
                                     {{ form.product_name }}
                                 </div>
                                 <div class="col-md-6">
@@ -55,17 +55,32 @@
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputType">Type</label>
+                                    <label class="small mb-1" for="inputType">
+                                        Type
+                                        <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-type-list-page' %}"  data-bs-toggle="tooltip" data-bs-placement="top" title="View List of Types">
+                                            <i data-feather="external-link"></i>
+                                        </a>
+                                    </label>
                                     {{ form.type }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputBatch">Current Batch Number</label>
+                                    <label class="small mb-1" for="inputVol">Volume (bottle size or per unit)</label>
+                                    {{ form.volume }}
+                                </div>
+                            </div>
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputForm">Form</label>
+                                    {{ form.form }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputBatch">Batch Number</label>
                                     {{ form.batch_number }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputMfg">Manufacturing Date</label>
+                                    <label class="small mb-1" for="inputManu">Manufacturing Date</label>
                                     {{ form.manufacturing_date }}
                                 </div>
                                 <div class="col-md-6">

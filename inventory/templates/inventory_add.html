@@ -33,17 +33,17 @@
                             {% csrf_token %}
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputFirstName">Name</label>
+                                    <label class="small mb-1" for="inputProductName">Name</label>
                                     {{ form.product_name }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputFirstName">Quantity</label>
+                                    <label class="small mb-1" for="inputQuantity">Quantity</label>
                                     {{ form.quantity_on_stock }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLastName">
+                                    <label class="small mb-1" for="inputType">
                                         Type
                                         <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-type-list-page' %}"  data-bs-toggle="tooltip" data-bs-placement="top" title="View List of Types">
                                             <i data-feather="external-link"></i>
@@ -52,30 +52,41 @@
                                     {{ form.type }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputOrgName">Batch Number</label>
+                                    <label class="small mb-1" for="inputVol">Volume (bottle size or per unit)</label>
+                                    {{ form.volume }}
+                                </div>
+                            </div>
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputForm">Form</label>
+                                    {{ form.form }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputBatch">Batch Number</label>
                                     {{ form.batch_number }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Manufacturing Date</label>
+                                    <label class="small mb-1" for="inputManu">Manufacturing Date</label>
                                     {{ form.manufacturing_date }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputOrgName">Expiration Date</label>
+                                    <label class="small mb-1" for="inputExp">Expiration Date</label>
                                     {{ form.expiration_date }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Critical Level</label>
+                                    <label class="small mb-1" for="inputCrit">Critical Level</label>
                                     {{ form.critical_level }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Price (₱)</label>
+                                    <label class="small mb-1" for="inputPrice">Price (₱)</label>
                                     {{ form.price }}
                                 </div>
                             </div>
+
                             <button class="btn btn-dark lift lift-sm" type="submit">Add Product</button>
                         </form>
                     </div>

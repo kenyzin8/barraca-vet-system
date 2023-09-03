@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, date
 
 import json
 import time
+import imghdr
 
 from .forms import *
 from .models import Client, Pet, PetMedicalPrescription, PrescriptionMedicines, PetTreatment
@@ -432,7 +433,18 @@ def view_pet(request, pet_id):
     if pet.client != request.user.client:
         return redirect('pet-list-page')
 
-    context = {'pet': pet, 'appointment': appointment}
+    pet_treatment = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=False, isDeworm=False).order_by('-id')
+
+    deworming_health_card = PetTreatment.objects.select_related('appointment').filter(pet=pet, isDeworm=True).order_by('-id')
+    vaccination_health_card = PetTreatment.objects.select_related('appointment').filter(pet=pet, isVaccine=True).order_by('-id')
+
+
+    context = {
+        'pet': pet, 'appointment': appointment,
+        'pet_treatment': pet_treatment,
+        'deworming_health_card': deworming_health_card,
+        'vaccination_health_card': vaccination_health_card
+    }
     return render(request, 'client/view_pet.html', context)
 
 @login_required
@@ -599,8 +611,19 @@ def pet_module(request):
 def admin_view_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
 
-    context = {'pet': pet}
+    pet_treatment = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=False, isDeworm=False).order_by('-id')
+
+    deworming_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isDeworm=True).order_by('-id')
+    vaccination_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=True).order_by('-id')
+
+    context = {
+        'pet': pet,
+        'pet_treatment': pet_treatment,
+        'deworming_health_card': deworming_health_card,
+        'vaccination_health_card': vaccination_health_card,
+    }
     return render(request, 'admin/view_pet.html', context)
+
 
 @staff_required
 @login_required
@@ -658,110 +681,140 @@ def medical_record(request):
 @staff_required
 @login_required
 def submit_consultation(request):
-    
-    selected_pet_id = request.POST.get('selectedPetId')
+    if request.method == 'POST':
+        selected_pet_id = request.POST.get('selectedPetId')
 
-    appointment_date = request.POST.get('appointment_date')
+        appointment_date = request.POST.get('appointment_date')
 
-    if appointment_date:
-        #appointment_date = "Sep 21, 2023"
-        appointment_date_obj = datetime.strptime(appointment_date, '%b %d, %Y').date()
-        
-        if appointment_date_obj < date.today():
-            return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Selected date is in the past.'})
+        if appointment_date:
+            #appointment_date = "Sep 21, 2023"
+            appointment_date_obj = datetime.strptime(appointment_date, '%b %d, %Y').date()
+            
+            if appointment_date_obj < date.today():
+                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Selected date is in the past.'})
 
-        doctor_schedule_for_date = DoctorSchedule.objects.filter(date=appointment_date_obj).first()
+            doctor_schedule_for_date = DoctorSchedule.objects.filter(date=appointment_date_obj).first()
 
-        if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == "whole_day":
-            return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Doctor is not available the whole day on the selected date.'})
-        
-        appointment_time_of_the_day = request.POST.get('appointment_time_of_the_day')
+            if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == "whole_day":
+                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Doctor is not available the whole day on the selected date.'})
+            
+            appointment_time_of_the_day = request.POST.get('appointment_time_of_the_day')
 
-        if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == appointment_time_of_the_day:
-            return JsonResponse({'success': False, 'appointment_error': True, 'message': f'Doctor is not available in the {appointment_time_of_the_day} on the selected date.'})
+            if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == appointment_time_of_the_day:
+                return JsonResponse({'success': False, 'appointment_error': True, 'message': f'Doctor is not available in the {appointment_time_of_the_day} on the selected date.'})
 
-        appointments_for_date = Appointment.objects.filter(date=appointment_date_obj, isActive=True, status='pending').count()
-        date_slot = DateSlot.objects.filter(date=appointment_date_obj).first()
-        max_appointment = MaximumAppointment.objects.first().max_appointments
+            appointments_for_date = Appointment.objects.filter(date=appointment_date_obj, isActive=True, status='pending').count()
+            date_slot = DateSlot.objects.filter(date=appointment_date_obj).first()
+            max_appointment = MaximumAppointment.objects.first().max_appointments
 
-        if date_slot:
-            max_allowed = date_slot.slots
-        else:
-            max_allowed = max_appointment
-        if appointments_for_date >= max_allowed:
-            return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available slots on the selected date.'})
+            if date_slot:
+                max_allowed = date_slot.slots
+            else:
+                max_allowed = max_appointment
+            if appointments_for_date >= max_allowed:
+                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available slots on the selected date.'})
 
-    lab_results = request.POST.get('lab_results')
-    temperature = request.POST.get('temperature')
-    weight = request.POST.get('weight')
-    diagnosis = request.POST.get('diagnosis')
-    treatment = request.POST.get('treatment')
-    med_images = request.FILES.get('med_images')
+        lab_results = request.POST.get('lab_results')
+        temperature = request.POST.get('temperature')
+        weight = request.POST.get('weight')
+        diagnosis = request.POST.get('diagnosis')
+        treatment = request.POST.get('treatment')
+        med_images = request.FILES.get('med_images')
 
-    products_selected = request.POST.get('productsSelected')
-    if products_selected:
-        products_selected = json.loads(products_selected)
+        is_deworm = True if request.POST.get('isDeworming') == 'true' else False
+        is_vaccine = True if request.POST.get('isVaccination') == 'true' else False
 
-    try:
-        with transaction.atomic():
-            selected_pet = Pet.objects.get(pk=selected_pet_id)
+        if med_images:
+            image_type = imghdr.what(med_images)
+            if image_type not in ["jpeg", "png", "jpg", "webp"]:
+                return JsonResponse({'success': False, 'message': 'Invalid file type. Only .jpg, .jpeg, .png, and .webp files are allowed.'})
 
-            appointment = None
+        products_selected = request.POST.get('productsSelected')
+        if products_selected:
+            products_selected = json.loads(products_selected)
 
-            if appointment_date:
-                appointment_date_obj = datetime.strptime(appointment_date, '%b %d, %Y').date()
-                appointment_time_of_the_day = request.POST.get('appointment_time_of_the_day')
-                appointment_purpose = request.POST.get('appointment_purpose')
+        try:
+            with transaction.atomic():
+                selected_pet = Pet.objects.get(pk=selected_pet_id)
 
-                selected_purpose = Service.objects.get(pk=appointment_purpose)
+                appointment = None
 
-                appointment = Appointment.objects.create(
-                    pet=selected_pet,
-                    client=selected_pet.client,
-                    date=appointment_date_obj,
-                    timeOfTheDay=appointment_time_of_the_day,
-                    purpose=selected_purpose,
-                    status='pending',
-                    isActive=True
-                )
+                if appointment_date:
+                    appointment_date_obj = datetime.strptime(appointment_date, '%b %d, %Y').date()
+                    appointment_time_of_the_day = request.POST.get('appointment_time_of_the_day')
+                    appointment_purpose = request.POST.get('appointment_purpose')
 
-            pet_treatment = PetTreatment.objects.create(
-                pet_id=selected_pet.id,
-                treatment_date=datetime.now(),
-                lab_results=lab_results,
-                treatment_weight=weight,
-                temperature=temperature,
-                diagnosis=diagnosis,
-                treatment=treatment,
-                appointment=appointment if appointment else None,
-                medical_images=med_images,
-                isActive=True
-            )
+                    selected_purpose = Service.objects.get(pk=appointment_purpose)
 
-            if weight:
-                selected_pet.weight = weight
-                selected_pet.save()
-
-            if products_selected:
-                pet_medical_prescription = PetMedicalPrescription.objects.create(
-                    pet_id=selected_pet.id,
-                    date_prescribed=datetime.now(),
-                    pet_treatment=pet_treatment,
-                    isActive=True
-                )
-
-                for product_id, product_details in products_selected:
-                    PrescriptionMedicines.objects.create(
-                        prescription=pet_medical_prescription,
-                        medicine_id=product_id,
-                        strength=product_details['strength'],
-                        form=product_details['form'],
-                        quantity=product_details['quantity'],
-                        dosage=product_details['dosage'],
-                        frequency=product_details['frequency'],
-                        remarks=product_details['remarks']
+                    appointment = Appointment.objects.create(
+                        pet=selected_pet,
+                        client=selected_pet.client,
+                        date=appointment_date_obj,
+                        timeOfTheDay=appointment_time_of_the_day,
+                        purpose=selected_purpose,
+                        status='pending',
+                        isActive=True
                     )
 
-            return JsonResponse({'success': True, 'message': 'Consultation submitted successfully.'})
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)})
+                pet_treatment = PetTreatment.objects.create(
+                    pet_id=selected_pet.id,
+                    treatment_date=datetime.now(),
+                    lab_results=lab_results,
+                    treatment_weight=weight,
+                    temperature=temperature,
+                    diagnosis=diagnosis,
+                    treatment=treatment,
+                    appointment=appointment if appointment else None,
+                    medical_images=med_images,
+                    isDeworm=is_deworm,
+                    isVaccine=is_vaccine,
+                    isActive=True
+                )
+
+                if weight:
+                    selected_pet.weight = weight
+                    selected_pet.save()
+
+                if products_selected:
+                    pet_medical_prescription = PetMedicalPrescription.objects.create(
+                        pet_id=selected_pet.id,
+                        date_prescribed=datetime.now(),
+                        pet_treatment=pet_treatment,
+                        isActive=True
+                    )
+
+                    for product_id, product_details in products_selected:
+                        PrescriptionMedicines.objects.create(
+                            prescription=pet_medical_prescription,
+                            medicine_id=product_id,
+                            strength=product_details['strength'],
+                            #form=product_details['form'],
+                            quantity=product_details['quantity'],
+                            dosage=product_details['dosage'],
+                            frequency=product_details['frequency'],
+                            remarks=product_details['remarks']
+                        )
+
+                return JsonResponse({'success': True, 'message': 'Consultation submitted successfully.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@staff_required
+@login_required
+def view_prescription(request, prescription_id):
+    prescription = get_object_or_404(PetMedicalPrescription, id=prescription_id)
+    
+    pet = prescription.pet
+    client = pet.client
+
+    prescription_medicines = PrescriptionMedicines.objects.filter(prescription=prescription)
+
+    context = {
+        'prescription': prescription,
+        'pet': pet,
+        'client': client,
+        'prescription_medicines': prescription_medicines
+    }
+    return render(request, 'admin/view_prescription.html', context)

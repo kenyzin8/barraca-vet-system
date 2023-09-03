@@ -59,6 +59,8 @@ class Pet(models.Model):
     picture = models.ImageField(upload_to='public/images/')
     is_active = models.BooleanField(default=True)
     
+    original_weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+
     def __str__(self):
         return f"{self.name} ({self.species})"
 

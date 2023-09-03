@@ -8,7 +8,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta, date
 
 import json
 import time
@@ -22,11 +22,13 @@ from core.decorators import staff_required
 from django.core.cache import cache
 from django.db import transaction
 
-from appointment_management.models import Appointment
+from appointment_management.models import Appointment, MaximumAppointment, DateSlot, DoctorSchedule
 from inventory.models import Product, ProductType
 from services.models import Service
 
 from django.conf import settings
+
+from django.core.serializers import serialize
 
 OTP_EXPIRATION_MINUTE = settings.OTP_EXPIRATION_MINUTES
 #-------------------------------------------------------------------------------------------------------------
@@ -399,12 +401,21 @@ def resend_otp(request):
         return redirect('home')
 
 @login_required
+@transaction.atomic 
 def register_pet(request):
     if request.method == 'POST':
         form = PetRegistrationForm(request.POST, request.FILES)
         if form.is_valid():
             pet = form.save(commit=False)
             pet.client = request.user.client
+            
+            if not pet.id: 
+                pet.original_weight = pet.weight
+            else:
+                pet_in_db = Pet.objects.select_for_update().get(id=pet.id)
+                if pet_in_db.original_weight is not None:
+                    pet.original_weight = pet_in_db.original_weight
+
             pet.save()
             return redirect('pet-list-page')
     else:
@@ -623,11 +634,24 @@ def medical_record(request):
 
     services = Service.objects.filter(active=True)
 
+    all_appointments = Appointment.objects.filter(isActive=True, status='pending').order_by('-id')
+    max_appointment = MaximumAppointment.objects.first()
+    date_slots = DateSlot.objects.all()
+    doctor_schedules = DoctorSchedule.objects.all()
+
+    all_appointments = serialize('json', all_appointments)
+    date_slots = serialize('json', date_slots)
+    doctor_schedules = serialize('json', doctor_schedules)
+
     context = {
         'pets': pets, 
         'product_dict': product_dict, 
         'formList': formList,
-        'services': services  
+        'services': services ,
+        'all_appointments': all_appointments,
+        'max_appointment': max_appointment,
+        'date_slots': date_slots,
+        'doctor_schedules': doctor_schedules
     }
     return render(request, 'admin/consultation_module/consultation_module.html', context)
 
@@ -639,6 +663,34 @@ def submit_consultation(request):
 
     appointment_date = request.POST.get('appointment_date')
 
+    if appointment_date:
+        #appointment_date = "Sep 21, 2023"
+        appointment_date_obj = datetime.strptime(appointment_date, '%b %d, %Y').date()
+        
+        if appointment_date_obj < date.today():
+            return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Selected date is in the past.'})
+
+        doctor_schedule_for_date = DoctorSchedule.objects.filter(date=appointment_date_obj).first()
+
+        if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == "whole_day":
+            return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Doctor is not available the whole day on the selected date.'})
+        
+        appointment_time_of_the_day = request.POST.get('appointment_time_of_the_day')
+
+        if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == appointment_time_of_the_day:
+            return JsonResponse({'success': False, 'appointment_error': True, 'message': f'Doctor is not available in the {appointment_time_of_the_day} on the selected date.'})
+
+        appointments_for_date = Appointment.objects.filter(date=appointment_date_obj, isActive=True, status='pending').count()
+        date_slot = DateSlot.objects.filter(date=appointment_date_obj).first()
+        max_appointment = MaximumAppointment.objects.first().max_appointments
+
+        if date_slot:
+            max_allowed = date_slot.slots
+        else:
+            max_allowed = max_appointment
+        if appointments_for_date >= max_allowed:
+            return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available slots on the selected date.'})
+
     lab_results = request.POST.get('lab_results')
     temperature = request.POST.get('temperature')
     weight = request.POST.get('weight')
@@ -646,7 +698,9 @@ def submit_consultation(request):
     treatment = request.POST.get('treatment')
     med_images = request.FILES.get('med_images')
 
-    products_selected = json.loads(request.POST.get('productsSelected'))
+    products_selected = request.POST.get('productsSelected')
+    if products_selected:
+        products_selected = json.loads(products_selected)
 
     try:
         with transaction.atomic():

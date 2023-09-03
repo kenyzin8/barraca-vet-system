@@ -411,9 +411,6 @@
     
             selectedProductIds.delete(productId);
     
-            console.log( prescriptionSummaryDataTable.rows.dt.data.data)
-            console.log(productRowIndexMap)
-
             let rowIndex = productRowIndexMap.get(productId);
 
             prescriptionSummaryDataTable.rows.remove(rowIndex);
@@ -426,9 +423,6 @@
                     productRowIndexMap.set(id, index - 1);
                 }
             });
-
-            console.log( prescriptionSummaryDataTable.rows.dt.data.data)
-            console.log(productRowIndexMap)
 
             $('.add-product[data-product-id="' + productId + '"]').prop('disabled', false);
             var addProductButton = $('.add-product[data-product-id="' + productId + '"]');
@@ -513,11 +507,27 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    showSuccess(response.message);
-                    $(document).on('click', '.successOKBtn', function(e)
+                    if(response.success)
                     {
-                        location.reload();
-                    });
+                        showSuccess(response.message);
+                        $(document).on('click', '.successOKBtn', function(e)
+                        {
+                            location.reload();
+                        });
+                    }
+                    else
+                    {
+                        showError(response.message);
+                        $(document).on('click', '.errorOKBtn', function(e)
+                        {
+                            if(response.appointment_error)
+                            {
+                                activateTab(1);
+                            }
+                            
+                        });
+                    }
+
                 },
                 error: function(response)
                 {

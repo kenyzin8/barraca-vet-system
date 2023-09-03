@@ -8,7 +8,7 @@ class MaximumAppointment(models.Model):
     max_appointments = models.IntegerField(default=8)
 
     def __str__(self):
-        return f'Maximum Appointment: {self.max_appointments}'
+        return f'{self.max_appointments}'
 
     def save(self, *args, **kwargs):
         self.pk = 1

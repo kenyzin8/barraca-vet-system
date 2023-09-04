@@ -817,4 +817,5 @@ def view_prescription(request, prescription_id):
         'client': client,
         'prescription_medicines': prescription_medicines
     }
+    
     return render(request, 'admin/view_prescription.html', context)

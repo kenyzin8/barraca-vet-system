@@ -63,6 +63,7 @@ class PetAPIView(APIView):
             return Response({"error": "Missing 'pet_id'"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
+            
             pet = Pet.objects.get(id=pet_id)
             serializer = PetSerializer(pet)
             print("Rest API Called for Pet ID: ", pet_id)

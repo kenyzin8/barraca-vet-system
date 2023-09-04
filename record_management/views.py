@@ -680,6 +680,7 @@ def medical_record(request):
 
 @staff_required
 @login_required
+@csrf_exempt
 def submit_consultation(request):
     if request.method == 'POST':
         selected_pet_id = request.POST.get('selectedPetId')

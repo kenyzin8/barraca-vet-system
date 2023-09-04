@@ -69,8 +69,11 @@ INSTALLED_APPS = [
     'inventory_services_management', #PROXY ONLY
     'inventory',
     'services',
+    'rest_api',
     #STORAGES
     'storages',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 ADMIN_REORDER = (
@@ -81,6 +84,7 @@ ADMIN_REORDER = (
     {'app': 'core', 'label': 'Core'},
     {'app': 'django_celery_beat', 'label': 'Celery Beat'},
     {'app': 'django_celery_results', 'label': 'Celery Results'},
+    {'app': 'authtoken', 'label': 'API Token'},
 )
 
 MIDDLEWARE = [
@@ -221,6 +225,12 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake',
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
 }
 
 SEMAPHORE_API_KEY = os.getenv("SEMAPHORE_API_KEY")

@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'inventory_services_management', #PROXY ONLY
     'inventory',
     'services',
+    'rest_api',
     #STORAGES
     'storages',
 ]

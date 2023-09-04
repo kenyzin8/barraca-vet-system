@@ -72,6 +72,8 @@ INSTALLED_APPS = [
     'rest_api',
     #STORAGES
     'storages',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 ADMIN_REORDER = (
@@ -82,6 +84,7 @@ ADMIN_REORDER = (
     {'app': 'core', 'label': 'Core'},
     {'app': 'django_celery_beat', 'label': 'Celery Beat'},
     {'app': 'django_celery_results', 'label': 'Celery Results'},
+    {'app': 'authtoken', 'label': 'Token'},
 )
 
 MIDDLEWARE = [

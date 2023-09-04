@@ -28,7 +28,6 @@ urlpatterns = [
     path('', include('services.urls')),
     path('', include('billing_management.urls')),
     path('', include('core.urls')),
-    path('', include('rest_api.urls')),
 ]
 
 handler403 = 'core.views.handler403'

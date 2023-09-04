@@ -40,6 +40,8 @@ if os.getenv('DJANGO_DEBUG') == 'True':
 else:
     DEBUG = False
 
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
+
 ALLOWED_HOSTS = ['*']
 
 # Application definition

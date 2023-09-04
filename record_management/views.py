@@ -80,12 +80,10 @@ def login_view(request):
         form = LoginForm(request=request, data=request.POST)
         username = request.POST.get('username', '') 
         password = request.POST.get('password', '')
-        
+
         client_ip = get_client_ip(request)
         attempts_key = f'attempts_{client_ip}'
         attempts = cache.get(attempts_key, 0)
-        
-        print(f"Current attempts from cache: {attempts}")   
 
         if attempts >= 2:
             messages.error(request, 'Too many attempts. Please try again after 2 minutes.')
@@ -109,7 +107,6 @@ def login_view(request):
             if not user.client.two_auth_enabled:
                 login(request, user)
                 cache.set(attempts_key, 0, 2 * 60)
-                print(f"Reset attempts in cache: {cache.get(attempts_key)}")
                 return redirect('home')
 
             phone_number = user.client.contact_number
@@ -123,7 +120,6 @@ def login_view(request):
             request.session.save()
             
             cache.set(attempts_key, 0, 2 * 60)
-            print(f"Reset attempts in cache: {cache.get(attempts_key)}")
 
             return redirect('otp_view')
         else:

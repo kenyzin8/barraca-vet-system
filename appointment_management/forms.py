@@ -137,3 +137,14 @@ class DateSlotForm(forms.ModelForm):
         super(DateSlotForm, self).__init__(*args, **kwargs)
         max_appointments = MaximumAppointment.load().max_appointments  
         self.fields['slots'].widget.attrs['max'] = max_appointments 
+
+class ChangeTimeForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['timeOfTheDay']
+
+    timeOfTheDay = forms.ChoiceField(
+        choices=Appointment.time_of_the_day_choices,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-change'}),
+        label='Time of the Day'
+    )

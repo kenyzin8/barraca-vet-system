@@ -200,3 +200,26 @@
         </div>
     </div>
 </div> 
+
+<div class="modal fade" id="adjustTimeOfTheDayModal" tabindex="-1" aria-labelledby="adjustTimeOfTheDayModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adjustTimeOfTheDayModalLabel">#<span class="day-clicked-time-change-id"></span> - Adjust time of the day</h5>
+                <button type="button" id="cancelAdjustTimeOfTheDayModalIconButton" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Rebook time of the day for date <b><span class="day-clicked-time-change"></span></b>
+                <br><br>
+                <form method="POST" id="adjustTimeOfTheDayForm" onsubmit="return false">
+                {% csrf_token %}
+                {{ change_time_form.as_p }}
+            </div>
+            <div class="modal-footer">
+                <button id="cancelAdjustTimeOfTheDayModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <button id="yesAdjustTimeOfTheDayModalButton" type="submit" class="btn btn-success btn-sm">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 

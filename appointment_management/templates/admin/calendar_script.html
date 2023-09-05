@@ -748,10 +748,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     var isDaySentIcon = arg.event.extendedProps.day_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
                     var isWeekSentIcon = arg.event.extendedProps.week_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
+                    
+                    var year = dateString.getFullYear();
+                    var month = (dateString.getMonth() + 1).toString().padStart(2, '0');
+                    var _day = dateString.getDate().toString().padStart(2, '0');
+
+                    var formattedDate = `${year}-${month}-${_day}`;
+
+                    let dateIsDisabled = false;
+
+                    for (let i = 0; i < disabledDays.length; i++) {
+                        if (disabledDays[i].date === formattedDate) {
+                            dateIsDisabled = true;
+                            break;
+                        }
+                    }
+
+                    const timeDetails = dateIsDisabled
+                        ? `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay}`
+                        : `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay} <a id="${arg.event.id}" class="btn btn-datatable btn-icon btn-transparent-dark btn-change-time" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit time of the day"><i data-feather="edit"></i></a>`;
+
                     const details = [
                         `<strong>Client:</strong> ${arg.event.extendedProps.client}`,
                         `<strong>Pet:</strong> ${arg.event.extendedProps.pet}`,
-                        `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay}`,
+                        timeDetails,
                         arg.event.extendedProps.purpose == null ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`,
                         `<strong>Day Before SMS Status: </strong> <span>${isDaySentIcon}<span>`,
                         `<strong>Week Before SMS Status: </strong> <span>${isWeekSentIcon}<span>`,
@@ -928,6 +948,97 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
                     }
+                    var changeTimeButtons = document.getElementsByClassName("btn-change-time");
+                    for (var i = 0; i < changeTimeButtons.length; i++) {
+                        changeTimeButtons[i].onclick = function() {
+                            var appointment_id = this.id;
+                            var appointment_date = arg.event.start;
+                            var modal_date_text = document.getElementsByClassName("day-clicked-time-change");
+
+                            for(var i = 0; i < modal_date_text.length; i++){
+                                modal_date_text[i].textContent = appointment_date.toLocaleDateString();
+                            }
+
+                            var modal_appointment_id_text = document.getElementsByClassName("day-clicked-time-change-id");
+
+                            for(var i = 0; i < modal_appointment_id_text.length; i++){
+                                modal_appointment_id_text[i].textContent = appointment_id;
+                            }
+                            
+                            var current_time_of_the_day = arg.event.extendedProps.timeOfTheDay_val;
+                            var time_of_the_day_change_select = document.getElementById("id_timeOfTheDay-change");
+
+                            var formattedDate = appointment_date.toISOString().split("T")[0]; 
+
+                            for (var i = 0; i < time_of_the_day_change_select.options.length; i++) {
+                                if (time_of_the_day_change_select.options[i].value == current_time_of_the_day) {
+                                    time_of_the_day_change_select.options[i].selected = true;
+                                    break;
+                                }
+                            }
+
+                            $("#adjustTimeOfTheDayModal").modal("show");
+
+                            var submitButton = document.getElementById("yesAdjustTimeOfTheDayModalButton");
+                            submitButton.onclick = function() {
+                                var new_time_of_the_day = document.getElementById("id_timeOfTheDay-change").value;
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url "set-time-of-the_day" %}',
+                                    data: {
+                                        'appointment_id': appointment_id,
+                                        'new_time_of_the_day': new_time_of_the_day,
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                                    },
+                                    success: function(response) {
+                                        $('#adjustTimeOfTheDayModal').modal('hide');
+
+                                        var newColor;
+                                        var newTimeOfDay;
+                                        var newTimeOfDayVal;
+
+                                        if(response.new_time_of_the_day && response.new_time_of_the_day == "morning"){
+                                            newTimeOfDayVal = 'morning';
+                                            newTimeOfDay = 'Morning';
+                                            newColor = '#3788d8';
+                                        }
+                                        else if(response.new_time_of_the_day && response.new_time_of_the_day == "afternoon"){
+                                            newTimeOfDayVal = 'afternoon';
+                                            newTimeOfDay = 'Afternoon';
+                                            newColor = 'green';
+                                        }
+
+                                        arg.event.setExtendedProp('timeOfTheDay_val', newTimeOfDayVal);
+                                        arg.event.setExtendedProp('timeOfTheDay', newTimeOfDay);
+                                        arg.event.setProp('borderColor', newColor);
+                                        arg.event.setProp('backgroundColor', newColor);
+
+                                        for(var i = 0; i < allAppointments.length; i++) {
+                                            if(allAppointments[i].id == appointment_id) {
+                                                allAppointments[i].color = newColor;
+                                                allAppointments[i].extendedProps.timeOfTheDay = newTimeOfDay;
+                                                allAppointments[i].extendedProps.timeOfTheDay_val = newTimeOfDayVal;
+                                                break;
+                                            }
+                                        }
+
+                                        showSuccess(response.message);
+                                    },
+                                    error: function(error) {
+                                        $('#adjustTimeOfTheDayModal').modal('hide');
+                                        showError(error.responseJSON.message);
+                                    }
+                                });
+                            };
+                            eventModal.hide();
+                        }
+                    }
+
+                    var cancelAdjustTimeOfTheDayModalButton = document.getElementById('cancelAdjustTimeOfTheDayModalButton');
+                    cancelAdjustTimeOfTheDayModalButton.onclick = function() {
+                        $("#adjustTimeOfTheDayModal").modal("hide");
+                        eventModal.show();
+                    };
 
                     var cancelRebookConfButtons = document.getElementsByClassName('cancelRebookConfButton');
                     for (var i = 0; i < cancelRebookConfButtons.length; i++) {
@@ -1521,7 +1632,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             $('#rebookAppointmentForm').submit(function(e) {
                 e.preventDefault();
-
+                
                 var appointment_id = window.eventId;
                 var new_date = window.newDate;
                 var old_date = window.oldDate;
@@ -1544,31 +1655,56 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (response.status === 'Appointment rebooked successfully') {
                             var draggedEl = document.getElementById(response.appointment.id); //for rebook
 
-                            if (draggedEl) {
-                                draggedEl.parentNode.removeChild(draggedEl);
-                                hideRebookList();
-
-                                var c = calendar.addEvent({
-                                    id: response.appointment.id,
-                                    title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
-                                    start: response.appointment.date,
-                                    color: response.appointment.color,
-                                    extendedProps: {
-                                        'client_id': response.appointment.client.id,
-                                        'client': response.appointment.client.first_name + " " + response.appointment.client.last_name,
-                                        'contact_number': response.appointment.client.contact_number,
-                                        'pet': response.appointment.pet.name,
-                                        'pet_id': response.appointment.pet.id,
-                                        'timeOfTheDay': response.appointment.timeOfTheDay,
-                                        'timeOfTheDay_val': response.appointment.timeOfTheDay_val,
-                                        'purpose': response.appointment.purpose,
-                                        'purpose_id': response.appointment.purpose_id,
-                                        'current_date': response.appointment.date,
-                                        'day_sms_reminder': response.appointment.daily_reminder_sent,
-                                        'week_sms_reminder': response.appointment.weekly_reminder_sent,
-                                    }
-                                });
+                            var eventToRemove = calendar.getEventById(appointment_id);
+                            if (eventToRemove) {
+                                eventToRemove.remove();
                             }
+                            var newEvent = {
+                                id: response.appointment.id,
+                                title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                start: response.appointment.date,
+                                color: response.appointment.color,
+                                extendedProps: {
+                                    'client_id': response.appointment.client.id,
+                                    'client': response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                    'contact_number': response.appointment.client.contact_number,
+                                    'pet': response.appointment.pet.name,
+                                    'pet_id': response.appointment.pet.id,
+                                    'timeOfTheDay': response.appointment.timeOfTheDay,
+                                    'timeOfTheDay_val': response.appointment.timeOfTheDay_val,
+                                    'purpose': response.appointment.purpose,
+                                    'purpose_id': response.appointment.purpose_id,
+                                    'current_date': response.appointment.date,
+                                    'day_sms_reminder': response.appointment.daily_reminder_sent,
+                                    'week_sms_reminder': response.appointment.weekly_reminder_sent,
+                                }
+                            };
+                            calendar.addEvent(newEvent);
+                            // if (draggedEl) {
+                            //     draggedEl.parentNode.removeChild(draggedEl);
+                            //     hideRebookList();
+
+                            //     var c = calendar.addEvent({
+                            //         id: response.appointment.id,
+                            //         title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                            //         start: response.appointment.date,
+                            //         color: response.appointment.color,
+                            //         extendedProps: {
+                            //             'client_id': response.appointment.client.id,
+                            //             'client': response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                            //             'contact_number': response.appointment.client.contact_number,
+                            //             'pet': response.appointment.pet.name,
+                            //             'pet_id': response.appointment.pet.id,
+                            //             'timeOfTheDay': response.appointment.timeOfTheDay,
+                            //             'timeOfTheDay_val': response.appointment.timeOfTheDay_val,
+                            //             'purpose': response.appointment.purpose,
+                            //             'purpose_id': response.appointment.purpose_id,
+                            //             'current_date': response.appointment.date,
+                            //             'day_sms_reminder': response.appointment.daily_reminder_sent,
+                            //             'week_sms_reminder': response.appointment.weekly_reminder_sent,
+                            //         }
+                            //     });
+                            // }
 
                             var _event = calendar.getEventById(response.appointment.id);
 
@@ -1631,15 +1767,19 @@ document.addEventListener('DOMContentLoaded', function() {
                             var dateString = new_date;
                             var movedEventId = info.event.id;
 
+                            var startDate = new Date(newEvent.start);
+                            var formattedNewStart = startDate.getFullYear() + '-' + 
+                                String(startDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                                String(startDate.getDate()).padStart(2, '0');
+
                             for (var i = 0; i < allAppointments.length; i++) {
-                                if (allAppointments[i].id == movedEventId) {
-                                    var newStart = new Date(info.event.start);
-                                    var formattedNewStart = newStart.getFullYear() + '-' + String(newStart.getMonth() + 1).padStart(2, '0') + '-' + String(newStart.getDate()).padStart(2, '0');
+                                if (allAppointments[i].id == newEvent.id) {
+                                    allAppointments[i] = newEvent; 
                                     allAppointments[i].start = formattedNewStart;
                                     break;
                                 }
                             }
-
+                           
                             updateSlots(info, dateString, dateSlots, maxAppointments, allAppointments, slotElements);
 
                             $('#rebookConfirmAppointmentModal').modal('hide');

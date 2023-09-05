@@ -568,6 +568,13 @@
             formData.append('weight', weight);
             formData.append('diagnosis', diagnosis);
             formData.append('treatment', treatment);
+
+            if(med_images == undefined)
+            {
+                med_images = ''
+                console.log(med_images)
+            }
+
             formData.append('med_images', med_images);
             formData.append('isDeworming', isDeworming);
             formData.append('isVaccination', isVaccination);
@@ -604,7 +611,7 @@
                 },
                 error: function(response)
                 {
-                    showError(data.message);
+                    showError(response.message);
                 }
             });
         });

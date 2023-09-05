@@ -3,20 +3,29 @@ from .models import Client, Pet
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin, GroupAdmin as AuthGroupAdmin
 from .models import User, Group, PetTreatment, PetMedicalPrescription, PrescriptionMedicines
 
-class PetTreatmentAdmin(admin.ModelAdmin):
-    list_display = ('pet', 'treatment_date', 'lab_results', 'treatment_weight', 'temperature', 'diagnosis', 'treatment', 'appointment', 'isActive')
-    list_filter = ('pet__name', 'pet__species', 'pet__breed', 'treatment_date', 'isActive')
-    search_fields = ('pet__name', 'pet__species', 'pet__breed', 'treatment_date', 'isActive')
-    
-class PrescriptionMedicines(admin.TabularInline):
+import nested_admin
+
+class PrescriptionMedicinesInline(nested_admin.NestedTabularInline):
     model = PrescriptionMedicines
     extra = 1
 
+class PetMedicalPrescriptionInline(nested_admin.NestedStackedInline):
+    model = PetMedicalPrescription
+    inlines = [PrescriptionMedicinesInline]
+    extra = 1
+
+class PetTreatmentAdmin(nested_admin.NestedModelAdmin):
+    inlines = [PetMedicalPrescriptionInline]
+    list_display = ('pet', 'treatment_date', 'lab_results', 'treatment_weight', 'temperature', 'diagnosis', 'treatment', 'appointment', 'isActive')
+    list_filter = ('pet__name', 'pet__species', 'pet__breed', 'treatment_date', 'isActive')
+    search_fields = ('pet__name', 'pet__species', 'pet__breed', 'treatment_date', 'isActive')
+
 class PetMedicalPrescriptionAdmin(admin.ModelAdmin):
-    inlines = (PrescriptionMedicines,)
+    inlines = (PrescriptionMedicinesInline, )
     list_display = ('pet', 'date_prescribed', 'isActive')
     list_filter = ('pet__name', 'pet__species', 'pet__breed', 'date_prescribed', 'isActive')
     search_fields = ('pet__name', 'pet__species', 'pet__breed', 'date_prescribed', 'isActive')
+
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('user', 'first_name', 'last_name', 'gender', 'contact_number', 'street', 'barangay', 'city', 'province', 'two_auth_enabled')

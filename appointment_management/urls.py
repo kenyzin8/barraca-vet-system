@@ -29,4 +29,6 @@ urlpatterns = [
     # path('appointments/get-appointments-count/', views.get_appointments_count, name='get_appointments_count'),
     path('appointments/get-pets/', views.get_pets_client, name='client-get-pets'),
     path('appointments/get-all-data/', views.get_all_data_client, name='get_all_data_client'),
+    path('appointments/change-time-of-the-day/', views.set_time_of_the_day, name='set-time-of-the_day'),
+    path('appointments/change-time-of-the-day/client/<int:client_id>/', views.client_set_time_of_the_day, name='set-time-of-the-day-client'),
 ]

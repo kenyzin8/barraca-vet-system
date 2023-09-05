@@ -93,7 +93,7 @@ class Appointment(models.Model):
 
     def remindClient(self, reminder_type):
         phone_number = self.client.contact_number
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} Appointment for {self.pet.name} on {self.date} at {self.timeOfTheDay}. Thank you!'
+        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} Appointment for {self.pet.name} on {self.date} in the {self.timeOfTheDay}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(

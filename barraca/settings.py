@@ -76,7 +76,14 @@ INSTALLED_APPS = [
     'storages',
     'rest_framework',
     'rest_framework.authtoken',
+    'nested_admin',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 
 ADMIN_REORDER = (
     {'app': 'appointment_management', 'label': 'Appointment Management'},

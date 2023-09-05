@@ -21,7 +21,7 @@ from django.db.models import Count
 from core.decorators import staff_required
 from .models import Appointment, DoctorSchedule, MaximumAppointment, DateSlot
 
-from .forms import AppointmentForm, RebookAppointmentForm, DisableDayForm, AppointmentFormClient, RebookAppointmentFormClient, DateSlotForm
+from .forms import *
 
 import json
 import requests
@@ -177,6 +177,7 @@ def calendar(request):
     rebook_form = RebookAppointmentForm()
     disable_day_form = DisableDayForm()
     slots_form = DateSlotForm()
+    change_time_form = ChangeTimeForm()
 
     context = {
         'clients': clients_list,
@@ -186,6 +187,7 @@ def calendar(request):
         'rebook_form': rebook_form,
         'disable_day_form': disable_day_form,
         'slots_form': slots_form,
+        'change_time_form': change_time_form,
     }
 
     return render(request, 'admin/calendar.html', context)
@@ -456,6 +458,39 @@ def set_appointment_done(request):
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
+@login_required
+@staff_required
+def set_time_of_the_day(request):
+    if request.method == 'POST':
+        try:
+            appointment_id = request.POST.get('appointment_id')
+
+            appointment_date = Appointment.objects.get(id=appointment_id).date
+
+            if appointment_date is None:
+                return JsonResponse({'status': 'error', 'message': 'Please set the date of the appointment first.'}, status=400)
+            
+            disabled_day = DoctorSchedule.objects.filter(date=appointment_date, isActive=True).first() 
+
+            if disabled_day:
+                if disabled_day.timeOfTheDay == 'whole_day' or disabled_day.timeOfTheDay == time_of_the_day:
+                    return JsonResponse({'status': 'error', 'message': 'The chosen time is disabled, please refresh the page.'}, status=400)
+
+            new_time_of_the_day = request.POST.get('new_time_of_the_day')
+
+            appointment = Appointment.objects.get(id=appointment_id)
+
+            appointment.timeOfTheDay = new_time_of_the_day
+            appointment.save()
+
+            new_time_of_the_day = appointment.timeOfTheDay
+
+            return JsonResponse({'status': 'success', 'message': 'Time of the day updated successfully.', 'new_time_of_the_day': new_time_of_the_day})
+        except Appointment.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Appointment not found.'}, status=404)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
+
 #--------------------CLIENT SIDE------------------------------------
 @login_required
 def client_calendar(request):
@@ -489,6 +524,8 @@ def client_calendar(request):
 
         slotsAvailableToday = today_date_slots.slots - slots_taken
 
+    change_time_form = ChangeTimeForm()
+
     context = {
         'form': form,
         'client': client,
@@ -496,6 +533,7 @@ def client_calendar(request):
         'rebook_form': rebook_form,
         'appointment': appointment,
         'slotsAvailableToday': slotsAvailableToday,
+        'change_time_form': change_time_form,
     }
 
     return render(request, 'client/calendar.html', context)
@@ -748,3 +786,45 @@ def get_all_data_client(request):
     }
 
     return JsonResponse(data, safe=False)
+
+@login_required
+def client_set_time_of_the_day(request, client_id):
+    if request.method == 'POST':
+        try:
+            client = Client.objects.get(id=client_id)
+
+            if client.user != request.user:
+                return JsonResponse({'status': 'error', 'message': 'You are not authorized to perform this action.'}, status=403)
+
+            appointment_id = request.POST.get('appointment_id')
+
+            appointment_date = Appointment.objects.get(id=appointment_id, client=client_id).date
+
+            
+
+            if appointment_date is None:
+                return JsonResponse({'status': 'error', 'message': 'Please set the date of the appointment first.'}, status=400)
+            
+            disabled_day = DoctorSchedule.objects.filter(date=appointment_date, isActive=True).first() 
+
+            if disabled_day:
+                if disabled_day.timeOfTheDay == 'whole_day' or disabled_day.timeOfTheDay == time_of_the_day:
+                    return JsonResponse({'status': 'error', 'message': 'The chosen time is disabled, please refresh the page.'}, status=400)
+
+            new_time_of_the_day = request.POST.get('new_time_of_the_day')
+
+            appointment = Appointment.objects.get(id=appointment_id, client=client_id)
+
+            if not appointment:
+                return JsonResponse({'status': 'error', 'message': 'Appointment not found, or you are not the owner.'}, status=404)
+
+            appointment.timeOfTheDay = new_time_of_the_day
+            appointment.save()
+
+            new_time_of_the_day = appointment.timeOfTheDay
+
+            return JsonResponse({'status': 'success', 'message': 'Time of the day updated successfully.', 'new_time_of_the_day': new_time_of_the_day})
+        except Appointment.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Appointment not found.'}, status=404)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)

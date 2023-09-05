@@ -185,17 +185,17 @@ class PrescriptionMedicines(models.Model):
 
         if self.medicine.form in solid_forms_with_plural:
             unit = solid_forms_with_plural[self.medicine.form]
-            return f"{self.medicine.quantity} {unit}{'s' if self.medicine.quantity > 1 else ''}"
+            return f"{self.quantity} {unit}{'s' if self.quantity > 1 else ''}"
 
         elif self.medicine.form in liquid_forms:
             return f"- {self.medicine.volume} {liquid_forms[self.medicine.form]}"
 
         elif self.medicine.form == 'injection':
-            return f"{self.medicine.quantity} injection{'s' if self.medicine.quantity > 1 else ''}"
+            return f"{self.quantity} injection{'s' if self.quantity > 1 else ''}"
         elif self.medicine.form == 'drop':
-            return f"{self.medicine.quantity} drop{'s' if self.medicine.quantity > 1 else ''}"
+            return f"{self.quantity} drop{'s' if self.quantity > 1 else ''}"
         elif self.medicine.form == 'spray':
-            return f"{self.medicine.quantity} spray{'s' if self.medicine.quantity > 1 else ''}"
+            return f"{self.quantity} spray{'s' if self.quantity > 1 else ''}"
         else:
             return ""
 

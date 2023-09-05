@@ -14,9 +14,42 @@
      max-width: none;
     }
 
+    .loading-placeholder {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: rgba(255, 255, 255, 0.8); 
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .avatar-img {
         width: 32px !important;
         height: 32px !important;
+    }
+
+    .wave {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #eee;
+        border-radius: 50%;
+        animation: waveAnimation 1.5s infinite;
+    }
+
+    @keyframes waveAnimation {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 1;
+        }
     }
 </style>
 <script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
@@ -49,7 +82,10 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="avatar {% if pet.is_active %}avatar-online{% else %}avatar-busy{% endif %} me-2">
-                                    <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" loading="lazy"/>
+                                    <div class="loading-placeholder">
+                                        <div class="wave"></div>
+                                    </div>
+                                    <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" onload="hidePlaceholder(this)"/>
                                 </div>
                                 {{ pet.name }}
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
@@ -101,4 +137,14 @@
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <!-- <script src="{% static 'plugins/sb-admin/js/datatables/datatables-simple-demo.js' %}"></script> -->
+<script>
+    function hidePlaceholder(imgElement) {
+        console.log(imgElement)
+        const card = imgElement.closest('.avatar');
+        const placeholder = card.querySelector('.loading-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

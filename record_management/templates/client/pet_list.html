@@ -11,22 +11,36 @@
         box-shadow: none;
     }
 
+    .loading-placeholder {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: rgba(255, 255, 255, 0.8); 
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .card-custom {
-    width: calc(25% - 10px);
-    margin-right: 10px;
-    margin-bottom: 10px;
-}
+        width: calc(25% - 10px);
+        margin-right: 10px;
+        margin-bottom: 10px;
+        position: relative;
+    }
 
-.card-custom .card-img-top {
-    height: 200px; /* Adjust the height according to your needs */
-    object-fit: cover;
-}
+    .card-custom .card-img-top {
+        height: 200px; 
+        object-fit: cover;
+    }
 
-.card-custom .card-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
+    .card-custom .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
 
     .card-deck-custom {
         display: flex;
@@ -60,6 +74,25 @@
         }
     }
 
+    .wave {
+        position: absolute;
+        width: 80%;
+        height: 80%;
+        background: #eee;
+        border-radius: 10%;
+        animation: waveAnimation 1.5s infinite;
+    }
+
+    @keyframes waveAnimation {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+    }
 </style>
 {% endblock %}
 {% block header %}
@@ -73,7 +106,10 @@
         {% for pet in pets %}
         {% if pet.is_active %}
         <div class="card card-custom">
-            <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}">
+            <div class="loading-placeholder">
+                <div class="wave"></div>
+            </div>
+            <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}" onload="hidePlaceholder(this)">
             <div class="card-body">
                 <center><h5 class="card-title mt-3 mb-4">{{ pet.name }}</h5></center>
                 <a href="{% url 'view-pet-page' pet.id %}" class="btn btn-dark custom-btn lift lift-sm">View Pet</a>
@@ -141,6 +177,14 @@
             showError("This pet does not have an appointment. Click set appointment to set an appointment for this pet.");
         }
     });
+
+    function hidePlaceholder(imgElement) {
+        const card = imgElement.closest('.card-custom');
+        const placeholder = card.querySelector('.loading-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'none';
+        }
+    }
 </script>
 
 {% endblock %}

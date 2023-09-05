@@ -157,8 +157,31 @@ class PrescriptionMedicines(models.Model):
         return self.medicine.product_name
     
     def get_prescription_details(self):
-        self.remarks = self.remarks[0].lower() + self.remarks[1:]
-        return f"Administer a {self.strength} {self.medicine.form} of {self.medicine.product_name} {self.medicine.type} to the pet every {self.frequency}, which equates to {self.dosage}. For best results or safety, it's recommended to {self.remarks}."
+        sentence_parts = []
+
+        if self.strength and self.medicine.form:
+            sentence_parts.append(f"Administer a {self.strength} {self.medicine.form}")
+
+        if self.medicine.product_name:
+            sentence_parts[-1] += f" of {self.medicine.product_name}"
+
+        if self.medicine.type:
+            sentence_parts[-1] += f" {self.medicine.type}"
+
+        sentence_parts[-1] += " to the pet"
+
+        if self.frequency:
+            sentence_parts.append(f"every {self.frequency}")
+
+        if self.dosage:
+            sentence_parts.append(f"which equates to {self.dosage}")
+
+        if self.remarks:
+            self.remarks = self.remarks[0].lower() + self.remarks[1:]
+            sentence_parts.append(f"For best results or safety, it's recommended to {self.remarks}")
+
+        # Constructing the sentence by joining the sentence parts with a space
+        return ' '.join(sentence_parts)
 
     def get_quantity_description(self):
         solid_forms_with_plural = {

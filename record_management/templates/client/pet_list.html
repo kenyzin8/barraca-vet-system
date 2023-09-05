@@ -113,7 +113,7 @@
             <div class="card-body">
                 <center><h5 class="card-title mt-3 mb-4 pet-name" style="display: none;">{{ pet.name }}</h5></center>
                 <a href="{% url 'view-pet-page' pet.id %}" class="btn btn-dark custom-btn lift lift-sm" style="display: none;">View Pet</a>
-                {% if  pet.has_active_appointment %}
+                {% if not pet.has_active_appointment %}
                 <a href="#" data-pet-id="{{ pet.id }}" class="btn btn-dark custom-btn mt-2 lift lift-sm set-appointment" style="display: none;">Set Appointment</a>
                 {% else %}
                 <a href="#" data-pet-id="{{ pet.id }}" data-appointment-id="{{ pet.active_appointment_id }}" class="btn btn-dark custom-btn mt-2 lift lift-sm view-appointment" style="display: none;">View Appointment</a>

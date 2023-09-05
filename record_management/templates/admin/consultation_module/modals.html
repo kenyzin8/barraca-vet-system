@@ -42,13 +42,16 @@
                                         {% for product in products %}
                                         {% if product.active %}
                                         <tr>
-                                            <td>{{ product.id }}</td>
+                                            <td><span class="product-id">{{ product.id }}</span></td>
                                             <td>
                                                 <span class="product-name">
                                                     {{ product.product_name }}
                                                 </span>
                                                 <span class="product-type" style="display: none;">
                                                     {{ product.type }}
+                                                </span>
+                                                <span class="product-form" style="display: none;">
+                                                    {{ product.form }}
                                                 </span>
                                             </td>
                                             <td>
@@ -66,10 +69,10 @@
                                                 <input type="number" class="form-control product-quantity" min="1" step="0.01" value="1" style="width: 80px;" onkeydown="javascript: return event.keyCode !== 69" required>
                                             </td>
                                             <td>
-                                                <input type="text" class="form-control product-dosage" placeholder="Ex. 1 tablet twice daily" required>
+                                                <input type="number" class="form-control product-dosage" placeholder="Ex: 1" required>
                                             </td>
                                             <td>
-                                                <input type="text" class="form-control product-frequency" placeholder="Ex. Every 12 hours" required>
+                                                <input type="text" class="form-control product-frequency" placeholder="Ex. Twice daily for X days" required>
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control product-remarks" placeholder="Ex. Feed with food" required>
@@ -87,6 +90,10 @@
                                 </table>
                             </div>
                             {% endfor %}
+                            <div id="preview-area" class="mt-4 mb-4">
+                                <span class="small fw-600">Prescription Sentence Preview:</span>
+                                <p id="preview-text" class="small"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -121,7 +128,11 @@
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-               
+                <span class="modal-body-success-message"></span>
+                <br>
+                <div class="pet-link">
+                    Click <a class="pet-link" href="{% url 'admin-view-pet-page' 0 %}">here</a> to view the pet's record.
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-dark successOKBtn" type="button" data-bs-dismiss="modal">OK</button>

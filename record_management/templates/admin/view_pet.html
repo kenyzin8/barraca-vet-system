@@ -580,32 +580,32 @@
                 navLinks[tabIndex].click();
             }
         }
-        var activeTab = localStorage.getItem('activeTab');
+        // var activeTab = localStorage.getItem('activeTab');
         
-        if (activeTab) {
-            if(activeTab == 'wizard1') {
-                activateTab(0);
-            } else if (activeTab == 'wizard2') {
-                activateTab(1);
-            } else if (activeTab == 'wizard3') {
-                activateTab(2);
-            }
-            vaccHealthCardTableObj.refresh();
-            dewormingHealthCardTableObj.refresh();
-            localStorage.removeItem('activeTab');
-        }
+        // if (activeTab) {
+        //     if(activeTab == 'wizard1') {
+        //         activateTab(0);
+        //     } else if (activeTab == 'wizard2') {
+        //         activateTab(1);
+        //     } else if (activeTab == 'wizard3') {
+        //         activateTab(2);
+        //     }
+        //     vaccHealthCardTableObj.refresh();
+        //     dewormingHealthCardTableObj.refresh();
+        //     localStorage.removeItem('activeTab');
+        // }
 
         document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
-            localStorage.setItem('activeTab', 'wizard1');
+            //localStorage.setItem('activeTab', 'wizard1');
         });
 
         document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
             vaccHealthCardTableObj.refresh();
             dewormingHealthCardTableObj.refresh();
-            localStorage.setItem('activeTab', 'wizard2');
+            //localStorage.setItem('activeTab', 'wizard2');
         });
         document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
-            localStorage.setItem('activeTab', 'wizard3');
+            //localStorage.setItem('activeTab', 'wizard3');
         });
     });
 </script>

@@ -16,13 +16,13 @@ class PetMedicalPrescriptionInline(nested_admin.NestedStackedInline):
 
 class PetTreatmentAdmin(nested_admin.NestedModelAdmin):
     inlines = [PetMedicalPrescriptionInline]
-    list_display = ('pet', 'treatment_date', 'lab_results', 'treatment_weight', 'temperature', 'diagnosis', 'treatment', 'appointment', 'isActive')
+    list_display = ('id', 'pet', 'treatment_date', 'lab_results', 'treatment_weight', 'temperature', 'diagnosis', 'treatment', 'appointment', 'isActive')
     list_filter = ('pet__name', 'pet__species', 'pet__breed', 'treatment_date', 'isActive')
     search_fields = ('pet__name', 'pet__species', 'pet__breed', 'treatment_date', 'isActive')
 
 class PetMedicalPrescriptionAdmin(admin.ModelAdmin):
     inlines = (PrescriptionMedicinesInline, )
-    list_display = ('pet', 'date_prescribed', 'isActive')
+    list_display = ('id', 'pet', 'date_prescribed', 'isActive')
     list_filter = ('pet__name', 'pet__species', 'pet__breed', 'date_prescribed', 'isActive')
     search_fields = ('pet__name', 'pet__species', 'pet__breed', 'date_prescribed', 'isActive')
 

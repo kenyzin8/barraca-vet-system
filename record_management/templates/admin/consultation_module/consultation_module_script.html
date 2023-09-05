@@ -11,7 +11,7 @@
 
     function showSuccess(message)
     {
-        $('#successModal .modal-body').text(message);
+        $('#successModal .modal-body-success-message').text(message);
         $('#successModal').modal('show');
     }
 
@@ -314,8 +314,51 @@
                     }
                 });
             {% endfor %}
+        
         });
-    
+
+        let previews = [];
+
+        document.addEventListener('input', function (event) {
+            if (event.target.closest('tr')) {
+                let row = event.target.closest('tr');
+
+                let productID = row.querySelector('.product-id').textContent.trim();
+                let productName = row.querySelector('.product-name').textContent.trim();
+                let productType = row.querySelector('.product-type').textContent.trim();
+                let productForm = row.querySelector('.product-form').textContent.trim().toLowerCase();
+                let productQuantity = row.querySelector('.product-quantity').value.trim();
+                let strength = row.querySelector('.product-strength').value || '[STRENGTH]';
+                let dosage = row.querySelector('.product-dosage').value || '[DOSAGE]';
+                let frequency = row.querySelector('.product-frequency').value || '[FREQUENCY]';
+                let remarks = row.querySelector('.product-remarks').value || '[REMARKS]';
+
+                remarks = remarks.charAt(0).toLowerCase() + remarks.slice(1);
+                frequency = frequency.charAt(0).toLowerCase() + frequency.slice(1);
+
+                let dosageUnit = getDosageUnit(productForm, dosage);
+                
+                let rowIndex = [...row.parentNode.children].indexOf(row);
+
+                let previewText = `${rowIndex + 1} - Prescribed: <b>${productQuantity}</b> of <b>${productName}</b> (<b>${strength}</b> per ${dosageUnit}). Dosage: Administer <b>${dosage} ${dosageUnit}</b> to the pet <b>${frequency}</b>. For best results or safety, it's recommended to <b>${remarks}</b>.`;
+
+                previews[rowIndex] = previewText;
+
+                document.getElementById('preview-text').innerHTML = previews.join('<br>');
+            }
+        });
+        function getDosageUnit(form, dosage) {
+            const liquidForms = ['syrup', 'liquid', 'oral_solution', 'suspension', 'ear_drop', 'gel', 'cream', 'ointment', 'lotion'];
+            if (liquidForms.includes(form)) {
+                return 'mL';
+            } else {
+                if (dosage === '1') {
+                    return form;
+                } else {
+                    return form + 's';
+                }
+            }
+        }
         let productRowIndexMap = new Map();
 
         $(document).on('click', '.add-product', function() 
@@ -589,6 +632,11 @@
                 success: function(response) {
                     if(response.success)
                     {
+                        var petLink = document.querySelector('.pet-link a');
+                        var originalHref = petLink.getAttribute('href');
+                        var newHref = originalHref.replace('0', selectedPetId);
+                        petLink.setAttribute('href', newHref);
+
                         showSuccess(response.message);
                         $(document).on('click', '.successOKBtn', function(e)
                         {

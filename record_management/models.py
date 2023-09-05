@@ -157,31 +157,26 @@ class PrescriptionMedicines(models.Model):
         return self.medicine.product_name
     
     def get_prescription_details(self):
-        sentence_parts = []
+        self.remarks = self.remarks[0].lower() + self.remarks[1:]
+        self.frequency = self.frequency[0].lower() + self.frequency[1:]
 
-        if self.strength and self.medicine.form:
-            sentence_parts.append(f"Administer a {self.strength} {self.medicine.form}")
+        prescription_details = f"Prescribed: {self.quantity} of {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
 
-        if self.medicine.product_name:
-            sentence_parts[-1] += f" of {self.medicine.product_name}"
+        prescription_details += f"Dosage: Administer {self.dosage} {self.get_dosage_unit()} to the pet {self.frequency}. "
 
-        if self.medicine.type:
-            sentence_parts[-1] += f" {self.medicine.type}"
+        prescription_details += f"For best results or safety, it's recommended to {self.remarks}."
 
-        sentence_parts[-1] += " to the pet"
+        return prescription_details
 
-        if self.frequency:
-            sentence_parts.append(f"every {self.frequency}")
-
-        if self.dosage:
-            sentence_parts.append(f"which equates to {self.dosage}")
-
-        if self.remarks:
-            self.remarks = self.remarks[0].lower() + self.remarks[1:]
-            sentence_parts.append(f"For best results or safety, it's recommended to {self.remarks}")
-
-        # Constructing the sentence by joining the sentence parts with a space
-        return ' '.join(sentence_parts)
+    def get_dosage_unit(self, for_dosage=False):
+        liquid_forms = ['syrup', 'liquid', 'oral_solution', 'suspension', 'ear_drop', 'gel', 'cream', 'ointment', 'lotion']
+        
+        if self.medicine.form in liquid_forms:
+            return 'mL'
+        else:
+            if for_dosage and self.dosage != '1':
+                return self.medicine.form + 's'
+            return self.medicine.form
 
     def get_quantity_description(self):
         solid_forms_with_plural = {
@@ -191,7 +186,8 @@ class PrescriptionMedicines(models.Model):
             'chew': 'chewable',
             'pellet': 'pellet',
             'powder': 'powder',
-            'bolus': 'bolus'
+            'bolus': 'bolus',
+            'paste': 'paste'  # added
         }
 
         liquid_forms = {
@@ -203,25 +199,28 @@ class PrescriptionMedicines(models.Model):
             'cream': 'ml',
             'ointment': 'ml',
             'lotion': 'ml',
-            'suspension': 'ml'
+            'suspension': 'ml',
+            'feed_additive': 'ml',  
+            'drop': 'ml', 
+            'spray': 'ml'  
+        }
+
+
+        other_forms = {
+            'injection': 'dose', 
+            'spot-on': 'dose', 
+            'other': 'unit' 
         }
 
         if self.medicine.form in solid_forms_with_plural:
             unit = solid_forms_with_plural[self.medicine.form]
             return f"{self.quantity} {unit}{'s' if self.quantity > 1 else ''}"
-
         elif self.medicine.form in liquid_forms:
             return f"- {self.medicine.volume} {liquid_forms[self.medicine.form]}"
-
-        elif self.medicine.form == 'injection':
-            return f"{self.quantity} injection{'s' if self.quantity > 1 else ''}"
-        elif self.medicine.form == 'drop':
-            return f"{self.quantity} drop{'s' if self.quantity > 1 else ''}"
-        elif self.medicine.form == 'spray':
-            return f"{self.quantity} spray{'s' if self.quantity > 1 else ''}"
+        elif self.medicine.form in other_forms:
+            return f"- {self.quantity} {other_forms[self.medicine.form]}"
         else:
             return ""
-
         
     class Meta:
         verbose_name_plural = "Prescription Medicines"

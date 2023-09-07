@@ -17,11 +17,23 @@ class SMSLogs(models.Model):
         
 
 class Notification(models.Model):
+    CRITICAL = 'critical'
+    OUT_OF_STOCK = 'out_of_stock'
+    EXPIRED = 'expired'
+    
+    NOTIFICATION_TYPES = [
+        (CRITICAL, 'Critical Level'),
+        (OUT_OF_STOCK, 'Out of Stock'),
+        (EXPIRED, 'Expired'),
+    ]
+
     text = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+    notification_type = models.CharField(max_length=50, choices=NOTIFICATION_TYPES, default="none")
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.text

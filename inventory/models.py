@@ -84,6 +84,26 @@ class Product(models.Model):
     def is_product_out_of_stock(self):
         return self.quantity_on_stock == 0
 
+    def create_or_delete_notification(self, condition, notification_type, message):
+        content_type = ContentType.objects.get_for_model(Product)
+        if condition:
+            notification, created = Notification.objects.get_or_create(
+                text=message,
+                content_type=content_type,
+                object_id=self.id,
+                notification_type=notification_type,
+                defaults={'is_active': True}
+            )
+            if not created and not notification.is_active:
+                notification.is_active = True
+                notification.save()
+        else:
+            Notification.objects.filter(
+                content_type=content_type, 
+                object_id=self.id,
+                notification_type=notification_type
+            ).update(is_active=False)
+
     def save(self, *args, **kwargs):
         if self.pk is not None:
             orig = Product.objects.get(pk=self.pk)
@@ -127,44 +147,23 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
         if self.active:
-            content_type = ContentType.objects.get_for_model(Product)
+            self.create_or_delete_notification(
+                self.is_product_critical(),
+                Notification.CRITICAL,
+                f"Critical Level - {self.product_name}"
+            )
 
-            if self.is_product_critical():
-                Notification.objects.get_or_create(
-                    text=f"Critical Level - {self.product_name}",
-                    content_type=content_type,
-                    object_id=self.id
-                )
-            else:
-                Notification.objects.filter(
-                    text=f"Critical Level - {self.product_name}", 
-                    content_type=content_type, 
-                    object_id=self.id).delete()
+            self.create_or_delete_notification(
+                self.is_product_out_of_stock(),
+                Notification.OUT_OF_STOCK,
+                f"Out of Stock - {self.product_name}"
+            )
 
-            if self.is_product_out_of_stock():
-                Notification.objects.get_or_create(
-                    text=f"Out of Stock - {self.product_name}",
-                    content_type=content_type,
-                    object_id=self.id
-                )
-            else:
-                Notification.objects.filter(
-                    text=f"Out of Stock - {self.product_name}", 
-                    content_type=content_type, 
-                    object_id=self.id).delete()
-
-            if self.is_product_expired():
-                Notification.objects.get_or_create(
-                    text=f"Expired - {self.product_name}",
-                    content_type=content_type,
-                    object_id=self.id
-                )
-            else:
-                Notification.objects.filter(
-                    text=f"Expired - {self.product_name}", 
-                    content_type=content_type, 
-                    object_id=self.id).delete()
-
+            self.create_or_delete_notification(
+                self.is_product_expired(),
+                Notification.EXPIRED,
+                f"Expired - {self.product_name}"
+            )
 
 # class Product(models.Model):
 #     product_name = models.CharField(max_length=255)

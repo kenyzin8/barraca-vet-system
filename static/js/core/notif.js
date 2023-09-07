@@ -36,9 +36,19 @@ function updateNotifications()
         var header = '<h6 class="dropdown-header dropdown-notifications-header"><i class="me-2" data-feather="bell"></i>Alerts Center</h6>';
         notificationsContainer.append(header);
 
+        console.log(data);
+
         $.each(data, function(i, notification) {
             var timeAgoText = timeAgo(notification.date_created);
-            var item = '<a class="dropdown-item dropdown-notifications-item" href="#!">' +
+            var link = "/admin/inventory/";
+        
+            if(notification.notification_type == 'critical') {
+                link = "/admin/inventory/reorder-list";
+            }
+
+            console.log(link);
+        
+            var item = '<a class="dropdown-item dropdown-notifications-item" href="' + link + '">' +
                 '<div class="dropdown-notifications-item-icon bg-danger"><i data-feather="alert-circle"></i></div>' +
                 '<div class="dropdown-notifications-item-content">' +
                 '<div class="dropdown-notifications-item-content-details">' + timeAgoText + '</div>' +
@@ -46,6 +56,7 @@ function updateNotifications()
                 '</div></a>';
             notificationsContainer.append(item);
         });
+        
 
         var footer = '<a class="dropdown-item dropdown-notifications-footer" href="#!">View All Alerts</a>';
         notificationsContainer.append(footer);

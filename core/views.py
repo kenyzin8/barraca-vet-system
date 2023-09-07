@@ -7,7 +7,7 @@ from django.http import JsonResponse
 @staff_required
 @login_required
 def get_notifications(request):
-    notifications = Notification.objects.order_by('-date_created')[:5]
+    notifications = Notification.objects.filter(is_active=True).order_by('-date_created')[:5]
     notifications_list = list(notifications.values())
     return JsonResponse(notifications_list, safe=False)
 

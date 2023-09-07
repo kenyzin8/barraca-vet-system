@@ -8,6 +8,8 @@ from record_management.models import Pet
 from .serializers import PetSerializer, UserLoginSerializer
 
 class PetAPIView(APIView):
+    throttle_scope = 'get_pet'
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -25,6 +27,8 @@ class PetAPIView(APIView):
             return Response({"error": "Pet not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class APILoginView(APIView):
+    throttle_scope = 'mobile_login'
+
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)

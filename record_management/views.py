@@ -826,9 +826,12 @@ def medical_record(request):
 @method_decorator(login_required, name='dispatch')
 @method_decorator(staff_required, name='dispatch')
 class SubmitConsultationView(APIView):
+
+    throttle_scope = 'submit_consultation'
+
     def post(self, request, *args, **kwargs):
         serializer = ConsultationSerializer(data=request.data)
-        print(serializer)
+
         if serializer.is_valid():
             selected_pet_id = serializer.validated_data.get('selectedPetId')
             appointment_date = serializer.validated_data.get('appointment_date')

@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'storages',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework.throttling',
     'nested_admin',
 ]
 
@@ -83,6 +84,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'get_pet': '5/minute',
+        'mobile_login': '5/minute',
+        'submit_consultation': '5/minute',
+    }
 }
 
 ADMIN_REORDER = (
@@ -94,6 +103,7 @@ ADMIN_REORDER = (
     {'app': 'django_celery_beat', 'label': 'Celery Beat'},
     {'app': 'django_celery_results', 'label': 'Celery Results'},
     {'app': 'authtoken', 'label': 'Token'},
+    {'app': 'rest_framework.throttling.ScopedRateThrottle', 'label': 'Auth'},
 )
 
 MIDDLEWARE = [

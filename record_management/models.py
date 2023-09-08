@@ -115,8 +115,11 @@ class PetTreatment(models.Model):
         return self.pet.client.full_name
 
     def get_lab_result_image_for_health_card(self):
-        return self.lab_results.first().result_image
-
+        image = self.lab_results.first().result_image
+        if image:
+            return image
+        else:
+            return None
     class Meta:
         verbose_name_plural = "Pet Treatments"
 

@@ -34,15 +34,17 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Type</th>
-                        <th>Batch Number</th>
-                        <th>Manufacturing Date</th>
-                        <th>Expiration Date</th>
-                        <th>Critical Level</th>
-                        <th>Price</th>
-                        <th>Actions</th>
+                        <th><span class="small">Product</span></th>
+                        <th><span class="small">Quantity</span></th>
+                        <th><span class="small">Type</span></th>
+                        <th><span class="small">Batch Number</span></th>
+                        <th><span class="small">Manufacturer</span></th>
+                        <th><span class="small">Manufacturing Date</span></th>
+                        <th><span class="small">Expiration Date</span></th>
+                        <th><span class="small">Critical Level</span></th>
+                        <th><span class="small">Selling Price</span></th>
+                        <th><span class="small">Description</span></th>
+                        <th><span class="small">Actions</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,6 +60,7 @@
                         </td>
                         <td>{{ product.type.name }}</td>
                         <td>{{ product.batch_number }}</td>
+                        <td>{{ product.manufacturer }}</td>
                         <td>{{ product.manufacturing_date }}</td>
                         <td>
                           {{ product.expiration_date }} 
@@ -74,6 +77,7 @@
                           {% endif %}
                         </td>
                         <td>₱ {{ product.price|intcomma }}</td>
+                        <td>{{ product.product_description }}</td>
                         <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-update-page' product.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update">
                                 <i data-feather="settings"></i>

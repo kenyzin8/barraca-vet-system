@@ -35,6 +35,11 @@ urlpatterns = [
     path('admin/pet-consultation/', permission_required('record_management.add_pet', raise_exception=True)(views.medical_record), name='admin-medical-record-page'),
     path('admin/submit-consultation/', permission_required('record_management.add_pet', raise_exception=True)(views.SubmitConsultationView.as_view()), name='admin-submit-consultation-page'),
     path('admin/view-prescription/<int:prescription_id>/', permission_required('record_management.add_pet', raise_exception=True)(views.view_prescription), name='admin-view-prescription-page'),
+    path('admin/upload-lab-image/', permission_required('record_management.add_pet', raise_exception=True)(views.LabResultImageUploadView.as_view()), name='admin-upload-lab-image-page'),
+    path('admin/add-pet-medical-prescription/', permission_required('record_management.add_pet', raise_exception=True)(views.add_medical_prescription), name='admin-add-pet-medical-prescription-page'),
+    path('admin/add-pet-medical-prescription/submit/', permission_required('record_management.add_pet', raise_exception=True)(views.SubmitPrescription.as_view()), name='admin-submit-pet-medical-prescription-page'),
+    path('admin/add-pet-health-card-treatment/', permission_required('record_management.add_pet', raise_exception=True)(views.add_health_card_treatment), name='admin-add-pet-health-card-treatment-page'),
+    path('admin/add-pet-health-card-treatment/submit/', permission_required('record_management.add_pet', raise_exception=True)(views.SubmitHealthCardTreatment.as_view()), name='admin-submit-pet-health-card-treatment-page'),
 ]
 
 

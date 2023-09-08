@@ -80,21 +80,32 @@
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputManu">Manufacturing Date</label>
-                                    {{ form.manufacturing_date }}
+                                    <label class="small mb-1" for="inputManu">Manufacturer</label>
+                                    {{ form.manufacturer }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputExp">Expiration Date</label>
-                                    {{ form.expiration_date }}
+                                    <label class="small mb-1" for="inputManuDate">Manufacturing Date</label>
+                                    {{ form.manufacturing_date }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
+                                    <label class="small mb-1" for="inputExp">Expiration Date</label>
+                                    {{ form.expiration_date }}
+                                </div>
+                                <div class="col-md-6">
                                     <label class="small mb-1" for="inputCrit">Critical Level</label>
                                     {{ form.critical_level }}
                                 </div>
+
+                            </div>
+                            <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputPrice">Price (₱)</label>
+                                    <label class="small mb-1" for="inputPrice">Product Description</label>
+                                    {{ form.product_description }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputPrice">Selling Price (₱)</label>
                                     {{ form.price }}
                                 </div>
                             </div>

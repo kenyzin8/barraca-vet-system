@@ -32,6 +32,7 @@ class Service(models.Model):
     #remarks = models.CharField(max_length=20, choices=REMARKS_TYPES)
     date_added = models.DateTimeField(auto_now=True)
     control_number = models.CharField(max_length=50, default=1) #DEPRECIATED
+    service_description = models.TextField(max_length=200, blank=True)
     active = models.BooleanField(default=True)
     
     changes_log = models.JSONField(default=dict, blank=True)
@@ -52,8 +53,8 @@ class Service(models.Model):
                 changes['service_type'] = [orig.service_type, self.service_type]
             if orig.fee != self.fee:
                 changes['fee'] = [str(orig.fee), str(self.fee)]
-            #if orig.remarks != self.remarks:
-            #    changes['remarks'] = [orig.remarks, self.remarks]
+            if orig.service_description != self.service_description:
+               changes['service_description'] = [orig.service_description, self.service_description]
             if orig.control_number != self.control_number:
                 changes['control_number'] = [str(orig.control_number), str(self.control_number)]
             if orig.active != self.active:

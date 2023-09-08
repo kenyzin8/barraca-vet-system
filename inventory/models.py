@@ -7,6 +7,7 @@ from core.models import Notification
 
 class ProductType(models.Model):
     name = models.CharField(max_length=50)
+    product_type_description = models.TextField(max_length=255, blank=True, null=True)
     active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
@@ -63,12 +64,15 @@ class Product(models.Model):
     form = models.CharField(max_length=20, choices=PRODUCT_FORM_LIST, default='other')
     type = models.ForeignKey(ProductType, on_delete=models.SET_NULL, null=True)
     batch_number = models.CharField(max_length=255, default="-")
+    manufacturer = models.CharField(max_length=255, default="-")
     manufacturing_date = models.DateField()
     expiration_date = models.DateField()
     critical_level = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    product_description = models.TextField(max_length=255, blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
+    
 
     changes_log = models.JSONField(default=dict, blank=True)
 
@@ -129,7 +133,11 @@ class Product(models.Model):
                 changes['price'] = [str(orig.price), str(self.price)]
             if orig.batch_number != self.batch_number:
                 changes['batch_number'] = [orig.batch_number, self.batch_number]
-            
+            if orig.manufacturer != self.manufacturer:
+                changes['manufacturer'] = [orig.manufacturer, self.manufacturer]
+            if orig.product_description != self.product_description:
+                changes['product_description'] = [orig.product_description, self.product_description]
+                
             if changes:
                 if self.changes_log:
                     update_id = self.changes_log[-1].get('update_id', 0) + 1

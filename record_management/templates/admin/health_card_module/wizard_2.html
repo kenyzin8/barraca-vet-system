@@ -1,0 +1,125 @@
+{% load static %}
+<div class="tab-pane py-2 py-xl-2 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
+    <div class="row justify-content-center">
+        <div class="col-xxl-10 col-xl-8">
+            <div class="parent-container">
+                <div class="header-group">
+                    <h3 class="text-primary">Step 2</h3>
+                    <h5 class="card-title mb-4 fw-100">Fill-in medical record fields</h5>
+                </div>
+                <div class="selected-pet-info" style="display: none;">
+                    <span class="small">Selected Pet: </span>
+                    <div class="avatar">
+                        <img class="avatar-img img-fluid selected-pet-image" src="{% static 'images/placeholder-consultation.jpg' %}" loading="lazy"/>
+                    </div>
+                    <span class="pet-name selected-pet-name small"></span>
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="#" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
+                        <i data-feather="external-link"></i>
+                    </a>
+                </div>
+            </div>
+            <form method="POST" enctype="multipart/form-data" id="medical-record-form">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="small mb-1" for="inputTreatment">Treatment <span class="text-red">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="treatmentType" id="dewormingRadio" value="deworming">
+                                <label class="form-check-label" for="dewormingRadio">Deworming</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="treatmentType" id="vaccRadio" value="vaccination">
+                                <label class="form-check-label" for="vaccRadio">Vaccination</label>
+                            </div>
+                        </span>
+                        <input type="text" class="form-control" id="inputTreatment" name="treatment" placeholder="Select between deworming or vaccination">
+
+                    </div>
+                </div>
+                <div class="row gx-3">
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputTemperature">Temperature (Celcius) <span class="text-red">*</span></label>
+                        <input class="form-control" id="inputTemperature" name="temperature" type="number" placeholder="Enter pet temperature"/>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputTreatmentWeight">Weight (kg) <span class="text-red">*</span></label>
+                        <input class="form-control" id="inputTreatmentWeight" name="weight" type="number" placeholder="Enter pet's weight"/>
+                    </div>
+                </div>
+                
+                <!-- <div class="mb-3">
+                    <label class="small mb-1" for="inputDiagnosis">Diagnosis <span class="text-red">*</span></label>
+                    <input class="form-control" id="inputDiagnosis" name="diagnosis" type="text" placeholder="Enter diagnosis"/>
+                </div> -->
+                <div class="mb-3">
+                    <div>
+                        <label class="small mb-1" for="inputSymptoms">Medicine <span class="text-red">*</span></label>
+                        <div class="input-group mb-2">
+                            <button class="btn btn-add-medicine" type="button" id="addMedicineBtn"><i data-feather="plus-circle" id="medicineIcon"></i></button>
+                            <input class="form-control" id="inputMedicine" name="medicine" type="text" placeholder="Click the plus circle to add a medicine" />    
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="small mb-1" for="inputLabResults">Medicine Sticker (Image) <span class="text-red">*</span> </label>                   
+                </div>
+                <div class="lab-result-group-fields">
+                    <div class="input-group mb-2">
+                        <input class="form-control lab-result-image-input" id="inputLabResultsImages" data-id="0" name="lab_result_images" type="file" accept=".jpg, .jpeg, .png" onchange="validateFile(this, this.parentElement.nextElementSibling.querySelector('.progress-bar'));" />
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            0%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div>
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark add-lab-result-button" href="#" data-bs-toggle="modal" data-bs-placement="top" title="Add Lab Result" id="addLabResultBtn">
+                        <i data-feather="plus-circle"></i>
+                    </a> 
+                    <span class="small">Add another lab result</span>
+                </div> -->
+                <hr class="my-4" />
+                <label class="small mb-1 fw-700" for="inputNextAppointment">Next Appointment</label>
+                <div class="row gx-3">
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputNextAppointmentDate">Date</label>
+                        <div class="input-group input-group-joined border-1">
+                            <span class="input-group-text"><i class="text-primary" data-feather="calendar"></i></span>
+                            <input class="form-control ps-0 pointer" name="appointment_date" id="litepickerSingleDate" placeholder="Select date" />
+                        </div>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputNextAppointmentTimeOfTheDay">Time of the Day</label>
+                        <select class="form-select" id="inputNextAppointmentTimeOfTheDay" name="appointment_time_of_the_day">
+                            <option value="morning">Morning</option>
+                            <option value="afternoon">Afternoon</option>
+                        </select>
+                    </div>  
+                </div>
+                <label class="small mb-1" for="nextAppointmentPurpose">Purpose</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Input purpose of select from the dropbox" id="inputCustomPurpose">
+                    <select class="form-select" id="nextAppointmentPurpose">
+                        <!-- add empty option for null -->
+                        <option value="">------------</option>
+                        {% for service in services %}
+                            <option value="{{ service.id }}">{{ service.service_type }}</option>
+                        {% endfor %}
+                    </select>  
+                  </div>
+                <hr class="my-4" />
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-light previous-button" type="button">Previous</button>
+                    <button class="btn btn-primary submit-button" type="button">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>

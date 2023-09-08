@@ -47,7 +47,8 @@ def product_type_list(request):
 def add_type_page(request):   
     if request.method == 'POST':
         name = request.POST.get('type_name') 
-        ProductType.objects.create(name=name)
+        description = request.POST.get('type_description')
+        ProductType.objects.create(name=name, product_type_description=description)
         return JsonResponse({'result': 'success'})
 
 # missing update

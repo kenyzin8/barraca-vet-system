@@ -1,0 +1,420 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block title %} Health Card | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+:root {
+    --litepicker-day-color-hover: #232323;
+    --litepicker-is-end-color-bg: #232323;
+}
+.nav-wizard .nav-link {
+    padding: 1rem;
+}
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    background-color: #232323;
+}
+.nav-wizard .nav-link.active .wizard-step-icon {
+    color: #232323;
+}
+.nav-wizard .nav-link .wizard-step-text .wizard-step-text-name {
+    color: #232323;
+}
+.nav-wizard .nav-link .wizard-step-icon {
+    background-color: #232323;
+}
+.text-primary {
+    color: #232323 !important;
+}
+.next-button
+{
+    background-color: #232323 !important;
+    border: none;
+}
+.submit-button
+{
+    background-color: green !important;
+    border: none;
+}
+.modal-xl {
+    --bs-modal-width: 1540px;
+}
+.litepicker .container__months {
+    border: 1px solid rgb(161, 161, 161);
+}
+.litepicker .container__footer {
+    border: 1px solid rgb(161, 161, 161);
+}
+.litepicker .container__days .day-item.is-locked {
+    color: rgba(255, 0, 0, 0.082) !important;
+}
+.litepicker .container__days .day-item.is-locked:hover {
+    box-shadow: inset 0 0 0 0px var(--litepicker-day-color-hover) !important;
+    cursor: default !important;
+}
+.litepicker .container__months .month-item-header div > .month-item-name, .month-item-year {
+    border: none;
+}
+.litepicker .container__footer .button-apply {
+    background-color: #232323;
+}
+
+.litepicker .container__days .day-item.afternoon-disabled {
+    color: rgb(45, 45, 248) !important;
+    font-weight: 600 !important;
+}
+.litepicker .container__days .day-item.morning-disabled {
+    color: rgb(1, 92, 1) !important;
+    font-weight: 600 !important;
+}
+.litepicker .container__days .day-item.day-full {
+    color: red !important;
+    font-weight: 600 !important;
+}
+.litepicker .container__days .day-item.old-date {
+    pointer-events: none;
+    color: rgba(255, 0, 0, 0.082) !important;
+}
+.bs-tooltip-top, 
+.bs-tooltip-auto[data-popper-placement^=top] {
+    z-index: 10000 !important;
+}
+
+.bs-tooltip-bottom, 
+.bs-tooltip-auto[data-popper-placement^=bottom], 
+.bs-tooltip-left, 
+.bs-tooltip-auto[data-popper-placement^=left], 
+.bs-tooltip-right, 
+.bs-tooltip-auto[data-popper-placement^=right] {
+    z-index: 10000 !important;
+}
+
+.btn-today
+{
+    color: #232323 !important;
+    font-size: 10px !important;
+}
+
+.parent-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.avatar {
+    margin: 0 10px; 
+}
+
+.header-group {
+    text-align: left;
+
+}
+
+.selected-pet-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 577px) {
+    .parent-container {
+        flex-direction: column; 
+        align-items: center; 
+    }
+    
+    .header-group {
+        text-align: center; 
+    }
+
+    .selected-pet-info {
+        margin-top: 5px; 
+        margin-bottom: 30px;
+    }
+}
+
+#litepickerSingleDate
+{
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+}
+
+.form-check {
+    min-height: 0rem !important;
+    margin-bottom: 0rem !important;
+    margin-left: 15px !important
+}
+
+.form-check-input {
+    vertical-align: middle;
+    margin-top: -0.2rem;
+}
+
+.form-check-label {
+    line-height: 1.5; 
+    vertical-align: middle;
+}
+.form-check .form-check-input {
+    float: none;
+    transition: 0.3s;
+}
+.form-check-input:checked {
+    background-color: #232323;
+    border-color: #232323;
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem rgba(35, 35, 35, 0.5); 
+}
+
+.form-check-input:focus:checked {
+    box-shadow: 0 0 0 0.25rem rgba(35, 35, 35, 0.5); 
+}
+.btn-add-medicine
+{
+    border: 1px solid #c5ccd6;
+}
+.btn-add-medicine:hover
+{
+    border: 1px solid #c5ccd6;
+    background: whitesmoke;
+}
+</style>
+{% include 'admin/health_card_module/modals.html' %}
+{% include 'admin/health_card_module/health_card_module_script.html' %}
+
+{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-5">
+    <!-- Wizard card example with navigation-->
+    <div class="card">
+        <div class="card-header border-bottom">
+            <!-- Wizard navigation-->
+            <div class="nav nav-pills nav-justified flex-column flex-xl-row nav-wizard" id="cardTab" role="tablist">
+                <!-- Wizard navigation item 1-->
+                <a class="nav-item nav-link active" id="wizard1-tab" href="#wizard1" data-bs-toggle="tab" role="tab" aria-controls="wizard1" aria-selected="true">
+                    <div class="wizard-step-icon">1</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Find Pet</div>
+                        <div class="wizard-step-text-details">Locate a pet</div>
+                    </div>
+                </a>
+                <!-- Wizard navigation item 2-->
+                <a class="nav-item nav-link" id="wizard2-tab" href="#wizard2" data-bs-toggle="tab" role="tab" aria-controls="wizard2" aria-selected="true">
+                    <div class="wizard-step-icon">2</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Treatment</div>
+                        <div class="wizard-step-text-details">Setup treatment for health card</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="cardTabContent">
+                <!-- Wizard tab pane item 1-->
+                {% include 'admin/health_card_module/wizard_1.html' %}
+                <!-- Wizard tab pane item 2-->
+                {% include 'admin/health_card_module/wizard_2.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script src="{% static 'plugins/sb-admin/js/bundle.js' %}" crossorigin="anonymous"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/mobilefriendly.js"></script> -->
+<script>
+window.addEventListener('DOMContentLoaded', event => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const startDateString = urlParams.get('startDate');
+    const endDateString = urlParams.get('endDate');
+
+    const litepickerSingleDate = document.getElementById('litepickerSingleDate');
+    const timeOfTheDaySelect = document.getElementById('inputNextAppointmentTimeOfTheDay');
+
+    var tooltipInstances = [];
+
+    var max_appointment = parseInt('{{ max_appointment }}')
+    var date_slots = JSON.parse('{{ date_slots|safe }}');
+    var doctor_schedules = JSON.parse('{{ doctor_schedules|safe }}');
+    var all_appointments = JSON.parse('{{ all_appointments|safe }}');
+
+    let today = new Date();
+
+    function isDateFull(targetDate) {
+        let slotForDate = date_slots.find(slot => slot.fields.date === targetDate);
+        let maxSlotsForDate = slotForDate ? slotForDate.fields.slots : max_appointment;
+        let appointmentCountForDate = all_appointments.filter(appointment => appointment.fields.date === targetDate).length;
+
+        return appointmentCountForDate >= maxSlotsForDate;
+    }
+    function updateSelectOptions(selectedDate) {
+        
+        timeOfTheDaySelect.innerHTML = `
+            <option value="morning">Morning</option>
+            <option value="afternoon">Afternoon</option>
+        `;
+
+        let scheduleForDate = doctor_schedules.find(schedule => schedule.fields.date === selectedDate);
+
+        if (scheduleForDate) {
+            if (scheduleForDate.fields.timeOfTheDay === 'morning') {
+                timeOfTheDaySelect.querySelector('option[value="morning"]').remove();
+            } else if (scheduleForDate.fields.timeOfTheDay === 'afternoon') {
+                timeOfTheDaySelect.querySelector('option[value="afternoon"]').remove();
+            } else if (scheduleForDate.fields.timeOfTheDay === 'whole_day') {
+                timeOfTheDaySelect.innerHTML = '';
+            }
+        }
+    }
+
+    if (litepickerSingleDate) {
+
+        var lockDaysArray = [];
+
+        doctor_schedules.forEach(schedule => {
+            if (schedule.fields.timeOfTheDay === 'whole_day') {
+                lockDaysArray.push(schedule.fields.date);
+            }
+        });
+
+        all_appointments.forEach(appointment => {
+            if (isDateFull(appointment.fields.date) && !lockDaysArray.includes(appointment.fields.date)) {
+                lockDaysArray.push(appointment.fields.date);
+            }
+        });
+
+        var lp = new Litepicker({
+            element: litepickerSingleDate,
+            format: 'MMM DD, YYYY',
+            plugins: ['mobilefriendly', 'keyboardnav'],
+            header: "Select Date",
+            autoApply: false,
+            singleMode: true,
+            resetButton: () => {
+                let btn = document.createElement('button');
+                btn.innerText = 'Today';
+                btn.classList.add('btn-today');  
+                btn.addEventListener('click', (evt) => {
+                    evt.preventDefault();
+                    
+                    const today = new Date();
+                    lp.gotoDate(today);
+                });
+
+                return btn;
+            },
+            dropdowns: {
+                minYear: new Date().getFullYear(),        
+                maxYear: new Date().getFullYear() + 9,   
+                months: true,
+                years: true
+            },
+            lockDays: lockDaysArray,
+            lockDaysFilter: (day) => {
+                const d = day.getDay();
+
+                return [7, 0].includes(d);
+            },
+            setup: (picker) => {
+                picker.on('selected', (date1) => {
+                    var date = date1.dateInstance;
+                    var dateObj = new Date(date);
+
+                    var year = dateObj.getFullYear();
+                    var month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); // add 1 because months are 0-indexed
+                    var day = dateObj.getDate().toString().padStart(2, '0');
+
+                    var formattedDate = `${year}-${month}-${day}`;
+
+                    updateSelectOptions(formattedDate);
+                });
+                picker.on('render', (ui) => {
+                    const days = ui.querySelectorAll('.day-item');
+                    days.forEach(day => {
+                        const dateValue = new Date(Number(day.getAttribute('data-time')));
+                        
+                        if(dateValue < today) {
+                            day.classList.add('old-date');
+                        }
+
+                        const year = dateValue.getFullYear();
+                        const month = (dateValue.getMonth() + 1).toString().padStart(2, '0');
+                        const dayOfMonth = dateValue.getDate().toString().padStart(2, '0');
+                        const formattedDateValue = `${year}-${month}-${dayOfMonth}`;
+                    
+
+                        if (lockDaysArray.includes(formattedDateValue)) {
+                            day.classList.add('day-full');
+                            day.setAttribute('data-bs-toggle', 'tooltip');
+                            day.setAttribute('data-bs-placement', 'top');
+                            day.setAttribute('title', 'Day full');
+                        }
+
+                        const scheduleForTheDay = doctor_schedules.find(schedule => schedule.fields.date === formattedDateValue);
+
+                        if(scheduleForTheDay)
+                        {
+                            if (scheduleForTheDay.fields.timeOfTheDay === 'afternoon') {
+                                day.classList.add('afternoon-disabled');
+                                day.setAttribute('data-bs-toggle', 'tooltip');
+                                day.setAttribute('data-bs-placement', 'top');
+                                day.setAttribute('title', 'Morning unavailable');
+                            }
+                            else if(scheduleForTheDay.fields.timeOfTheDay === 'morning') {
+                                day.classList.add('morning-disabled');
+                                day.setAttribute('data-bs-toggle', 'tooltip');
+                                day.setAttribute('data-bs-placement', 'top');
+                                day.setAttribute('title', 'Afternoon unavailable');
+                            }
+                            else if(scheduleForTheDay.fields.timeOfTheDay === 'whole_day') {
+                                day.classList.add('whole-day-disabled');
+                                day.setAttribute('data-bs-toggle', 'tooltip');
+                                day.setAttribute('data-bs-placement', 'top');
+                                day.setAttribute('title', 'Whole day unavailable');
+                            }
+                        }
+                    });
+
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        var instance = new bootstrap.Tooltip(tooltipTriggerEl, {
+                            trigger: 'hover'
+                        });
+                        tooltipInstances.push(instance);
+                        return instance;
+                    });
+                    tooltipTriggerList.forEach(function(el) {
+                        el.addEventListener('mouseenter', function() {
+                            tooltipInstances.forEach(function(tooltip) {
+                                if (tooltip._element !== el) { 
+                                    tooltip.hide();
+                                }
+                            });
+                        });
+                    });
+                });
+            },
+        });
+
+        document.querySelector('.button-apply').addEventListener('click', function() {
+            tooltipInstances.forEach(function(tooltip) {
+                tooltip.dispose();
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -16,14 +16,16 @@ class ProductForm(forms.ModelForm):
     form = forms.ChoiceField(choices=Product.PRODUCT_FORM_LIST, widget=forms.Select(attrs={'id': 'form', 'class': 'form-select'}))
     type = forms.ModelChoiceField(queryset=ProductType.objects.filter(active=True).order_by('-id'), widget=forms.Select(attrs={'id': 'type', 'class': 'form-select'}))
     batch_number = forms.CharField(widget=forms.TextInput(attrs={'id': 'batch_number', 'class': 'form-control', 'list': 'previous-batch-numbers'}))
+    manufacturer = forms.CharField(widget=forms.TextInput(attrs={'id': 'manufacturer', 'class': 'form-control'}))
     manufacturing_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'manufacturing_date', 'class': 'form-control', 'type': 'date'}))
     expiration_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'expiration_date', 'class': 'form-control', 'type': 'date'}))
     critical_level = forms.IntegerField(widget=forms.NumberInput(attrs={'id': 'critical_level', 'class': 'form-control'}))
     price = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'price', 'class': 'form-control'}))
+    product_description = forms.CharField(widget=forms.Textarea(attrs={'id': 'product_description', 'class': 'form-control'}))
 
     class Meta:
         model = Product
-        fields = ('product_name', 'quantity_on_stock', 'volume', 'form', 'type', 'batch_number', 'manufacturing_date', 'expiration_date', 'critical_level', 'price')
+        fields = ('product_name', 'quantity_on_stock', 'volume', 'form', 'type', 'batch_number', 'manufacturer', 'manufacturing_date', 'expiration_date', 'critical_level', 'price', 'product_description')
 
     def clean(self):
         cleaned_data = super().clean()

@@ -90,6 +90,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     <tr>
                         <th>#</th>
                         <th>Type</th>
+                        <th>Description</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -98,13 +99,16 @@ window.addEventListener('DOMContentLoaded', event => {
                     <tr>
                         <td>{{ type.id }}</td>
                         <td>{{ type.name }}</td>
+                        <td>{{ type.product_type_description }}</td>
                         <td>
+                            {% if type.name != 'Medicines' %}
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Update">
                                 <i data-feather="settings"></i>
                             </a>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="modal" data-bs-target="#deleteTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Delete">
                                 <i data-feather="trash-2"></i>
                             </a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -143,8 +147,14 @@ window.addEventListener('DOMContentLoaded', event => {
             <div class="modal-body">
                 <form id="addTypeForm">
                     <div class="mb-3">
-                        <label for="typeName" class="form-label">Type Name</label>
-                        <input type="text" class="form-control" id="typeName" required>
+                        <div class="mb-3">
+                            <label for="typeName" class="form-label">Type Name</label>
+                            <input type="text" class="form-control" id="typeName" required>
+                        </div>
+                        <div>
+                            <label for="typeDescription" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="typeDescription" required>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -209,9 +219,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addTypeSubmit.addEventListener('click', function() {
         var typeName = addTypeForm.elements.typeName.value;
+        var typeDescription = addTypeForm.elements.typeDescription.value;
 
         if (!typeName.trim()) {
             addTypeForm.elements.typeName.focus();
+            return;
+        }
+        else if(!typeDescription.trim()) {
+            addTypeForm.elements.typeDescription.focus();
             return;
         }
 
@@ -220,6 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             data: {
                 'type_name': typeName,
+                'type_description': typeDescription,
                 'csrfmiddlewaretoken': '{{ csrf_token }}',
             },
             dataType: 'json',

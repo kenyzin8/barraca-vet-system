@@ -27,6 +27,9 @@ from .models import (
     PetMedicalPrescription,
     PrescriptionMedicines,
     PetTreatment,
+    TemporaryLabResultImage,
+    LabResult,
+    LabResultsTreatment,
 )
 
 from django.contrib.auth import login, logout
@@ -52,7 +55,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ConsultationSerializer
+from .serializers import ConsultationSerializer, TemporaryLabResultImageSerializer, PrescriptionSerializer, HealthCardSerializer
 
 
 OTP_EXPIRATION_MINUTE = settings.OTP_EXPIRATION_MINUTES
@@ -831,18 +834,19 @@ class SubmitConsultationView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = ConsultationSerializer(data=request.data)
+        print(serializer)
 
         if serializer.is_valid():
             selected_pet_id = serializer.validated_data.get('selectedPetId')
             appointment_date = serializer.validated_data.get('appointment_date')
             appointment_time_of_the_day = serializer.validated_data.get('appointment_time_of_the_day')
             appointment_purpose = serializer.validated_data.get('appointment_purpose')
-            lab_results = serializer.validated_data.get('lab_results')
+            symptoms = serializer.validated_data.get('symptoms')
             temperature = serializer.validated_data.get('temperature')
             weight = serializer.validated_data.get('weight')
             diagnosis = serializer.validated_data.get('diagnosis')
             treatment = serializer.validated_data.get('treatment')
-            med_images = serializer.validated_data.get('med_images')
+            
             is_deworm = serializer.validated_data.get('isDeworming')
             is_vaccine = serializer.validated_data.get('isVaccination')
             products_selected = serializer.validated_data.get('productsSelected')
@@ -870,11 +874,6 @@ class SubmitConsultationView(APIView):
                 if appointments_for_date >= max_allowed:
                     return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available slots on the selected date.'})
 
-            if med_images:
-                image_type = imghdr.what(med_images)
-                if image_type not in ["jpeg", "png", "jpg", "webp"]:
-                    return JsonResponse({'success': False, 'message': 'Invalid file type. Only .jpg, .jpeg, .png, and .webp files are allowed.'})
-        
             try:
                 with transaction.atomic():
                     
@@ -898,17 +897,39 @@ class SubmitConsultationView(APIView):
                     pet_treatment = PetTreatment.objects.create(
                         pet_id=selected_pet.id,
                         treatment_date=datetime.now(),
-                        lab_results=lab_results,
+                        symptoms=symptoms,
                         treatment_weight=weight,
                         temperature=temperature,
                         diagnosis=diagnosis,
                         treatment=treatment,
                         appointment=appointment if appointment else None,
-                        medical_images=med_images,
                         isDeworm=is_deworm,
                         isVaccine=is_vaccine,
                         isActive=True
                     )
+
+                    lab_results_descriptions = serializer.validated_data.get('labResultsDescriptions')
+                    lab_results_image_ids = serializer.validated_data.get('labResultsImageIDS', [])
+
+                    for index, description in enumerate(lab_results_descriptions):
+                        lab_result_data = {
+                            'description': description,
+                            'image': lab_results_image_ids[index] if index < len(lab_results_image_ids) else None
+                        }
+
+                        if lab_result_data['image']:
+                            temp_image = TemporaryLabResultImage.objects.get(id=lab_result_data['image'])
+                            lab_result = LabResult.objects.create(
+                                result_name=lab_result_data['description'],
+                                result_image=temp_image.image
+                            )
+                            temp_image.delete()
+                        else:
+                            lab_result = LabResult.objects.create(
+                                result_name=lab_result_data['description']
+                            )
+                        
+                        pet_treatment.lab_results.add(lab_result)
 
                     if weight:
                         selected_pet.weight = weight
@@ -957,3 +978,203 @@ def view_prescription(request, prescription_id):
     }
     
     return render(request, 'admin/view_prescription.html', context)
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(staff_required, name='dispatch')
+class LabResultImageUploadView(APIView):
+    def post(self, request, *args, **kwargs):
+        
+        serializer = TemporaryLabResultImageSerializer(data=request.data)
+
+        if serializer.is_valid():
+
+            image = serializer.validated_data.get('image')
+
+            if image:
+                image_type = imghdr.what(image)
+                if image_type not in ["jpeg", "png", "jpg", "webp"]:
+                    return Response({'message': 'Invalid file type. Only .jpg, .jpeg, .png, and .webp files are allowed.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.save()
+            return Response({"message": "Image uploaded successfully!", "temp_image_id": serializer.instance.id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@staff_required
+@login_required
+def add_medical_prescription(request):
+    pets = Pet.objects.filter(is_active=True).order_by('-id')
+    types = ProductType.objects.filter(name="Medicines")
+
+    product_dict = {}
+    for t in types:
+        products = Product.objects.filter(type=t, active=True)
+        filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
+        product_dict[t.name] = filtered_products
+
+    formList = PrescriptionMedicines.MEDICINES_FORM_LIST
+
+    context = {'pets': pets, 'product_dict': product_dict, 'formList': formList}
+    return render(request, 'admin/prescription_module/prescription_module.html', context)
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(staff_required, name='dispatch')
+class SubmitPrescription(APIView):
+    def post(self, request, *args, **kwargs):
+        
+        serializer = PrescriptionSerializer(data=request.data)
+
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    selected_pet_id = serializer.validated_data.get('selectedPetId')
+                    products_selected = serializer.validated_data.get('productsSelected')
+
+                    selected_pet = Pet.objects.get(pk=selected_pet_id)
+
+                    if products_selected:
+                        pet_medical_prescription = PetMedicalPrescription.objects.create(
+                            pet_id=selected_pet.id,
+                            date_prescribed=datetime.now(),
+                            isActive=True
+                        )
+
+                        for product_id, product_details in products_selected:
+                            PrescriptionMedicines.objects.create(
+                                prescription=pet_medical_prescription,
+                                medicine_id=product_id,
+                                strength=product_details['strength'],
+                                #form=product_details['form'],
+                                quantity=product_details['quantity'],
+                                dosage=product_details['dosage'],
+                                frequency=product_details['frequency'],
+                                remarks=product_details['remarks']
+                            )
+                    else:
+                        return Response({'success': False, 'message': 'Please select at least one medicine.'})
+            except Exception as e:
+                return Response({'success': False, 'message': str(e)})
+
+            return Response({'success': True, "message": "Prescription has been added.", 'prescription_id': pet_medical_prescription.id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@staff_required
+@login_required
+def add_health_card_treatment(request):
+    pets = Pet.objects.filter(is_active=True).order_by('-id')
+    types = ProductType.objects.filter(name="Medicines")
+
+    product_dict = {}
+    for t in types:
+        products = Product.objects.filter(type=t, active=True)
+        filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
+        product_dict[t.name] = filtered_products
+
+    formList = PrescriptionMedicines.MEDICINES_FORM_LIST
+
+    services = Service.objects.filter(active=True)
+
+    all_appointments = Appointment.objects.filter(isActive=True, status='pending').order_by('-id')
+    max_appointment = MaximumAppointment.objects.first()
+    date_slots = DateSlot.objects.all()
+    doctor_schedules = DoctorSchedule.objects.all()
+
+    all_appointments = serialize('json', all_appointments)
+    date_slots = serialize('json', date_slots)
+    doctor_schedules = serialize('json', doctor_schedules)
+
+    context = {
+        'pets': pets, 
+        'product_dict': product_dict, 
+        'formList': formList,
+        'services': services ,
+        'all_appointments': all_appointments,
+        'max_appointment': max_appointment,
+        'date_slots': date_slots,
+        'doctor_schedules': doctor_schedules
+    }
+    return render(request, 'admin/health_card_module/health_card_module.html', context)
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(staff_required, name='dispatch')
+class SubmitHealthCardTreatment(APIView):
+
+    def post(self, request, *args, **kwargs):
+        serializer = HealthCardSerializer(data=request.data)
+
+        if(serializer.is_valid()):
+            try:
+                with transaction.atomic():
+                    print(serializer)
+
+                    selected_pet_id = serializer.validated_data.get('selectedPetId')
+                    selected_product_id = serializer.validated_data.get('productSelected')
+                    medicine_sticker = serializer.validated_data.get('medicine_sticker')
+
+                    temperature = serializer.validated_data.get('temperature')
+                    weight = serializer.validated_data.get('weight')
+                    treatment = serializer.validated_data.get('treatment')
+                    isDeworm = serializer.validated_data.get('isDeworming')
+                    isVaccine = serializer.validated_data.get('isVaccination')
+
+                    appointment_date = serializer.validated_data.get('appointment_date')
+                    appointment_time_of_the_day = serializer.validated_data.get('appointment_time_of_the_day')
+                    appointment_purpose = serializer.validated_data.get('appointment_purpose')
+
+                    custom_purpose = serializer.validated_data.get('custom_purpose')
+
+                    pet = Pet.objects.get(pk=selected_pet_id)
+
+                    pet.weight = weight
+                    pet.save()
+
+                    lab_result_desc = "Deworming" if isDeworm else "medicine_sticker"
+                    lab_result_desc = "Vaccination" if isVaccine else "medicine_sticker"
+
+                    lab_result = LabResult.objects.create(
+                        result_name=lab_result_desc,
+                        result_image=medicine_sticker
+                    )
+
+                    service = Service.objects.get(pk=appointment_purpose)
+
+                    appointment = Appointment.objects.create(
+                        pet=pet,
+                        client=pet.client,
+                        date=appointment_date,
+                        timeOfTheDay=appointment_time_of_the_day,
+                        purpose=service if appointment_purpose else custom_purpose,
+                        status='pending',
+                        isActive=True
+                    )
+
+                    pet_treatment = PetTreatment.objects.create(
+                        pet_id=pet.id,
+                        treatment_date=datetime.now(),
+                        treatment_weight=weight,
+                        temperature=temperature,
+                        treatment=treatment,
+                        isDeworm=isDeworm,
+                        isVaccine=isVaccine,
+                        isActive=True,
+                        appointment=appointment
+                    )
+
+                    pet_treatment.lab_results.add(lab_result)
+
+                    pet_medical_prescription = PetMedicalPrescription.objects.create(
+                        pet_id=pet.id,
+                        date_prescribed=datetime.now(),
+                        pet_treatment=pet_treatment,
+                        isActive=True
+                    )
+
+                    PrescriptionMedicines.objects.create(
+                        prescription=pet_medical_prescription,
+                        medicine_id=selected_product_id,
+                        #form=product_details['form'],
+                        quantity=1,
+                    )
+
+                    return Response({'success': True, 'message': 'Health card treatment submitted successfully.'})
+            except Exception as e:
+                return Response({'success': False, 'message': str(e)})

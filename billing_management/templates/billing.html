@@ -221,7 +221,7 @@ window.addEventListener('DOMContentLoaded', event => {
     </div>
 </div>
 
-<div class="modal fade" id="addServiceModal" tabindex="-1" role="dialog" aria-labelledby="addServiceModalLabel" aria-hidden="true">
+<div class="modal fade" id="addServiceModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addServiceModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -257,7 +257,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                 </td>
                                 <td>
                                     <span class="service-remarks">
-                                        {{ service.get_remarks_display }}
+                                        {{ service.service_description }}
                                     </span>
                                 </td>
                                 <td>
@@ -284,7 +284,7 @@ window.addEventListener('DOMContentLoaded', event => {
     </div>
 </div>
 
-<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+<div class="modal fade" id="addProductModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -317,13 +317,15 @@ window.addEventListener('DOMContentLoaded', event => {
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Product Name</th>
-                                            <th>Batch Number</th>
-                                            <th>Expiration Date</th>
-                                            <th>Stock Quantity</th>
-                                            <th>Quantity</th>
-                                            <th>Price</th>
-                                            <th>Action</th>
+                                            <th><span class="small">Name</span></th>
+                                            <th><span class="small">Manufacturer</span></th>
+                                            <th><span class="small">Description</span></th>
+                                            <th><span class="small">Batch Number</span></th>
+                                            <th><span class="small">Expiration Date</span></th>
+                                            <th><span class="small">Stock Quantity</span></th>
+                                            <th><span class="small">Quantity</span></th>
+                                            <th><span class="small">Price</span></th>
+                                            <th><span class="small">Action</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -337,6 +339,16 @@ window.addEventListener('DOMContentLoaded', event => {
                                                 </span>
                                                 <span class="product-type" style="display: none;">
                                                     {{ product.type }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="product-manufacturer">
+                                                    {{ product.manufacturer }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="product-description">
+                                                    {{ product.product_description }}
                                                 </span>
                                             </td>
                                             <td>

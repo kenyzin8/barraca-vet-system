@@ -86,20 +86,23 @@ def validate_image_extension(value):
     import os
     ext = os.path.splitext(value.name)[1] 
     valid_extensions = ['.png', '.jpg', '.jpeg']
-    print(ext)
+  
     if not ext.lower() in valid_extensions:
         raise ValidationError(_('Unsupported file extension. Only PNG and JPG files are allowed.'))
 
 class PetTreatment(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
     treatment_date = models.DateTimeField(auto_now=True)
-    lab_results = models.CharField(max_length=100, null=True, blank=True)
+    symptoms = models.CharField(max_length=100, null=True, blank=True)
     treatment_weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     diagnosis = models.CharField(max_length=100, null=True, blank=True)
     treatment = models.CharField(max_length=100, null=True, blank=True)
     appointment = models.OneToOneField('appointment_management.Appointment', on_delete=models.CASCADE, null=True, blank=True)
-    medical_images = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
+   
+    #medical_images = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
+    lab_results = models.ManyToManyField('record_management.LabResult', blank=True)
+
     isActive = models.BooleanField(default=True)
 
     isVaccine = models.BooleanField(default=False)
@@ -111,8 +114,28 @@ class PetTreatment(models.Model):
     def get_owner(self):
         return self.pet.client.full_name
 
+    def get_lab_result_image_for_health_card(self):
+        return self.lab_results.first().result_image
+
     class Meta:
         verbose_name_plural = "Pet Treatments"
+
+class LabResult(models.Model):
+    result_name = models.CharField(max_length=100, null=True, blank=True)
+    result_image = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
+
+    def __str__(self):
+        return self.result_name
+
+    class Meta:
+        verbose_name_plural = "Lab Results"
+
+class TemporaryLabResultImage(models.Model):
+    image = models.ImageField(upload_to='public/images/', validators=[validate_image_extension])
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Temporary Lab Result Images"
 
 class PetMedicalPrescription(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
@@ -140,12 +163,12 @@ class PrescriptionMedicines(models.Model):
 
     prescription = models.ForeignKey(PetMedicalPrescription, on_delete=models.CASCADE)
     medicine = models.ForeignKey('inventory.Product', on_delete=models.CASCADE, related_name='prescription_medicines', null=True)
-    strength = models.CharField(max_length=100)
+    strength = models.CharField(max_length=100, null=True, blank=True)
     #form = models.CharField(max_length=20, choices=MEDICINES_FORM_LIST) DEPRECIATED
     quantity = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    dosage = models.CharField(max_length=100)
-    frequency = models.CharField(max_length=100)
-    remarks = models.CharField(max_length=100)
+    dosage = models.CharField(max_length=100, null=True, blank=True)
+    frequency = models.CharField(max_length=100, null=True, blank=True)
+    remarks = models.CharField(max_length=100, null=True, blank=True)
 
     #extra attributes if medicine is not around on the inventory
     extra_medicine = models.CharField(max_length=100, null=True, blank=True)
@@ -264,3 +287,10 @@ class PetMedicalRecord(models.Model):
 
     class Meta:
         verbose_name_plural = "Pet Medical Records"
+
+class LabResultsTreatment(models.Model):
+    pet_treatment = models.OneToOneField(PetTreatment, on_delete=models.CASCADE, null=True, blank=True)
+    lab_result = models.ForeignKey('record_management.LabResult', on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.pet_treatment.pet.name} - {self.lab_result.result_name}"

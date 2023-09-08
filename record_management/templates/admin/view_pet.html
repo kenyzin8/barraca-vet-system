@@ -132,8 +132,7 @@
                                                     <th>Weight</th>
                                                     <th>Treatment</th>
                                                     <th>Veterenarian</th>
-                                                    <th>Prescription</th>
-                                                    <th>Medical Image</th>
+                                                    <th>Medicine Sticker</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -156,17 +155,8 @@
                                                     <td>{{ treatment.treatment }}</td>
                                                     <td>Yvette Mae Barraca</td>
                                                     <td>
-                                                        {% if treatment.petmedicalprescription %}
-                                                            <a href="{% url 'admin-view-prescription-page' treatment.petmedicalprescription.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Prescription">
-                                                                <i data-feather="list"></i>
-                                                            </a>
-                                                        {% else %}
-                                                            <i data-feather="x-square"></i>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if treatment.medical_images %}
-                                                        <a href="{{ treatment.medical_images.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
+                                                        {% if treatment.get_lab_result_image_for_health_card %}
+                                                        <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
                                                             <i data-feather="image"></i>
                                                         </a>
                                                         <!-- <span class="small">{{ treatment.medical_images }}</span> -->
@@ -207,8 +197,7 @@
                                                     <th>Weight</th>
                                                     <th>Treatment</th>
                                                     <th>Veterenarian</th>
-                                                    <th>Prescription</th>
-                                                    <th>Medical Image</th>
+                                                    <th>Medicine Sticker</th>
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
@@ -231,17 +220,8 @@
                                                     <td>{{ treatment.treatment }}</td>
                                                     <td>Yvette Mae Barraca</td>
                                                     <td>
-                                                        {% if treatment.petmedicalprescription %}
-                                                            <a href="{% url 'admin-view-prescription-page' treatment.petmedicalprescription.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Prescription">
-                                                                <i data-feather="list"></i>
-                                                            </a>
-                                                        {% else %}
-                                                            <i data-feather="x-square"></i>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if treatment.medical_images %}
-                                                        <a href="{{ treatment.medical_images.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
+                                                        {% if treatment.get_lab_result_image_for_health_card %}
+                                                        <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
                                                             <i data-feather="image"></i>
                                                         </a>
                                                         <!-- <span class="small">{{ treatment.medical_images }}</span> -->

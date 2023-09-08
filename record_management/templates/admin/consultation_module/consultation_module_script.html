@@ -1,11 +1,61 @@
 <script>
-    function validateFile(input) {
+    let ind = 1; 
+    let labResultsData = [];
+
+    function uploadImage(inputElement, progressBarInner) {
+        var formData = new FormData();
+        formData.append('image', inputElement.files[0]);
+
+        const currentInputID = inputElement.dataset.id; 
+
+        $.ajax({
+            url: "{% url 'admin-upload-lab-image-page' %}", 
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", function(evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        percentComplete = parseInt(percentComplete * 100);
+
+                        progressBarInner.style.width = percentComplete + '%';
+                        progressBarInner.setAttribute('aria-valuenow', percentComplete);
+                        progressBarInner.textContent = percentComplete + '%';
+                    }
+                }, false);
+                return xhr;
+            },
+            success: function(response) {
+                labResultsData.push({
+                    id: currentInputID,
+                    image_id: response.temp_image_id
+                });
+            },
+            error: function(response) {
+                showError("Error uploading image. Please try again.");
+                inputElement.value = '';
+                progressBarInner.style.width = 0 + '%';
+                progressBarInner.setAttribute('aria-valuenow', 0);
+                progressBarInner.textContent = 0 + '%';
+            }
+        });
+    }
+
+    function validateFile(input, progressBarInner) {
         var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
 
         if(!allowedExtensions.exec(input.value)) {
             showError('Invalid file type. Only .jpg, .jpeg, and .png files are allowed.');
             input.value = '';
             return false;
+        }
+        else
+        {
+            uploadImage(input, progressBarInner);
+            return true;
         }
     }
 
@@ -544,6 +594,90 @@
             $(this).closest('tr').remove();
         });
 
+        const addLabResultBtn = document.getElementById('addLabResultBtn');
+
+        addLabResultBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const labResultGroupFields = document.createElement('div');
+            labResultGroupFields.className = 'lab-result-group-fields';
+
+            // Create the new input group for lab results
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group mb-2';
+
+            const removeButton = document.createElement('button');
+            removeButton.className = 'btn btn-remove-lab-result';
+            removeButton.type = 'button';
+            const removeIcon = document.createElement('i');
+            removeIcon.setAttribute('data-feather', 'minus-circle');
+            removeButton.appendChild(removeIcon);
+            removeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                labResultGroupFields.remove();
+            });
+
+            const inputLabResults = document.createElement('input');
+            inputLabResults.className = 'form-control lab-result-input';
+            inputLabResults.name = 'diagnosis';
+            inputLabResults.type = 'text';
+            inputLabResults.placeholder = 'Enter lab results';
+            inputLabResults.id = 'inputLabResults'
+
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress mb-2';
+
+            // Create the inner progress-bar div
+            const progressBarInner = document.createElement('div');
+            progressBarInner.className = 'progress-bar progress-bar-striped progress-bar-animated bg-success';
+            progressBarInner.setAttribute('role', 'progressbar');
+            progressBarInner.style.width = '0%';
+            progressBarInner.setAttribute('aria-valuenow', '0');
+            progressBarInner.setAttribute('aria-valuemin', '0');
+            progressBarInner.setAttribute('aria-valuemax', '100');
+            progressBarInner.textContent = '0%';
+
+            const inputLabResultsImages = document.createElement('input');
+            inputLabResultsImages.className = 'form-control lab-result-image-input';
+            inputLabResultsImages.name = 'lab_result_images';
+            inputLabResultsImages.type = 'file';
+            inputLabResultsImages.accept = '.jpg, .jpeg, .png';
+            inputLabResultsImages.id = 'inputLabResultsImages'
+
+            const currentID = ind++;
+            inputLabResults.dataset.id = currentID; 
+            inputLabResultsImages.dataset.id = currentID;
+
+            inputLabResultsImages.onchange = function() {
+                const progressBar = this.parentElement.nextElementSibling;
+                const progressBarInner = progressBar.querySelector('.progress-bar');
+
+                validateFile(this, progressBarInner)
+
+                console.log(labResultsData);
+            };
+
+            progressBar.appendChild(progressBarInner);
+            inputGroup.appendChild(inputLabResults);
+            inputGroup.appendChild(inputLabResultsImages);
+            inputGroup.appendChild(removeButton);
+
+            labResultGroupFields.appendChild(inputGroup);
+            labResultGroupFields.appendChild(progressBar);
+
+            addLabResultBtn.parentElement.insertAdjacentElement('beforebegin', labResultGroupFields);
+
+
+            feather.replace();
+        });
+
+        $(document).on('input', '#inputCustomPurpose', function(e) {
+            $('#nextAppointmentPurpose').val("");
+        });
+        
+        $(document).on('change', '#nextAppointmentPurpose', function(e) {
+            $('#inputCustomPurpose').val("");
+        });
+
         $(document).on('click', '.submit-button', function(e)
         {
             if(selectedPetId == null)
@@ -553,7 +687,7 @@
                 return;
             }
 
-            var lab_results = $('#inputLabResults').val();
+            var symptoms = $('#inputSymptoms').val();
             var temperature = $('#inputTemperature').val();
             var weight = $('#inputTreatmentWeight').val();
             var diagnosis = $('#inputDiagnosis').val();
@@ -562,10 +696,12 @@
             var isDeworming = $('#dewormingRadio').is(':checked');
             var isVaccination = $('#vaccRadio').is(':checked');
 
-            if(lab_results == null || lab_results == "")
+            var labResults = $('#inputLabResults').val();
+
+            if(symptoms == null || symptoms == "")
             {
                 activateTab(1);
-                showError("Please enter the lab results.");
+                showError("Please enter the symptoms.");
                 return;
             }
             else if(temperature == null || temperature == "")
@@ -592,33 +728,49 @@
                 showError("Please enter the treatment.");
                 return;
             }
-
-            var med_images = $('#inputMedImages').val();
+            else if(labResults == null || labResults == "")
+            {
+                activateTab(1);
+                showError("Please enter the lab results.");
+                return;
+            }
 
             var appointment_date = $('#litepickerSingleDate').val();
             var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
             var appointment_purpose = $('#nextAppointmentPurpose').val();
+
+            var custom_purpose = $('#inputCustomPurpose').val();
             
-            var med_images = $('#inputMedImages')[0].files[0];
+            const labResultInputs = document.querySelectorAll('.lab-result-input');
+            const labResultImageInputs = document.querySelectorAll('.lab-result-image-input');
+            
             var formData = new FormData();
+
             formData.append('productsSelected', JSON.stringify([...productsSelected]));
             formData.append('selectedPetId', selectedPetId);
             formData.append('appointment_date', appointment_date);
             formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
             formData.append('appointment_purpose', appointment_purpose);
-            formData.append('lab_results', lab_results);
+            formData.append('symptoms', symptoms);
             formData.append('temperature', temperature);
             formData.append('weight', weight);
             formData.append('diagnosis', diagnosis);
             formData.append('treatment', treatment);
 
-            if(med_images == undefined)
-            {
-                med_images = ''
-                console.log(med_images)
-            }
+            var labResultsDescriptions = [];
+            var labResultsImageIDS = [];
 
-            formData.append('med_images', med_images);
+            labResultInputs.forEach((input) => {
+                labResultsDescriptions.push(input.value);
+                let matchingImageData = labResultsData.find(item => item.id == input.dataset.id);
+                if (matchingImageData) {
+                    labResultsImageIDS.push(matchingImageData.image_id);
+                }
+            });
+
+            formData.append('labResultsDescriptions', JSON.stringify(labResultsDescriptions));
+            formData.append('labResultsImageIDS', JSON.stringify(labResultsImageIDS));
+
             formData.append('isDeworming', isDeworming);
             formData.append('isVaccination', isVaccination);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
@@ -632,9 +784,11 @@
                 success: function(response) {
                     if(response.success)
                     {
+                        console.log(response.prescription_id);
+                        
                         var petLink = document.querySelector('.pet-link a');
                         var originalHref = petLink.getAttribute('href');
-                        var newHref = originalHref.replace('0', selectedPetId);
+                        var newHref = originalHref.replace('0', response.prescription_id);
                         petLink.setAttribute('href', newHref);
 
                         showSuccess(response.message);

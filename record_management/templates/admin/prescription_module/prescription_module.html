@@ -1,0 +1,256 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block title %} Prescription | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+:root {
+    --litepicker-day-color-hover: #232323;
+    --litepicker-is-end-color-bg: #232323;
+}
+.nav-wizard .nav-link {
+    padding: 1rem;
+}
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    background-color: #232323;
+}
+.nav-wizard .nav-link.active .wizard-step-icon {
+    color: #232323;
+}
+.nav-wizard .nav-link .wizard-step-text .wizard-step-text-name {
+    color: #232323;
+}
+.nav-wizard .nav-link .wizard-step-icon {
+    background-color: #232323;
+}
+.text-primary {
+    color: #232323 !important;
+}
+.next-button
+{
+    background-color: #232323 !important;
+    border: none;
+}
+.submit-button
+{
+    background-color: green !important;
+    border: none;
+}
+.modal-xl {
+    --bs-modal-width: 1540px;
+}
+.litepicker .container__months {
+    border: 1px solid rgb(161, 161, 161);
+}
+.litepicker .container__footer {
+    border: 1px solid rgb(161, 161, 161);
+}
+.litepicker .container__days .day-item.is-locked {
+    color: rgba(255, 0, 0, 0.082) !important;
+}
+.litepicker .container__days .day-item.is-locked:hover {
+    box-shadow: inset 0 0 0 0px var(--litepicker-day-color-hover) !important;
+    cursor: default !important;
+}
+.litepicker .container__months .month-item-header div > .month-item-name, .month-item-year {
+    border: none;
+}
+.litepicker .container__footer .button-apply {
+    background-color: #232323;
+}
+
+.litepicker .container__days .day-item.afternoon-disabled {
+    color: rgb(45, 45, 248) !important;
+    font-weight: 600 !important;
+}
+.litepicker .container__days .day-item.morning-disabled {
+    color: rgb(1, 92, 1) !important;
+    font-weight: 600 !important;
+}
+.litepicker .container__days .day-item.day-full {
+    color: red !important;
+    font-weight: 600 !important;
+}
+.litepicker .container__days .day-item.old-date {
+    pointer-events: none;
+    color: rgba(255, 0, 0, 0.082) !important;
+}
+.bs-tooltip-top, 
+.bs-tooltip-auto[data-popper-placement^=top] {
+    z-index: 10000 !important;
+}
+
+.bs-tooltip-bottom, 
+.bs-tooltip-auto[data-popper-placement^=bottom], 
+.bs-tooltip-left, 
+.bs-tooltip-auto[data-popper-placement^=left], 
+.bs-tooltip-right, 
+.bs-tooltip-auto[data-popper-placement^=right] {
+    z-index: 10000 !important;
+}
+
+.btn-today
+{
+    color: #232323 !important;
+    font-size: 10px !important;
+}
+
+.parent-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.avatar {
+    margin: 0 10px; 
+}
+
+.header-group {
+    text-align: left;
+
+}
+
+.selected-pet-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 577px) {
+    .parent-container {
+        flex-direction: column; 
+        align-items: center; 
+    }
+    
+    .header-group {
+        text-align: center; 
+    }
+
+    .selected-pet-info {
+        margin-top: 5px; 
+        margin-bottom: 30px;
+    }
+}
+
+#litepickerSingleDate
+{
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+}
+
+#inputTreatment {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+.form-check {
+    min-height: 0rem !important;
+    margin-bottom: 0rem !important;
+    margin-left: 15px !important
+}
+
+.form-check-input {
+    vertical-align: middle;
+    margin-top: -0.2rem;
+}
+
+.form-check-label {
+    line-height: 1.5; 
+    vertical-align: middle;
+}
+.form-check .form-check-input {
+    float: none;
+    transition: 0.3s;
+}
+.form-check-input:checked {
+    background-color: #232323;
+    border-color: #232323;
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem rgba(35, 35, 35, 0.5); 
+}
+
+.form-check-input:focus:checked {
+    box-shadow: 0 0 0 0.25rem rgba(35, 35, 35, 0.5); 
+}
+.btn-add-lab-result
+{
+    border: 1px solid #c5ccd6;
+}
+.btn-add-lab-result:hover
+{
+    border: 1px solid #c5ccd6;
+    background: whitesmoke;
+}
+.btn-remove-lab-result
+{
+    border: 1px solid #c5ccd6;
+}
+.btn-remove-lab-result:hover
+{
+    border: 1px solid #c5ccd6;
+    background: whitesmoke;
+}
+</style>
+
+{% include 'admin/prescription_module/prescription_module_script.html' %}
+
+{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-5">
+    <!-- Wizard card example with navigation-->
+    <div class="card">
+        <div class="card-header border-bottom">
+            <!-- Wizard navigation-->
+            <div class="nav nav-pills nav-justified flex-column flex-xl-row nav-wizard" id="cardTab" role="tablist">
+                <!-- Wizard navigation item 1-->
+                <a class="nav-item nav-link active" id="wizard1-tab" href="#wizard1" data-bs-toggle="tab" role="tab" aria-controls="wizard1" aria-selected="true">
+                    <div class="wizard-step-icon">1</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Find Pet</div>
+                        <div class="wizard-step-text-details">Locate a pet</div>
+                    </div>
+                </a>
+                <!-- Wizard navigation item 2-->
+                <a class="nav-item nav-link" id="wizard2-tab" href="#wizard2" data-bs-toggle="tab" role="tab" aria-controls="wizard2" aria-selected="true">
+                    <div class="wizard-step-icon">2</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Prescription</div>
+                        <div class="wizard-step-text-details">Setup the prescription</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="cardTabContent">
+                <!-- Wizard tab pane item 1-->
+                {% include 'admin/prescription_module/wizard_1.html' %}
+                <!-- Wizard tab pane item 2-->
+                {% include 'admin/prescription_module/wizard_2.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'admin/prescription_module/modals.html' %}
+
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script src="{% static 'plugins/sb-admin/js/bundle.js' %}" crossorigin="anonymous"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/mobilefriendly.js"></script> -->
+<script>
+
+</script>
+{% endblock %}

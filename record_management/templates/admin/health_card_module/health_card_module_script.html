@@ -1,0 +1,569 @@
+<script>
+    let ind = 1; 
+    let labResultsData = [];
+
+    function validateFile(input, progressBarInner) {
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+
+        if(!allowedExtensions.exec(input.value)) {
+            showError('Invalid file type. Only .jpg, .jpeg, and .png files are allowed.');
+            input.value = '';
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    function showSuccess(message)
+    {
+        $('#successModal .modal-body-success-message').text(message);
+        $('#successModal').modal('show');
+    }
+
+    function showError(message)
+    {
+        $('#errorModal .modal-body').text(message);
+        $('#errorModal').modal('show');
+    }
+    
+    window.addEventListener('DOMContentLoaded', event => {
+
+        let selectedPetName;
+        let selectedPetId;
+        let selectedProductID = -1;
+        let selectedProductName = "";
+
+        let radioStates = {};
+        
+        let nextAppointmentPurposeOptions = []
+
+        {% for service in services %}
+            nextAppointmentPurposeOptions.push({
+                id: {{ service.id }},
+                service_type: "{{ service.service_type }}"
+            });
+        {% endfor %}
+
+        console.log(nextAppointmentPurposeOptions)
+
+        let inputTreatment = document.getElementById('inputTreatment');
+        let radios = document.querySelectorAll('input[type="radio"]');
+
+        radios.forEach(radio => {
+            radio.addEventListener('click', function() {
+                if (radioStates[this.id]) {
+                    this.checked = false;
+                    inputTreatment.value = ''; 
+                    delete radioStates[this.id];
+                } else {
+                    radioStates[this.id] = true;
+                    
+                    radios.forEach(innerRadio => {
+                        if (innerRadio.id !== this.id) {
+                            innerRadio.checked = false;
+                            delete radioStates[innerRadio.id];
+                        }
+                    });
+
+                    if (this.id === 'dewormingRadio') {
+                        inputTreatment.value = 'Deworming';
+                        
+                        for(var i = 0; i < nextAppointmentPurposeOptions.length; i++)
+                        {
+                            if(nextAppointmentPurposeOptions[i].service_type == "Deworming")
+                            {
+                                $('#nextAppointmentPurpose').val(nextAppointmentPurposeOptions[i].id);
+                            }
+                        }
+                        
+                    } else if (this.id === 'vaccRadio') {
+                        
+                        inputTreatment.value = 'Vaccination';
+
+                        for(var i = 0; i < nextAppointmentPurposeOptions.length; i++)
+                        {
+                            if(nextAppointmentPurposeOptions[i].service_type == "Vaccination")
+                            {
+                                $('#nextAppointmentPurpose').val(nextAppointmentPurposeOptions[i].id);
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        const petTable = document.getElementById('petTable');
+    
+        if (petTable) {
+            let dataTable = new simpleDatatables.DataTable(petTable, {
+                paging: true,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+    
+            window.dataTable = dataTable;
+    
+            dataTable.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+                setupSelectButtons();
+            });
+    
+            dataTable.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+                setupSelectButtons();
+            });
+    
+            dataTable.on('datatable.search', function(query, matched) {
+                feather.replace();
+    
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+
+                console.log(selectedPetId)
+
+                setupSelectButtons();
+            });
+    
+            dataTable.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+                setupSelectButtons();
+            });
+    
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    dataTable.search('');
+                    setupSelectButtons();
+                }
+            });
+        }
+    
+        const nextButtons = document.querySelectorAll('.next-button');
+        const previousButtons = document.querySelectorAll('.previous-button');
+        const navLinks = document.querySelectorAll('.nav-item.nav-link');
+    
+        function activateTab(tabIndex) {
+            if (tabIndex >= 0 && tabIndex < navLinks.length) {
+                navLinks[tabIndex].click();
+            }
+        }
+
+        function navigateTabs(direction) {
+            const activeTab = document.querySelector('.nav-item.nav-link.active');
+            const activeTabIndex = [...navLinks].indexOf(activeTab);
+            const targetTabIndex = activeTabIndex + direction;
+    
+            activateTab(targetTabIndex);
+    
+            if (direction === 1 && targetTabIndex === navLinks.length - 1) {
+                nextButtons.forEach(btn => {
+                    btn.classList.add('disabled');
+                    btn.setAttribute('disabled', true);
+                });
+            } else {
+                nextButtons.forEach(btn => {
+                    btn.classList.remove('disabled');
+                    btn.removeAttribute('disabled');
+                });
+            }
+    
+            if (direction === -1 && targetTabIndex === 0) {
+                previousButtons.forEach(btn => {
+                    btn.classList.add('disabled');
+                    btn.setAttribute('disabled', true);
+                });
+            } else {
+                previousButtons.forEach(btn => {
+                    btn.classList.remove('disabled');
+                    btn.removeAttribute('disabled');
+                });
+            }
+        }
+    
+        nextButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                navigateTabs(1);
+            });
+        });
+    
+        previousButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                navigateTabs(-1);
+            });
+        });
+    
+        function setupSelectButtons() {
+            const selectPetButtons = document.querySelectorAll('.select-pet-button');
+
+            function deselectAllPets() {
+                selectPetButtons.forEach(button => {
+                    const textSpan = button.querySelector('span');
+                    if (textSpan.textContent === 'Selected') {
+                        textSpan.textContent = 'Select';
+                        textSpan.style.color = 'rgba(33, 40, 50, 0.5)';
+                        textSpan.style.fontWeight = '500';
+                    }
+                });
+            }
+
+            function selectPetById() {
+                if (selectedPetId) {
+                    deselectAllPets();
+                    selectPetButtons.forEach(button => {
+                        const row = button.closest('tr');
+                        if (row.cells[0].textContent.trim() === selectedPetId) {
+                            const textSpan = button.querySelector('span');
+                            textSpan.textContent = 'Selected';
+                            textSpan.style.color = 'green';
+                            textSpan.style.fontWeight = '600';
+                        }
+                    });
+                }
+            }
+
+            selectPetButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    deselectAllPets();
+
+                    const textSpan = event.currentTarget.querySelector('span');
+                    textSpan.textContent = 'Selected';
+                    textSpan.style.color = 'green';
+                    textSpan.style.fontWeight = '600';
+                    const row = event.currentTarget.closest('tr');
+                    selectedPetId = row.cells[0].textContent.trim();
+                    selectedPetName = row.querySelector('.pet-name').textContent.trim();
+                    const selectedPetImage = row.querySelector('.avatar-img').getAttribute('src');
+                    const selectedPetLink = row.querySelector('.btn-to-pet').getAttribute('href');
+
+                    const selectedPetInfoDivs = document.querySelectorAll('.selected-pet-info');
+                    selectedPetInfoDivs.forEach(div => {
+                        div.querySelector('.selected-pet-image').setAttribute('src', selectedPetImage);
+                        div.querySelector('.selected-pet-name').textContent = selectedPetName;
+                        div.querySelector('.selected-pet-link').setAttribute('href', selectedPetLink);
+                        div.style.display = 'flex'; 
+                    });
+                });
+            });
+
+            selectPetById();
+        }
+    
+        setupSelectButtons();
+    
+        $('#addMedicineModal').on('show.bs.modal', function (event) 
+        {
+            {% for type, products in product_dict.items %}
+                const datatablesSimple_products_{{ forloop.counter }} = document.getElementById('table-medicines-{{ forloop.counter }}');
+    
+                if (datatablesSimple_products_{{ forloop.counter }}) {
+                    var dataTable_{{ forloop.counter }} = new simpleDatatables.DataTable(datatablesSimple_products_{{ forloop.counter }}, {
+                        paging: true,
+                        perPageSelect: [5, 10, 25, {% if products_count > 50 %} {{ products_count }} {% else %} 50 {% endif %}],
+                        perPage: 5,
+                        sortable: true,
+                        searchable: true,
+                        hiddenHeader: false,
+                        // labels: {
+                        //     info: `Products Table`,
+                        // },
+                    });
+    
+                    var searchInput = document.querySelector('.datatable-input');
+                    searchInput.addEventListener('search', function(e) {
+                        if (e.target.value == '') {
+                            dataTable_{{ forloop.counter }}.search('');
+                        }
+                    });
+                }
+    
+                $(datatablesSimple_products_{{ forloop.counter }}).find('.add-product').each(function() {
+                    var productId = $(this).data('product-id');
+                    var row = $(this).closest('tr');
+                    if (selectedProductID == productId) {
+                        row.find('.add-product').prop('disabled', true); 
+                        row.find('.add-text').text("Added");
+                    } 
+                    else
+                    {
+                        row.find('.add-product').prop('disabled', false); 
+                        row.find('.add-text').text("Add");
+                    }
+    
+                    $.ajax({
+                        url: '/admin/inventory/check-expiry/' + productId + '/',
+                        method: 'GET',
+                        success: function(data) {
+                            var stockExpiry = data.expiry;
+        
+                            if(stockExpiry != null) {
+                                var stockExpiryDate = new Date(stockExpiry);
+                                var today = new Date();
+        
+                                if(stockExpiryDate < today) {
+                                    row.find('.add-product').prop('disabled', true);
+                                }
+                            }
+                        }
+                    });
+    
+                    $.ajax({
+                        url: '/admin/inventory/check-quantity/' + productId + '/',
+                        method: 'GET',
+                        success: function(data) {
+                            var stockQuantity = data.quantity;
+        
+                            if(stockQuantity != null) {
+                                if(parseFloat(stockQuantity) == 0) {
+                                    row.find('.add-product').prop('disabled', true);
+                                }
+                            }
+                        }
+                    });
+                });
+                var searchInput = document.querySelector('.datatable-input');
+    
+                searchInput.addEventListener('search', function(e) {
+                    if (e.target.value == '') {
+                        datatablesSimple_products_{{ forloop.counter }}.search('');
+                    }
+                });
+            {% endfor %}
+        
+        });
+
+        $(document).on('click', '#addMedicineBtn', function() {
+            if (selectedProductID != -1) {
+                $('#medicineIcon').attr('data-feather', 'plus-circle');
+                feather.replace();
+                selectedProductID = -1;
+                selectedProductName = "";
+                $('#inputMedicine').val(selectedProductName);
+            }
+            else
+            {
+                $('#addMedicineModal').modal('show');
+                $('#medicineIcon').attr('data-feather', 'plus-circle');
+                feather.replace();
+            }
+        });
+
+        $(document).on('click', '.add-product', function() 
+        { 
+            var $this = $(this);
+            $(this).attr('data-active-ajax', true);
+  
+            var productId = $(this).data('product-id');
+            var productName = $(this).closest('tr').find('.product-name').text();
+            
+            if (selectedProductID == productId) {
+                $this.prop('disabled', true);
+                return;
+            }
+    
+            var activeAjaxRequests = 0;
+            
+            $(document).ajaxStart(function() {
+                activeAjaxRequests++;
+                if (activeAjaxRequests === 1) { 
+    
+                    var $this = $('.add-product[data-active-ajax="true"]');
+                    $this.prop('disabled', true);
+                    $this.find('.add-text').text("Adding...");
+                    $this.find('.add-product-ajax-loading').removeClass('d-none');
+                }
+            }).ajaxStop(function() {
+                activeAjaxRequests--;
+                if (activeAjaxRequests === 0) { 
+                    var $this = $('.add-product[data-active-ajax="true"]');
+                    // $this.prop('disabled', false);
+                    // $this.find('.add-text').text("Add");
+                    $this.find('.add-product-ajax-loading').addClass('d-none');
+                    $this.removeAttr('data-active-ajax'); 
+                }
+            });
+   
+            $.ajax({
+                    url: '/admin/inventory/check-quantity/' + productId + '/',
+                    method: 'GET',
+                    success: function(data) {
+                        var stockQuantity = data.quantity;
+
+                        if(stockQuantity != null) {
+                            if(parseFloat(stockQuantity) == 0) {
+                                showError("The product is out of stock.");
+                                $this.prop('disabled', false);
+                                $this.find('.add-text').text("Add");
+                                return;
+                            }
+                            else if(parseFloat(1) > stockQuantity) {
+                                showError(`You only have ${stockQuantity} of this product in stock.`);
+                                quantityInput.focus();
+                                $this.prop('disabled', false);
+                                $this.find('.add-text').text("Add");
+                                return;
+                            }
+                        }
+
+                        selectedProductID = productId;
+                        selectedProductName = productName;
+
+                        $this.prop('disabled', true);
+                        $this.find('.add-text').text("Added");
+                        
+                        $('#addMedicineModal').modal('hide');
+
+                        $('#inputMedicine').val(selectedProductName);
+
+                        $('#medicineIcon').attr('data-feather', 'minus-circle');
+                        feather.replace();
+                    }
+            });
+        }); 
+        
+        $(document).on('input', '#inputCustomPurpose', function(e) {
+            $('#nextAppointmentPurpose').val("");
+        });
+        
+        $(document).on('change', '#nextAppointmentPurpose', function(e) {
+            $('#inputCustomPurpose').val("");
+        });
+
+        $(document).on('click', '.submit-button', function(e)
+        {
+            if(selectedPetId == null)
+            {
+                activateTab(0);
+                showError("Please select a pet.");
+                return;
+            }
+
+            var temperature = $('#inputTemperature').val();
+            var weight = $('#inputTreatmentWeight').val();
+            var treatment = $('#inputTreatment').val();
+
+            var isDeworming = $('#dewormingRadio').is(':checked');
+            var isVaccination = $('#vaccRadio').is(':checked');
+
+            if(temperature == null || temperature == "")
+            {
+                activateTab(1);
+                showError("Please enter the temperature.");
+                return;
+            }
+            else if(weight == null || weight == "")
+            {
+                activateTab(1);
+                showError("Please enter the weight.");
+                return;
+            }
+            else if(treatment == null || treatment == "")
+            {
+                activateTab(1);
+                showError("Please enter the treatment.");
+                return;
+            }
+            else if(isDeworming == false && isVaccination == false)
+            {
+                activateTab(1);
+                showError("Please select between deworming or vaccination.");
+                return;
+            }
+
+            var appointment_date = $('#litepickerSingleDate').val();
+            var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
+            var appointment_purpose = $('#nextAppointmentPurpose').val();
+
+            var custom_purpose = $('#inputCustomPurpose').val();
+            
+            var medicine_sticker = $('#inputLabResultsImages').prop('files')[0];
+
+            var formData = new FormData();
+
+            formData.append('productSelected', selectedProductID);
+            formData.append('selectedPetId', selectedPetId);
+            formData.append('appointment_date', appointment_date);
+            formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
+            formData.append('appointment_purpose', appointment_purpose);
+            formData.append('temperature', temperature);
+            formData.append('weight', weight);
+            formData.append('treatment', treatment);
+            formData.append('isDeworming', isDeworming);
+            formData.append('isVaccination', isVaccination);
+            formData.append('custom_purpose', custom_purpose);
+            formData.append('medicine_sticker', medicine_sticker);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+            $.ajax({
+                url: "{% url 'admin-submit-pet-health-card-treatment-page' %}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if(response.success)
+                    {
+                        var petLink = document.querySelector('.pet-link a');
+                        var originalHref = petLink.getAttribute('href');
+                        var newHref = originalHref.replace('0', selectedPetId);
+                        petLink.setAttribute('href', newHref);
+
+                        showSuccess(response.message);
+                        $(document).on('click', '.successOKBtn', function(e)
+                        {
+                            location.reload();
+                        });
+                    }
+                    else
+                    {
+                        showError(response.message);
+                        $(document).on('click', '.errorOKBtn', function(e)
+                        {
+                            if(response.appointment_error)
+                            {
+                                activateTab(1);
+                            }
+                            
+                        });
+                    }
+
+                },
+                error: function(response)
+                {
+                    showError(response.message);
+                }
+            });
+        });
+
+    
+        document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard1');
+        });
+        document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
+
+        });
+    });
+    </script>

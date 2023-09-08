@@ -1100,7 +1100,7 @@ class SubmitHealthCardTreatment(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = HealthCardSerializer(data=request.data)
-
+        print(serializer)
         if(serializer.is_valid()):
             try:
                 with transaction.atomic():
@@ -1137,15 +1137,18 @@ class SubmitHealthCardTreatment(APIView):
 
                     service = Service.objects.get(pk=appointment_purpose)
 
-                    appointment = Appointment.objects.create(
-                        pet=pet,
-                        client=pet.client,
-                        date=appointment_date,
-                        timeOfTheDay=appointment_time_of_the_day,
-                        purpose=service if appointment_purpose else custom_purpose,
-                        status='pending',
-                        isActive=True
-                    )
+                    appointment = None
+
+                    if appointment_date:
+                        appointment = Appointment.objects.create(
+                            pet=pet,
+                            client=pet.client,
+                            date=appointment_date,
+                            timeOfTheDay=appointment_time_of_the_day,
+                            purpose=service if appointment_purpose else custom_purpose,
+                            status='pending',
+                            isActive=True
+                        )
 
                     pet_treatment = PetTreatment.objects.create(
                         pet_id=pet.id,
@@ -1156,7 +1159,7 @@ class SubmitHealthCardTreatment(APIView):
                         isDeworm=isDeworm,
                         isVaccine=isVaccine,
                         isActive=True,
-                        appointment=appointment
+                        appointment=appointment if appointment else None
                     )
 
                     pet_treatment.lab_results.add(lab_result)
@@ -1178,3 +1181,6 @@ class SubmitHealthCardTreatment(APIView):
                     return Response({'success': True, 'message': 'Health card treatment submitted successfully.'})
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})
+        else:
+            print(serializer.errors)
+            return Response({'success': False, 'message': serializer.errors})

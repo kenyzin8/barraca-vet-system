@@ -501,6 +501,11 @@
             
             var medicine_sticker = $('#inputLabResultsImages').prop('files')[0];
 
+            if(medicine_sticker == undefined)
+            {
+                medicine_sticker = ""
+            }
+
             var formData = new FormData();
 
             formData.append('productSelected', selectedProductID);

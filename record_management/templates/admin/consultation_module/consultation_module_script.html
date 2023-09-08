@@ -784,11 +784,9 @@
                 success: function(response) {
                     if(response.success)
                     {
-                        console.log(response.prescription_id);
-                        
                         var petLink = document.querySelector('.pet-link a');
                         var originalHref = petLink.getAttribute('href');
-                        var newHref = originalHref.replace('0', response.prescription_id);
+                        var newHref = originalHref.replace('0', selectedPetId);
                         petLink.setAttribute('href', newHref);
 
                         showSuccess(response.message);

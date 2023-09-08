@@ -1124,8 +1124,9 @@ class SubmitHealthCardTreatment(APIView):
 
                     pet = Pet.objects.get(pk=selected_pet_id)
 
-                    pet.weight = weight
-                    pet.save()
+                    if weight:
+                        pet.weight = weight
+                        pet.save()
 
                     lab_result_desc = "Deworming" if isDeworm else "medicine_sticker"
                     lab_result_desc = "Vaccination" if isVaccine else "medicine_sticker"

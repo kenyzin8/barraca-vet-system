@@ -890,6 +890,43 @@
             return dataArray;
         }
 
+        function updateLabResultsPreview() {
+            $('.lab-results-container').empty();
+
+            $('.lab-result-input').each(function(index, input) {
+                var resultText = $(input).val();
+                var imageInput = $(`.lab-result-image-input[data-id="${$(input).data('id')}"]`);
+                var imageUrl = imageInput.val() ? URL.createObjectURL(imageInput[0].files[0]) : null;
+
+                var label = index === 0 ? "Laboratory Results:" : "";
+
+                var imageLink = imageUrl ? `
+                    <a href="${imageUrl}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
+                        <i data-feather="image"></i>
+                    </a>
+                ` : '';
+
+                var newRow = `
+                    <div class="row small text-muted">
+                        <div class="col-sm-3 text-truncate"><em>${label}</em></div>
+                        <div class="col lab-results">
+                            ${resultText}
+                            ${imageLink}
+                        </div>
+                    </div>
+                `;
+
+                $('.lab-results-container').append(newRow);
+            });
+
+            feather.replace();
+        }
+
+
+        $(document).on('input', '.lab-result-input, .lab-result-image-input', updateLabResultsPreview);
+
+        updateLabResultsPreview();
+
         document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard1');
         });
@@ -902,7 +939,7 @@
         document.getElementById('wizard4-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard4');
             $('.selected-pet-name').text(selectedPetName || "None");
-            $('.lab-results').text($('#inputLabResults').val() || "None");
+            $('.lab-symptoms').text($('#inputSymptoms').val() || "None");
             $('.treatment-weight').text($('#inputTreatmentWeight').val() || "None");
             $('.temperature').text($('#inputTemperature').val() || "None");
             $('.diagnosis').text($('#inputDiagnosis').val() || "None");

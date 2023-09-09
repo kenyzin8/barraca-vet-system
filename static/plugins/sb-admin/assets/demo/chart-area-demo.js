@@ -30,6 +30,8 @@ function number_format(number, decimals, dec_point, thousands_sep) {
 var monthlyRevenueString = JSON.parse(document.getElementById('monthly-revenue-data').textContent);
 var monthlyRevenue = JSON.parse(monthlyRevenueString);
 monthlyRevenue = monthlyRevenue.map(Number);
+// add comma to each monthly revenue
+
 
 var ctx = document.getElementById("myAreaChart");
 var myLineChart = new Chart(ctx, {
@@ -129,7 +131,8 @@ var myLineChart = new Chart(ctx, {
                 label: function(tooltipItem, chart) {
                     var datasetLabel =
                         chart.datasets[tooltipItem.datasetIndex].label || "";
-                    return datasetLabel + ": ₱" + tooltipItem.yLabel;
+                    var value = tooltipItem.yLabel.toLocaleString('en-US');
+                    return datasetLabel + ": ₱" + value;
                 }
             }
         }

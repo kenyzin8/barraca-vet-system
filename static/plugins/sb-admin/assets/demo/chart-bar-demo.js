@@ -113,7 +113,8 @@ var myBarChart = new Chart(ctx, {
                 label: function(tooltipItem, chart) {
                     var datasetLabel =
                         chart.datasets[tooltipItem.datasetIndex].label || "";
-                    return datasetLabel + ": ₱" + tooltipItem.yLabel;
+                    var value = tooltipItem.yLabel.toLocaleString('en-US');
+                    return datasetLabel + ": ₱" + value;
                 }
             }
         }

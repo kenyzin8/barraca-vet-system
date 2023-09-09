@@ -36,7 +36,7 @@ function updateNotifications()
         var header = '<h6 class="dropdown-header dropdown-notifications-header"><i class="me-2" data-feather="bell"></i>Alerts Center</h6>';
         notificationsContainer.append(header);
 
-        console.log(data);
+        // console.log(data);
 
         $.each(data, function(i, notification) {
             var timeAgoText = timeAgo(notification.date_created);
@@ -46,7 +46,7 @@ function updateNotifications()
                 link = "/admin/inventory/reorder-list";
             }
 
-            console.log(link);
+            // console.log(link);
         
             var item = '<a class="dropdown-item dropdown-notifications-item" href="' + link + '">' +
                 '<div class="dropdown-notifications-item-icon bg-danger"><i data-feather="alert-circle"></i></div>' +

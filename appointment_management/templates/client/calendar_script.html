@@ -1187,6 +1187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     var dateObj = new Date(start.getTime() - (start.getTimezoneOffset() * 60000));
                                     var date = dateObj.toISOString().slice(0, 10);
 
+                                    window.info = info;
                                     window.eventId = info.event.id;
                                     window.oldDate = info.oldEvent.start;
                                     window.newDate = date;
@@ -1426,6 +1427,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             calendar.addEvent(newEvent);
 
+                            if(draggedEl) {
+                                draggedEl.parentNode.removeChild(draggedEl);
+                                hideRebookList();
+                            }
+
                             var _event = calendar.getEventById(response.appointment.id);
 
                             if (_event) {
@@ -1529,6 +1535,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     error: function(error) {
                         $('#rebookConfirmAppointmentModal').modal('hide');
+                        if(window.info){
+                            window.info.revert();
+                        }
                         showError(error.responseJSON.message);
                     }
                 });

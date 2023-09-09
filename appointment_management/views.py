@@ -353,8 +353,10 @@ def rebook_appointment(request):
         time_of_the_day = request.POST.get('time_of_day')
         
         try:
-            
             appointment = Appointment.objects.get(id=appointment_id)
+
+            if appointment.pet.id != int(pet_id):
+                return JsonResponse({'status': 'error', 'message': 'You cannot change your pet during rebooking.'}, status=400)
 
             disabled_day = DoctorSchedule.objects.filter(date=new_date_str, isActive=True).first() 
             if disabled_day:
@@ -660,7 +662,7 @@ def get_pets_client(request):
     selected_pet = Pet.objects.filter(id=selected_pet_id, is_active=True).values('id', 'name')
 
     pets = pets_without_appointments | selected_pet
-    print(list(pets))
+    #print(list(pets))
     return JsonResponse(list(pets), safe=False)
 
 @login_required

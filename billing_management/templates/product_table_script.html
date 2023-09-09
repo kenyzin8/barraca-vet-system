@@ -322,7 +322,7 @@ $(document).ready(function() {
                 $this.removeAttr('data-active-ajax'); 
             }
         });
-
+        
         $.ajax({
             url: '/admin/inventory/check-expiry/' + productId + '/',
             method: 'GET',
@@ -537,7 +537,7 @@ $(document).ready(function() {
             });
         });
 
-        console.log(productIds)
+        // console.log(productIds)
 
         var data = {
             'full_name': fullName,

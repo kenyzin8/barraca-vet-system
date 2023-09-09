@@ -32,8 +32,8 @@ def bill(request):
     clients_count = clients.count()
 
     types = ProductType.objects.all()
-    product_dict = {t.name: Product.objects.filter(type=t, active=True) for t in types}
-
+    product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0) for t in types}
+    
     last_bill = Billing.objects.aggregate(Max('id'))['id__max']
     next_bill_number = format_billing_number((last_bill + 1) if last_bill else 1)
 

@@ -65,7 +65,7 @@ class RebookAppointmentForm(forms.ModelForm):
 
     pet = forms.ModelChoiceField(
         queryset=Pet.objects.none(),  
-        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet-rebook', 'name': 'pet-rebook'}), 
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet-rebook', 'name': 'pet-rebook', 'disabled': 'disabled'}), 
     )
     purpose = forms.ModelChoiceField(
         #filter only active services and only the name should be displayed
@@ -94,7 +94,7 @@ class RebookAppointmentFormClient(forms.ModelForm):
             
     pet_rebook = forms.ModelChoiceField(
         queryset=Pet.objects.none(),  
-        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet-rebook', 'name': 'pet-rebook'}), 
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet-rebook', 'name': 'pet-rebook', 'disabled': 'disabled'}), 
         label="Pet"
     )
     purpose = forms.ModelChoiceField(

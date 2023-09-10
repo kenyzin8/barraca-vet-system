@@ -51,13 +51,16 @@ def send_week_reminder():
     try:
         appointments = Appointment.objects.filter(date__gte=datetime.now().date(), isActive=True, status='pending', weekly_reminder_sent=False)
 
+        total_sent = 0
+
         for appointment in appointments:
             if appointment.date - timedelta(weeks=1) == datetime.now().date():
+                total_sent += 1
                 appointment.remindClient('weekly')
                 logger.info(f'Week before appointment reminder sent to {appointment.client.full_name}. Date: {appointment.date} {appointment.timeOfTheDay}')
 
-        if not appointments.exists():
-            logger.info(f'No appointments to remind.')
+        if total_sent == 0:
+            logger.info(f'No appointments to remind for week before.')
             
     except Exception as e:
         logger.error(f"Error in Weekly Appointment Reminder: {e}")
@@ -70,13 +73,16 @@ def send_day_reminder():
     try:
         appointments = Appointment.objects.filter(date__gte=datetime.now().date(), isActive=True, status='pending', daily_reminder_sent=False)
 
+        total_sent = 0
+
         for appointment in appointments:
             if appointment.date - timedelta(days=1) == datetime.now().date():
+                total_sent += 1
                 appointment.remindClient('daily')
                 logger.info(f'Day before appointment reminder sent to {appointment.client.full_name}. Date: {appointment.date} {appointment.timeOfTheDay}')
 
-        if not appointments.exists():
-            logger.info(f'No appointments to remind.')
+        if total_sent == 0:
+            logger.info(f'No appointments to remind for day before.')
 
     except Exception as e:
         logger.error(f"Error in Daily Appointment Reminder: {e}")

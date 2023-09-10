@@ -53,6 +53,9 @@ def send_week_reminder():
         for appointment in appointments:
             if appointment.date - timedelta(weeks=1) == datetime.now().date():
                 appointment.remindClient('weekly')
+                logger.info(f'Week before appointment reminder sent to {appointment.client.full_name}. Date: {appointment.date} {appointment.timeOfTheDay}')
+            else:
+                logger.info(f'No appointments to remind.')
     except Exception as e:
         logger.error(f"Error in Weekly Appointment Reminder: {e}")
     else:
@@ -67,6 +70,9 @@ def send_day_reminder():
         for appointment in appointments:
             if appointment.date - timedelta(days=1) == datetime.now().date():
                 appointment.remindClient('daily')
+                logger.info(f'Day before appointment reminder sent to {appointment.client.full_name}. Date: {appointment.date} {appointment.timeOfTheDay}')
+            else:
+                logger.info(f'No appointments to remind.')
     except Exception as e:
         logger.error(f"Error in Daily Appointment Reminder: {e}")
     else:

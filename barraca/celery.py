@@ -50,31 +50,37 @@ def send_week_reminder():
     from appointment_management.models import Appointment
     try:
         appointments = Appointment.objects.filter(date__gte=datetime.now().date(), isActive=True, status='pending', weekly_reminder_sent=False)
+        
         for appointment in appointments:
             if appointment.date - timedelta(weeks=1) == datetime.now().date():
                 appointment.remindClient('weekly')
                 logger.info(f'Week before appointment reminder sent to {appointment.client.full_name}. Date: {appointment.date} {appointment.timeOfTheDay}')
-            else:
-                logger.info(f'No appointments to remind.')
+
+        if not appointments:
+            logger.info(f'No appointments to remind.')
+            
     except Exception as e:
         logger.error(f"Error in Weekly Appointment Reminder: {e}")
     else:
         logger.info("Weekly Reminder Sent")
-        return "Weekly Reminder Sent"
+        return "Week Before Reminder Called"
 
 @app.task(name="Day Appointment Reminder")
 def send_day_reminder():
     from appointment_management.models import Appointment
     try:
         appointments = Appointment.objects.filter(date__gte=datetime.now().date(), isActive=True, status='pending', daily_reminder_sent=False)
+
         for appointment in appointments:
             if appointment.date - timedelta(days=1) == datetime.now().date():
                 appointment.remindClient('daily')
                 logger.info(f'Day before appointment reminder sent to {appointment.client.full_name}. Date: {appointment.date} {appointment.timeOfTheDay}')
-            else:
-                logger.info(f'No appointments to remind.')
+
+        if not appointments:
+            logger.info(f'No appointments to remind.')
+
     except Exception as e:
         logger.error(f"Error in Daily Appointment Reminder: {e}")
     else:
         logger.info("Daily Reminder Sent")
-        return "Daily Reminder Sent"
+        return "Day Before Reminder Called"

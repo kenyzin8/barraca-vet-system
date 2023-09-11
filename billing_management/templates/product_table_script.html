@@ -2,7 +2,9 @@
   
 $(document).ready(function() {
     var total = 0;
+
     var clientInput = $('.selected-client-input');
+
     var findClientButton = $('.find-client-button');
     var selectedServiceIds = new Set();
     var selectedProductIds = new Set();
@@ -10,6 +12,9 @@ $(document).ready(function() {
     let dataTable_products;
     let dataTable_services;
     let dataTable_clients;
+
+    var selectedMedicines = {% if selected_medicines %}{{ selected_medicines|safe }}{% else %}[]{%endif%};
+    var selectedService = {% if selected_service %}{{ selected_service|safe }}{% else %}null{%endif%};
 
     if(clientInput.val().trim() != '') 
     {
@@ -21,6 +26,9 @@ $(document).ready(function() {
             html: true
         });
         $('.remove-client').show();
+
+        var cleanUrl = window.location.href.split("?")[0];
+        window.history.replaceState({}, document.title, cleanUrl);
     }
 
     $('#addClientModal').on('show.bs.modal', function (event)
@@ -220,25 +228,19 @@ $(document).ready(function() {
         window.history.pushState({}, null, newUrl);
     });
 
-    // Add service
-    $(document).on('click', '.add-service', function() 
-    { 
-        var serviceId = $(this).data('service-id');
-
+    function addService(serviceId, row, button) {
         if (selectedServiceIds.has(serviceId)) {
-            $(this).prop('disabled', true);
+            button.prop('disabled', true);
             return;
         }
-
-        var row = $(this).closest('tr');
         var serviceName = row.find('.service-type').text();
         var serviceFee = row.find('.service-fee').text();
         var serviceRemarks = row.find('.service-remarks').text();
 
         selectedServiceIds.add(serviceId);
 
-        $(this).prop('disabled', true);
-        $(this).find('.add-text').text("Added");
+        button.prop('disabled', true);
+        button.find('.add-text').text("Added");
 
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
@@ -268,27 +270,22 @@ $(document).ready(function() {
         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
         feather.replace();
-    });
+    }
 
-    // Add product
-    $(document).on('click', '.add-product', function() 
-    { 
-        $(this).attr('data-active-ajax', true);
-        var $this = $(this);
+    function addProduct(productId, quantity, row, button) {
+        button.attr('data-active-ajax', true);
+        var $this = button;
 
-        var productId = $(this).data('product-id');
-        
         if (selectedProductIds.has(productId)) {
             $this.prop('disabled', true);
             return;
         }
 
-        var row = $(this).closest('tr');
         var productName = row.find('.product-name').text();
         var productPrice = row.find('.product-price').text();
         var productType = row.find('.product-type').text();
-        var quantityInput = row.find('.product-quantity');
-        var quantity = quantityInput.val();
+        
+        var quantity = quantity;
 
         var stockQuantity = row.find('.product-stock-quantity').text();
         stockQuantity = parseFloat(stockQuantity.replace(/,/g, ""));
@@ -336,7 +333,7 @@ $(document).ready(function() {
                     if(stockExpiryDate < today) {
                         $('#errorModal .modal-body').html("The product is already expired. <br><br><a href='/admin/inventory/'>Click here</a> to view the list of product.");
                         $('#errorModal').modal('show');
-                        quantityInput.focus();
+                        //quantityInput.focus();
                         return;
                     }
                 }
@@ -358,7 +355,7 @@ $(document).ready(function() {
                             else if(parseFloat(quantity) > stockQuantity) {
                                 $('#errorModal .modal-body').text("The entered quantity is greater than the stock quantity.");
                                 $('#errorModal').modal('show');
-                                quantityInput.focus();
+                                //quantityInput.focus();
                                 $this.prop('disabled', false);
                                 $this.find('.add-text').text("Add");
                                 return;
@@ -418,6 +415,22 @@ $(document).ready(function() {
                 });
             }
         });
+    }
+
+    $(document).on('click', '.add-service', function() {
+        var serviceId = $(this).data('service-id');
+        var row = $(this).closest('tr');
+        addService(serviceId, row, $(this));
+    });
+
+    // Add product
+    $(document).on('click', '.add-product', function() 
+    { 
+        var productId = $(this).data('product-id');
+        var row = $(this).closest('tr');
+        var quantityInput = row.find('.product-quantity');
+        var quantity = quantityInput.val();
+        addProduct(productId, quantity, row, $(this));
     });    
 
     $(document).on('click', '.remove-service', function(e) 
@@ -515,6 +528,24 @@ $(document).ready(function() {
         return cookieValue;
     }
 
+    if (selectedMedicines && selectedMedicines.length > 0) {
+        for (var i = 0; i < selectedMedicines.length; i++) {
+            var medicine = selectedMedicines[i];
+            var productId = medicine.id;
+            var quantity = medicine.details.quantity;
+    
+            var row = $(`.add-product[data-product-id="${productId}"]`).closest('tr');
+            
+            row.find('.product-quantity').val(quantity);
+            
+            $(`.add-product[data-product-id="${productId}"]`).click();
+        }
+    }
+
+    if (selectedService) {
+        $(`.add-service[data-service-id="${selectedService}"]`).click();
+    }
+
     $('#confirm-paid-button').on('click', function() 
     {
         var clientId = $('.selected-client-input').data('client-id');
@@ -553,7 +584,7 @@ $(document).ready(function() {
         var csrftoken = getCookie('csrftoken');
 
         $.ajax({
-            url: '/admin/bill/post/',
+            url: '{% url 'post-bill' %}',
             method: 'POST',
             data: JSON.stringify(data),
             contentType: 'application/json',

@@ -834,7 +834,7 @@ class SubmitConsultationView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = ConsultationSerializer(data=request.data)
-        print(serializer)
+        #print(serializer)
 
         if serializer.is_valid():
             selected_pet_id = serializer.validated_data.get('selectedPetId')
@@ -943,6 +943,8 @@ class SubmitConsultationView(APIView):
                             isActive=True
                         )
 
+                        medicines_for_session = []
+
                         for product_id, product_details in products_selected:
                             PrescriptionMedicines.objects.create(
                                 prescription=pet_medical_prescription,
@@ -955,7 +957,19 @@ class SubmitConsultationView(APIView):
                                 remarks=product_details['remarks']
                             )
 
-                    return Response({'success': True, 'message': 'Consultation submitted successfully.'})
+                            medicines_for_session.append({
+                                'id': product_id,
+                                'details': product_details
+                            })
+                        
+                        checkup_service = Service.objects.get(service_type="Check-up")
+
+                        request.session['selected_medicines'] = medicines_for_session
+                        request.session['selected_service'] = checkup_service.id
+
+                    pet_owner_id = selected_pet.client.user.id
+
+                    return Response({'success': True, 'message': 'Consultation submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})
         return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

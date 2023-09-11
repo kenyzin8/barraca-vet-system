@@ -21,7 +21,9 @@ from datetime import datetime, timedelta, time
 @login_required
 @staff_required
 def bill(request):
+
     client_id = request.GET.get('to', None)
+
     if client_id is not None:
         client = Client.objects.get(id=client_id)
     else:
@@ -37,6 +39,15 @@ def bill(request):
     last_bill = Billing.objects.aggregate(Max('id'))['id__max']
     next_bill_number = format_billing_number((last_bill + 1) if last_bill else 1)
 
+    selected_medicines = []
+    selected_service = -1
+
+    if 'selected_medicines' in request.session:
+        selected_medicines = request.session.get('selected_medicines', [])
+
+    if 'selected_service' in request.session:
+        selected_service = request.session.get('selected_service', -1)
+
     context = {
         'client': client,
         'clients_count': clients_count,
@@ -47,6 +58,15 @@ def bill(request):
         'clients': clients,
         'next_bill_number': next_bill_number
     }
+
+    if selected_medicines:
+        context.update({'selected_medicines': selected_medicines})
+        del request.session['selected_medicines']
+
+    if selected_service != -1:
+        context.update({'selected_service': selected_service})
+        del request.session['selected_service']
+
     return render(request, 'billing.html', context)
 
 # @staff_required
@@ -77,6 +97,17 @@ def bill(request):
 @staff_required
 @login_required
 def post_bill(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed.'}, status=405)
+
+    if not request.body:
+        return JsonResponse({'status': 'error', 'message': 'Empty request body.'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON.'}, status=400)
+
     if request.method == 'POST':
         data = json.loads(request.body)
         client_id = data.get('client_id', None)

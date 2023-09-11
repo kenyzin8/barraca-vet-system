@@ -680,6 +680,12 @@
 
         $(document).on('click', '.submit-button', function(e)
         {
+            $('#confirmationModal').modal('show');
+        });
+
+        $(document).on('click', '#confirm-consultation-button', function(e)
+        {
+            $('#confirmationModal').modal('hide');
             if(selectedPetId == null)
             {
                 activateTab(0);
@@ -787,12 +793,16 @@
                         var petLink = document.querySelector('.pet-link a');
                         var originalHref = petLink.getAttribute('href');
                         var newHref = originalHref.replace('0', selectedPetId);
+
                         petLink.setAttribute('href', newHref);
 
                         showSuccess(response.message);
+
+                        var ownerID = response.pet_owner_id;
+
                         $(document).on('click', '.successOKBtn', function(e)
                         {
-                            location.reload();
+                            window.location.href = '/admin/bill/?to=' + ownerID;
                         });
                     }
                     else

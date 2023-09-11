@@ -15,7 +15,7 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ('product_name', 'type', 'price', 'batch_number')
 
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('service_type', 'fee', 'control_number', 'active')
+    list_display = ('id', 'service_type', 'fee', 'control_number', 'active')
     readonly_fields = ('changes_log',)
     search_fields = ('service_type', 'fee', 'control_number', 'active')
 

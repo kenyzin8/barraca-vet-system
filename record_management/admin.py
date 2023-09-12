@@ -41,7 +41,7 @@ class PetAdmin(admin.ModelAdmin):
     search_fields = ('name', 'species', 'client__first_name', 'client__last_name')
 
 class TemporaryLabResultImageAdmin(admin.ModelAdmin):
-    list_display = ('image', 'uploaded_at')
+    list_display = ('id', 'image', 'uploaded_at')
 
 class LabResultAdmin(admin.ModelAdmin):
     list_display = ('id', 'result_name', 'result_image')

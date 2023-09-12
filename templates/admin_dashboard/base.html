@@ -50,7 +50,30 @@
             .sidenav-light .sidenav-menu .nav-link {
                 color: #232323;
             }
+            .datatable-pagination .datatable-active a, .datatable-pagination .datatable-active a:focus, .datatable-pagination .datatable-active a:hover {
+                color: #fff;
+                background-color: #232323;
+            }
+            .pagination, .datatable-pagination ul {
+                --bs-pagination-color: #232323;
+            }
+            .breadcrumb {
+                background-color: rgba(0, 0, 0, 0.15);
+                box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+            }
 
+            .breadcrumb .breadcrumb-item a {
+                color: rgba(18, 18, 18, 0.6);
+                transition: transform 0.3s ease, border-color 0.3s ease;
+                text-decoration: none;
+            }
+
+            .breadcrumb .breadcrumb-item a:hover {
+                color: rgba(18, 18, 18, 1);
+                text-decoration: none;
+                transform: scale(1.05);  
+            }
+            
         </style>
     </head>
     <body class="nav-fixed bg-light">

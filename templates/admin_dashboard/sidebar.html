@@ -59,7 +59,7 @@
                         <div class="nav-link-icon"><i data-feather="list"></i></div>
                         Medical Prescription
                     </a>
-                    <a class=" nav-link {% if current_url_name == 'admin-medical-record-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                    <a class=" nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
                         <div class="nav-link-icon"><i data-feather="heart"></i></div>
                         Consultation
                     </a>

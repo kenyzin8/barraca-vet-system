@@ -1,0 +1,86 @@
+<div class="tab-pane py-2 py-xl-2 fade" id="wizard3" role="tabpanel" aria-labelledby="wizard43-tab">
+    <div class="row justify-content-center">
+        <div class="col-xxl-10 col-xl-8">
+            <h3 class="text-primary">Step 3</h3>
+            <h5 class="card-title mb-4 fw-100">Review the following information and submit</h5>
+            <div class="row small text-muted">
+                <div class="col-sm-3 text-truncate"><em>Pet:</em></div>
+                <div class="col selected-pet-name"></div>
+            </div>
+            <div class="row small text-muted">
+                <div class="col-sm-3 text-truncate"><em>Symptoms:</em></div>
+                <div class="col lab-symptoms">Low Red Blood Cell Count</div>
+            </div>
+            <div class="row small text-muted">
+                <div class="col-sm-3 text-truncate"><em>Treatment Weight:</em></div>
+                <div class="col treatment-weight">10.5kg</div>
+            </div>
+            <div class="row small text-muted">
+                <div class="col-sm-3 text-truncate"><em>Temperature:</em></div>
+                <div class="col temperature">36.0</div>
+            </div>
+            <div class="row small text-muted">
+                <div class="col-sm-3 text-truncate"><em>Diagnosis:</em></div>
+                <div class="col diagnosis">Early-Stage Canine Asthma</div>
+            </div>
+            <div class="row small text-muted">
+                <div class="col-sm-3 text-truncate"><em>Treatment:</em></div>
+                <div class="col treatment">Prescribed Medication</div>
+            </div>
+
+            <div class="row small text-muted">
+                <div class="col-sm-3 text-truncate"><em>Next Appointment:</em></div>
+                <div class="col next-appointment">December 25, 2023 - Morning</div>
+            </div>
+            <div class="lab-results-container">
+                <div class="row small text-muted">
+                    <div class="col-sm-3 text-truncate"><em>Laboratory Results:</em></div>
+                    <div class="col lab-results">
+                        An item
+                    </div>
+                </div>
+                <div class="row small text-muted">
+                    <div class="col-sm-3 text-truncate"><em></em></div>
+                    <div class="col lab-results">
+                        An item
+                    </div>
+                </div>
+            </div>
+
+
+            <hr class="my-4" />
+            <h5 class="card-title mb-2 fw-100">Prescription</h5>
+            <table id="table-medicines-summary">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Strength</th>
+                        <th>Quantity</th>
+                        <th>Dosage</th>
+                        <th>Frequency</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product_id, product_details in products_map.items %}
+                    <tr>
+                        <td>{{ product_id }}</td>
+                        <td>{{ product_details.product_name }}</td>
+                        <td>{{ product_details.strength }}</td>
+                        <td>{{ product_details.quantity }}</td>
+                        <td>{{ product_details.dosage }}</td>
+                        <td>{{ product_details.frequency }}</td>
+                        <td>{{ product_details.remarks }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <hr class="my-4" />
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-light previous-button" type="button">Previous</button>
+                <button class="btn btn-warning submit-button" type="button">Update</button>
+            </div>
+        </div>
+    </div>
+</div>

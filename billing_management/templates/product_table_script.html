@@ -55,6 +55,24 @@ $(document).ready(function() {
         });
     });
 
+    function refreshServiceRows()
+    {
+        $('.add-service').each(function() {
+            var serviceId = $(this).closest('tr').find('.service-id').text();
+            var row = $(this).closest('tr');
+            if (selectedServiceIds.has(serviceId)) {
+                // row.remove(); 
+                $(this).prop('disabled', true); 
+                row.find('.add-text').text("Added");
+            } 
+            else
+            {
+                $(this).prop('disabled', false); 
+                row.find('.add-text').text("Add");
+            }
+        });
+    }
+
     $('#addServiceModal').on('show.bs.modal', function (event) 
     {
         refreshServiceRows();
@@ -71,24 +89,6 @@ $(document).ready(function() {
                 // labels: {
                 //     info: `Services Table`,
                 // },
-            });
-        }
-
-        function refreshServiceRows()
-        {
-            $('.add-service').each(function() {
-                var serviceId = $(this).closest('tr').find('.service-id').text();
-                var row = $(this).closest('tr');
-                if (selectedServiceIds.has(serviceId)) {
-                    // row.remove(); 
-                    $(this).prop('disabled', true); 
-                    row.find('.add-text').text("Added");
-                } 
-                else
-                {
-                    $(this).prop('disabled', false); 
-                    row.find('.add-text').text("Add");
-                }
             });
         }
 

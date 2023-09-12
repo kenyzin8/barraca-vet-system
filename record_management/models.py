@@ -127,6 +127,8 @@ class LabResult(models.Model):
     result_name = models.CharField(max_length=100, null=True, blank=True)
     result_image = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
 
+    isActive = models.BooleanField(default=True)
+
     def __str__(self):
         return self.result_name
 

@@ -45,3 +45,22 @@ class HealthCardSerializer(serializers.Serializer):
     appointment_purpose = serializers.IntegerField(required=False)
 
     custom_purpose = serializers.CharField(required=False)
+
+class UpdateConsultationSerializer(serializers.Serializer):
+    treatmentId = serializers.IntegerField(required=True)
+    selectedPetId = serializers.IntegerField()
+    appointment_date = serializers.DateField(input_formats=['%b %d, %Y'], required=False)
+    appointment_time_of_the_day = serializers.CharField(required=False)
+    symptoms = serializers.CharField()
+    temperature = serializers.FloatField()
+    weight = serializers.FloatField()
+    diagnosis = serializers.CharField()
+    treatment = serializers.CharField()
+    # labResultsDescriptions = serializers.JSONField(required=True)
+    # labResultsImageIDS = serializers.JSONField(required=False)
+    isDeworming = serializers.BooleanField()
+    isVaccination = serializers.BooleanField()
+    productsSelected = serializers.JSONField(required=False)
+    appointment_purpose = serializers.IntegerField(required=False)
+
+    labResults = serializers.JSONField(required=False)

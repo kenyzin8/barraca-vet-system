@@ -452,18 +452,13 @@
             $('#inputCustomPurpose').val("");
         });
 
-        $(document).on('click', '.submit-button', function(e)
-        {
-            $('#confirmationModal').modal('show');
-        });
-
-        $(document).on('click', '#confirm-treatment-button', function(e)
+        function validateFields()
         {
             if(selectedPetId == null)
             {
                 activateTab(0);
                 showError("Please select a pet.");
-                return;
+                return false;
             }
 
             var temperature = $('#inputTemperature').val();
@@ -473,30 +468,63 @@
             var isDeworming = $('#dewormingRadio').is(':checked');
             var isVaccination = $('#vaccRadio').is(':checked');
 
-            if(temperature == null || temperature == "")
-            {
-                activateTab(1);
-                showError("Please enter the temperature.");
-                return;
-            }
-            else if(weight == null || weight == "")
-            {
-                activateTab(1);
-                showError("Please enter the weight.");
-                return;
-            }
-            else if(treatment == null || treatment == "")
+            var medicine = $('#inputMedicine').val();
+            
+            if(treatment == null || treatment == "")
             {
                 activateTab(1);
                 showError("Please enter the treatment.");
-                return;
+                return false;
             }
             else if(isDeworming == false && isVaccination == false)
             {
                 activateTab(1);
                 showError("Please select between deworming or vaccination.");
+                return false;
+            }
+            else if(temperature == null || temperature == "")
+            {
+                activateTab(1);
+                showError("Please enter the temperature.");
+                return false;
+            }
+            else if(weight == null || weight == "")
+            {
+                activateTab(1);
+                showError("Please enter the weight.");
+                return false;
+            }
+            else if(medicine == null || medicine == "")
+            {
+                activateTab(1);
+                showError("Please select a medicine.");
+                return false;
+            }
+
+
+            return true;
+        }
+
+        $(document).on('click', '.submit-button', function(e)
+        {
+            if(validateFields() == false){
                 return;
             }
+            $('#confirmationModal').modal('show');
+        });
+
+        $(document).on('click', '#confirm-treatment-button', function(e)
+        {
+            if(validateFields() == false){
+                return;
+            }
+
+            var temperature = $('#inputTemperature').val();
+            var weight = $('#inputTreatmentWeight').val();
+            var treatment = $('#inputTreatment').val();
+
+            var isDeworming = $('#dewormingRadio').is(':checked');
+            var isVaccination = $('#vaccRadio').is(':checked');
 
             var appointment_date = $('#litepickerSingleDate').val();
             var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();

@@ -82,15 +82,25 @@ class Service(models.Model):
         super(Service, self).delete(*args, **kwargs)
 
     @classmethod
-    def ensure_checkup_exists(cls):
-        checkup_service, created = cls.objects.get_or_create(service_type='Check-up', defaults={
-            'fee': 500.00, 
-            'active': True
-        })
-        if created:
-            print("Created default 'Check-up' service.")
-        else:
-            print("'Check-up' service already exists.")
+    def ensure_services_exists(cls):
+        services = [
+            {"type": "Check-up", "fee": 500.00},
+            {"type": "Deworming", "fee": 300.00},  
+            {"type": "Vaccination", "fee": 600.00},
+            {"type": "Doctor's Fee", "fee": 500.00},
+        ]
+        
+        for service in services:
+            service_object, created = cls.objects.get_or_create(service_type=service["type"], defaults={
+                'fee': service["fee"],
+                'active': True
+            })
+            
+            if created:
+                print(f"Created default '{service['type']}' service.")
+            else:
+                print(f"'{service['type']}' service already exists.")
+
 
     def __str__(self):
         return f"{self.service_type}"

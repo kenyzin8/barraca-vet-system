@@ -8,6 +8,6 @@ class ServicesConfig(AppConfig):
     def ready(self):
         from .models import Service 
         try:
-            Service.ensure_checkup_exists()
+            Service.ensure_services_exists()
         except OperationalError:
             pass

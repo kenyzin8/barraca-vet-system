@@ -665,7 +665,7 @@
             let rowIndex = productRowIndexMap.get(productId);
 
             prescriptionSummaryDataTable.rows.remove(rowIndex);
-
+            productsSelected.delete(productId);
 
             productRowIndexMap.delete(productId);
 
@@ -860,6 +860,9 @@
                 let matchingImageData = labResultsData.find(item => item.id == input.dataset.id);
                 if (matchingImageData) {
                     labResultsImageIDS.push(matchingImageData.image_id);
+                }
+                else{
+                    labResultsImageIDS.push(null);
                 }
             });
 

@@ -57,12 +57,12 @@
                         <label class="small mb-1" for="inputSymptoms">Medicine <span class="text-red">*</span></label>
                         <div class="input-group mb-2">
                             <button class="btn btn-add-medicine" type="button" id="addMedicineBtn"><i data-feather="plus-circle" id="medicineIcon"></i></button>
-                            <input class="form-control" id="inputMedicine" name="medicine" type="text" placeholder="Click the plus circle to add a medicine" />    
+                            <input class="form-control" id="inputMedicine" name="medicine" type="text" placeholder="Click the plus circle to add a medicine" disabled/>    
                         </div>
                     </div>
                 </div>
                 <div>
-                    <label class="small mb-1" for="inputLabResults">Medicine Sticker (Image) <span class="text-red">*</span> </label>                   
+                    <label class="small mb-1" for="inputLabResults">Medicine Sticker (Image) </label>                   
                 </div>
                 <div class="lab-result-group-fields">
                     <div class="input-group mb-2">
@@ -96,7 +96,7 @@
                 </div>
                 <label class="small mb-1" for="nextAppointmentPurpose">Purpose</label>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Input purpose of select from the dropbox" id="inputCustomPurpose">
+                    <input type="text" class="form-control" placeholder="Input purpose or select from the dropbox" id="inputCustomPurpose">
                     <select class="form-select" id="nextAppointmentPurpose">
                         <!-- add empty option for null -->
                         <option value="">------------</option>

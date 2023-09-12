@@ -1,5 +1,64 @@
 <script>
-    let ind = 1; 
+    let ind = {{ laboratory_results|length }};
+    let labResultsData = [];
+
+    function uploadImage(inputElement, progressBarInner) {
+        var formData = new FormData();
+        formData.append('image', inputElement.files[0]);
+
+        const currentInputID = ind; 
+
+        $.ajax({
+            url: "{% url 'admin-upload-lab-image-page' %}", 
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", function(evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        percentComplete = parseInt(percentComplete * 100);
+
+                        progressBarInner.style.width = percentComplete + '%';
+                        progressBarInner.setAttribute('aria-valuenow', percentComplete);
+                        progressBarInner.textContent = percentComplete + '%';
+                    }
+                }, false);
+                return xhr;
+            },
+            success: function(response) {
+                labResultsData.push({
+                    id: ind,
+                    image_id: response.temp_image_id
+                });
+                console.log(labResultsData)
+            },
+            error: function(response) {
+                showError("Error uploading image. Please try again.");
+                inputElement.value = '';
+                progressBarInner.style.width = 0 + '%';
+                progressBarInner.setAttribute('aria-valuenow', 0);
+                progressBarInner.textContent = 0 + '%';
+            }
+        });
+    }
+
+    function validateFile(input, progressBarInner) {
+        var allowedExtensions = /(\.jpg|\.jpeg|\.png|\.webp)$/i;
+
+        if(!allowedExtensions.exec(input.value)) {
+            showError('Invalid file type. Only .jpg, .jpeg, and .png files are allowed.');
+            input.value = '';
+            return false;
+        }
+        else
+        {
+            uploadImage(input, progressBarInner);
+            return true;
+        }
+    }
 
     function showSuccess(message)
     {
@@ -15,11 +74,59 @@
     
     window.addEventListener('DOMContentLoaded', event => {
 
-        let selectedPetName;
-        let selectedPetId;
+        let selectedPetName = "{{ pet_treatment.pet.name }}";
+        let selectedPetId = "{{ pet_treatment.pet.id }}";
+        selectedPetId = parseInt(selectedPetId);
+
         let selectedProductIds = new Set();
         let productsSelected = new Map();
 
+        {% for pids in product_ids %}
+        selectedProductIds.add({{ pids }});
+        {% endfor %}
+
+        {% for product_id, product_details in products_map.items %}
+        productsSelected.set({{ product_id }}, {
+            strength: "{{ product_details.strength }}",
+            quantity: "{{ product_details.quantity }}",
+            dosage: "{{ product_details.dosage }}",
+            frequency: "{{ product_details.frequency }}",
+            remarks: "{{ product_details.remarks }}"
+        });
+        {% endfor %}
+
+        let radioStates = {};
+        
+        let inputTreatment = document.getElementById('inputTreatment');
+        let radios = document.querySelectorAll('input[type="radio"]');
+        
+        radios.forEach(radio => {
+            radio.addEventListener('click', function() {
+                if (radioStates[this.id]) {
+                    this.checked = false;
+                    inputTreatment.value = ''; 
+                    delete radioStates[this.id];
+                } else {
+                    radioStates[this.id] = true;
+                    
+                    radios.forEach(innerRadio => {
+                        if (innerRadio.id !== this.id) {
+                            innerRadio.checked = false;
+                            delete radioStates[innerRadio.id];
+                        }
+                    });
+
+                    if (this.id === 'dewormingRadio') {
+                        inputTreatment.value = 'Deworming';
+                    } else if (this.id === 'vaccRadio') {
+                        inputTreatment.value = 'Vaccination';
+                    }
+                }
+            });
+        });
+
+
+        
         const petTable = document.getElementById('petTable');
     
         if (petTable) {
@@ -199,7 +306,7 @@
         }
     
         setupSelectButtons();
-    
+     
         var productInputValues = {};
 
         let previews = {};
@@ -240,9 +347,8 @@
                         row.find('.' + inputClass).val(productInputValues[productId][inputClass]);
                     }
                 } 
- 
+                console.log(productInputValues)
                 if (selectedProductIds.has(productId)) {
-                    console.log(productId);
                     $(this).prop('disabled', true);
                     row.find('.add-text').text("Added");
                 } else {
@@ -333,7 +439,7 @@
         $('#addMedicineModal').on('show.bs.modal', function (event) 
         {
 
-
+            refreshProductRows()
             {% for type, products in product_dict.items %}
  
                 $(datatablesSimple_products_{{ forloop.counter }}).find('.add-product').each(function() {
@@ -405,6 +511,10 @@
             }
         }
         let productRowIndexMap = new Map();
+
+        {% for product_id, product_details in products_map.items %}
+        productRowIndexMap.set({{ product_id }}, {{ forloop.counter0 }});
+        {% endfor %}
 
         $(document).on('click', '.add-product', function() 
         { 
@@ -515,7 +625,7 @@
                         };
 
                         productsSelected.set(productId, productDetails);
-                        console.log(productsSelected);
+                        
                         let rowObj = {
                             "#": productId, 
                             "Product": productName,
@@ -526,6 +636,13 @@
                             "Frequency": productFrequency,
                             "Remarks": productRemarks
                         };
+                        prescriptionSummaryDataTable.insert([rowObj]);
+
+                        let rowIndex = prescriptionSummaryDataTable.rows.dt.data.data.length - 1;
+                        
+                        productRowIndexMap.set(productId, rowIndex);
+
+                        console.log(productRowIndexMap)
 
                         $this.prop('disabled', true);
                         $this.find('.add-text').text("Added");
@@ -564,14 +681,16 @@
     
             var productId = $(this).find('.product-id-remove-button').text();
             productId = parseInt(productId);
-    
+
             selectedProductIds.delete(productId);
+            productsSelected.delete(productId);
     
             let rowIndex = productRowIndexMap.get(productId);
-            console.log(productsSelected);
+
+            prescriptionSummaryDataTable.rows.remove(rowIndex);
+
             productRowIndexMap.delete(productId);
-            productsSelected.delete(productId);
-            console.log(productsSelected);
+
             productRowIndexMap.forEach((index, id) => {
                 if (index > rowIndex) {
                     productRowIndexMap.set(id, index - 1);
@@ -586,34 +705,245 @@
             $(this).closest('tr').remove();
         });
 
+        const addLabResultBtn = document.getElementById('addLabResultBtn');
+
+        addLabResultBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const labResultGroupFields = document.createElement('div');
+            labResultGroupFields.className = 'lab-result-group-fields';
+
+            // Create the new input group for lab results
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group mb-2';
+
+            const noImageButton = document.createElement('button');
+            noImageButton.className = 'btn btn-no-image';
+            noImageButton.type = 'button';
+            const noImageIcon = document.createElement('i');
+            noImageIcon.setAttribute('data-feather', 'arrow-right-circle');
+            noImageButton.appendChild(noImageIcon);
+            //add this to noImageButton  data-bs-toggle="tooltip" data-bs-placement="left" title="This laboratory result have no image"
+            noImageButton.setAttribute('data-bs-toggle', 'tooltip');
+            noImageButton.setAttribute('data-bs-placement', 'left');
+            noImageButton.setAttribute('title', 'New laboratory result field');
+
+            const removeButton = document.createElement('button');
+            removeButton.className = 'btn btn-remove-lab-result';
+            removeButton.type = 'button';
+            const removeIcon = document.createElement('i');
+            removeIcon.setAttribute('data-feather', 'minus-circle');
+            removeButton.appendChild(removeIcon);
+            removeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                labResultGroupFields.remove();
+            });
+
+            const inputLabResults = document.createElement('input');
+            inputLabResults.className = 'form-control lab-result-input';
+            inputLabResults.name = 'diagnosis';
+            inputLabResults.type = 'text';
+            inputLabResults.placeholder = 'Enter lab results';
+            inputLabResults.id = 'inputLabResults'
+
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress mb-2';
+
+            // Create the inner progress-bar div
+            const progressBarInner = document.createElement('div');
+            progressBarInner.className = 'progress-bar progress-bar-striped progress-bar-animated bg-success';
+            progressBarInner.setAttribute('role', 'progressbar');
+            progressBarInner.style.width = '0%';
+            progressBarInner.setAttribute('aria-valuenow', '0');
+            progressBarInner.setAttribute('aria-valuemin', '0');
+            progressBarInner.setAttribute('aria-valuemax', '100');
+            progressBarInner.textContent = '0%';
+
+            const inputLabResultsImages = document.createElement('input');
+            inputLabResultsImages.className = 'form-control lab-result-image-input';
+            inputLabResultsImages.name = 'lab_result_images';
+            inputLabResultsImages.type = 'file';
+            inputLabResultsImages.accept = '.jpg, .jpeg, .png';
+            inputLabResultsImages.id = 'inputLabResultsImages'
+
+            ind++;
+
+            inputLabResults.dataset.id = ind; 
+            inputLabResultsImages.dataset.id = ind;
+
+            inputLabResultsImages.onchange = function() {
+                const progressBar = this.parentElement.nextElementSibling;
+                const progressBarInner = progressBar.querySelector('.progress-bar');
+
+                validateFile(this, progressBarInner)
+
+                console.log(labResultsData);
+            };
+
+            progressBar.appendChild(progressBarInner);
+            inputGroup.appendChild(noImageButton);
+            inputGroup.appendChild(inputLabResults);
+            inputGroup.appendChild(inputLabResultsImages);
+            inputGroup.appendChild(removeButton);
+
+            labResultGroupFields.appendChild(inputGroup);
+            labResultGroupFields.appendChild(progressBar);
+
+            addLabResultBtn.parentElement.insertAdjacentElement('beforebegin', labResultGroupFields);
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+            feather.replace();
+        });
+
+        $(document).on('input', '#inputCustomPurpose', function(e) {
+            $('#nextAppointmentPurpose').val("");
+        });
+        
+        $(document).on('change', '#nextAppointmentPurpose', function(e) {
+            $('#inputCustomPurpose').val("");
+        });
+
         $(document).on('click', '.submit-button', function(e)
         {
             $('#confirmationModal').modal('show');
         });
 
-        $(document).on('click', '#confirm-prescription-button', function(e)
+        $(document).on('click', '#confirm-consultation-button', function(e)
         {
+            $('#confirmationModal').modal('hide');
             if(selectedPetId == null)
             {
                 activateTab(0);
                 showError("Please select a pet.");
                 return;
             }
-            if(productsSelected.size == 0)
+
+            var symptoms = $('#inputSymptoms').val();
+            var temperature = $('#inputTemperature').val();
+            var weight = $('#inputTreatmentWeight').val();
+            var diagnosis = $('#inputDiagnosis').val();
+            var treatment = $('#inputTreatment').val();
+
+            var isDeworming = $('#dewormingRadio').is(':checked');
+            var isVaccination = $('#vaccRadio').is(':checked');
+
+            var labResults = $('#inputLabResults').val();
+
+            if(symptoms == null || symptoms == "")
             {
-                activateTab(1);
-                showError("Please add at least one product.");
+                activateTab(0);
+                showError("Please enter the symptoms.");
+                return;
+            }
+            else if(temperature == null || temperature == "")
+            {
+                activateTab(0);
+                showError("Please enter the temperature.");
+                return;
+            }
+            else if(weight == null || weight == "")
+            {
+                activateTab(0);
+                showError("Please enter the weight.");
+                return;
+            }
+            else if(diagnosis == null || diagnosis == "")
+            {
+                activateTab(0);
+                showError("Please enter the diagnosis.");
+                return;
+            }
+            else if(treatment == null || treatment == "")
+            {
+                activateTab(0);
+                showError("Please enter the treatment.");
+                return;
+            }
+            else if(labResults == null || labResults == "")
+            {
+                activateTab(0);
+                showError("Please enter the lab results.");
                 return;
             }
 
+            var appointment_date = $('#litepickerSingleDate').val();
+            var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
+            var appointment_purpose = $('#nextAppointmentPurpose').val();
+
+            var custom_purpose = $('#inputCustomPurpose').val();
+            
+            const labResultInputs = document.querySelectorAll('.lab-result-input');
+            const labResultImageInputs = document.querySelectorAll('.lab-result-image-input');
+            const labResultIds = document.querySelectorAll('.laboratory-result-id');
+
             var formData = new FormData();
 
+            formData.append('treatmentId', {{ treatmentID }});
             formData.append('productsSelected', JSON.stringify([...productsSelected]));
             formData.append('selectedPetId', selectedPetId);
+            formData.append('appointment_date', appointment_date);
+            formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
+            formData.append('appointment_purpose', appointment_purpose);
+            formData.append('symptoms', symptoms);
+            formData.append('temperature', temperature);
+            formData.append('weight', weight);
+            formData.append('diagnosis', diagnosis);
+            formData.append('treatment', treatment);
+
+            {% comment %} var labResultsDescriptions = [];
+            var labResultsImageIDS = [];
+
+            labResultInputs.forEach((input) => {
+                labResultsDescriptions.push(input.value);
+                let matchingImageData = labResultsData.find(item => item.id == input.dataset.id);
+                if (matchingImageData) {
+                    labResultsImageIDS.push(matchingImageData.image_id);
+                }
+                else{
+                    labResultsImageIDS.push(null);
+                }
+            }); {% endcomment %}
+
+            let labResultsForm = [];
+
+
+            function getLabResultId(dataId) {
+                let inputElement = document.querySelector(`.lab-result-input[data-id="${dataId}"]`);
+                if (inputElement) {
+                    return inputElement.getAttribute("data-existing-lab-id");
+                }
+                return null;
+            }
+            
+            labResultInputs.forEach((input) => {
+                let id = input.dataset.id;
+            
+                let description = input.value;
+            
+                let labResultId = getLabResultId(id);
+            
+                let matchingImageData = labResultsData.find(item => item.id == id);
+                let imageId = matchingImageData ? matchingImageData.image_id : null;
+            
+                labResultsForm.push({
+                    description: description,
+                    image_id: imageId,
+                    lab_result_id: labResultId  
+                });
+            });
+            
+            formData.append('labResults', JSON.stringify(labResultsForm));
+
+            {% comment %} formData.append('labResultsDescriptions', JSON.stringify(labResultsDescriptions));
+            formData.append('labResultsImageIDS', JSON.stringify(labResultsImageIDS)); {% endcomment %}
+            formData.append('isDeworming', isDeworming);
+            formData.append('isVaccination', isVaccination);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
             $.ajax({
-                url: "{% url 'admin-submit-pet-medical-prescription-page' %}",
+                url: "{% url 'admin-submit-update-consultation-page' %}",
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -623,7 +953,8 @@
                     {
                         var petLink = document.querySelector('.pet-link a');
                         var originalHref = petLink.getAttribute('href');
-                        var newHref = originalHref.replace('0', response.prescription_id);
+                        var newHref = originalHref.replace('0', selectedPetId);
+
                         petLink.setAttribute('href', newHref);
 
                         showSuccess(response.message);
@@ -632,7 +963,7 @@
 
                         $(document).on('click', '.successOKBtn', function(e)
                         {
-                            window.location.href = '/admin/bill/?to=' + ownerID;
+                            window.location.href = newHref;
                         });
                     }
                     else
@@ -656,11 +987,151 @@
             });
         });
 
+        function populateTable(tableElement) {
+            if (!tableElement) return;
+            const tableBody = tableElement.querySelector('tbody');
+            let index = 1;
+        
+            tableBody.innerHTML = '';
+            
+            productsSelected.forEach((value, key) => {
+                let row = tableBody.insertRow();
+                
+                let cell1 = row.insertCell(0);
+                cell1.innerHTML = index++;
+
+                let cell2 = row.insertCell(1);
+                cell2.innerHTML = key;
+                
+                let cell3 = row.insertCell(2);
+                cell3.innerHTML = value.strength;
+
+                let cell4 = row.insertCell(3);
+                cell4.innerHTML = value.form;
+
+                let cell5 = row.insertCell(4);
+                cell5.innerHTML = value.quantity;    
+                
+                let cell6 = row.insertCell(5);
+                cell6.innerHTML = value.dosage; 
+
+                let cell7 = row.insertCell(6);
+                cell7.innerHTML = value.frequency; 
+
+                let cell8 = row.insertCell(7);
+                cell8.innerHTML = value.remarks; 
+            });
+        }
+        
+        const prescriptionSummary = document.getElementById('table-medicines-summary');
+        let prescriptionSummaryDataTable;
+
+        if (prescriptionSummary) {
+            
+            prescriptionSummaryDataTable = new simpleDatatables.DataTable(prescriptionSummary, {
+                paging: false,
+                perPageSelect: [5, 10, 25, 50],
+                perPage: 10,
+                fixedHeight: false,
+                sortable: false,
+                searchable: false,
+                hiddenHeader: false,
+            });
+
+        }    
+
+        function getTableDataFromSelectedProducts() {
+            let dataArray = [];
+            let index = 1;
+            
+            productsSelected.forEach((value, key) => {
+                let rowObj = {
+                    "#": index++, 
+                    "Product": key,
+                    "Strength": value.strength,
+                    "Form": value.form,
+                    "Quantity": value.quantity,
+                    "Dosage": value.dosage,
+                    "Frequency": value.frequency,
+                    "Remarks": value.remarks
+                };
+
+                dataArray.push(rowObj);
+            });
+            return dataArray;
+        }
+
+        function updateLabResultsPreview() {
+            $('.lab-results-container').empty();
+
+            $('.lab-result-input').each(function(index, input) {
+                var resultText = $(input).val();
+                var imageInput = $(`.lab-result-image-input[data-id="${$(input).data('id')}"]`);
+                var imageUrl = imageInput.val() ? URL.createObjectURL(imageInput[0].files[0]) : null;
+
+                var label = index === 0 ? "Laboratory Results:" : "";
+
+                var imageLink = imageUrl ? `
+                    <a href="${imageUrl}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
+                        <i data-feather="image"></i>
+                    </a>
+                ` : '';
+
+                var newRow = `
+                    <div class="row small text-muted">
+                        <div class="col-sm-3 text-truncate"><em>${label}</em></div>
+                        <div class="col lab-results">
+                            ${resultText}
+                            ${imageLink}
+                        </div>
+                    </div>
+                `;
+
+                $('.lab-results-container').append(newRow);
+            });
+
+            feather.replace();
+        }
+
+
+        $(document).on('input', '.lab-result-input, .lab-result-image-input', updateLabResultsPreview);
+
+        updateLabResultsPreview();
+
         document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard1');
         });
         document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard2');
+        });
+        document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard3');
+            $('.selected-pet-name').text(selectedPetName || "None");
+            $('.lab-symptoms').text($('#inputSymptoms').val() || "None");
+            $('.treatment-weight').text($('#inputTreatmentWeight').val() || "None");
+            $('.temperature').text($('#inputTemperature').val() || "None");
+            $('.diagnosis').text($('#inputDiagnosis').val() || "None");
+            $('.treatment').text($('#inputTreatment').val() || "None");
+
+            let appointmentDate = $('#litepickerSingleDate').val();
+            let appointmentTimeText = $('#inputNextAppointmentTimeOfTheDay option:selected').text();
+            $('.next-appointment').text((appointmentDate && appointmentTimeText) ? (appointmentDate + ' - ' + appointmentTimeText) : "None");   
+            let rows = prescriptionSummaryDataTable.rows;
+        });
+
+        const removeButtons = document.querySelectorAll('.btn-remove-lab-result');
+
+        removeButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const parentInputGroup = e.target.closest('.input-group');
+                
+                if(parentInputGroup) {
+                    parentInputGroup.nextElementSibling.remove(); 
+                    parentInputGroup.remove();
+                }
+            });
         });
     });
     </script>

@@ -1,0 +1,71 @@
+{% load static %}
+<div class="tab-pane py-2 py-xl-2 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
+    <div class="row justify-content-center">
+        <div class="col-xxl-10 col-xl-8">
+            <div class="parent-container">
+                <div class="header-group">
+                    <h3 class="text-primary">Step 2</h3>
+                    <h5 class="card-title mb-4 fw-100">Update prescription if needed</h5>
+                </div>
+                <div class="selected-pet-info" style="display: none;">
+                    <span class="small">Selected Pet: </span>
+                    <div class="avatar">
+                        <img class="avatar-img img-fluid selected-pet-image" src="{% static 'images/placeholder-consultation.jpg' %}" loading="lazy"/>
+                    </div>
+                    <span class="pet-name selected-pet-name small"></span>
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="#" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
+                        <i data-feather="external-link"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive billing-table">
+                <table class="table table-borderless mb-0 mt-4">
+                    <thead class="">
+                        <tr class="small text-uppercase text-muted">
+                            <th scope="col">
+                                Medicines
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#addMedicineModal" data-bs-toggle="modal" data-bs-placement="top" title="Add Medicine" id="addMedicineBtn">
+                                    <i data-feather="plus-circle"></i>
+                                </a>
+                            </th>
+                            <th class="text-end" scope="col">Strength</th>
+                            <!-- <th class="text-end" scope="col">Form</th> -->
+                            <th class="text-end" scope="col">Dosage</th>
+                            <th class="text-end" scope="col">Frequency</th>
+                            <th class="text-end" scope="col">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody class="tbody-products">
+                        {% for product_id, product_details in products_map.items %}
+                        <tr class="selected-product" data-product-id="{{ product_id }}" data-product-quantity="{{ product_details.quantity }}">
+                            <td>
+                                <div class="fw-bold">
+                                    {{ product_details.product_name }} (<span class="product-quantity">{{ product_details.quantity }}</span>)
+                                    <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
+                                        <span class="product-id-remove-button" style="display: none;">{{ product_id }}</span>
+                                        <i data-feather="delete"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="text-end fw-bold">{{ product_details.strength }}</td>
+                            <td class="text-end fw-bold">{{ product_details.dosage }}</td>
+                            <td class="text-end fw-bold">{{ product_details.frequency }}</td>
+                            <td class="text-end fw-bold">{{ product_details.remarks }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr id="total-row">
+                            <td class="text-end pb-0" colspan="3"><!-- empty for spacing --></td>
+                            <td class="text-end pb-0" colspan="3"><!-- empty for spacing --></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr class="my-4" />
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-light previous-button" type="button">Previous</button>
+                <button class="btn btn-primary next-button" type="button">Next</button>
+            </div>
+        </div>
+    </div>
+</div>

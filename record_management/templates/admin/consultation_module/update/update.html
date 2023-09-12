@@ -3,7 +3,7 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %} Health Card | Barraca Veterinary Clinic {% endblock %}
+{% block title %} Update Medical Record | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
 <style>
@@ -36,7 +36,6 @@
 }
 .submit-button
 {
-    background-color: green !important;
     border: none;
 }
 .modal-xl {
@@ -143,6 +142,10 @@
     border-bottom-right-radius: 10px !important;
 }
 
+#inputTreatment {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
 .form-check {
     min-height: 0rem !important;
     margin-bottom: 0rem !important;
@@ -174,22 +177,55 @@
 .form-check-input:focus:checked {
     box-shadow: 0 0 0 0.25rem rgba(35, 35, 35, 0.5); 
 }
-.btn-add-medicine
+.btn-add-lab-result
 {
     border: 1px solid #c5ccd6;
 }
-.btn-add-medicine:hover
+.btn-add-lab-result:hover
 {
     border: 1px solid #c5ccd6;
     background: whitesmoke;
 }
-#inputMedicine:disabled
+.btn-remove-lab-result
 {
-    background: white;
+    border: 1px solid #c5ccd6;
+}
+.btn-remove-lab-result:hover
+{
+    border: 1px solid #c5ccd6;
+    background: whitesmoke;
+}
+
+.btn-view-lab-result-image
+{
+    border: 1px solid #c5ccd6;
+}
+
+.btn-view-lab-result-image:hover
+{
+    border: 1px solid #c5ccd6;
+    background: whitesmoke;
+}
+.btn-no-image {
+    border: 1px solid #c5ccd6;
+    cursor: default; /* fixed this */
+}
+
+.btn-no-image:hover {
+    border: 1px solid #c5ccd6;
+    cursor: default; /* fixed this */
+}
+.btn-no-image:click {
+    border: 1px solid #c5ccd6;
+    cursor: default; /* fixed this */
+}
+.breadcrumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
 }
 </style>
-{% include 'admin/health_card_module/modals.html' %}
-{% include 'admin/health_card_module/health_card_module_script.html' %}
+
+{% include 'admin/consultation_module/update/update_script.html' %}
 
 {% endblock %}
 
@@ -199,25 +235,40 @@
 
 {% block content %}
 <div class="container-xl mt-5">
+    <nav class="mt-4 rounded mb-3" aria-label="breadcrumb">
+        <ol class="breadcrumb px-3 py-2 rounded mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'admin-pet-list-page' %}">Pets</a></li>
+            <li class="breadcrumb-item active">Medical Record</li>
+            <li class="breadcrumb-item active"><a href="{% url 'admin-view-pet-page' pet_treatment.pet.id %}">{{ pet_treatment.pet.name }}</a></li>
+        </ol>
+    </nav>
+
     <!-- Wizard card example with navigation-->
     <div class="card">
         <div class="card-header border-bottom">
             <!-- Wizard navigation-->
             <div class="nav nav-pills nav-justified flex-column flex-xl-row nav-wizard" id="cardTab" role="tablist">
-                <!-- Wizard navigation item 1-->
                 <a class="nav-item nav-link active" id="wizard1-tab" href="#wizard1" data-bs-toggle="tab" role="tab" aria-controls="wizard1" aria-selected="true">
                     <div class="wizard-step-icon">1</div>
                     <div class="wizard-step-text">
-                        <div class="wizard-step-text-name">Find Pet</div>
-                        <div class="wizard-step-text-details">Locate a pet</div>
+                        <div class="wizard-step-text-name">Medical Form</div>
+                        <div class="wizard-step-text-details">Update this form for data recording</div>
                     </div>
                 </a>
-                <!-- Wizard navigation item 2-->
+                <!-- Wizard navigation item 3-->
                 <a class="nav-item nav-link" id="wizard2-tab" href="#wizard2" data-bs-toggle="tab" role="tab" aria-controls="wizard2" aria-selected="true">
                     <div class="wizard-step-icon">2</div>
                     <div class="wizard-step-text">
-                        <div class="wizard-step-text-name">Treatment</div>
-                        <div class="wizard-step-text-details">Setup treatment for health card</div>
+                        <div class="wizard-step-text-name">Prescription</div>
+                        <div class="wizard-step-text-details">Update a prescription for this record</div>
+                    </div>
+                </a>
+                <!-- Wizard navigation item 4-->
+                <a class="nav-item nav-link" id="wizard3-tab" href="#wizard3" data-bs-toggle="tab" role="tab" aria-controls="wizard3" aria-selected="true">
+                    <div class="wizard-step-icon">3</div>
+                    <div class="wizard-step-text">
+                        <div class="wizard-step-text-name">Review &amp; Submit</div>
+                        <div class="wizard-step-text-details">Review and submit changes</div>
                     </div>
                 </a>
             </div>
@@ -225,13 +276,18 @@
         <div class="card-body">
             <div class="tab-content" id="cardTabContent">
                 <!-- Wizard tab pane item 1-->
-                {% include 'admin/health_card_module/wizard_1.html' %}
                 <!-- Wizard tab pane item 2-->
-                {% include 'admin/health_card_module/wizard_2.html' %}
+                {% include 'admin/consultation_module/update/wizard_1.html' %}
+                <!-- Wizard tab pane item 3-->
+                {% include 'admin/consultation_module/update/wizard_2.html' %}
+                <!-- Wizard tab pane item 4-->
+                {% include 'admin/consultation_module/update/wizard_3.html' %}
             </div>
         </div>
     </div>
 </div>
+
+{% include 'admin/consultation_module/update/modals.html' %}
 
 {% endblock %}
 

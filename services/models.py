@@ -91,11 +91,11 @@ class Service(models.Model):
         ]
         
         for service in services:
-            service_object, created = cls.objects.get_or_create(service_type=service["type"], defaults={
+            service_object, created = cls.objects.get_or_create(service_type=service["type"], active=True, defaults={
                 'fee': service["fee"],
                 'active': True
             })
-            
+
             if created:
                 print(f"Created default '{service['type']}' service.")
             else:

@@ -48,12 +48,12 @@ def disable_day(request):
             disable_day.isActive = True
             disable_day.save()
 
+            disable_day.send_message_to_client()
+
             if disable_day.timeOfTheDay == 'whole_day':
                 Appointment.objects.filter(date=disable_day.date, isActive=True, status='pending').update(status='rebook')
             else:
                 Appointment.objects.filter(date=disable_day.date, timeOfTheDay=disable_day.timeOfTheDay, isActive=True, status='pending').update(status='rebook')
-
-            disable_day.send_message_to_client()
 
             disabled_day_dict = model_to_dict(disable_day, exclude=['id', 'isActive', 'reason'])
 
@@ -349,14 +349,16 @@ def rebook_appointment(request):
         appointment_id = request.POST.get('appointment_id')
         new_date_str = request.POST.get('new_date')
         pet_id = request.POST.get('pet')
+        print(pet_id)
         purpose_id = request.POST.get('purpose')
         time_of_the_day = request.POST.get('time_of_day')
         
         try:
             appointment = Appointment.objects.get(id=appointment_id)
-
+            print(appointment.id)
+            print(appointment.pet.id)
             if appointment.pet.id != int(pet_id):
-                return JsonResponse({'status': 'error', 'message': 'You cannot change your pet during rebooking.'}, status=400)
+               return JsonResponse({'status': 'error', 'message': 'You cannot change your pet during rebooking.'}, status=400)
 
             disabled_day = DoctorSchedule.objects.filter(date=new_date_str, isActive=True).first() 
             if disabled_day:
@@ -674,7 +676,7 @@ def get_all_data(request):
     for appointment in appointments:
         event = {
             'id': appointment.id,
-            'title': f'{appointment.client.full_name}',
+            'title': f'#{appointment.id} - {appointment.client.full_name}',
             'start': appointment.date.isoformat() if appointment.date is not None else '',
             'color': appointment.getTimeOfDayColor(),
             'extendedProps': {

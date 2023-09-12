@@ -290,89 +290,66 @@
         }
     
         setupSelectButtons();
-    
-        $('#addMedicineModal').on('show.bs.modal', function (event) 
-        {
-            {% for type, products in product_dict.items %}
-                const datatablesSimple_products_{{ forloop.counter }} = document.getElementById('table-medicines-{{ forloop.counter }}');
-    
-                if (datatablesSimple_products_{{ forloop.counter }}) {
-                    var dataTable_{{ forloop.counter }} = new simpleDatatables.DataTable(datatablesSimple_products_{{ forloop.counter }}, {
-                        paging: true,
-                        perPageSelect: [5, 10, 25, {% if products_count > 50 %} {{ products_count }} {% else %} 50 {% endif %}],
-                        perPage: 5,
-                        sortable: true,
-                        searchable: true,
-                        hiddenHeader: false,
-                        // labels: {
-                        //     info: `Products Table`,
-                        // },
-                    });
-    
-                    var searchInput = document.querySelector('.datatable-input');
-                    searchInput.addEventListener('search', function(e) {
-                        if (e.target.value == '') {
-                            dataTable_{{ forloop.counter }}.search('');
-                        }
-                    });
-                }
-    
-                $(datatablesSimple_products_{{ forloop.counter }}).find('.add-product').each(function() {
-                    var productId = $(this).data('product-id');
-                    var row = $(this).closest('tr');
-                    if (selectedProductIds.has(productId)) {
-                        row.find('.add-product').prop('disabled', true); 
-                        row.find('.add-text').text("Added");
-                    } 
-    
-                    $.ajax({
-                        url: '/admin/inventory/check-expiry/' + productId + '/',
-                        method: 'GET',
-                        success: function(data) {
-                            var stockExpiry = data.expiry;
-        
-                            if(stockExpiry != null) {
-                                var stockExpiryDate = new Date(stockExpiry);
-                                var today = new Date();
-        
-                                if(stockExpiryDate < today) {
-                                    row.find('.add-product').prop('disabled', true);
-                                }
-                            }
-                        }
-                    });
-    
-                    $.ajax({
-                        url: '/admin/inventory/check-quantity/' + productId + '/',
-                        method: 'GET',
-                        success: function(data) {
-                            var stockQuantity = data.quantity;
-        
-                            if(stockQuantity != null) {
-                                if(parseFloat(stockQuantity) == 0) {
-                                    row.find('.add-product').prop('disabled', true);
-                                }
-                            }
-                        }
-                    });
-                });
-                var searchInput = document.querySelector('.datatable-input');
-    
-                searchInput.addEventListener('search', function(e) {
-                    if (e.target.value == '') {
-                        datatablesSimple_products_{{ forloop.counter }}.search('');
-                    }
-                });
-            {% endfor %}
-        
-        });
+     
+        var productInputValues = {};
 
-        let previews = [];
+        let previews = {};
+
+        $('table tr').each(function() {
+            let row = $(this);
+            let productId = row.find('.product-id').text().trim();
+            productId = parseInt(productId);
+        
+            if (!productInputValues[productId]) {
+                productInputValues[productId] = {};
+            }
+        
+            row.find('input').each(function() {
+                let inputElem = $(this);
+                let inputClass = inputElem.attr('class').split(' ')[1];
+                productInputValues[productId][inputClass] = inputElem.val();
+            });
+        });
+        
+        $('table').on('input', 'input', function() {
+            let row = $(this).closest('tr');
+            let productId = row.find('.product-id').text().trim();
+            productId = parseInt(productId);
+            
+            let inputClass = $(this).attr('class').split(' ')[1]; 
+            productInputValues[productId][inputClass] = $(this).val();
+        });
+        
+        function refreshProductRows() {
+            $('.add-product').each(function() {
+                var row = $(this).closest('tr');
+                var productId = row.find('.product-id').text().trim();
+                productId = parseInt(productId);
+                
+                if (productInputValues[productId]) {
+                    for (let inputClass in productInputValues[productId]) {
+                        row.find('.' + inputClass).val(productInputValues[productId][inputClass]);
+                    }
+                } 
+                console.log(productInputValues)
+                if (selectedProductIds.has(productId)) {
+                    $(this).prop('disabled', true);
+                    row.find('.add-text').text("Added");
+                } else {
+                    $(this).prop('disabled', false);
+                    row.find('.add-text').text("Add");
+                }
+            });
+        }
 
         document.addEventListener('input', function (event) {
-            if (event.target.closest('tr')) {
-                let row = event.target.closest('tr');
+            
+            if (!event.target.matches('.product-strength, .product-quantity, .product-dosage, .product-frequency, .product-remarks')) {
+                return;
+            }
 
+            let row = event.target.closest('tr');
+            if (row && row.querySelector('.product-id')) {
                 let productID = row.querySelector('.product-id').textContent.trim();
                 let productName = row.querySelector('.product-name').textContent.trim();
                 let productType = row.querySelector('.product-type').textContent.trim();
@@ -382,21 +359,129 @@
                 let dosage = row.querySelector('.product-dosage').value || '[DOSAGE]';
                 let frequency = row.querySelector('.product-frequency').value || '[FREQUENCY]';
                 let remarks = row.querySelector('.product-remarks').value || '[REMARKS]';
-
+                
                 remarks = remarks.charAt(0).toLowerCase() + remarks.slice(1);
                 frequency = frequency.charAt(0).toLowerCase() + frequency.slice(1);
-
                 let dosageUnit = getDosageUnit(productForm, dosage);
-                
                 let rowIndex = [...row.parentNode.children].indexOf(row);
+                let previewText = `${productID} - Prescribed: <b>${productQuantity}</b> of <b>${productName}</b> (<b>${strength}</b> per ${dosageUnit}). Dosage: Administer <b>${dosage} ${dosageUnit}</b> to the pet <b>${frequency}</b>. For best results or safety, it's recommended to <b>${remarks}</b>.`;
+        
+                previews[productID] = previewText;
 
-                let previewText = `${rowIndex + 1} - Prescribed: <b>${productQuantity}</b> of <b>${productName}</b> (<b>${strength}</b> per ${dosageUnit}). Dosage: Administer <b>${dosage} ${dosageUnit}</b> to the pet <b>${frequency}</b>. For best results or safety, it's recommended to <b>${remarks}</b>.`;
-
-                previews[rowIndex] = previewText;
-
-                document.getElementById('preview-text').innerHTML = previews.join('<br>');
+                let previewKeys = Object.keys(previews).sort();
+                let previewTexts = previewKeys.map(key => previews[key]);
+                document.getElementById('preview-text').innerHTML = previewTexts.join('<br>');
             }
         });
+
+        {% for type, products in product_dict.items %}
+        var dataTable_{{ forloop.counter }};
+        {% endfor %}
+
+        {% for type, products in product_dict.items %}
+        const datatablesSimple_products_{{ forloop.counter }} = document.getElementById('table-medicines-{{ forloop.counter }}');
+
+        if (datatablesSimple_products_{{ forloop.counter }}) {
+            dataTable_{{ forloop.counter }} = new simpleDatatables.DataTable(datatablesSimple_products_{{ forloop.counter }}, {
+                paging: true,
+                perPageSelect: [5, 10, 25, {% if products_count > 50 %} {{ products_count }} {% else %} 50 {% endif %}],
+                perPage: 5,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+                // labels: {
+                //     info: `Products Table`,
+                // },
+            });
+        }
+
+        dataTable_{{ forloop.counter }}.on('datatable.update', function() {
+            refreshProductRows();
+        });
+        dataTable_{{ forloop.counter }}.on('datatable.page', function(page) {
+            refreshProductRows();
+        });
+        dataTable_{{ forloop.counter }}.on('datatable.search', function(query, matched) {
+            refreshProductRows();
+        });
+        dataTable_{{ forloop.counter }}.on('datatable.sort', refreshProductRows);
+
+        var searchInput = document.querySelector(`[aria-controls="table-medicines-{{ forloop.counter }}"]`);
+     
+        if (searchInput) {
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    dataTable_{{ forloop.counter }}.search('');
+                    refreshProductRows();
+                }
+            });
+        }
+        {% endfor %}
+
+        var isFirstRun = true;
+
+        $('#addMedicineModal').on('show.bs.modal', function (event) 
+        {
+
+
+            {% for type, products in product_dict.items %}
+ 
+                $(datatablesSimple_products_{{ forloop.counter }}).find('.add-product').each(function() {
+                    //var productId = $(this).data('product-id');
+                    var productId = $(this).closest('tr').find('.product-id').text().trim();
+                    
+                    var row = $(this).closest('tr');
+                    if (selectedProductIds.has(productId)) {
+                        row.find('.add-product').prop('disabled', true); 
+                        row.find('.add-text').text("Added");
+                    } 
+                    if(isFirstRun)
+                    {
+                        $.ajax({
+                            url: '/admin/inventory/check-expiry/' + productId + '/',
+                            method: 'GET',
+                            success: function(data) {
+                                var stockExpiry = data.expiry;
+                
+                                if(stockExpiry != null) {
+                                    var stockExpiryDate = new Date(stockExpiry);
+                                    var today = new Date();
+                
+                                    if(stockExpiryDate < today) {
+                                        row.find('.add-product').prop('disabled', true);
+                                    }
+                                }
+                            }
+                        });
+            
+                        $.ajax({
+                            url: '/admin/inventory/check-quantity/' + productId + '/',
+                            method: 'GET',
+                            success: function(data) {
+                                var stockQuantity = data.quantity;
+            
+                                if(stockQuantity != null) {
+                                    if(parseFloat(stockQuantity) == 0) {
+                                        row.find('.add-product').prop('disabled', true);
+                                    }
+                                }
+                            }
+                        });
+                        isFirstRun = false;
+                    }
+    
+                });
+                //var searchInput = document.querySelector('.datatable-input');
+    
+                //searchInput.addEventListener('search', function(e) {
+                //    if (e.target.value == '') {
+                //        datatablesSimple_products_{{ forloop.counter }}.search('');
+                //    }
+                //});
+            {% endfor %}
+        
+        });
+
         function getDosageUnit(form, dosage) {
             const liquidForms = ['syrup', 'liquid', 'oral_solution', 'suspension', 'ear_drop', 'gel', 'cream', 'ointment', 'lotion'];
             if (liquidForms.includes(form)) {
@@ -416,7 +501,8 @@
             $(this).attr('data-active-ajax', true);
             var $this = $(this);
     
-            var productId = $(this).data('product-id');
+            var productId = $(this).closest('tr').find('.product-id').text().trim();
+            productId = parseInt(productId);
             
             if (selectedProductIds.has(productId)) {
                 $this.prop('disabled', true);
@@ -547,6 +633,7 @@
                                     <div class="fw-bold">
                                         ${productName} (<span class="product-quantity">${quantity.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>)
                                         <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
+                                            <span class="product-id-remove-button" style="display: none;">${productId}</span>
                                             <i data-feather="delete"></i>
                                         </a>
                                     </div>
@@ -554,6 +641,7 @@
                                 <td class="text-end fw-bold">${productStrength}</td>
                                 <td class="text-end fw-bold">${productDosage}</td>
                                 <td class="text-end fw-bold">${productFrequency}</td>
+                                <td class="text-end fw-bold">${productRemarks}</td>
                             </tr>
                         `;
                         
@@ -569,10 +657,11 @@
         {
             e.preventDefault();
     
-            var productId = $(this).parents('tr').data('product-id');
-    
+            var productId = $(this).find('.product-id-remove-button').text();
+            productId = parseInt(productId);
+
             selectedProductIds.delete(productId);
-    
+
             let rowIndex = productRowIndexMap.get(productId);
 
             prescriptionSummaryDataTable.rows.remove(rowIndex);

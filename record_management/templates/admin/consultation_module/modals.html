@@ -42,7 +42,11 @@
                                         {% for product in products %}
                                         {% if product.active %}
                                         <tr>
-                                            <td><span class="product-id">{{ product.id }}</span></td>
+                                            <td>
+                                                <span class="product-id">
+                                                    {{ product.id }}
+                                                </span>
+                                            </td>
                                             <td>
                                                 <span class="product-name">
                                                     {{ product.product_name }}
@@ -55,6 +59,9 @@
                                                 </span>
                                             </td>
                                             <td>
+                                                <span class="product-id-strength" style="display:none;">
+                                                    {{ product.id }}
+                                                </span>
                                                 <input type="text" class="form-control product-strength" placeholder="Ex. 100mg" required>
                                             </td>
                                             <!-- <td>
@@ -66,15 +73,27 @@
                                                 </select>
                                             </td> -->
                                             <td>
+                                                <span class="product-id-quantity" style="display:none;">
+                                                    {{ product.id }}
+                                                </span>
                                                 <input type="number" class="form-control product-quantity" min="1" step="0.01" value="1" style="width: 80px;" onkeydown="javascript: return event.keyCode !== 69" required>
                                             </td>
                                             <td>
+                                                <span class="product-id-dosage" style="display:none;">
+                                                    {{ product.id }}
+                                                </span>
                                                 <input type="number" class="form-control product-dosage" placeholder="Ex: 1" required>
                                             </td>
                                             <td>
+                                                <span class="product-id-frequency" style="display:none;">
+                                                    {{ product.id }}
+                                                </span>
                                                 <input type="text" class="form-control product-frequency" placeholder="Ex. Twice daily for X days" required>
                                             </td>
                                             <td>
+                                                <span class="product-id-remarks" style="display:none;">
+                                                    {{ product.id }}
+                                                </span>
                                                 <input type="text" class="form-control product-remarks" placeholder="Ex. Feed with food" required>
                                             </td>
                                             <td>
@@ -129,8 +148,7 @@
             </div>
             <div class="modal-body">
                 <span class="modal-body-success-message"></span>
-                <br>
-                <div class="pet-link">
+                <div class="pet-link" style="display: none;">
                     Click <a class="pet-link" href="{% url 'admin-view-pet-page' 0 %}">here</a> to view the pet's record.
                 </div>
             </div>

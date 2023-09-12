@@ -173,6 +173,14 @@ def delete_product(request, product_id):
     else:
         return JsonResponse({'result': 'error', 'message': 'Invalid request method'})
 
+
+@staff_required
+@login_required
+def reorder_list(request):
+    products = Product.objects.filter(quantity_on_stock__lte=F('critical_level'), active=True).order_by('-id')
+    context = {'products': products}
+    return render(request, 'reorder_list.html', context)
+
 @staff_required
 @login_required
 def check_product_quantity(request, product_id):
@@ -185,9 +193,29 @@ def check_product_expiry(request, product_id):
     product = Product.objects.get(pk=product_id)
     return JsonResponse({'expiry': product.expiration_date})
 
+
+from django.core.exceptions import ObjectDoesNotExist
+
 @staff_required
 @login_required
-def reorder_list(request):
-    products = Product.objects.filter(quantity_on_stock__lte=F('critical_level'), active=True).order_by('-id')
-    context = {'products': products}
-    return render(request, 'reorder_list.html', context)
+def check_product_info(request):
+    if request.method == "POST":
+        product_ids = request.POST.get('productIds', [])
+
+        response_data = {}
+
+        for product_id in product_ids:
+            try:
+                product = Product.objects.get(pk=product_id)
+                response_data[product_id] = {
+                    'quantity': float(product.quantity_on_stock),
+                    'expiry': product.expiration_date.strftime('%Y-%m-%d') if product.expiration_date else None
+                }
+            except ObjectDoesNotExist:
+                response_data[product_id] = {
+                    'error': f"Product with ID {product_id} not found."
+                }
+
+        return JsonResponse(response_data)
+    else:
+        return JsonResponse({'error': 'Invalid request method.'}, status=405)

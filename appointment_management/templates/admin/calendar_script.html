@@ -57,7 +57,8 @@ function getInitialView() {
 
 function showRebookList() {
     var rebookList = document.getElementById('external-events-list');
-    if (rebookList.children.length === 0) {
+    console.log(rebookList.children.length);
+    if (rebookList.children.length > 0) {
         document.getElementById('external-events').style.display = 'block';
     }
 }
@@ -270,9 +271,23 @@ function _showAppointmentDetails(event) {
 }
 
 function updateSlots(info, dateString, dateSlots, maxAppointments, allAppointments, slotElements) {
+    {% comment %} console.log(`Info: ${info}` + info);
+    console.log(info);
+    console.log(`Date String: ${dateString}`);
+    console.log(dateString);
+    console.log(`Date Slots: ${dateSlots}`);
+    console.log(dateSlots);
+    console.log(`Max Appointments: ${maxAppointments}`);
+    console.log(maxAppointments);
+    console.log(`All Appointments: ${allAppointments}`);
+    console.log(allAppointments);
+    console.log(`Slot Elements: ${slotElements}`);
+    console.log(slotElements); {% endcomment %}
+    
+    
     var oldDate = new Date(info.oldEvent.start);
     var oldDateString = oldDate.getFullYear() + '-' + String(oldDate.getMonth() + 1).padStart(2, '0') + '-' + String(oldDate.getDate()).padStart(2, '0');
-
+    
     if (info.type != "from_rebook_list") {
         var oldEventCount = allAppointments.filter(function(event) {
             var _date = new Date(event.start);
@@ -282,6 +297,7 @@ function updateSlots(info, dateString, dateSlots, maxAppointments, allAppointmen
 
         var oldSlots = (dateSlots[oldDateString] || maxAppointments);
 
+        //console.log(slotElements[oldDateString].textContent.split('/').map(Number));
         var [currentUsedSlots, totalSlots] = slotElements[oldDateString].textContent.split('/').map(Number);
 
         if (oldEventCount < oldSlots) {
@@ -660,10 +676,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 100);
                 },
                 select: function(arg) {
+ 
                     let date = arg.start;
                     window.selectedDate = date;
                     let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 
+                    let calendarApi = arg.view.calendar;
+
+                    let eventsOnSelectedDay = calendarApi.getEvents().filter(event => {
+                        return event.extendedProps.current_date === dateString;
+                    });
+
+                    window.eventsOnSelectedDay = eventsOnSelectedDay;
+                    
                     $('.day-clicked').text(formatStringDate(dateString));
 
                     let appointmentsForDate = allAppointments.filter(function(appointment) {
@@ -899,8 +924,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                     var rebookList = document.getElementById('external-events-list');
 
-                                    showRebookList();
-
                                     var rebookEvent = document.createElement('div');
                                     rebookEvent.classList.add('fc-event', 'fc-h-event', 'fc-daygrid-event', 'fc-daygrid-block-event', 'custom-rebook-color');
                                     rebookEvent.id = arg.event.id;
@@ -923,7 +946,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                     var eventMainDiv = document.createElement('div');
                                     eventMainDiv.classList.add('fc-event-main');
-                                    eventMainDiv.innerHTML = '#' + arg.event.id + ' - ' + arg.event.extendedProps.client; // update this line according to your needs
+                                    eventMainDiv.innerHTML = '#' + arg.event.id + ' - ' + arg.event.extendedProps.client; 
                                     rebookEvent.appendChild(eventMainDiv);
                                     rebookList.appendChild(rebookEvent);
 
@@ -933,6 +956,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     eventModal.hide();
                                     $('#rebookConfModal').modal('hide');
                                     showSuccess("Appointment #" + arg.event.id + " has been added to rebook list.");
+                                    showRebookList();
                                     // arg.event.remove();
                                     // eventModal.hide();
                                     // $('#rebookConfModal').modal('hide');
@@ -1202,6 +1226,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                     var select_purpose = $("#id_purpose-rebook");
                                     select_purpose.val(info.event.extendedProps.purpose_id);
+                                    {% comment %} var select_pet = $("#id_pet-rebook");
+                                    select_pet.val(info.event.extendedProps.pet_id); {% endcomment %}
 
                                     var select_timeOfDay = $("#id_timeOfTheDay-rebook");
                                     // select_timeOfDay.val(info.event.extendedProps.timeOfTheDay_val);
@@ -1283,6 +1309,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     $('<option></option>').val(text.id).html(text.name)
                                                 );
                                             });
+                                            select.val(petId)
                                         }
                                     });
 
@@ -1496,6 +1523,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 $('#disableDayModal').modal('show');
             });
 
+            function createRebookEvent(event) {
+                var rebookList = document.getElementById('external-events-list');
+                var rebookEvent = document.createElement('div');
+                rebookEvent.classList.add('fc-event', 'fc-h-event', 'fc-daygrid-event', 'fc-daygrid-block-event', 'custom-rebook-color');
+                rebookEvent.id = event.id;
+            
+                rebookEvent.dataset.clientId = event.extendedProps.client_id;
+                rebookEvent.dataset.clientName = event.extendedProps.client;
+                rebookEvent.dataset.petId = event.extendedProps.pet_id;
+                rebookEvent.dataset.petName = event.extendedProps.pet;
+                rebookEvent.dataset.purposeId = event.extendedProps.purpose_id;
+                rebookEvent.dataset.purposeVal = event.extendedProps.purpose;
+                rebookEvent.dataset.timeOfDay = event.extendedProps.timeOfTheDay_val;
+                rebookEvent.dataset.daySmsSent = event.extendedProps.day_sms_reminder;
+                rebookEvent.dataset.weekSmsSent = event.extendedProps.week_sms_reminder;
+                rebookEvent.dataset.contactNumber = event.extendedProps.contact_number;
+                rebookEvent.dataset.currentDate = event.extendedProps.current_date;
+            
+                rebookEvent.onclick = function() {
+                    _showAppointmentDetails(event);
+                };
+            
+                var eventMainDiv = document.createElement('div');
+                eventMainDiv.classList.add('fc-event-main');
+                eventMainDiv.innerHTML = '#' + event.id + ' - ' + event.extendedProps.client;
+                rebookEvent.appendChild(eventMainDiv);
+                rebookList.appendChild(rebookEvent);
+            }
+            
             $('#disableDayForm').on('submit', function(e) {
                 e.preventDefault();
 
@@ -1509,13 +1565,82 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (response.status === 'success') {
                             $('#disableDayModal').modal('hide');
                             disabledDays.push(response.disabled_day);
-                            calendar.render();
                             console.log(response.disabled_day)
-                            updateTimeOfTheDayCell(response.disabled_day.date, timeOfDayInfo, timeOfTheDayElements);
-                            showSuccess(`${response.disabled_day.date} has been disabled for ${response.disabled_day.timeOfTheDay}. Reason: ${response.disabled_day.reason}`);
+                            calendar.render();
                             // var currentView = calendar.view;
                             // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
                             // location.reload();
+                            
+                            var datesOnCell = window.eventsOnSelectedDay;
+                            var dateString;
+                            var isEventOnCell = false;
+
+                            datesOnCell.forEach(event => {
+                                if(response.disabled_day.timeOfTheDay == 'morning' && event.extendedProps.timeOfTheDay_val == 'morning') {
+                                    dateString = event.extendedProps.current_date;
+                                    dateString = new Date(dateString);
+                                    createRebookEvent(event);
+                                    event.remove();
+                                    
+                                    var index = allAppointments.findIndex((_event) => {
+                                        return Number(_event.id) === Number(event.id);
+                                    });
+
+                                    if (index > -1) {
+                                        allAppointments.splice(index, 1);
+                                    }
+
+                                    isEventOnCell = true;
+                                } else if(response.disabled_day.timeOfTheDay == 'afternoon' && event.extendedProps.timeOfTheDay_val == 'afternoon') {
+                                    dateString = event.extendedProps.current_date;
+                                    dateString = new Date(dateString);
+                                    createRebookEvent(event);
+                                    event.remove();
+
+                                    var index = allAppointments.findIndex((_event) => {
+                                        return Number(_event.id) === Number(event.id);
+                                    });
+
+                                    if (index > -1) {
+                                        allAppointments.splice(index, 1);
+                                    }
+
+                                    isEventOnCell = true;
+                                } else if(response.disabled_day.timeOfTheDay == 'whole_day') {
+                                    dateString = event.extendedProps.current_date;
+                                    dateString = new Date(dateString);
+                                    createRebookEvent(event);
+                                    event.remove();
+
+                                    var index = allAppointments.findIndex((_event) => {
+                                        return Number(_event.id) === Number(event.id);
+                                    });
+
+                                    if (index > -1) {
+                                        allAppointments.splice(index, 1);
+                                    }
+                                    isEventOnCell = true;
+                                }
+                            });
+
+                            if(isEventOnCell)
+                            {
+                                dateString = dateString.getFullYear() + '-' + String(dateString.getMonth() + 1).padStart(2, '0') + '-' + String(dateString.getDate()).padStart(2, '0');
+                                console.log(dateString);
+                                var info = {
+                                    event: {
+                                        id: null
+                                    },
+                                    oldEvent: {
+                                        start: dateString
+                                    }
+                                };
+                                updateSlots(info, dateString, dateSlots, maxAppointments, allAppointments, slotElements);
+                            }
+
+                            updateTimeOfTheDayCell(response.disabled_day.date, timeOfDayInfo, timeOfTheDayElements);
+                            showRebookList();
+                            showSuccess(`${response.disabled_day.date} has been disabled for ${response.disabled_day.timeOfTheDay}. Reason: ${response.disabled_day.reason}`);
                         } else {
                             showError(response.message);
                         }
@@ -1662,7 +1787,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                             var newEvent = {
                                 id: response.appointment.id,
-                                title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                title: "#" + response.appointment.id + " - " + response.appointment.client.first_name + " " + response.appointment.client.last_name,
                                 start: response.appointment.date,
                                 color: response.appointment.color,
                                 extendedProps: {
@@ -1750,7 +1875,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                 allAppointments.push({
                                     id: response.appointment.id,
-                                    title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                    title: "#" + response.appointment.id + " - " + response.appointment.client.first_name + " " + response.appointment.client.last_name,
                                     start: dateString,
                                     color: response.appointment.color,
                                     extendedProps: {
@@ -1832,7 +1957,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (response.message === 'Appointment created successfully') {
                             var c = calendar.addEvent({
                                 id: response.appointment.id,
-                                title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                title: "#" + response.appointment.id + " - " + response.appointment.client.first_name + " " + response.appointment.client.last_name,
                                 start: response.appointment.date,
                                 color: response.appointment.color,
                                 extendedProps: {
@@ -1862,7 +1987,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             allAppointments.push({
                                 id: response.appointment.id,
-                                title: response.appointment.client.first_name + " " + response.appointment.client.last_name,
+                                title: "#" + response.appointment.id + " - " + response.appointment.client.first_name + " " + response.appointment.client.last_name,
                                 start: dateString,
                                 color: response.appointment.color,
                                 extendedProps: {

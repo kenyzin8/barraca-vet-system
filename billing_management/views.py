@@ -121,7 +121,17 @@ def post_bill(request):
                 user = User(username=username, is_active=False)
                 user.save()
 
-                client = Client(user=user, first_name=full_name, last_name="(walk-in)", address="N/A", contact_number="N/A")
+                client = Client(
+                    user=user, 
+                    first_name=full_name, 
+                    last_name="(walk-in)", 
+                    gender = "None",
+                    street = "N/A",
+                    barangay = "N/A",
+                    city = "N/A",
+                    province = "N/A",
+                    contact_number="N/A"
+                    )
                 client.save()
         else:
             client = Client.objects.get(pk=client_id)

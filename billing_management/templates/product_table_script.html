@@ -57,6 +57,7 @@ $(document).ready(function() {
 
     $('#addServiceModal').on('show.bs.modal', function (event) 
     {
+        refreshServiceRows();
         const datatablesSimple_services = document.getElementById('datatablesSimple-services');
 
         if (datatablesSimple_services) {
@@ -72,14 +73,39 @@ $(document).ready(function() {
                 // },
             });
         }
-        $('.add-service').each(function() {
-            var serviceId = $(this).data('service-id');
-            var row = $(this).closest('tr');
-            if (selectedServiceIds.has(serviceId)) {
-                // row.remove(); 
-                row.find('.add-service').prop('disabled', true); 
-                row.find('.add-text').text("Added");
-            } 
+
+        function refreshServiceRows()
+        {
+            $('.add-service').each(function() {
+                var serviceId = $(this).closest('tr').find('.service-id').text();
+                var row = $(this).closest('tr');
+                if (selectedServiceIds.has(serviceId)) {
+                    // row.remove(); 
+                    $(this).prop('disabled', true); 
+                    row.find('.add-text').text("Added");
+                } 
+                else
+                {
+                    $(this).prop('disabled', false); 
+                    row.find('.add-text').text("Add");
+                }
+            });
+        }
+
+        dataTable_services.on('datatable.update', () => {
+            refreshServiceRows();
+        });
+
+        dataTable_services.on('datatable.page', function(page) {
+            refreshServiceRows();
+        });
+
+        dataTable_services.on('datatable.search', function(query, matched) {
+            refreshServiceRows();
+        });
+
+        dataTable_services.on('datatable.sort', function(column, direction) {
+            refreshServiceRows();
         });
 
         var searchInput = document.querySelector('.datatable-input');
@@ -87,83 +113,126 @@ $(document).ready(function() {
         searchInput.addEventListener('search', function(e) {
             if (e.target.value == '') {
                 dataTable_services.search('');
+                refreshServiceRows();
             }
         });
     });
 
 
-    $('#addProductModal').on('show.bs.modal', function (event) 
+    function refreshProductRows()
     {
-        {% for type, products in product_dict.items %}
-            const datatablesSimple_products_{{ forloop.counter }} = document.getElementById('datatablesSimple-products-{{ forloop.counter }}');
+        $('.add-product').each(function() {
+            var productId = $(this).closest('tr').find('.product-id').text();
+            
+            var row = $(this).closest('tr');
+            if (selectedProductIds.has(productId)) {
+                $(this).prop('disabled', true); 
+                row.find('.add-text').text("Added");
+            } 
+            else
+            {
+                $(this).prop('disabled', false); 
+                row.find('.add-text').text("Add");
+            }
+        });
+    }
 
-            if (datatablesSimple_products_{{ forloop.counter }}) {
-                var dataTable_{{ forloop.counter }} = new simpleDatatables.DataTable(datatablesSimple_products_{{ forloop.counter }}, {
-                    paging: true,
-                    perPageSelect: [5, 10, 25, {% if products_count > 50 %} {{ products_count }} {% else %} 50 {% endif %}],
-                    perPage: 5,
-                    sortable: true,
-                    searchable: true,
-                    hiddenHeader: false,
-                    // labels: {
-                    //     info: `Products Table`,
-                    // },
-                });
+    {% for type, products in product_dict.items %}
+        var dataTable_{{ forloop.counter }};
+    {% endfor %}
 
-                var searchInput = document.querySelector('.datatable-input');
+    {% for type, products in product_dict.items %}
+        const datatablesSimple_products_{{ forloop.counter }} = document.getElementById('datatablesSimple-products-{{ forloop.counter }}');
+
+        if (datatablesSimple_products_{{ forloop.counter }}) {
+            dataTable_{{ forloop.counter }} = new simpleDatatables.DataTable(datatablesSimple_products_{{ forloop.counter }}, {
+                paging: true,
+                perPageSelect: [5, 10, 25, {% if products_count > 50 %} {{ products_count }} {% else %} 50 {% endif %}],
+                perPage: 5,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            window["dataTable_" + {{ forloop.counter }}] = dataTable_{{ forloop.counter }};
+
+            dataTable_{{ forloop.counter }}.on('datatable.update', refreshProductRows);
+            dataTable_{{ forloop.counter }}.on('datatable.page', refreshProductRows);
+            dataTable_{{ forloop.counter }}.on('datatable.search', refreshProductRows);
+            dataTable_{{ forloop.counter }}.on('datatable.sort', refreshProductRows);
+
+            // Attach the search input event listener based on the current loop's counter
+            var searchInput = document.querySelector(`[aria-controls="datatablesSimple-products-{{ forloop.counter }}"]`);
+         
+            if (searchInput) {
                 searchInput.addEventListener('search', function(e) {
                     if (e.target.value == '') {
                         dataTable_{{ forloop.counter }}.search('');
+                        refreshProductRows();
                     }
                 });
             }
+        }
+    {% endfor %}
 
+    var isFirstRun = true;
+
+    $('#addProductModal').on('show.bs.modal', function (event) 
+    {
+        refreshProductRows();
+        {% for type, products in product_dict.items %}
+            
             $(datatablesSimple_products_{{ forloop.counter }}).find('.add-product').each(function() {
-                var productId = $(this).data('product-id');
+                var productId = $(this).closest('tr').find('.product-id').text();
                 var row = $(this).closest('tr');
-                if (selectedProductIds.has(productId)) {
-                    row.find('.add-product').prop('disabled', true); 
-                    row.find('.add-text').text("Added");
-                } 
+                // if (selectedProductIds.has(productId)) {
+                //     $(this).prop('disabled', true); 
+                //     row.find('.add-text').text("Added");
+                // } 
 
-                $.ajax({
-                    url: '/admin/inventory/check-expiry/' + productId + '/',
-                    method: 'GET',
-                    success: function(data) {
-                        var stockExpiry = data.expiry;
-    
-                        if(stockExpiry != null) {
-                            var stockExpiryDate = new Date(stockExpiry);
-                            var today = new Date();
-    
-                            if(stockExpiryDate < today) {
-                                row.find('.add-product').prop('disabled', true);
+                if(isFirstRun)
+                {
+                    $.ajax({
+                        url: '/admin/inventory/check-expiry/' + productId + '/',
+                        method: 'GET',
+                        success: function(data) {
+                            var stockExpiry = data.expiry;
+        
+                            if(stockExpiry != null) {
+                                var stockExpiryDate = new Date(stockExpiry);
+                                var today = new Date();
+        
+                                if(stockExpiryDate < today) {
+                                    row.find('.add-product').prop('disabled', true);
+                                }
                             }
                         }
-                    }
-                });
+                    });
 
-                $.ajax({
-                    url: '/admin/inventory/check-quantity/' + productId + '/',
-                    method: 'GET',
-                    success: function(data) {
-                        var stockQuantity = data.quantity;
-    
-                        if(stockQuantity != null) {
-                            if(parseFloat(stockQuantity) == 0) {
-                                row.find('.add-product').prop('disabled', true);
+                    $.ajax({
+                        url: '/admin/inventory/check-quantity/' + productId + '/',
+                        method: 'GET',
+                        success: function(data) {
+                            var stockQuantity = data.quantity;
+        
+                            if(stockQuantity != null) {
+                                if(parseFloat(stockQuantity) == 0) {
+                                    row.find('.add-product').prop('disabled', true);
+                                }
                             }
                         }
-                    }
-                });
-            });
-            var searchInput = document.querySelector('.datatable-input');
-
-            searchInput.addEventListener('search', function(e) {
-                if (e.target.value == '') {
-                    datatablesSimple_products_{{ forloop.counter }}.search('');
+                    });
+                    isFirstRun = false;
                 }
+
             });
+            // var searchInput = document.querySelector('.datatable-input');
+
+            // searchInput.addEventListener('search', function(e) {
+            //     if (e.target.value == '') {
+            //         datatablesSimple_products_{{ forloop.counter }}.search('');
+            //     }
+            // });
         {% endfor %}
     });
  
@@ -197,16 +266,16 @@ $(document).ready(function() {
     $(document).on('click', '.add-client', function() 
     {
         var clientId = $(this).data('client-id');
+        
         var clientName = $(this).closest('tr').find('.client-value').text();
 
         $('.selected-client-input').val(clientName);
         $('.selected-client-input').addClass('selected-client');
         $('.selected-client-input').data('client-id', clientId);
 
-        // Disable the input and show the anchor tag
         $('.selected-client-input').prop('disabled', true);
         $('.remove-client').show();
-        // $('#addServiceBtn').show(); // Show the "Add Service" button
+        // $('#addServiceBtn').show(); 
 
         $('#addClientModal').modal('hide');
     });
@@ -233,12 +302,13 @@ $(document).ready(function() {
             button.prop('disabled', true);
             return;
         }
+        
         var serviceName = row.find('.service-type').text();
         var serviceFee = row.find('.service-fee').text();
         var serviceRemarks = row.find('.service-remarks').text();
 
         selectedServiceIds.add(serviceId);
-
+        
         button.prop('disabled', true);
         button.find('.add-text').text("Added");
 
@@ -253,6 +323,7 @@ $(document).ready(function() {
                     <div class="fw-bold">
                         ${serviceName}
                         <a class="btn btn-datatable btn-icon btn-transparent-dark remove-service" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
+                            <span class="service-id-remove-button" style="display: none;">${serviceId}</span>
                             <i data-feather="delete"></i>
                         </a>
                     </div>
@@ -393,6 +464,7 @@ $(document).ready(function() {
                                     <div class="fw-bold">
                                         ${productName} (₱ ${productPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} x <span class="product-quantity">${quantity.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>)
                                         <a class="btn btn-datatable btn-icon btn-transparent-dark remove-product" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
+                                            <span class="product-id-remove-button" style="display: none;">${productId}</span>
                                             <i data-feather="delete"></i>
                                         </a>
                                     </div>
@@ -418,30 +490,27 @@ $(document).ready(function() {
     }
 
     $(document).on('click', '.add-service', function() {
-        var serviceId = $(this).data('service-id');
+        var serviceId = $(this).closest('tr').find('.service-id').text();
+        //var serviceId = $(this)[0].getAttribute('data-service-id');
         var row = $(this).closest('tr');
         addService(serviceId, row, $(this));
+        refreshServiceRows();
     });
-
-    // Add product
-    $(document).on('click', '.add-product', function() 
-    { 
-        var productId = $(this).data('product-id');
+    
+    $(document).on('click', '.add-product', function() {
+        var productId = $(this).closest('tr').find('.product-id').text();
         var row = $(this).closest('tr');
         var quantityInput = row.find('.product-quantity');
         var quantity = quantityInput.val();
         addProduct(productId, quantity, row, $(this));
-    });    
+        refreshProductRows();
+    });  
 
     $(document).on('click', '.remove-service', function(e) 
     {
         e.preventDefault();
-
-        var serviceId = $(this).parents('tr').data('service-id');
-
-        // Remove the service ID from the set of selected services
+        var serviceId = $(this).find('.service-id-remove-button').text();
         selectedServiceIds.delete(serviceId);
-
         var serviceFee = $(this).parents('tr').find('.service-fee').text();
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
@@ -460,10 +529,8 @@ $(document).ready(function() {
     {
         e.preventDefault();
 
-        var productId = $(this).parents('tr').data('product-id');
-
+        var productId = $(this).find('.product-id-remove-button').text();
         selectedProductIds.delete(productId);
-
         var productPrice = $(this).parents('tr').find('.product-price').text();
         productPrice = productPrice.replace("₱", "").trim();
         productPrice = productPrice.replace(/,/g, "").trim();
@@ -528,24 +595,6 @@ $(document).ready(function() {
         return cookieValue;
     }
 
-    if (selectedMedicines && selectedMedicines.length > 0) {
-        for (var i = 0; i < selectedMedicines.length; i++) {
-            var medicine = selectedMedicines[i];
-            var productId = medicine.id;
-            var quantity = medicine.details.quantity;
-    
-            var row = $(`.add-product[data-product-id="${productId}"]`).closest('tr');
-            
-            row.find('.product-quantity').val(quantity);
-            
-            $(`.add-product[data-product-id="${productId}"]`).click();
-        }
-    }
-
-    if (selectedService) {
-        $(`.add-service[data-service-id="${selectedService}"]`).click();
-    }
-
     $('#confirm-paid-button').on('click', function() 
     {
         var clientId = $('.selected-client-input').data('client-id');
@@ -607,6 +656,38 @@ $(document).ready(function() {
     });
 
     $('#fullscreen-spinner').addClass('d-none');
+
+    if (selectedMedicines && selectedMedicines.length > 0) {
+        for (var i = 1; i <= {{ product_dict.items|length }}; i++) {
+            if (window["dataTable_" + i]) {
+                window["dataTable_" + i].options.paging = false;
+                window["dataTable_" + i].refresh(); 
+            }
+        }
+    
+        for (var i = 0; i < selectedMedicines.length; i++) {
+            var medicine = selectedMedicines[i];
+            var productId = medicine.id;
+            var quantity = medicine.details.quantity;
+            
+            var row = $(`.add-product[data-product-id="${productId}"]`).closest('tr');
+            
+            row.find('.product-quantity').val(quantity);
+            
+            $(`.add-product[data-product-id="${productId}"]`).click();
+        }
+    
+        for (var i = 1; i <= {{ product_dict.items|length }}; i++) {
+            if (window["dataTable_" + i]) {
+                window["dataTable_" + i].options.paging = true;
+                window["dataTable_" + i].refresh(); 
+            }
+        }
+    }
+
+    if (selectedService) {
+        $(`.add-service[data-service-id="${selectedService}"]`).click();
+    }
 });
 
 </script>

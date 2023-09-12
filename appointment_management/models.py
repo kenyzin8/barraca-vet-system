@@ -50,9 +50,9 @@ class DoctorSchedule(models.Model):
 
     def send_message_to_client(self):
         if self.timeOfTheDay == 'whole_day':
-            appointments = Appointment.objects.filter(date=self.date, isActive=True)
+            appointments = Appointment.objects.filter(date=self.date, isActive=True, status='pending')
         else:
-            appointments = Appointment.objects.filter(date=self.date, timeOfTheDay=self.timeOfTheDay, isActive=True)
+            appointments = Appointment.objects.filter(date=self.date, timeOfTheDay=self.timeOfTheDay, isActive=True, status='pending')
 
         for appointment in appointments:
             send_sms(appointment.client.contact_number, f'Hello {appointment.client.full_name}, your appointment on {self.date} {appointment.timeOfTheDay} has been cancelled due to {self.reason}. Please rebook your appointment on our webiste or contact the clinic to do it for you. Thank you!')
@@ -93,7 +93,7 @@ class Appointment(models.Model):
 
     def remindClient(self, reminder_type):
         phone_number = self.client.contact_number
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} Appointment for {self.pet.name} on {self.date} in the {self.timeOfTheDay}. Thank you!'
+        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} Appointment about {self.pet.name} on {self.date} in the {self.timeOfTheDay}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(

@@ -454,6 +454,11 @@
 
         $(document).on('click', '.submit-button', function(e)
         {
+            $('#confirmationModal').modal('show');
+        });
+
+        $(document).on('click', '#confirm-treatment-button', function(e)
+        {
             if(selectedPetId == null)
             {
                 activateTab(0);
@@ -537,9 +542,12 @@
                         petLink.setAttribute('href', newHref);
 
                         showSuccess(response.message);
+
+                        var ownerID = response.pet_owner_id;
+
                         $(document).on('click', '.successOKBtn', function(e)
                         {
-                            location.reload();
+                            window.location.href = '/admin/bill/?to=' + ownerID;
                         });
                     }
                     else

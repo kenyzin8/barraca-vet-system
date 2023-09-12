@@ -1044,6 +1044,7 @@ class SubmitPrescription(APIView):
                     products_selected = serializer.validated_data.get('productsSelected')
 
                     selected_pet = Pet.objects.get(pk=selected_pet_id)
+                    pet_owner_id = selected_pet.client.user.id
 
                     if products_selected:
                         pet_medical_prescription = PetMedicalPrescription.objects.create(
@@ -1051,6 +1052,8 @@ class SubmitPrescription(APIView):
                             date_prescribed=datetime.now(),
                             isActive=True
                         )
+
+                        medicines_for_session = []
 
                         for product_id, product_details in products_selected:
                             PrescriptionMedicines.objects.create(
@@ -1063,12 +1066,22 @@ class SubmitPrescription(APIView):
                                 frequency=product_details['frequency'],
                                 remarks=product_details['remarks']
                             )
+
+                            medicines_for_session.append({
+                                'id': product_id,
+                                'details': product_details
+                            })
+
+                        checkup_service = Service.objects.get(service_type="Check-up")
+
+                        request.session['selected_medicines'] = medicines_for_session
+                        request.session['selected_service'] = checkup_service.id
+                        
+                        return Response({'success': True, "message": "Prescription has been added.", 'prescription_id': pet_medical_prescription.id, 'pet_owner_id': pet_owner_id}, status=status.HTTP_201_CREATED)
                     else:
                         return Response({'success': False, 'message': 'Please select at least one medicine.'})
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})
-
-            return Response({'success': True, "message": "Prescription has been added.", 'prescription_id': pet_medical_prescription.id}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @staff_required
@@ -1186,6 +1199,8 @@ class SubmitHealthCardTreatment(APIView):
                         isActive=True
                     )
 
+                    medicines_for_session = []
+
                     PrescriptionMedicines.objects.create(
                         prescription=pet_medical_prescription,
                         medicine_id=selected_product_id,
@@ -1193,7 +1208,25 @@ class SubmitHealthCardTreatment(APIView):
                         quantity=1,
                     )
 
-                    return Response({'success': True, 'message': 'Health card treatment submitted successfully.'})
+                    medicines_for_session.append({
+                        'id': selected_product_id,
+                        'details': {
+                            'strength': '',
+                            'quantity': 1,
+                            'dosage': '',
+                            'frequency': '',
+                            'remarks': ''
+                        }
+                    })
+
+                    checkup_service = Service.objects.get(service_type="Check-up")
+
+                    request.session['selected_medicines'] = medicines_for_session
+                    request.session['selected_service'] = checkup_service.id
+
+                    pet_owner_id = pet.client.user.id
+
+                    return Response({'success': True, 'message': 'Health card treatment submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})
         else:

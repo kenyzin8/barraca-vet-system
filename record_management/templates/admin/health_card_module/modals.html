@@ -96,17 +96,34 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="successModalLabel">Success</h5>
-                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                {% comment %} <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button> {% endcomment %}
             </div>
             <div class="modal-body">
                 <span class="modal-body-success-message"></span>
-                <br><br>
-                <div class="pet-link">
-                    Click <a class="pet-link" href="{% url 'admin-view-pet-page' 0 %}">here</a> to view the pet's record.
+                <div class="pet-link" style="display: none;">
+                    Click <a class="pet-link" href="{% url 'admin-view-prescription-page' 0 %}">here</a> to view the prescription.
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-dark successOKBtn" type="button" data-bs-dismiss="modal">OK</button>
+                <button class="btn btn-dark successOKBtn" type="button" data-bs-dismiss="modal">Proceed to Billing</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmationModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to submit this treatment?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-treatment-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
             </div>
         </div>
     </div>

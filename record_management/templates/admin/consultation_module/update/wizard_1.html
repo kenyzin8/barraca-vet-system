@@ -62,7 +62,7 @@
                 {% if one_laboratory_results %}
                     <span class="laboratory-result-id" style="display: none;">{{ one_laboratory_results.id }}</span>
                     <div class="input-group mb-2">
-                        {% if one_laboratory_results.result_image == None %}
+                        {% if one_laboratory_results.result_image != 'None' and one_laboratory_results.result_image %}
                         <a href="{{ one_laboratory_results.result_image.url }}" target="_blank" class="btn btn-view-lab-result-image" type="button" id="viewLabResultImgBtn"><i data-feather="image"></i></a>
                         {% else %}
                         <button class="btn btn-no-image" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="This laboratory result have no image"><i data-feather="x-square"></i></button>

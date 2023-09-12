@@ -7,13 +7,13 @@
                     <h3 class="text-primary">Step 2</h3>
                     <h5 class="card-title mb-4 fw-100">Update prescription if needed</h5>
                 </div>
-                <div class="selected-pet-info" style="display: none;">
+                <div class="selected-pet-info">
                     <span class="small">Selected Pet: </span>
                     <div class="avatar">
-                        <img class="avatar-img img-fluid selected-pet-image" src="{% static 'images/placeholder-consultation.jpg' %}" loading="lazy"/>
+                        <img class="avatar-img img-fluid selected-pet-image" src="{{ pet_treatment.pet.picture.url }}" loading="lazy"/>
                     </div>
-                    <span class="pet-name selected-pet-name small"></span>
-                    <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="#" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
+                    <span class="pet-name selected-pet-name small">{{ pet_treatment.pet.name }}</span>
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="{% url 'view-pet-page' pet_treatment.pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
                         <i data-feather="external-link"></i>
                     </a>
                 </div>

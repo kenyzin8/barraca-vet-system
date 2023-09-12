@@ -129,6 +129,9 @@ class LabResult(models.Model):
 
     isActive = models.BooleanField(default=True)
 
+    def is_image(self):
+        return self.result_image != 'None'
+
     def __str__(self):
         return self.result_name
 

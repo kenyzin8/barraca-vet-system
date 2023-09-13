@@ -1,0 +1,524 @@
+{% load static %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script>
+    function showSuccess(message)
+    {
+        $('#successModal .modal-body-success-message').text(message);
+        $('#successModal').modal('show');
+    }
+    function showError(message)
+    {
+        $('#errorModal .modal-body').text(message);
+        $('#errorModal').modal('show');
+    }
+
+    window.addEventListener('DOMContentLoaded', event => {
+        var deletePetModal = document.getElementById('deletePetModal');
+        deletePetModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var petId = button.getAttribute('data-pet-id');
+            var deleteUrl = '{% url "delete-pet-page" 0 %}'.replace('0', petId);
+            var confirmDelete = document.getElementById('confirmDelete');
+            confirmDelete.onclick = function() {
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+                }
+            }).then(function(response) {
+                return response.json();
+            }).then(function(data) {
+                if (data.result === 'success') {
+                location.href = '{% url "admin-pet-list-page" %}';
+                } else {
+                alert('Error: ' + data.message);
+                }
+            });
+            }
+        });
+
+        const treatment_archive_table = document.getElementById('treatment-archive-table');
+        let treatmentArchiveTableObj;
+
+        var petTreatmentArchiveCount = "{{ inactive_pet_treatment|length }}"
+        petTreatmentArchiveCount = parseInt(petTreatmentArchiveCount);
+
+        var lastArchivePageIndex = petTreatmentArchiveCount > 25 ? petTreatmentArchiveCount : 50;
+
+        if (treatment_archive_table) {
+            treatmentArchiveTableObj = new simpleDatatables.DataTable(treatment_archive_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, lastArchivePageIndex],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            treatmentArchiveTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentArchiveTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentArchiveTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentArchiveTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    treatmentArchiveTableObj.search('');
+                }
+            });
+        }
+
+        var collapseElement = document.getElementById('acrhiveCollapseCard');
+
+        collapseElement.addEventListener('shown.bs.collapse', function () {
+            treatmentArchiveTableObj.refresh();
+        });
+
+        const treatment_table = document.getElementById('treatment-table');
+        let treatmentTableObj;
+
+        var petTreatmentCount = "{{ pet_treatment|length }}"
+        petTreatmentCount = parseInt(petTreatmentCount);
+
+        var lastPageIndex = petTreatmentCount > 25 ? petTreatmentCount : 50;
+
+        if (treatment_table) {
+            treatmentTableObj = new simpleDatatables.DataTable(treatment_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, lastPageIndex],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            treatmentTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    treatmentTableObj.search('');
+                }
+            });
+        }
+
+        document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
+            treatmentTableObj.refresh();
+        });
+
+        const health_card_treatment_archive_table = document.getElementById('health-card-archive-table');
+        let treatmentHealthCardArchiveTableObj;
+
+        var petHCTreatmentArchiveCount = "{{ inactive_health_card|length }}"
+        petHCTreatmentArchiveCount = parseInt(petHCTreatmentArchiveCount);
+
+        var lastHCArchivePageIndex = petHCTreatmentArchiveCount > 25 ? petHCTreatmentArchiveCount : 50;
+
+        if (health_card_treatment_archive_table) {
+            treatmentHealthCardArchiveTableObj = new simpleDatatables.DataTable(health_card_treatment_archive_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, lastHCArchivePageIndex],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            treatmentHealthCardArchiveTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentHealthCardArchiveTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentHealthCardArchiveTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            treatmentHealthCardArchiveTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    treatmentHealthCardArchiveTableObj.search('');
+                }
+            });
+        }
+
+        var collapseHealthCardElement = document.getElementById('acrhiveHealthCardCollapseCard');
+
+        collapseHealthCardElement.addEventListener('shown.bs.collapse', function () {
+            treatmentHealthCardArchiveTableObj.refresh();
+        });
+
+        const deworming_health_card_table = document.getElementById('deworming-health-card-table');
+        let dewormingHealthCardTableObj;
+
+        var petDewormingCount = "{{ deworming_health_card|length }}"
+        petDewormingCount = parseInt(petDewormingCount);
+
+        var lastPageIndexDeworm = petDewormingCount > 25 ? petDewormingCount : 50;
+
+        if (deworming_health_card_table) {
+            dewormingHealthCardTableObj = new simpleDatatables.DataTable(deworming_health_card_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, lastPageIndexDeworm],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            dewormingHealthCardTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dewormingHealthCardTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dewormingHealthCardTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dewormingHealthCardTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    dewormingHealthCardTableObj.search('');
+                }
+            });
+        }
+
+        const vacc_health_card_table = document.getElementById('vaccination-health-card-table');
+        let vaccHealthCardTableObj;
+
+        var petVaccinationCount = "{{ vaccination_health_card|length }}"
+        petVaccinationCount = parseInt(petVaccinationCount);
+        var lastPageIndexVacc = petVaccinationCount > 25 ? petVaccinationCount : 50;
+
+        if (vacc_health_card_table) {
+            vaccHealthCardTableObj = new simpleDatatables.DataTable(vacc_health_card_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, lastPageIndexVacc],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            vaccHealthCardTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            vaccHealthCardTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            vaccHealthCardTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            vaccHealthCardTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    vaccHealthCardTableObj.search('');
+                }
+            });
+        }
+        const navLinks = document.querySelectorAll('.nav-item.nav-link');
+    
+        function activateTab(tabIndex) {
+            if (tabIndex >= 0 && tabIndex < navLinks.length) {
+                navLinks[tabIndex].click();
+            }
+        }
+        var activeTab = localStorage.getItem('activeTab');
+        
+        if (activeTab) {
+            if(activeTab == 'wizard1') {
+                activateTab(0);
+            } else if (activeTab == 'wizard2') {
+                activateTab(1);
+            } else if (activeTab == 'wizard3') {
+                activateTab(2);
+            }
+            vaccHealthCardTableObj.refresh();
+            dewormingHealthCardTableObj.refresh();
+            localStorage.removeItem('activeTab');
+        }
+
+        document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard1');
+        });
+
+        document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
+            vaccHealthCardTableObj.refresh();
+            dewormingHealthCardTableObj.refresh();
+            localStorage.setItem('activeTab', 'wizard2');
+        });
+        document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
+            localStorage.setItem('activeTab', 'wizard3');
+        });
+
+        //remove all activeTab on browser close or any close listener
+
+
+        $(document).on('click', '.selectable-image', function() {
+            var newImageSrc = $(this).attr('data-full-image');
+            var imageName = $(this).attr('alt');
+        
+            if (!newImageSrc || newImageSrc === '/media/None') {
+                newImageSrc = '{% static "images/no-image-placeholder.png" %}';
+            }
+        
+            $('#mainImage').attr('src', newImageSrc);
+            $('#resultName').text(imageName);
+        
+            // Remove .selected from all .selectable-image
+            $('.selectable-image').removeClass('selected');
+            
+            // Add .selected to the clicked element
+            $(this).addClass('selected');
+        });
+
+        $(document).on('click', '.openLabResultsBtn', function() {
+            var treatmentID = $(this).closest('tr').find('.treatment-id').text();
+            
+            $.ajax({
+                url: "{% url 'admin-get-laboratory-results-data-page' 0 %}".replace('0', treatmentID),
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success) {
+                        var labResults = data.lab_results_data;
+                        var imageListContent = '';
+
+                        labResults.forEach(function(result) {
+    
+                            if (result.image && result.image !== '/media/None') {
+                                imageListContent += `<img src="${result.image}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" style="width: 80px; height: auto; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                            } else {
+                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" style="width: 80px; height: 80px; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                            } 
+                        });
+                        
+                        $('.image-list').html(imageListContent);
+                        
+                        var tooltipTriggerList = [].slice.call(document.querySelectorAll('.image-list .selectable-image[data-bs-toggle="tooltip"]'))
+                        tooltipTriggerList.map(function (tooltipTriggerEl) {
+                            return new bootstrap.Tooltip(tooltipTriggerEl);
+                        });
+                        
+
+                        var firstResult = labResults[0];
+                        if (firstResult.image && firstResult.image !== '/media/None') {
+                            $('#mainImage').attr('src', firstResult.image);
+                            $('.selectable-image').first().addClass('selected');
+                            $('#resultName').text(firstResult.name);
+                        }
+                        else
+                        {
+                            $('#mainImage').attr('src', '{% static 'images/no-image-placeholder.png' %}');
+                            $('.selectable-image').first().addClass('selected');
+                            $('#resultName').text(firstResult.name);
+                        }
+                        
+                        $('#showLabResultsModal').modal('show');
+                    } else {
+                        showError('Error: ' + data.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showError('Error: ' + error);
+                }
+            });
+        });
+
+        var treatmentIdToDelete = -1;
+
+        $(".btn-delete-treatment").on("click", function(e) {
+            e.preventDefault();  
+    
+            var treatmentId = $(this).closest('tr').find('.treatment-id').text();
+            treatmentIdToDelete = parseInt(treatmentId);
+
+            $('#deleteConfirmationModal').modal('show');
+        });
+
+        $("#confirm-delete-treatment-button").on("click", function(e){
+            var url = "{% url 'admin-delete-consultation-page' 0 %}".replace('0', treatmentIdToDelete);
+            console.log(url)
+            $.ajax({
+                url: url, 
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function(response) {
+                    if(response.success)
+                    {
+                        showSuccess(response.message);
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    }
+                    else
+                    {
+                        showError(response.message);
+                    }
+                    
+                },
+                error: function(error) {
+                    
+                }
+            });
+        });
+    });
+</script>

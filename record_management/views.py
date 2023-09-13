@@ -37,6 +37,7 @@ from core.semaphore import send_sms, send_otp_sms
 from core.decorators import staff_required
 from django.core.cache import cache
 from django.db import transaction
+from django.db.models import Q
 
 from appointment_management.models import (
     Appointment,
@@ -629,7 +630,7 @@ def admin_view_client(request, client_id):
 def pet_module(request):
     pets = Pet.objects.all().order_by('-id')
     context = {'pets': pets}
-    return render(request, 'admin/pet_module.html', context)
+    return render(request, 'admin/pet_module/pet_module.html', context)
 
 @staff_required
 @login_required
@@ -641,13 +642,26 @@ def admin_view_pet(request, pet_id):
     deworming_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isDeworm=True).order_by('-id')
     vaccination_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=True).order_by('-id')
 
+    inactive_pet_treatment = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=False, isDeworm=False, isActive=False).order_by('-id')
+
+    inactive_health_card = PetTreatment.objects.select_related('appointment')\
+        .prefetch_related('petmedicalprescription')\
+        .filter(
+            Q(isDeworm=True) | Q(isVaccine=True),
+            pet=pet,
+            isActive=False
+        )\
+        .order_by('-id')
+
     context = {
         'pet': pet,
         'pet_treatment': pet_treatment,
         'deworming_health_card': deworming_health_card,
         'vaccination_health_card': vaccination_health_card,
+        'inactive_pet_treatment': inactive_pet_treatment,
+        'inactive_health_card': inactive_health_card
     }
-    return render(request, 'admin/view_pet.html', context)
+    return render(request, 'admin/pet_module/view_pet.html', context)
 
 
 @staff_required
@@ -664,7 +678,7 @@ def admin_update_pet(request, pet_id):
         form = AdminPetRegistrationForm(instance=pet)
     
     context = {'form': form, 'pet': pet}
-    return render(request, 'admin/update_pet.html', context)
+    return render(request, 'admin/pet_module/update_pet.html', context)
 
 @staff_required
 @login_required
@@ -992,7 +1006,7 @@ def view_prescription(request, prescription_id):
         'prescription_medicines': prescription_medicines
     }
     
-    return render(request, 'admin/view_prescription.html', context)
+    return render(request, 'admin/prescription_module/view_prescription.html', context)
 
 @method_decorator(login_required, name='dispatch')
 @method_decorator(staff_required, name='dispatch')
@@ -1541,3 +1555,18 @@ class UpdateConsultationView(APIView):
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})
         return Response({'message': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+@staff_required
+@login_required
+def delete_treatment(request, treatmentID):
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                pet_treatment = PetTreatment.objects.get(pk=treatmentID)
+                pet_treatment.isActive = False
+                pet_treatment.save()
+                return JsonResponse({'success': True, 'message': 'Treatment deleted successfully.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})

@@ -15,7 +15,7 @@
 {% block content %}
 <div class="container mt-5 animated--fade-in-up">
     <nav class="mt-4 rounded mb-5" aria-label="breadcrumb">
-        <ol class="breadcrumb py-2 rounded mb-0">
+        <ol class="breadcrumb px-3 py-2 rounded mb-0">
             <li class="breadcrumb-item"><a href="{% url 'admin-pet-list-page' %}">Pets</a></li>
             <li class="breadcrumb-item active"><a href="{% url 'admin-view-pet-page' pet.id %}">{{ pet.name }}</a></li>
             <li class="breadcrumb-item active">Update</li>

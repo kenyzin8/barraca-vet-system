@@ -51,7 +51,7 @@
                         <div class="nav-link-icon"><i data-feather="gitlab"></i></div>
                         Pets
                     </a>
-                    <a class=" nav-link {% if current_url_name == 'admin-add-pet-health-card-treatment-page' %}active{% endif %}" href="{% url 'admin-add-pet-health-card-treatment-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                    <a class=" nav-link {% if current_url_name == 'admin-add-pet-health-card-treatment-page' or current_url_name == 'admin-update-pet-health-card-treatment-page' %}active{% endif %}" href="{% url 'admin-add-pet-health-card-treatment-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
                         <div class="nav-link-icon"><i data-feather="credit-card"></i></div>
                         Health Card
                     </a>

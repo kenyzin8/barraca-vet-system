@@ -30,11 +30,12 @@
     
     window.addEventListener('DOMContentLoaded', event => {
 
-        let selectedPetName;
-        let selectedPetId;
-        let selectedProductID = -1;
-        let selectedProductName = "";
-
+        let selectedPetName = '{{ pet_treatment.pet.name }}';
+        let selectedPetId = {{ pet_treatment.pet.id }};
+        let selectedProductID = {% if prescription_medicines%}{{ prescription_medicines.medicine.id }}{% else %}-1{% endif %};
+        let selectedProductName = {% if prescription_medicines%}'{{ prescription_medicines.medicine.product_name }}'{% else %}""{% endif %};
+        let hasCycles = {% if pet_treatment.cycles_remaining != 0 %}true{% else %}false{% endif %};
+        let hasSticker = {% if lab_results %}true{% else %}false{% endif %};
         let radioStates = {};
         
         let nextAppointmentPurposeOptions = []
@@ -50,6 +51,7 @@
         let radios = document.querySelectorAll('input[type="radio"]');
 
         radios.forEach(radio => {
+            
             radio.addEventListener('click', function() {
                 if (radioStates[this.id]) {
                     this.checked = false;
@@ -66,27 +68,10 @@
                     });
 
                     if (this.id === 'dewormingRadio') {
-                        inputTreatment.value = 'Deworming';
-                        
-                        for(var i = 0; i < nextAppointmentPurposeOptions.length; i++)
-                        {
-                            if(nextAppointmentPurposeOptions[i].service_type == "Deworming")
-                            {
-                                $('#nextAppointmentPurpose').val(nextAppointmentPurposeOptions[i].id);
-                            }
-                        }
-                        
+                        inputTreatment.value = 'Deworming'; 
                     } else if (this.id === 'vaccRadio') {
                         
                         inputTreatment.value = 'Vaccination';
-
-                        for(var i = 0; i < nextAppointmentPurposeOptions.length; i++)
-                        {
-                            if(nextAppointmentPurposeOptions[i].service_type == "Vaccination")
-                            {
-                                $('#nextAppointmentPurpose').val(nextAppointmentPurposeOptions[i].id);
-                            }
-                        }
                     }
                 }
             });
@@ -386,7 +371,7 @@
         { 
             var $this = $(this);
             $(this).attr('data-active-ajax', true);
-            
+  
             var productId = $(this).closest('tr').find('.product-id').text().trim();
             productId = parseInt(productId);
             var productName = $(this).closest('tr').find('.product-name').text();
@@ -482,37 +467,38 @@
 
             var medicine = $('#inputMedicine').val();
             var medicine_sticker = $('#inputLabResultsImages').prop('files')[0];
-            if(treatment == null || treatment == "")
+
+            if((treatment == undefined || treatment == "") && !hasCycles)
             {
                 activateTab(1);
                 showError("Please enter the treatment.");
                 return false;
             }
-            else if(isDeworming == false && isVaccination == false)
+            else if((isDeworming == false && isVaccination == false) && !hasCycles)
             {
                 activateTab(1);
                 showError("Please select between deworming or vaccination.");
                 return false;
             }
-            else if(temperature == null || temperature == "")
+            else if(temperature == undefined || temperature == "")
             {
                 activateTab(1);
                 showError("Please enter the temperature.");
                 return false;
             }
-            else if(weight == null || weight == "")
+            else if(weight == undefined || weight == "")
             {
                 activateTab(1);
                 showError("Please enter the weight.");
                 return false;
             }
-            else if(medicine == null || medicine == "")
+            else if(medicine == undefined || medicine == "")
             {
                 activateTab(1);
                 showError("Please select a medicine.");
                 return false;
             }
-            else if(medicine_sticker == undefined)
+            else if(medicine_sticker == undefined && !hasSticker)
             {
                 activateTab(1);
                 showError("Please upload the medicine sticker.");
@@ -530,60 +516,7 @@
             }
             $('#confirmationModal').modal('show');
         });
-
-        $('input[name="treatmentType"]').on('change', function() {
-            const selectedTreatmentType = $('input[name="treatmentType"]:checked').val();
-            if(selectedPetId == null)
-            {
-                return;
-            }
-            $.ajax({
-                url: `/admin/get-cycle-data/${selectedPetId}/`, 
-                type: 'GET',
-                data: {
-                    'treatmentType': selectedTreatmentType
-                },
-                dataType: 'json',
-                success: function(response) {
-                    console.log(response);
-                    if(response.success)
-                    {
-                        if (!response.cycle_status) {
-                            $('#cycle-type-message').text(selectedTreatmentType);
-                            const $cycleDatesList = $('#cycle-dates-list');
-                            $cycleDatesList.empty(); 
-                    
-                            if (response.appointment_cycles)
-                            {
-                                response.appointment_cycles.forEach((cycle, index) => {
-                                    let note = '';
-                                    if(index === 0){
-                                        note = ' (this is the current treatment date)';
-                                    }
-                                    if(index === 1) { 
-                                        note = ' (this will be the next appointment date for this treatment)';
-                                    }
-                                    $cycleDatesList.append(`<li>Date: ${cycle.date}${note}</li>`);
-                                });
-                            }
     
-                    
-                            $('.cycle-warning-message').css('display', 'block');
-                            $('.manage-appointment-container').css('display', 'none');
-                        } else {
-                            $('.cycle-warning-message').css('display', 'none');
-                            $('.manage-appointment-container').css('display', 'block');
-                        }
-                    }
-
-                },
-                error: function(response) {
-                    showError("Error fetching cycle status:", response);
-                }
-            });
-        });
-        
-        
 
         $(document).on('click', '#confirm-treatment-button', function(e)
         {
@@ -598,21 +531,17 @@
             var isDeworming = $('#dewormingRadio').is(':checked');
             var isVaccination = $('#vaccRadio').is(':checked');
 
-            var appointment_cycle = $('#inputCycle').val();
-            var appointment_cycle_repeat = $('#inputRepeat').val();
-
             var appointment_date = $('#litepickerSingleDate').val();
             var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
             var appointment_purpose = $('#nextAppointmentPurpose').val();
 
             var medicine_sticker = $('#inputLabResultsImages').prop('files')[0];
-
             var formData = new FormData();
 
+            formData.append('treatmentID', {{ treatmentID }})
             formData.append('productSelected', selectedProductID);
             formData.append('selectedPetId', selectedPetId);
-            formData.append('appointment_cycle', appointment_cycle);
-            formData.append('appointment_cycle_repeat', appointment_cycle_repeat);
+            formData.append('appointmentId', {{ appointment.id }})
             formData.append('appointment_date', appointment_date);
             formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
             formData.append('appointment_purpose', appointment_purpose);
@@ -625,7 +554,7 @@
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
             $.ajax({
-                url: "{% url 'admin-submit-pet-health-card-treatment-page' %}",
+                url: "{% url 'admin-submit-update-pet-health-card-treatment-page' %}",
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -644,7 +573,7 @@
 
                         $(document).on('click', '.successOKBtn', function(e)
                         {
-                            window.location.href = '/admin/bill/?to=' + ownerID;
+                            location.reload();
                         });
                     }
                     else
@@ -671,9 +600,6 @@
     
         document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard1');
-        });
-        document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
-
         });
     });
     </script>

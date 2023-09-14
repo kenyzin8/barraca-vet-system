@@ -167,8 +167,9 @@
                                             </thead>
                                             <tbody>
                                                 {% for treatment in deworming_health_card %}
+                                                {% if treatment.isActive %}
                                                 <tr>
-                                                    <td>{{ treatment.id }}</td>
+                                                    <td><span class="treatment-id">{{ treatment.id }}</span></td>
                                                     <td>
                                                         <!-- convert date to Dec 25, 2023 12:00 AM format -->
                                                         {{ treatment.treatment_date|date:"M d, Y" }} {{ treatment.treatment_date|time:"g:i A" }}
@@ -194,7 +195,7 @@
                                                         {% endif %}
                                                     </td>
                                                     <td>
-                                                        <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                                        <a href="{% url 'admin-update-pet-health-card-treatment-page' treatment.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                             <i data-feather="edit"></i>
                                                         </a> 
                                                         <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark btn-delete-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
@@ -202,6 +203,7 @@
                                                         </a> 
                                                     </td>
                                                 </tr>
+                                                {% endif %}
                                                 {% endfor %}
                                             </tbody>
                                         </table>
@@ -232,8 +234,9 @@
                                             </thead>
                                             <tbody>
                                                 {% for treatment in vaccination_health_card %}
+                                                {% if treatment.isActive %}
                                                 <tr>
-                                                    <td>{{ treatment.id }}</td>
+                                                    <td><span class="treatment-id">{{ treatment.id }}</span></td>
                                                     <td>
                                                         <!-- convert date to Dec 25, 2023 12:00 AM format -->
                                                         {{ treatment.treatment_date|date:"M d, Y" }} {{ treatment.treatment_date|time:"g:i A" }}
@@ -259,7 +262,7 @@
                                                         {% endif %}
                                                     </td>
                                                     <td>
-                                                        <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                                        <a href="{% url 'admin-update-pet-health-card-treatment-page' treatment.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                             <i data-feather="edit"></i>
                                                         </a> 
                                                         <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark btn-delete-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
@@ -267,6 +270,7 @@
                                                         </a> 
                                                     </td>
                                                 </tr>
+                                                {% endif %}
                                                 {% endfor %}
                                             </tbody>
                                         </table>
@@ -302,7 +306,7 @@
                                         <tbody>
                                             {% for treatment in inactive_health_card %}
                                             <tr>
-                                                <td>{{ treatment.id }}</td>
+                                                <td><span class="treatment-id">{{ treatment.id }}</span></td>
                                                 <td>
                                                     <!-- convert date to Dec 25, 2023 12:00 AM format -->
                                                     {{ treatment.treatment_date|date:"M d, Y" }} {{ treatment.treatment_date|time:"g:i A" }}
@@ -331,7 +335,7 @@
                                                     <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                         <i data-feather="edit"></i>
                                                     </a> 
-                                                    <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                                    <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark btn-enable-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Enable">
                                                         <i data-feather="corner-right-up"></i>
                                                     </a> 
                                                 </td>
@@ -486,14 +490,7 @@
                                                     <a href="{% url 'admin-update-consultation-page' treatment.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                         <i data-feather="edit"></i>
                                                     </a> 
-        
-                                                    {% comment %} 
-                                                    
-                                                    CODE THE DELETE AND ARCHIVE FUNCTIONALITY TOMORROW ;)
-        
-                                                    {% endcomment %}
-        
-                                                    <a href="#" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Activate">
+                                                    <a href="#" class="btn btn-datatable btn-icon btn-transparent-dark btn-enable-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Enable">
                                                         <i data-feather="corner-right-up"></i>
                                                     </a> 
                                                 </td>

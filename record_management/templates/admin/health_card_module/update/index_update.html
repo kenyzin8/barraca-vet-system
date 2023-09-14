@@ -3,7 +3,7 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %} Health Card | Barraca Veterinary Clinic {% endblock %}
+{% block title %} Update Treatment | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
 <style>
@@ -36,7 +36,7 @@
 }
 .submit-button
 {
-    background-color: green !important;
+
     border: none;
 }
 .modal-xl {
@@ -174,6 +174,15 @@
 .form-check-input:focus:checked {
     box-shadow: 0 0 0 0.25rem rgba(35, 35, 35, 0.5); 
 }
+.btn-view-sticker
+{
+    border: 1px solid #c5ccd6;
+}
+.btn-view-sticker:hover
+{
+    border: 1px solid #c5ccd6;
+    background: whitesmoke;
+}
 .btn-add-medicine
 {
     border: 1px solid #c5ccd6;
@@ -191,9 +200,10 @@
 {
     background: white;
 }
+
 </style>
-{% include 'admin/health_card_module/modals.html' %}
-{% include 'admin/health_card_module/health_card_module_script.html' %}
+{% include 'admin/health_card_module/update/modals.html' %}
+{% include 'admin/health_card_module/update/update_script.html' %}
 
 {% endblock %}
 
@@ -212,16 +222,8 @@
                 <a class="nav-item nav-link active" id="wizard1-tab" href="#wizard1" data-bs-toggle="tab" role="tab" aria-controls="wizard1" aria-selected="true">
                     <div class="wizard-step-icon">1</div>
                     <div class="wizard-step-text">
-                        <div class="wizard-step-text-name">Find Pet</div>
-                        <div class="wizard-step-text-details">Locate a pet</div>
-                    </div>
-                </a>
-                <!-- Wizard navigation item 2-->
-                <a class="nav-item nav-link" id="wizard2-tab" href="#wizard2" data-bs-toggle="tab" role="tab" aria-controls="wizard2" aria-selected="true">
-                    <div class="wizard-step-icon">2</div>
-                    <div class="wizard-step-text">
-                        <div class="wizard-step-text-name">Treatment</div>
-                        <div class="wizard-step-text-details">Setup treatment for health card</div>
+                        {% comment %} <div class="wizard-step-text-name">Treatment</div> {% endcomment %}
+                        <div class="wizard-step-text-details">Update treatment</div>
                     </div>
                 </a>
             </div>
@@ -229,9 +231,7 @@
         <div class="card-body">
             <div class="tab-content" id="cardTabContent">
                 <!-- Wizard tab pane item 1-->
-                {% include 'admin/health_card_module/wizard_1.html' %}
-                <!-- Wizard tab pane item 2-->
-                {% include 'admin/health_card_module/wizard_2.html' %}
+                {% include 'admin/health_card_module/update/wizard_1.html' %}
             </div>
         </div>
     </div>

@@ -39,12 +39,13 @@ class HealthCardSerializer(serializers.Serializer):
     treatment = serializers.CharField()
     isDeworming = serializers.BooleanField()
     isVaccination = serializers.BooleanField()
-    
+
+    appointment_cycle = serializers.CharField(required=False)
+    appointment_cycle_repeat = serializers.IntegerField(required=False)
+
     appointment_date = serializers.DateField(input_formats=['%b %d, %Y'], required=False)
     appointment_time_of_the_day = serializers.CharField(required=False)
     appointment_purpose = serializers.IntegerField(required=False)
-
-    custom_purpose = serializers.CharField(required=False)
 
 class UpdateConsultationSerializer(serializers.Serializer):
     treatmentId = serializers.IntegerField(required=True)

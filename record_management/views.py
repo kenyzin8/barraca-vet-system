@@ -15,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
 
 import json
 import time
@@ -30,6 +31,7 @@ from .models import (
     TemporaryLabResultImage,
     LabResult,
     LabResultsTreatment,
+    TreatmentCycle
 )
 
 from django.contrib.auth import login, logout
@@ -87,7 +89,7 @@ def forgot_password(request):
             except User.DoesNotExist:
                 messages.error(request, 'User with this username does not exist.')
         else:
-            print(form.errors)
+            messages.error(request, 'Please correct the error below.')
     else:
         form = PasswordResetStep1()
     return render(request, 'client/forgot_password.html', {'form': form})
@@ -1136,18 +1138,69 @@ def add_health_card_treatment(request):
     }
     return render(request, 'admin/health_card_module/health_card_module.html', context)
 
+def get_scheduled_appointments_count(date):
+    return Appointment.objects.filter(date=date, isActive=True).count()
+
+def get_available_slots(date):
+    date_slot = DateSlot.objects.filter(date=date, isActive=True).first()
+    if date_slot:
+        return date_slot.slots
+    else:
+        max_appointment = MaximumAppointment.objects.first()
+        return max_appointment.max_appointments if max_appointment else 8
+
+def check_doctor_schedule(date):
+    schedule = DoctorSchedule.objects.filter(date=date, isActive=True).first()
+    
+    if not schedule:
+        return 'morning'
+    
+    if schedule.timeOfTheDay == 'whole_day':
+        return None
+    elif schedule.timeOfTheDay == 'afternoon':
+        return 'morning'
+    elif schedule.timeOfTheDay == 'morning':
+        return 'afternoon'
+        
+def create_appointment(pet, service, default_date, delta):
+    appointment_date = default_date
+
+    while True:
+        if appointment_date.weekday() == 6:
+            appointment_date += timedelta(days=1)
+            continue 
+
+        available_slots = get_available_slots(appointment_date)
+        scheduled_appointments = get_scheduled_appointments_count(appointment_date)
+        remaining_slots = available_slots - scheduled_appointments
+        time_of_the_day = check_doctor_schedule(appointment_date)
+
+        if remaining_slots > 0 and time_of_the_day:
+            appointment = Appointment.objects.create(
+                pet=pet,
+                client=pet.client,
+                date=appointment_date,
+                timeOfTheDay=time_of_the_day,
+                purpose=service,
+                status='pending',
+                isActive=True
+            )
+            break
+        else:
+            appointment_date += timedelta(days=1)
+
+    return default_date + delta, appointment
+
 @method_decorator(login_required, name='dispatch')
 @method_decorator(staff_required, name='dispatch')
 class SubmitHealthCardTreatment(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = HealthCardSerializer(data=request.data)
-        print(serializer)
+        
         if(serializer.is_valid()):
             try:
                 with transaction.atomic():
-                    print(serializer)
-
                     selected_pet_id = serializer.validated_data.get('selectedPetId')
                     selected_product_id = serializer.validated_data.get('productSelected')
                     medicine_sticker = serializer.validated_data.get('medicine_sticker')
@@ -1158,42 +1211,75 @@ class SubmitHealthCardTreatment(APIView):
                     isDeworm = serializer.validated_data.get('isDeworming')
                     isVaccine = serializer.validated_data.get('isVaccination')
 
+                    appointment_cycle = serializer.validated_data.get('appointment_cycle')
+                    appointment_cycle_repeat = serializer.validated_data.get('appointment_cycle_repeat')
+                    appointment_cycle_repeat = 0 if not appointment_cycle_repeat else appointment_cycle_repeat
                     appointment_date = serializer.validated_data.get('appointment_date')
                     appointment_time_of_the_day = serializer.validated_data.get('appointment_time_of_the_day')
                     appointment_purpose = serializer.validated_data.get('appointment_purpose')
 
-                    custom_purpose = serializer.validated_data.get('custom_purpose')
-
                     pet = Pet.objects.get(pk=selected_pet_id)
+
+                    service = Service.objects.get(pk=appointment_purpose)
+
+                    last_treatment = PetTreatment.objects.filter(
+                        Q(pet_id=selected_pet_id) & 
+                        Q(treatment=service.service_type) & 
+                        (Q(isDeworm=True) | Q(isVaccine=True))
+                    ).last()
+
+                    previous_treatments = PetTreatment.objects.filter(
+                        Q(pet_id=selected_pet_id) & 
+                        Q(treatment=treatment) & 
+                        (Q(isDeworm=True) | Q(isVaccine=True))
+                    )
+
+                    try:
+                        all_done = all(cycle['status'] == 'done' for cycle in last_treatment.appointment_cycles)
+                    except:
+                        all_done = True
+
+                    if previous_treatments.exists():
+                        last_cycle_remaining = previous_treatments.last().cycles_remaining
+                        if last_cycle_remaining > 0:  
+                            last_cycle_remaining -= 1
+
+                    if appointment_cycle:
+                        if last_treatment and last_treatment.hasMultipleCycles:
+                            last_treatment_cycle = last_treatment.cycles.all().order_by('-cycle_number').first()
+
+                            if last_treatment_cycle and datetime.today().date() <= last_treatment_cycle.appointment.date:
+                                return Response({'success': False, 'message': 'The previous treatment cycle for this pet is still active. You cannot start a new one.'})
+
+                    if last_treatment:
+                        last_treatment_appointment = last_treatment.appointment
+                        if last_treatment_appointment:
+                            last_treatment_appointment.isActive = False
+                            last_treatment_appointment.status = 'done'
+                            last_treatment_appointment.save()
 
                     if weight:
                         pet.weight = weight
                         pet.save()
 
-                    lab_result_desc = "Deworming" if isDeworm else "medicine_sticker"
-                    lab_result_desc = "Vaccination" if isVaccine else "medicine_sticker"
+                    if isDeworm:
+                        lab_result_desc = "Deworming"
+                    elif isVaccine:
+                        lab_result_desc = "Vaccination"
+                    else:
+                        lab_result_desc = "medicine_sticker"
 
                     lab_result = LabResult.objects.create(
                         result_name=lab_result_desc,
                         result_image=medicine_sticker
                     )
 
-                    service = Service.objects.get(pk=appointment_purpose)
+                    if appointment_cycle and appointment_date:
+                        return Response({'success': False, 'message': 'You can only select either appointment cycle or appointment date.'})
 
                     appointment = None
 
-                    if appointment_date:
-                        appointment = Appointment.objects.create(
-                            pet=pet,
-                            client=pet.client,
-                            date=appointment_date,
-                            timeOfTheDay=appointment_time_of_the_day,
-                            purpose=service if appointment_purpose else custom_purpose,
-                            status='pending',
-                            isActive=True
-                        )
-
-                    pet_treatment = PetTreatment.objects.create(
+                    pet_treatment = PetTreatment(
                         pet_id=pet.id,
                         treatment_date=datetime.now(),
                         treatment_weight=weight,
@@ -1201,9 +1287,89 @@ class SubmitHealthCardTreatment(APIView):
                         treatment=treatment,
                         isDeworm=isDeworm,
                         isVaccine=isVaccine,
-                        isActive=True,
-                        appointment=appointment if appointment else None
+                        cycles_remaining=last_cycle_remaining if previous_treatments.exists() else appointment_cycle_repeat
                     )
+
+                    pet_treatment.save()
+
+                    if not all_done:
+                        for cycle in last_treatment.appointment_cycles:
+                            if datetime.strptime(cycle['date'], "%Y-%m-%d").date() < datetime.today().date():
+                                cycle['status'] = 'done'
+
+                        future_appointments = [x for x in last_treatment.appointment_cycles if x['status'] == 'pending']
+
+                        if future_appointments:
+                            future_appointments[0]['status'] = 'done'
+                            
+                            if len(future_appointments) > 1:
+                                next_appointment = future_appointments[1] 
+                                next_appointment_id = next_appointment['appointment_id']
+
+                                appointment = Appointment.objects.get(id=next_appointment_id)
+
+                                pet_treatment.appointment = appointment
+
+                            pet_treatment.appointment_cycles = last_treatment.appointment_cycles
+                            pet_treatment.hasMultipleCycles = True
+                            pet_treatment.save()
+                    else:
+                        if appointment_cycle:
+                            if not appointment_cycle_repeat:
+                                return Response({'success': False, 'message': 'Please enter the number of times the appointment cycle will repeat.'})
+
+                            if appointment_cycle == "weekly":
+                                delta = relativedelta(weeks=1)
+                            elif appointment_cycle == "every-2-weeks":
+                                delta = relativedelta(weeks=2)
+                            elif appointment_cycle == "every-3-weeks":
+                                delta = relativedelta(weeks=3)
+                            elif appointment_cycle == "monthly":
+                                delta = relativedelta(months=1)
+                            elif appointment_cycle == "quarterly":
+                                delta = relativedelta(months=3)
+                            elif appointment_cycle == "semi-annually":
+                                delta = relativedelta(months=6)
+                            elif appointment_cycle == "annually":
+                                delta = relativedelta(years=1)
+                            else:
+                                delta = None
+
+                            if not appointment_date and delta:
+                                appointment_date = datetime.today().date() + delta
+
+                            appointments = []
+
+                            for i in range(appointment_cycle_repeat):
+                                
+                                next_appointment_date, new_appointment = create_appointment(pet, service, appointment_date, delta)
+
+                                appointments.append({
+                                    'date': new_appointment.date.strftime("%Y-%m-%d"),
+                                    'appointment_id': new_appointment.id,
+                                    'status': 'pending'
+                                })
+                                appointment_date += delta
+
+                            first_appointment_id = appointments[0]['appointment_id']
+                            appointment = Appointment.objects.get(id=first_appointment_id)
+
+                            pet_treatment.appointment_cycles = appointments
+                            pet_treatment.hasMultipleCycles = True
+                            pet_treatment.save()
+                        elif appointment_date:
+                            appointment = Appointment.objects.create(
+                                pet=pet,
+                                client=pet.client,
+                                date=appointment_date,
+                                timeOfTheDay=appointment_time_of_the_day,
+                                purpose=service if appointment_purpose else custom_purpose,
+                                status='pending',
+                                isActive=True
+                            )
+
+                    pet_treatment.appointment = appointment  
+                    pet_treatment.save()
 
                     pet_treatment.lab_results.add(lab_result)
 
@@ -1234,7 +1400,12 @@ class SubmitHealthCardTreatment(APIView):
                         }
                     })
 
-                    checkup_service = Service.objects.get(service_type="Doctor's Fee")
+                    if isDeworm:
+                        checkup_service = Service.objects.get(service_type="Deworming")
+                    elif isVaccine:
+                        checkup_service = Service.objects.get(service_type="Vaccination")
+                    else:
+                        checkup_service = Service.objects.get(service_type="Doctor's Fee")
 
                     request.session['selected_medicines'] = medicines_for_session
                     request.session['selected_service'] = checkup_service.id
@@ -1245,8 +1416,43 @@ class SubmitHealthCardTreatment(APIView):
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})
         else:
-            print(serializer.errors)
             return Response({'success': False, 'message': serializer.errors})
+
+@login_required
+@staff_required
+def get_treatment_cycle_status(request, petID):
+    try:
+        treatmentType = request.GET.get('treatmentType', None)
+        treatmentType = treatmentType[0].upper() + treatmentType[1:]
+        treatments = PetTreatment.objects.filter(pet_id=petID, treatment=treatmentType).order_by('-id')
+
+        for treatment in treatments:
+            appointment_cycles = treatment.appointment_cycles
+            if appointment_cycles:
+                # Filter cycles which are 'done'
+                done_cycles = [cycle for cycle in appointment_cycles if cycle['status'] == 'done']
+
+                # Check if all corresponding Appointments for these cycles are inactive
+                all_inactive = all(
+                    not Appointment.objects.filter(id=cycle['appointment_id'], isActive=True).exists() 
+                    for cycle in done_cycles
+                )
+
+                cycle_status = len(done_cycles) == len(appointment_cycles) and all_inactive
+
+                if cycle_status:
+                    return JsonResponse({'success': True, 'appointment_cycles': appointment_cycles, 'cycle_status': cycle_status})
+                else:
+                    return JsonResponse({'success': True, 'appointment_cycles': appointment_cycles, 'cycle_status': cycle_status})
+
+        return JsonResponse({'success': False, 'message': 'No pet treatment with relevant cycles found.'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
+
+
+
+
 
 @staff_required
 @login_required
@@ -1570,3 +1776,176 @@ def delete_treatment(request, treatmentID):
             return JsonResponse({'success': False, 'message': str(e)})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@staff_required
+@login_required
+def enable_treatment(request, treatmentID):
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                pet_treatment = PetTreatment.objects.get(pk=treatmentID)
+                pet_treatment.isActive = True
+                pet_treatment.save()
+                return JsonResponse({'success': True, 'message': 'Treatment enabled successfully.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    else:
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@staff_required
+@login_required
+def update_health_card_record(request, treatmentID):
+    types = ProductType.objects.filter(name="Medicines")
+
+    product_dict = {}
+    for t in types:
+        products = Product.objects.filter(type=t, active=True)
+        filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
+        product_dict[t.name] = filtered_products
+
+    formList = PrescriptionMedicines.MEDICINES_FORM_LIST
+
+    services = Service.objects.filter(active=True)
+
+    all_appointments = Appointment.objects.filter(isActive=True, status='pending').order_by('-id')
+    max_appointment = MaximumAppointment.objects.first()
+    date_slots = DateSlot.objects.all()
+    doctor_schedules = DoctorSchedule.objects.all()
+
+    all_appointments = serialize('json', all_appointments)
+    date_slots = serialize('json', date_slots)
+    doctor_schedules = serialize('json', doctor_schedules)
+
+    pet_treatment = PetTreatment.objects.get(pk=treatmentID)
+
+    try:
+        medical_prescription = PetMedicalPrescription.objects.get(pet_treatment=pet_treatment)
+        prescription_medicines = PrescriptionMedicines.objects.filter(prescription=medical_prescription).first()
+    except PetMedicalPrescription.DoesNotExist:
+        medical_prescription = None
+        prescription_medicines = None
+
+    lab_results = PetTreatment.objects.get(pk=treatmentID).lab_results.first()
+    appointment = pet_treatment.appointment
+
+    context = {
+        'product_dict': product_dict, 
+        'formList': formList,
+        'services': services ,
+        'all_appointments': all_appointments,
+        'max_appointment': max_appointment,
+        'date_slots': date_slots,
+        'doctor_schedules': doctor_schedules,
+        'treatmentID': treatmentID,
+        'pet_treatment': pet_treatment,
+        'medical_prescription': medical_prescription,
+        'prescription_medicines': prescription_medicines,
+        'lab_results': lab_results,
+        'appointment': appointment
+    }
+
+    return render(request, 'admin/health_card_module/update/index_update.html', context)
+
+@staff_required
+@login_required
+def submit_update_health_card(request):
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                
+                treatmentID = request.POST.get('treatmentID')
+
+                product_selected = request.POST.get('productSelected')
+                pet_id = request.POST.get('petID')
+                appointment_date = request.POST.get('appointment_date')
+                appointment_date = datetime.strptime(appointment_date, '%b %d, %Y').strftime('%Y-%m-%d')
+                appointment_time_of_the_day = request.POST.get('appointment_time_of_the_day')
+                appointment_purpose = request.POST.get('appointment_purpose')
+                temperature = request.POST.get('temperature')
+                weight = request.POST.get('weight')
+                treatment = request.POST.get('treatment')
+                isDeworm = request.POST.get('isDeworming')
+                isVaccine = request.POST.get('isVaccination')
+                medicine_sticker = request.FILES.get('medicine_sticker')
+
+                pet_treatment = PetTreatment.objects.get(pk=treatmentID)
+                appointment = pet_treatment.appointment
+                
+                if isDeworm == 'true':
+                    pet_treatment.isVaccine = False
+                    pet_treatment.isDeworm = True
+                    pet_treatment.save()
+                    lab_result_desc = "Deworming"
+                elif isVaccine == 'true':
+                    pet_treatment.isDeworm = False
+                    pet_treatment.isVaccine = True
+                    pet_treatment.save()
+                    lab_result_desc = "Vaccination"
+                else:
+                    lab_result_desc = "medicine_sticker"
+                print(pet_treatment.isDeworm)
+                print(pet_treatment.isVaccine)
+                if appointment:
+                    if appointment_date:
+                        appointment.date = appointment_date
+                        appointment.timeOfTheDay = appointment_time_of_the_day
+                        appointment.purpose_id = appointment_purpose
+                        appointment.save()
+
+                try:
+                    medical_prescription = PetMedicalPrescription.objects.get(pet_treatment=pet_treatment)
+                    prescription_medicines = PrescriptionMedicines.objects.filter(prescription=medical_prescription).first()
+                except PetMedicalPrescription.DoesNotExist:
+                    medical_prescription = None
+                    prescription_medicines = None
+                
+                pet = pet_treatment.pet
+
+                if not medical_prescription:
+                    pet_medical_prescription = PetMedicalPrescription.objects.create(
+                        pet=pet,
+                        date_prescribed=datetime.now(),
+                        pet_treatment=pet_treatment,
+                        isActive=True
+                    )
+
+                    product = Product.objects.get(pk=product_selected)
+
+                    PrescriptionMedicines.objects.create(
+                        prescription=pet_medical_prescription,
+                        medicine=product,
+                        #form=product_details['form'],
+                        quantity=1,
+                    )
+                else:
+                    prescription_medicines.medicine_id = product_selected
+                    prescription_medicines.save()
+
+                laboratory_result = pet_treatment.lab_results.first()
+                
+                if not laboratory_result:
+                    lab_result = LabResult.objects.create(
+                        result_name=lab_result_desc,
+                        result_image=medicine_sticker
+                    )
+                    pet_treatment.lab_results.add(lab_result)
+                else:
+                    laboratory_result.result_name = lab_result_desc
+                    if medicine_sticker:
+                        laboratory_result.result_image = medicine_sticker
+                    laboratory_result.save()
+                
+                if treatment != 'undefined':
+                    pet_treatment.treatment = treatment
+                    pet_treatment.save()
+
+                pet_treatment.temperature = temperature
+                pet_treatment.treatment_weight = weight
+                pet_treatment.save()
+
+                pet.weight = weight
+                pet.save()
+                
+                return JsonResponse({'success': True, 'message': 'Treatment updated successfully.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})

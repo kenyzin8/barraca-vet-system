@@ -379,15 +379,21 @@
                 navLinks[tabIndex].click();
             }
         }
+
+        var currentTab = 1;
+
         var activeTab = localStorage.getItem('activeTab');
         
         if (activeTab) {
             if(activeTab == 'wizard1') {
                 activateTab(0);
+                currentTab = 1;
             } else if (activeTab == 'wizard2') {
                 activateTab(1);
+                currentTab = 2;
             } else if (activeTab == 'wizard3') {
                 activateTab(2);
+                currentTab = 3;
             }
             vaccHealthCardTableObj.refresh();
             dewormingHealthCardTableObj.refresh();
@@ -395,16 +401,17 @@
         }
 
         document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
-            localStorage.setItem('activeTab', 'wizard1');
+            currentTab = 1;
         });
 
         document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
             vaccHealthCardTableObj.refresh();
             dewormingHealthCardTableObj.refresh();
-            localStorage.setItem('activeTab', 'wizard2');
+
+            currentTab = 2;
         });
         document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
-            localStorage.setItem('activeTab', 'wizard3');
+            currentTab = 3;
         });
 
         //remove all activeTab on browser close or any close listener
@@ -481,20 +488,20 @@
             });
         });
 
-        var treatmentIdToDelete = -1;
+        var treatmentIdSelected = -1;
 
-        $(".btn-delete-treatment").on("click", function(e) {
+        $(".btn-enable-treatment").on("click", function(e) {
             e.preventDefault();  
     
             var treatmentId = $(this).closest('tr').find('.treatment-id').text();
-            treatmentIdToDelete = parseInt(treatmentId);
+            treatmentIdSelected = parseInt(treatmentId);
 
-            $('#deleteConfirmationModal').modal('show');
+            $('#enableConfirmationModal').modal('show');
         });
 
-        $("#confirm-delete-treatment-button").on("click", function(e){
-            var url = "{% url 'admin-delete-consultation-page' 0 %}".replace('0', treatmentIdToDelete);
-            console.log(url)
+        $("#confirm-enable-treatment-button").on("click", function(e){
+            var url = "{% url 'admin-enable-consultation-page' 0 %}".replace('0', treatmentIdSelected);
+
             $.ajax({
                 url: url, 
                 type: "POST",
@@ -505,9 +512,70 @@
                     if(response.success)
                     {
                         showSuccess(response.message);
-                        setTimeout(function() {
+
+                        if(currentTab == 1){
+                            localStorage.setItem('activeTab', 'wizard1');
+                        }
+                        else if(currentTab == 2){
+                            localStorage.setItem('activeTab', 'wizard2');
+                        }
+                        if(currentTab == 3){
+                            localStorage.setItem('activeTab', 'wizard3');
+                        }
+                        
+
+                        $(".successOKBtn").on("click", function(e) {
                             location.reload();
-                        }, 1000);
+                        });
+                    }
+                    else
+                    {
+                        showError(response.message);
+                    }
+                    
+                },
+                error: function(error) {
+                    
+                }
+            });
+        });
+
+        $(".btn-delete-treatment").on("click", function(e) {
+            e.preventDefault();  
+    
+            var treatmentId = $(this).closest('tr').find('.treatment-id').text();
+            treatmentIdSelected = parseInt(treatmentId);
+
+            $('#deleteConfirmationModal').modal('show');
+        });
+
+        $("#confirm-delete-treatment-button").on("click", function(e){
+            var url = "{% url 'admin-delete-consultation-page' 0 %}".replace('0', treatmentIdSelected);
+
+            $.ajax({
+                url: url, 
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function(response) {
+                    if(response.success)
+                    {
+                        showSuccess(response.message);
+
+                        if(currentTab == 1){
+                            localStorage.setItem('activeTab', 'wizard1');
+                        }
+                        else if(currentTab == 2){
+                            localStorage.setItem('activeTab', 'wizard2');
+                        }
+                        if(currentTab == 3){
+                            localStorage.setItem('activeTab', 'wizard3');
+                        }
+
+                        $(".successOKBtn").on("click", function(e) {
+                            location.reload();
+                        });
                     }
                     else
                     {

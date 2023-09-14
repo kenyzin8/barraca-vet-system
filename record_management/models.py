@@ -108,6 +108,10 @@ class PetTreatment(models.Model):
     isVaccine = models.BooleanField(default=False)
     isDeworm = models.BooleanField(default=False)
 
+    hasMultipleCycles = models.BooleanField(default=False)
+    appointment_cycles = models.JSONField(blank=True, null=True)  
+    cycles_remaining = models.PositiveIntegerField(default=0)  
+
     def __str__(self):
         return f"{self.pet.name} - {self.treatment}"
 
@@ -115,10 +119,13 @@ class PetTreatment(models.Model):
         return self.pet.client.full_name
 
     def get_lab_result_image_for_health_card(self):
-        image = self.lab_results.first().result_image
-        if image:
-            return image
-        else:
+        try:
+            image = self.lab_results.first().result_image
+            if image:
+                return image
+            else:
+                return None
+        except:
             return None
     class Meta:
         verbose_name_plural = "Pet Treatments"
@@ -302,3 +309,12 @@ class LabResultsTreatment(models.Model):
 
     def __str__(self):
         return f"{self.pet_treatment.pet.name} - {self.lab_result.result_name}"
+
+class TreatmentCycle(models.Model):
+    pet_treatment = models.ForeignKey(PetTreatment, on_delete=models.CASCADE, related_name="cycles")
+    appointment = models.ForeignKey('appointment_management.Appointment', on_delete=models.CASCADE)
+    cycle_number = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ['pet_treatment', 'cycle_number']
+        verbose_name_plural = "Pet Treatment Cycles"

@@ -1,49 +1,51 @@
 {% load static %}
-<div class="tab-pane py-2 py-xl-2 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
+<div class="tab-pane py-2 py-xl-2 fade show active" id="wizard1" role="tabpanel" aria-labelledby="wizard1-tab">
     <div class="row justify-content-center">
         <div class="col-xxl-10 col-xl-8">
             <div class="parent-container">
                 <div class="header-group">
-                    <h3 class="text-primary">Step 2</h3>
-                    <h5 class="card-title mb-4 fw-100">Fill-in medical record fields</h5>
+                    <h3 class="text-primary">Step 1</h3>
+                    <h5 class="card-title mb-4 fw-100">Update medical record fields</h5>
                 </div>
-                <div class="selected-pet-info" style="display: none;">
+                <div class="selected-pet-info">
                     <span class="small">Selected Pet: </span>
                     <div class="avatar">
-                        <img class="avatar-img img-fluid selected-pet-image" src="{% static 'images/placeholder-consultation.jpg' %}" loading="lazy"/>
+                        <img class="avatar-img img-fluid selected-pet-image" src="{{ pet_treatment.pet.picture.url }}" loading="lazy"/>
                     </div>
-                    <span class="pet-name selected-pet-name small"></span>
-                    <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="#" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
+                    <span class="pet-name selected-pet-name small">{{ pet_treatment.pet.name }}</span>
+                    <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="{% url 'admin-view-pet-page' pet_treatment.pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
                         <i data-feather="external-link"></i>
                     </a>
                 </div>
             </div>
             <form method="POST" enctype="multipart/form-data" id="medical-record-form">
                 {% csrf_token %}
+                {% if pet_treatment.cycles_remaining == 0 %}
                 <div class="mb-3">
                     <label class="small mb-1" for="inputTreatment">Treatment <span class="text-red">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text bg-white">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="treatmentType" id="dewormingRadio" value="deworming" disabled>
+                                <input class="form-check-input" type="radio" name="treatmentType" id="dewormingRadio" value="deworming" {% if pet_treatment.isDeworm %}checked{% endif %}>
                                 <label class="form-check-label" for="dewormingRadio">Deworming</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="treatmentType" id="vaccRadio" value="vaccination" disabled>
+                                <input class="form-check-input" type="radio" name="treatmentType" id="vaccRadio" value="vaccination" {% if pet_treatment.isVaccine %}checked{% endif %}>
                                 <label class="form-check-label" for="vaccRadio">Vaccination</label>
                             </div>
                         </span>
-                        <input type="text" class="form-control" id="inputTreatment" name="treatment" placeholder="Select between deworming or vaccination" disabled>
+                        <input type="text" class="form-control" id="inputTreatment" name="treatment" placeholder="Select between deworming or vaccination" value="{% if pet_treatment.isVaccine %}Vaccination{% elif pet_treatment.isDeworm %}Deworming{% endif %}" disabled>
                     </div>
                 </div>
+                {% endif %}
                 <div class="row gx-3">
                     <div class="mb-3 col-md-6">
                         <label class="small mb-1" for="inputTemperature">Temperature (Celcius) <span class="text-red">*</span></label>
-                        <input class="form-control" id="inputTemperature" name="temperature" type="number" placeholder="Enter pet temperature"/>
+                        <input class="form-control" id="inputTemperature" name="temperature" type="number" placeholder="Enter pet temperature" value="{{ pet_treatment.temperature }}"/>
                     </div>
                     <div class="mb-3 col-md-6">
                         <label class="small mb-1" for="inputTreatmentWeight">Weight (kg) <span class="text-red">*</span></label>
-                        <input class="form-control" id="inputTreatmentWeight" name="weight" type="number" placeholder="Enter pet's weight"/>
+                        <input class="form-control" id="inputTreatmentWeight" name="weight" type="number" placeholder="Enter pet's weight" value="{{ pet_treatment.treatment_weight }}"/>
                     </div>
                 </div>
                 
@@ -55,8 +57,8 @@
                     <div>
                         <label class="small mb-1" for="inputSymptoms">Medicine <span class="text-red">*</span></label>
                         <div class="input-group mb-2">
-                            <button class="btn btn-add-medicine" type="button" id="addMedicineBtn"><i data-feather="plus-circle" id="medicineIcon"></i></button>
-                            <input class="form-control" id="inputMedicine" name="medicine" type="text" placeholder="Click the plus circle to add a medicine" disabled/>    
+                            <button class="btn btn-add-medicine" type="button" id="addMedicineBtn"><i data-feather="{% if prescription_medicines %}minus-circle{% else %}plus-circle{% endif %}" id="medicineIcon"></i></button>
+                            <input class="form-control" id="inputMedicine" name="medicine" type="text" placeholder="Click the plus circle to add a medicine" value="{{ prescription_medicines.medicine.product_name }}" disabled/>    
                         </div>
                     </div>
                 </div>
@@ -65,7 +67,18 @@
                 </div>
                 <div class="lab-result-group-fields">
                     <div class="input-group mb-2">
-                        <input class="form-control lab-result-image-input" id="inputLabResultsImages" data-id="0" name="lab_result_images" type="file" accept=".jpg, .jpeg, .png" onchange="validateFile(this, this.parentElement.nextElementSibling.querySelector('.progress-bar'));" />
+                        {% if lab_results %}
+                        <a href="{{ lab_results.result_image.url }}" target="_blank" class="btn btn-view-sticker" type="button" id="viewStickerBtn" data-bs-toggle="tooltip" data-bs-placement="left" title="View current medicine sticker">
+                            <i data-feather="image"></i>
+                        </a>
+                        {% else %}
+                        <div data-bs-toggle="tooltip" data-bs-placement="left" title="This treatment has no medicine sticker">
+                            <a style="pointer-events: none;border-top-right-radius: 0px;border-bottom-right-radius: 0px;height: 100%;" href="#" class="btn btn-view-sticker" type="button" id="viewStickerBtn">
+                                <i data-feather="x-square"></i>
+                            </a>
+                        </div>                        
+                        {% endif %}
+                        <input class="form-control lab-result-image-input" id="inputLabResultsImages" data-id="0" name="lab_result_images" type="file" accept=".jpg, .jpeg, .png" />
                     </div>
                 </div>
 
@@ -76,50 +89,22 @@
                     <span class="small">Add another lab result</span>
                 </div> -->
                 <hr class="my-4" />
-                <div class="cycle-warning-message" style="display:none;">
-                    <p>This pet has a <span id="cycle-type-message"></span> appointment cycle. Wait until it is finished to manage appointment.</p>
-                    <p class="small">If you want to bypass this, you can use the consultation module.</p>
-                    <p class="small">Remaining appointment cycles:</p>
-                    <ul id="cycle-dates-list" class="small"></ul>
-                    <hr class="my-4" />
-                </div>
-                
                 <div class="manage-appointment-container">
+                    {% if pet_treatment.cycles_remaining == 0 %}
                     <label class="small mb-1 fw-700" for="inputNextAppointment">Manage Appointment</label>
-                    <div class="row gx-3">
-                        <div class="mb-3">
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="inputCycle">Cycle</label>
-                                <select class="form-select" id="inputCycle">
-                                <option value="" selected>Choose...</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="every-2-weeks">Every 2 weeks</option>
-                                <option value="every-3-weeks">Every 3 weeks</option>
-                                <option value="monthly">Monthly</option>
-                                <option value="quarterly">Quarterly</option>
-                                <option value="semi-annually">Biannually or Semi-annually</option>
-                                <option value="annually">Annually</option>
-                                </select>                           
-                                
-                                <label class="input-group-text" for="inputRepeat">Repeat</label>
-                                <input type="number" class="form-control" id="inputRepeat" placeholder="Number of times (e.g., 1, 2, 3)" min="1">
-                            </div>                                              
-                        </div>
-                        <p class="text-center mb-3">- or -</p>
-                    </div>
                     <div class="row gx-3">
                         <div class="mb-3 col-md-6">
                             <label class="small mb-1" for="inputNextAppointmentDate">Date</label>
                             <div class="input-group input-group-joined border-1">
                                 <span class="input-group-text"><i class="text-primary" data-feather="calendar"></i></span>
-                                <input class="form-control ps-0 pointer" name="appointment_date" id="litepickerSingleDate" placeholder="Select date" />
+                                <input class="form-control ps-0 pointer" name="appointment_date" id="litepickerSingleDate" placeholder="Select date" value="{{ appointment.date }}"/>
                             </div>
                         </div>
                         <div class="mb-3 col-md-6">
                             <label class="small mb-1" for="inputNextAppointmentTimeOfTheDay">Time of the Day</label>
                             <select class="form-select" id="inputNextAppointmentTimeOfTheDay" name="appointment_time_of_the_day">
-                                <option value="morning">Morning</option>
-                                <option value="afternoon">Afternoon</option>
+                                <option value="morning" {% if appointment.timeOfTheDay == 'morning' %}selected{% endif %}>Morning</option>
+                                <option value="afternoon" {% if appointment.timeOfTheDay == 'afternoon' %}selected{% endif %}>Afternoon</option>
                             </select>
                         </div>  
                     </div>
@@ -130,15 +115,17 @@
                             <!-- add empty option for null -->
                             <option value="">------------</option>
                             {% for service in services %}
-                                <option value="{{ service.id }}">{{ service.service_type }}</option>
+                                <option value="{{ service.id }}" {% if service.service_type == appointment.purpose.service_type %}selected{% endif %}>{{ service.service_type }}</option>
                             {% endfor %}
                         </select>  
                     </div>
+                    {% else %}
+                    <label class="small mb-1 fw-500" for="inputNextAppointment">This treatment has an active <span class="text-lowercase">{{ appointment.purpose.service_type }}</span> cycle, you cannot alter the appointment and treatment type.</label>
                     <hr class="my-4" />
+                    {% endif %}
                 </div>
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-light previous-button" type="button">Previous</button>
-                    <button class="btn btn-primary submit-button" type="button">Submit</button>
+                <div class="d-flex" style="justify-content: flex-end;">
+                    <button class="btn btn-warning submit-button" type="button">Update</button>
                 </div>
             </form>
         </div>

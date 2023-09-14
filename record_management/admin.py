@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Client, Pet
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin, GroupAdmin as AuthGroupAdmin
-from .models import User, Group, PetTreatment, PetMedicalPrescription, PrescriptionMedicines, LabResult, LabResultsTreatment, TemporaryLabResultImage
+from .models import User, Group, PetTreatment, PetMedicalPrescription, PrescriptionMedicines, LabResult, LabResultsTreatment, TemporaryLabResultImage, TreatmentCycle 
 
 import nested_admin
 

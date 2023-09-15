@@ -131,6 +131,7 @@ class PetTreatment(models.Model):
     class Meta:
         verbose_name_plural = "Pet Treatments"
 
+
 class LabResult(models.Model):
     result_name = models.CharField(max_length=100, null=True, blank=True)
     result_image = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])

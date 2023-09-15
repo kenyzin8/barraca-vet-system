@@ -1,12 +1,15 @@
 from django.core.management.base import BaseCommand
 import boto3
 import os
-from record_management.models import Pet
+from record_management.models import Pet, LabResult
 from django.contrib.auth import authenticate
 from getpass import getpass
 
 class Command(BaseCommand):
     help = 'Deletes images from S3 that are not referenced in the Django DB.'
+
+    def get_django_files(self, model, image_field_name):
+        return set([getattr(instance, image_field_name).name for instance in model.objects.all() if getattr(instance, image_field_name)])
 
     def handle(self, *args, **kwargs):
         try:
@@ -30,7 +33,10 @@ class Command(BaseCommand):
             bucket = s3.Bucket(os.getenv('BUCKETEER_BUCKET_NAME'))
 
             all_s3_files = set([obj.key for obj in bucket.objects.filter(Prefix='public/images/')])
-            all_django_files = set([pet.picture.name for pet in Pet.objects.all()])
+
+            pet_files = self.get_django_files(Pet, 'picture')
+            lab_result_files = self.get_django_files(LabResult, 'result_image')
+            all_django_files = pet_files.union(lab_result_files)
 
             files_to_delete = all_s3_files - all_django_files
 

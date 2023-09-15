@@ -194,7 +194,10 @@ def sales(request):
     for bill in bills:
         gross_revenue += bill.get_total()
 
-    context = {'bills': bills, 'gross_revenue': gross_revenue}
+    total_products_count = sum(bill.billing_products.all().count() for bill in bills)
+    total_services_count = sum(bill.billing_services.all().count() for bill in bills)
+
+    context = {'bills': bills, 'gross_revenue': gross_revenue, 'total_products_count': total_products_count, 'total_services_count': total_services_count}
     return render(request, 'sales.html', context)
 
 # @csrf_exempt

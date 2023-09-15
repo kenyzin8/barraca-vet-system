@@ -96,29 +96,50 @@
     }
 
 </style>
-<script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
+
 <script>
 window.addEventListener('DOMContentLoaded', event => {
-  const wizard2Tab = document.getElementById('wizard2-tab');
-  wizard2Tab.addEventListener('click', function (event) {
-    initDataTables('datatablesSimple-sales');
-    initDataTables('datatablesSimple-services');
-  });
+    const wizard1Tab = document.getElementById('wizard1-tab');
+    const wizard2Tab = document.getElementById('wizard2-tab');
+
+    var isTable1Initialized = false;
+    var isTable2Initialized = false;
+    var isTable3Initialized = false;
+
+    isTable1Initialized = initDataTables('datatablesSimple', {{ bills|length }});
+
+    wizard1Tab.addEventListener('click', function (event) {
+        if (isTable1Initialized) {
+            return;
+        }
+        isTable1Initialized = initDataTables('datatablesSimple', {{ bills|length }});
+    });
+
+    wizard2Tab.addEventListener('click', function (event) {
+        if (isTable2Initialized && isTable3Initialized) {
+            return;
+        }
+        isTable2Initialized = initDataTables('datatablesSimple-sales', {{ total_products_count }});
+        isTable3Initialized = initDataTables('datatablesSimple-services', {{ total_services_count }});
+    });
 });
 
-function initDataTables(tableId) {
-        const datatablesSimple = document.getElementById(tableId);
-        if (datatablesSimple) {
-            let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
-            // DataTables options
-            paging: true,
-            perPageSelect: [5, 10, 25, 50],
-            perPage: 10,
-            fixedHeight: true,
-            sortable: true,
-            searchable: true,
-            hiddenHeader: false
-            });
+function initDataTables(tableId, maxPage) {
+    const datatablesSimple = document.getElementById(tableId);
+    
+    var lastIndex = maxPage > 25 ? maxPage : 50;
+
+    if (datatablesSimple) {
+        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+        // DataTables options
+        paging: true,
+        perPageSelect: [5, 10, 25, lastIndex],
+        perPage: 10,
+        fixedHeight: true,
+        sortable: true,
+        searchable: true,
+        hiddenHeader: false
+        });
 
         dataTable.on('datatable.update', () => {
             feather.replace();
@@ -163,7 +184,12 @@ function initDataTables(tableId) {
                 dataTable.search('');
             }
         });
+        
+        return true;
     }
+
+    return false;
+   
 }
 </script>
 {% endblock %}

@@ -101,11 +101,14 @@
         });
 
         const petTable = document.getElementById('petTable');
-    
+        
+        
+        var pets_max_page = {{ pets|length }};
+        var petsLastIndex = pets_max_page > 25 ? pets_max_page : 50;
         if (petTable) {
             let dataTable = new simpleDatatables.DataTable(petTable, {
                 paging: true,
-                perPageSelect: [5, 10, 25, 50],
+                perPageSelect: [5, 10, 25, petsLastIndex],
                 perPage: 10,
                 fixedHeight: true,
                 sortable: true,
@@ -322,7 +325,7 @@
         {
             {% for type, products in product_dict.items %}
                 const datatablesSimple_products_{{ forloop.counter }} = document.getElementById('table-medicines-{{ forloop.counter }}');
-    
+
                 if (datatablesSimple_products_{{ forloop.counter }}) {
                     var dataTable_{{ forloop.counter }} = new simpleDatatables.DataTable(datatablesSimple_products_{{ forloop.counter }}, {
                         paging: true,

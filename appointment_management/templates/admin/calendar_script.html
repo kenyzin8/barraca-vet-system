@@ -441,6 +441,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const datatablesSimple = document.getElementById('datatablesSimple');
     var dataTable = null;
+
+    var max_page = 0;
+
     if (datatablesSimple) {
         dataTable = new simpleDatatables.DataTable(datatablesSimple, {
             paging: true,
@@ -700,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     $(".appointment-table-title").text(formatDates(date) + ' | Appointments');
                     $(".appointment-table").removeAttr("hidden");
 
-                    dataTable.rows.remove([0, 1, 2, 3, 4, 5, 6, 7])
+                    dataTable.rows.remove([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 
                     eventsOnDate.forEach(function(event, index) {
                         var row = [
@@ -715,7 +718,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             event.extendedProps.contact_number + "\"" +
                             ")'>Notify</button>"
                         ];
-                        dataTable.rows.add(row); // Add the row
+                        dataTable.rows.add(row);
+                        max_page++;
                     });
 
                     $('html, body').animate({

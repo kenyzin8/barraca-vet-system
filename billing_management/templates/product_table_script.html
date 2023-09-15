@@ -283,8 +283,8 @@ $(document).ready(function() {
 
     $(document).on('click', '.add-client', function() 
     {
-        var clientId = $(this).data('client-id');
-        
+        var clientId = $(this).closest('tr').find('.client-id').text();
+
         var clientName = $(this).closest('tr').find('.client-value').text();
 
         $('.selected-client-input').val(clientName);

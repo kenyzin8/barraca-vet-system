@@ -7,7 +7,6 @@
 
 {% block extrastyles %}
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/print-js/print.min.css' %}">
-<script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -55,6 +54,72 @@
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script src="{% static 'plugins/print-js/print.min.js' %}"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const datatablesSimple = document.getElementById('datatablesSimple');
+
+        var max_page = {{ products|length }};
+        var lastIndex = max_page > 25 ? max_page : 50;
+  
+        if (datatablesSimple) {
+            let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+                paging: true,
+                perPageSelect: [5, 10, 25, lastIndex],
+                perPage: 10,
+                fixedHeight: true,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+  
+            window.dataTable = dataTable;
+  
+            dataTable.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+  
+            dataTable.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+  
+            dataTable.on('datatable.search', function(query, matched) {
+                feather.replace();
+  
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+  
+            dataTable.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+  
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    dataTable.search('');
+                }
+            });
+        }
+    });
+
+
     function getTableData(tableID) {
         var table = document.getElementById(tableID);
 

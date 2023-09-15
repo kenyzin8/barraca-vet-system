@@ -199,8 +199,8 @@ class PrescriptionMedicines(models.Model):
     def get_prescription_details(self):
         self.remarks = self.remarks[0].lower() + self.remarks[1:]
         self.frequency = self.frequency[0].lower() + self.frequency[1:]
-
-        prescription_details = f"Prescribed: {self.quantity} of {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
+        self.quantity = int(self.quantity)
+        prescription_details = f"{self.quantity} of {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
 
         prescription_details += f"Dosage: Administer {self.dosage} {self.get_dosage_unit()} to the pet {self.frequency}. "
 

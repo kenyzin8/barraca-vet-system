@@ -88,13 +88,13 @@
                     <tr>
                         <td>
                             <div class="fw-bold">
-                                <i data-feather="arrow-right-circle"></i> 
+                                <i data-feather="arrow-right-circle" style="margin-top:3px;"></i> 
                                 <span class="prescription-details">{{ medicine.get_prescription_details }}</span>
                             </div>
                             <div class="small text-muted d-none d-md-block">
-                                <span class="prescription-quantity">{{ medicine.quantity }} </span>
-                                <span class="prescription-form">{{ medicine.medicine.form }}{{ medicine.quantity|pluralize }}</span>
-                                <span class="quantity-description">{{ medicine.get_quantity_description }}</span>
+                                <span class="prescription-quantity"></span>
+                                <span class="prescription-form"></span>
+                                <span class="quantity-description"></span>
                             </div>
                             
                         </td>
@@ -124,19 +124,37 @@
         var tbody = document.querySelector(".tbody-products");
         var rows = tbody.querySelectorAll("tr:not(#total-row)");
         var data = [];
-
+    
         for (var i = 0; i < rows.length; i++) {
             var cells = rows[i].querySelectorAll("td");
+
+            var arrowIconSvg = feather.icons["corner-down-right"].toSvg({ width: 16, height: 16 });
+            var styledArrowIcon = `<span style='margin-top: 10px; display: inline-block;'>${arrowIconSvg}</span>`;
+
             var rowData = {
-                'Product': "> " + cells[0].innerText.trim()
+                'Product': `${styledArrowIcon} <span style='font-size:12pt;font-weight:bold;'>Prescription ${i+1} - </span>` + cells[0].innerText.trim()
             };
             data.push(rowData);
             data.push({'Product': "‎"});
         }
+    
+        for (var i = 0; i < 10; i++) {
+            data.push({'Product': "‎"});
+        }
+    
+        
+        data.push({'Product': `<div style="float:right; width:150px; text-align:center; margin-right:50px;"><span style='font-size:12pt;font-weight:600;'>Yvette Mae Barraca</span></div>`});
+        data.push({'Product': `<div style="float:right; width:150px; text-align:center; margin-right:50px;"><span style='font-size:9pt;font-weight:600;'>Veterinarian</span></div>`});
+        
+        data.push({'Product': "‎"});
+        data.push({'Product': "‎"});
+
+        data.push({'Product': `<div style="float:right; width:150px; text-align:center; margin-right:50px;"><span style='font-size:12pt;font-weight:600;'>_________________</span></div>`});
+        data.push({'Product': `<div style="float:right; width:150px; text-align:center; margin-right:50px;"><span style='font-size:10pt;font-weight:600;'>Date Signed</span></div>`});
+        
 
         return data;
     }
-
     function getFormattedDate(date)
     {
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -162,7 +180,7 @@
     function printPrescription() 
     {
         var productsData = getProductsData();
-        console.log(productsData)
+       
         var clientName = document.getElementsByClassName("clientName").innerText;
         var billNo = document.getElementsByClassName("prescriptionNumber").innerText;
         var billDate = document.getElementsByClassName("prescriptionDate").innerText;
@@ -173,9 +191,9 @@
 
         var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
         var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 0px solid #232323; ${font}`;
-        var css_gridStyle = `margin-left: 5px; text-align: left; padding: 0px;border: 0px solid #232323; ${font};`;
-        var css_headerStyle = `margin-left: 5px; text-align: left; font-size: 14pt; color: #232323; font-weight: bold; margin-bottom: 20px; font-family: Roboto;`;
-        var headerName = "Pet Medical Prescription";
+        var css_gridStyle = `text-align: left; padding: 0px;border: 0px solid #232323; ${font};`;
+        var css_headerStyle = `text-align: left; font-size: 14pt; color: #232323; font-weight: 600; margin-bottom: 20px; ${font}`;
+        var headerName = "PET MEDICAL PRESCRIPTION";
         var imgSrc = "{% static 'images/barraca.png' %}";
         var date = new Date();
         var formattedDate = getFormattedDate(date);
@@ -183,27 +201,39 @@
         var header = `
             <div style='display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0px solid #000;'>
                 <div style='width: 70%; display: flex; flex-direction: column; align-items: flex-start;'>
-                    <h1 style='${css_headerStyle}; font-family: Roboto;'>${headerName}</h1>
-                    <span style='font-size:12pt; font-family: Roboto;'>Client: ${'{{ client.full_name }}'}</span>
-                    <span style='font-size:12pt; font-family: Roboto;'>Prescription No.: ${'{{ prescription.id }}'}</span>
-                    <span style='font-size:12pt; font-family: Roboto;'>Prescription Date: ${'{{ prescription.date_prescribed|date:"F j, Y - g:i A" }}'}</span>
-                    <span style='font-size:12pt; font-family: Roboto;'>Report Generated: ${formattedDate}</span>
+                    <h1 style='${css_headerStyle}'>${headerName}</h1>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Client:</span> ${'{{ client.full_name }}'}</div>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Pet:</span> ${'{{ pet.name }}'}</div>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Prescription No.:</span> ${'{{ prescription.id }}'}</div>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Prescription Date:</span> ${'{{ prescription.date_prescribed|date:"F j, Y - g:i A" }}'}</div>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Report Generated:</span> ${formattedDate}</div>
                 </div>
                 <img src='${imgSrc}' style='width: 30%;' />
             </div>
         `;
 
+
         printJS({
             printable: billData,
-            properties: [{ field: 'medicines', displayName: '‎'}],
+            properties: [{ field: 'medicines', displayName: '‎' }],
             type: 'json',
             gridHeaderStyle: css_gridHeaderStyle,
             font_size: "15pt",
             documentTitle: 'Original Copy',
             showModal: true,
             header: header,
+            repeatTableHeader: true,
+            scanStyles: true,
             gridStyle: css_gridStyle,
-            style: "@page { size: auto;  margin: 5mm; }",
+            style: `
+                @page { size: auto;  margin: 5mm; }
+                body {
+                    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+                    color: #232323;
+                }
+                
+                
+            `,
         });
     }
 </script>

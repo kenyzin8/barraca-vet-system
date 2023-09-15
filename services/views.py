@@ -53,9 +53,13 @@ def service_update(request, service_id):
 
     if request.method == 'POST':
         form = ServiceForm(request.POST, instance=service)
+
         if form.is_valid():
-            form.save()
-            return redirect('service-update-page', service_id=service.id)
+            try:
+                form.save()
+                return redirect('service-update-page', service_id=service.id)
+            except ValueError as e:
+                form.add_error('service_type', str(e))
     else:
         form = ServiceForm(instance=service)
 

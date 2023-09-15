@@ -73,7 +73,7 @@ window.addEventListener('DOMContentLoaded', event => {
 {% block content %}
 <main>
     <nav class="mt-5 rounded mb-3" aria-label="breadcrumb">
-        <ol class="breadcrumb py-2 rounded mb-0">
+        <ol class="breadcrumb px-3 py-2  rounded mb-0">
             <li class="breadcrumb-item"><a href="{% url 'product-list-page' %}">Inventory</a></li>
             <li class="breadcrumb-item"><a href="{% url 'product-add-page' %}">Add Product</a></li>
             <li class="breadcrumb-item active">Product Types</li>
@@ -97,15 +97,15 @@ window.addEventListener('DOMContentLoaded', event => {
                 <tbody>
                     {% for type in product_types %}
                     <tr>
-                        <td>{{ type.id }}</td>
-                        <td>{{ type.name }}</td>
-                        <td>{{ type.product_type_description }}</td>
+                        <td><span class="type-id">{{ type.id }}</span></td>
+                        <td><span class="type-name">{{ type.name }}</span></td>
+                        <td><span class="type-description">{{ type.product_type_description }}</span></td>
                         <td>
-                            {% if type.name != 'Medicines' %}
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Update">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-bs-target="#updateTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Update">
                                 <i data-feather="settings"></i>
                             </a>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="modal" data-bs-target="#deleteTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Delete">
+                            {% if type.name != 'Medicines' %}
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-bs-target="#deleteTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Delete">
                                 <i data-feather="trash-2"></i>
                             </a>
                             {% endif %}
@@ -165,6 +165,34 @@ window.addEventListener('DOMContentLoaded', event => {
         </div>
     </div>
 </div>
+<div class="modal fade" id="updateTypeModal" tabindex="-1" aria-labelledby="updateTypeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateTypeModalLabel">Update Type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateTypeForm">
+                    <div class="mb-3">
+                        <div class="mb-3">
+                            <label for="typeName" class="form-label">Type Name</label>
+                            <input type="text" class="form-control" id="updateTypeName" required>
+                        </div>
+                        <div>
+                            <label for="typeDescription" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="updateTypeDescription" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-dark" id="updateTypeSubmit">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extrascripts %}
@@ -174,12 +202,14 @@ window.addEventListener('DOMContentLoaded', event => {
       var deleteTypeModal = document.getElementById('deleteTypeModal');
       deleteTypeModal.addEventListener('show.bs.modal', function(event) {
         var button = event.relatedTarget;
-        var typeName = button.getAttribute('data-type-name');
+        var row = button.closest('tr'); 
+        var typeName = row.querySelector('.type-name').textContent;
         var typeNameElement = document.getElementById('typeName');
 
         typeNameElement.textContent = typeName;
 
-        var typeId = button.getAttribute('data-type-id');
+        var typeId = row.querySelector('.type-id').textContent;
+        typeId = parseInt(typeId);
         var deleteUrl = '{% url "delete-type-page" 0 %}'.replace('0', typeId);
         var confirmDelete = document.getElementById('confirmDelete');
         confirmDelete.onclick = function() {
@@ -204,6 +234,58 @@ window.addEventListener('DOMContentLoaded', event => {
             });
         }
       });
+      var updateTypeModal = document.getElementById('updateTypeModal');
+        updateTypeModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var row = button.closest('tr'); 
+
+            var typeId = row.querySelector('.type-id').textContent;
+            typeId = parseInt(typeId);
+            var typeName = row.querySelector('.type-name').textContent;
+            var typeDdescription = row.querySelector('.type-description').textContent;
+
+            var typeNameElement = document.getElementById('updateTypeName');
+            var typeDescriptionElement = document.getElementById('updateTypeDescription');
+
+            typeNameElement.value = typeName;
+            typeDescriptionElement.value = typeDdescription;
+    
+            var updateUrl = '{% url "update-type-page" 0 %}'.replace('0', typeId);
+            var updateTypeSubmit = document.getElementById('updateTypeSubmit');
+
+            updateTypeSubmit.onclick = function() {
+                console.log(updateTypeForm.elements);
+                var typeName = updateTypeForm.elements.updateTypeName.value;
+                var typeDescription = updateTypeForm.elements.updateTypeDescription.value;
+    
+                if (!typeName.trim()) {
+                    updateTypeForm.elements.updateTypeName.focus();
+                    return;
+                }
+                else if(!typeDescription.trim()) {
+                    updateTypeForm.elements.updateTypeDescription.focus();
+                    return;
+                }
+    
+                $.ajax({
+                    url: updateUrl,
+                    method: 'POST',
+                    data: {
+                        'type_name': typeName,
+                        'type_description': typeDescription,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.result === 'success') {
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    }
+                });
+            }
+        });
     });
 </script>
 <script>

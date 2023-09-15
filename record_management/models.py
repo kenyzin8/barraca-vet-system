@@ -103,8 +103,9 @@ class PetTreatment(models.Model):
     #medical_images = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
     lab_results = models.ManyToManyField('record_management.LabResult', blank=True)
 
-    isActive = models.BooleanField(default=True)
+    isHealthCard = models.BooleanField(default=False)
 
+    isActive = models.BooleanField(default=True)
     isVaccine = models.BooleanField(default=False)
     isDeworm = models.BooleanField(default=False)
 

@@ -40,7 +40,7 @@
                                     <img class="avatar-img img-fluid" src="{% static client.get_image %}" />
                                 </div>
                                 {{ client.full_name }}
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client Details" style="margin-bottom: 4px;">
                                     <i data-feather="external-link"></i>
                                 </a>
                                 <!-- {% if request.user.is_authenticated and client.user.id == request.user.id %}

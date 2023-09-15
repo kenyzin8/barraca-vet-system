@@ -30,6 +30,7 @@ def product_list(request):
                 print(f'[{update_id}] - {product.product_name} price changed from {old_price} to {new_price} - Date: {change_date}')
 
     products = Product.objects.filter(active=True).order_by('-id')
+
     today = datetime.date.today()
     context = {'products': products, 'today': today}
     return render(request, 'inventory_list.html', context)
@@ -51,7 +52,22 @@ def add_type_page(request):
         ProductType.objects.create(name=name, product_type_description=description)
         return JsonResponse({'result': 'success'})
 
-# missing update
+@staff_required
+@login_required
+def update_type_page(request, type_id):
+    try:
+        product_type = ProductType.objects.get(pk=type_id)
+        if request.method == 'POST':
+            name = request.POST.get('type_name') 
+            description = request.POST.get('type_description')
+            product_type.name = name
+            product_type.product_type_description = description
+            product_type.save()
+            return JsonResponse({'result': 'success'})
+        else:
+            return JsonResponse({'result': 'error', 'message': 'Invalid request method'})
+    except ProductType.DoesNotExist:
+        return JsonResponse({'result': 'error', 'message': 'Product type does not exist'})
 
 @staff_required
 @login_required

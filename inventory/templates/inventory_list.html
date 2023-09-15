@@ -36,6 +36,8 @@
                         <th>#</th>
                         <th><span class="small">Product</span></th>
                         <th><span class="small">Quantity</span></th>
+                        <th><span class="small">Volume</span></th>
+                        <th><span class="small">Form</span></th>
                         <th><span class="small">Type</span></th>
                         <th><span class="small">Batch Number</span></th>
                         <th><span class="small">Manufacturer</span></th>
@@ -50,34 +52,45 @@
                 <tbody>
                     {% for product in products %}
                     <tr>
-                        <td>{{ product.id }}</td>
-                        <td >{{ product.product_name }}</td>
+                        <td><span class="small product-id">{{ product.id }}</span></td>
+                        <td><span class="small product-name">{{ product.product_name }}</span></td>
                         <td>
-                          {{ product.quantity_on_stock|floatformat:2|intcomma }}
+                          <span class="small">{{ product.quantity_on_stock|floatformat:0|intcomma }}
                           {% if product.quantity_on_stock == 0 %}
                             <span style="color: red;">(Out of Stock)</span>
-                          {% endif %}
+                          {% endif %}</span>
                         </td>
-                        <td>{{ product.type.name }}</td>
-                        <td>{{ product.batch_number }}</td>
-                        <td>{{ product.manufacturer }}</td>
-                        <td>{{ product.manufacturing_date }}</td>
+                        <td><span class="small">{{ product.volume }}</span></td>
+                        <td><span class="small">{{ product.get_form_display }}</span></td>
+                        <td><span class="small">{{ product.type.name }}</span></td>
+                        <td><span class="small">{{ product.batch_number }}</span></td>
+                        <td><span class="small">{{ product.manufacturer }}</span></td>
+                        <td><span class="small">{{ product.manufacturing_date }}</span></td>
                         <td>
-                          {{ product.expiration_date }} 
+                          <span class="small">{{ product.expiration_date }} 
                           {% if product.is_product_expired %}
                           <span style="color: red;">
                             (Expired)
                           </span>
-                          {% endif %}
+                          {% endif %}</span>
                         </td>
                         <td>
-                          {{ product.critical_level }}
+                          <span class="small">{{ product.critical_level }}
                           {% if product.is_product_critical %}
                             <span style="color: red;">(Critical)</span>
-                          {% endif %}
+                          {% endif %}</span>
                         </td>
-                        <td>₱ {{ product.price|intcomma }}</td>
-                        <td>{{ product.product_description }}</td>
+                        <td><span class="small">₱ {{ product.price|intcomma }}</span></td>
+                        {% if product.product_description|length > 10 %}
+                            <td>
+                                <span class="small" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ product.product_description }}">
+                                    {{ product.product_description|truncatechars:10 }}
+                                </span>
+                            </td>
+                        {% else %}
+                            <td><span class="small">{{ product.product_description }}</span></td>
+                        {% endif %}
+
                         <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-update-page' product.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update">
                                 <i data-feather="settings"></i>
@@ -122,12 +135,14 @@
       var deleteProductModal = document.getElementById('deleteProductModal');
       deleteProductModal.addEventListener('show.bs.modal', function(event) {
         var button = event.relatedTarget;
-        var productName = button.getAttribute('data-product-name');
+        var row = button.closest('tr'); 
+
+        var productName = row.querySelector('.product-name').textContent;
         var productNameElement = document.getElementById('productName');
 
         productNameElement.textContent = productName;
 
-        var productId = button.getAttribute('data-product-id');
+        var productId = row.querySelector('.product-id').textContent;
         var deleteUrl = '{% url "delete-product-page" 0 %}'.replace('0', productId);
         var confirmDelete = document.getElementById('confirmDelete');
         confirmDelete.onclick = function() {

@@ -88,7 +88,7 @@
                                     <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" onload="hidePlaceholder(this)"/>
                                 </div>
                                 {{ pet.name }}
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet Details">
                                     <i data-feather="external-link"></i>
                                 </a>
                             </div>
@@ -97,7 +97,7 @@
                         <td>{{ pet.birthday }}</td>
                         <td >
                             {{ pet.client.full_name }}
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' pet.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' pet.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Owner Details">
                                 <i data-feather="external-link"></i>
                             </a>
                             {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}

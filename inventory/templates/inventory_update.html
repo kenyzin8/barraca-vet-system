@@ -123,50 +123,60 @@
                 </div>
             </div>
             <div>
-                <div class="card mt-0 mb-0">
-                    <div class="card-header">Updates</div>
-                    <div class="card-body">
-                        <table id="datatablesSimple">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Field</th>
-                                    <th>Old Version</th>
-                                    <th>New Version</th>
-                                    <th>Date Updated</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for change in product.changes_log reversed %}
-                                <tr>
-                                    <td>{{ change.update_id }}</td>
-                                    <td>
-                                        {% for field, values in change.items %}
-                                            {% if field != 'update_id' and field != 'date' %}
-                                                {{ field }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% for field, values in change.items %}
-                                            {% if field != 'update_id' and field != 'date' %}
-                                                {{ values.0 }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% for field, values in change.items %}
-                                            {% if field != 'update_id' and field != 'date' %}
-                                                {{ values.1 }}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                    <td>{{ change.date }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                            
-                        </table>
+                <div class="card card-collapsable">
+                    <a class="card-header collapsed" href="#collapseCardUpdates" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapseCardUpdates">
+                        <div>
+                            <i data-feather="archive" style="margin-top:3px;"></i>
+                            Updates
+                        </div>
+                        <div class="card-collapsable-arrow">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </a>
+                    <div class="collapse" id="collapseCardUpdates">
+                        <div class="card-body">
+                            <table id="datatablesSimple">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Field</th>
+                                        <th>Old Version</th>
+                                        <th>New Version</th>
+                                        <th>Date Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for change in product.changes_log reversed %}
+                                    <tr>
+                                        <td>{{ change.update_id }}</td>
+                                        <td>
+                                            {% for field, values in change.items %}
+                                                {% if field != 'update_id' and field != 'date' %}
+                                                    {{ field }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for field, values in change.items %}
+                                                {% if field != 'update_id' and field != 'date' %}
+                                                    {{ values.0 }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for field, values in change.items %}
+                                                {% if field != 'update_id' and field != 'date' %}
+                                                    {{ values.1 }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>{{ change.date }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -188,6 +198,10 @@
             } else {
                 $('#submit-button').prop('disabled', true);
             }
+        });
+        var collapseElement = document.getElementById('collapseCardUpdates');
+        collapseElement.addEventListener('shown.bs.collapse', function () {
+            window.dataTable.refresh();
         });
     });
     </script>

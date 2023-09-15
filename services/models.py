@@ -43,9 +43,29 @@ class Service(models.Model):
 
             if orig.service_type == 'Check-up':
                 if orig.service_type != self.service_type:
-                    raise ValueError("Cannot change the service_type of the 'Check-up' service.")
+                    raise ValueError("Cannot change the name of the 'Check-up' service.")
                 if orig.active != self.active:
                     raise ValueError("Cannot change the active status of the 'Check-up' service.")
+            elif orig.service_type == 'Deworming':
+                if orig.service_type != self.service_type:
+                    raise ValueError("Cannot change the name of the 'Deworming' service.")
+                if orig.active != self.active:
+                    raise ValueError("Cannot change the active status of the 'Deworming' service.")
+            elif orig.service_type == 'Vaccination':
+                if orig.service_type != self.service_type:
+                    raise ValueError("Cannot change the name of the 'Vaccination' service.")
+                if orig.active != self.active:
+                    raise ValueError("Cannot change the active status of the 'Vaccination' service.")
+            elif orig.service_type == 'Doctor\'s Fee':
+                if orig.service_type != self.service_type:
+                    raise ValueError("Cannot change the name of the 'Doctor\'s Fee' service.")
+                if orig.active != self.active:
+                    raise ValueError("Cannot change the active status of the 'Doctor\'s Fee' service.")
+            elif orig.service_type == 'Follow-up Check-up':
+                if orig.service_type != self.service_type:
+                    raise ValueError("Cannot change the name of the 'Follow-up Check-up' service.")
+                if orig.active != self.active:
+                    raise ValueError("Cannot change the active status of the 'Follow-up Check-up' service.")
 
             changes = {}
 
@@ -88,6 +108,7 @@ class Service(models.Model):
             {"type": "Deworming", "fee": 300.00},  
             {"type": "Vaccination", "fee": 600.00},
             {"type": "Doctor's Fee", "fee": 500.00},
+            {"type": "Follow-up Check-up", "fee": 0.00},
         ]
         
         for service in services:

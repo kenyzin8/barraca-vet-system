@@ -919,6 +919,7 @@ class SubmitConsultationView(APIView):
                         diagnosis=diagnosis,
                         treatment=treatment,
                         appointment=appointment if appointment else None,
+                        isHealthCard=False,
                         isDeworm=is_deworm,
                         isVaccine=is_vaccine,
                         isActive=True
@@ -1224,12 +1225,14 @@ class SubmitHealthCardTreatment(APIView):
 
                     last_treatment = PetTreatment.objects.filter(
                         Q(pet_id=selected_pet_id) & 
+                        Q(isHealthCard=True) &
                         Q(treatment=service.service_type) & 
                         (Q(isDeworm=True) | Q(isVaccine=True))
                     ).last()
 
                     previous_treatments = PetTreatment.objects.filter(
                         Q(pet_id=selected_pet_id) & 
+                        Q(isHealthCard=True) &
                         Q(treatment=treatment) & 
                         (Q(isDeworm=True) | Q(isVaccine=True))
                     )
@@ -1287,6 +1290,7 @@ class SubmitHealthCardTreatment(APIView):
                         treatment=treatment,
                         isDeworm=isDeworm,
                         isVaccine=isVaccine,
+                        isHealthCard=True,
                         cycles_remaining=last_cycle_remaining if previous_treatments.exists() else appointment_cycle_repeat
                     )
 

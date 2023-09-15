@@ -43,13 +43,21 @@
                         <td>{{ service.id }}</td>
                         <td>{{ service.service_type }}</td>
                         <td>₱ {{ service.fee|intcomma }}</td>
-                        <td>{{ service.service_description }}</td>
+                        {% if service.service_description|length > 10 %}
+                        <td>
+                          <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ service.service_description }}">
+                            {{ service.service_description|truncatechars:10 }}
+                          </span>
+                        </td>
+                        {% else %}
+                            <td><span>{{ service.service_description }}</span></td>
+                        {% endif %}
                         <!-- <td>{{ service.get_remarks_display  }}</td> -->
                         <td>
-                          {% if service.service_type != "Check-up" %}
                               <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'service-update-page' service.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update">
                                   <i data-feather="settings"></i>
                               </a>
+                            {% if service.service_type != "Check-up" and service.service_type != "Deworming" and service.service_type != "Vaccination" and service.service_type != "Doctor's Fee" and service.service_type != "Follow-up Check-up" %}
                               <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="modal" data-bs-target="#deleteServiceModal" data-service-name="{{ service.service_type }}" data-service-id="{{ service.id }}" data-bs-placement="top" title="Delete">
                                   <i data-feather="trash-2"></i>
                               </a>

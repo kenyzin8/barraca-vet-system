@@ -191,6 +191,24 @@
 {
     background: white;
 }
+#inputCycle:disabled
+{
+    background: white;
+}
+#inputRepeat:disabled
+{
+    background: white;
+}
+#litepickerSingleDate:disabled
+{
+    background: white;
+    pointer: default;
+}
+#inputNextAppointmentTimeOfTheDay:disabled
+{
+    background: white;
+}
+
 </style>
 {% include 'admin/health_card_module/modals.html' %}
 {% include 'admin/health_card_module/health_card_module_script.html' %}
@@ -291,18 +309,21 @@ window.addEventListener('DOMContentLoaded', event => {
     if (litepickerSingleDate) {
 
         var lockDaysArray = [];
-
+        
         doctor_schedules.forEach(schedule => {
             if (schedule.fields.timeOfTheDay === 'whole_day') {
                 lockDaysArray.push(schedule.fields.date);
             }
-        });
 
+        });
+        
         all_appointments.forEach(appointment => {
             if (isDateFull(appointment.fields.date) && !lockDaysArray.includes(appointment.fields.date)) {
                 lockDaysArray.push(appointment.fields.date);
             }
         });
+
+      
 
         var lp = new Litepicker({
             element: litepickerSingleDate,
@@ -333,7 +354,7 @@ window.addEventListener('DOMContentLoaded', event => {
             lockDays: lockDaysArray,
             lockDaysFilter: (day) => {
                 const d = day.getDay();
-
+                
                 return [7, 0].includes(d);
             },
             setup: (picker) => {
@@ -353,8 +374,9 @@ window.addEventListener('DOMContentLoaded', event => {
                     const days = ui.querySelectorAll('.day-item');
                     days.forEach(day => {
                         const dateValue = new Date(Number(day.getAttribute('data-time')));
-                        
-                        if(dateValue < today) {
+                        today.setHours(0, 0, 0, 0);
+
+                        if(dateValue < today) {       
                             day.classList.add('old-date');
                         }
 

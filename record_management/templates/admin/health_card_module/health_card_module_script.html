@@ -482,6 +482,10 @@
 
             var medicine = $('#inputMedicine').val();
             var medicine_sticker = $('#inputLabResultsImages').prop('files')[0];
+            var inputCycle = $('#inputCycle').val();
+            var inputRepeat = $('#inputRepeat').val();
+            var datePicker = $('#litepickerSingleDate').val();
+
             if(treatment == null || treatment == "")
             {
                 activateTab(1);
@@ -518,6 +522,24 @@
                 showError("Please upload the medicine sticker.");
                 return false;
             }
+            else if(inputCycle != "" && inputRepeat == "")
+            {
+                activateTab(1);
+                showError("You have selected a cycle, but forgot to enter the repeat.");
+                return false;
+            }
+            else if(inputRepeat != "" && inputCycle == "")
+            {
+                activateTab(1);
+                showError("You have added a reapat, but forgot to select a cycle.");
+                return false;
+            }
+            else if(inputRepeat != "" && datePicker != "")
+            {
+                activateTab(1);
+                showError("You can only select either a cycle or a date.");
+                return false;
+            }
 
 
             return true;
@@ -545,7 +567,6 @@
                 },
                 dataType: 'json',
                 success: function(response) {
-                    console.log(response);
                     if(response.success)
                     {
                         if (!response.cycle_status) {
@@ -556,14 +577,7 @@
                             if (response.appointment_cycles)
                             {
                                 response.appointment_cycles.forEach((cycle, index) => {
-                                    let note = '';
-                                    if(index === 0){
-                                        note = ' (this is the current treatment date)';
-                                    }
-                                    if(index === 1) { 
-                                        note = ' (this will be the next appointment date for this treatment)';
-                                    }
-                                    $cycleDatesList.append(`<li>Date: ${cycle.date}${note}</li>`);
+                                    $cycleDatesList.append(`<li>Date: ${cycle.date} - ${cycle.status}</li>`);
                                 });
                             }
     
@@ -575,6 +589,11 @@
                             $('.manage-appointment-container').css('display', 'block');
                         }
                     }
+                    else
+                    {
+                        $('.cycle-warning-message').css('display', 'none');
+                        $('.manage-appointment-container').css('display', 'block');
+                    }
 
                 },
                 error: function(response) {
@@ -583,7 +602,70 @@
             });
         });
         
-        
+        $("#inputCycle").on("change", function(){
+            if($(this).val() !== "") {
+                $("#litepickerSingleDate, #inputNextAppointmentTimeOfTheDay").prop("disabled", true);
+                $("#litepickerSingleDate").val("");
+            } else { 
+                $("#litepickerSingleDate, #inputNextAppointmentTimeOfTheDay").prop("disabled", false);
+            }
+        });
+
+        $("#litePickerSingleDate").on("change"), function(){
+            if($(this).val() !== "") {
+                $("#inputCycle, #inputRepeat").prop("disabled", true);
+                $("#inputCycle").val("");
+                $("#inputRepeat").val("");
+            } else { 
+                $("#inputCycle, #inputRepeat").prop("disabled", false);
+            }
+        }
+
+        $("#litepickerSingleDate").on("focus", function(){
+            $("#inputCycle").prop("disabled", true); 
+            $("#inputRepeat").prop("disabled", true); 
+            $("#inputCycle").val("");
+            $("#inputRepeat").val("");
+        });
+    
+        $("#litepickerSingleDate").on("blur", function(){
+            if($(this).val() === "") {
+                $("#inputCycle").prop("disabled", false);
+                $("#inputRepeat").prop("disabled", false);
+            }
+        });
+
+        $(document).on('click', '.button-apply', function(e)
+        {
+            if($("#litepickerSingleDate").val() !== "") {
+                $("#inputCycle").prop("disabled", true); 
+                $("#inputRepeat").prop("disabled", true); 
+                $("#inputCycle").val("");
+                $("#inputRepeat").val("");
+            } else { 
+                $("#inputCycle").prop("disabled", false);
+                $("#inputRepeat").prop("disabled", false);
+            }
+        });
+        $(document).on('click', '.button-cancel', function(e)
+        {
+            if($("#litepickerSingleDate").val() !== "") {
+                $("#inputCycle").prop("disabled", true); 
+                $("#inputRepeat").prop("disabled", true); 
+                $("#inputCycle").val("");
+                $("#inputRepeat").val("");
+            } else { 
+                $("#inputCycle").prop("disabled", false);
+                $("#inputRepeat").prop("disabled", false);
+            }
+        });
+        $(document).on('click', '.day-item', function(e)
+        {
+            $("#inputCycle").prop("disabled", true); 
+            $("#inputRepeat").prop("disabled", true); 
+            $("#inputCycle").val("");
+            $("#inputRepeat").val("");
+        });
 
         $(document).on('click', '#confirm-treatment-button', function(e)
         {

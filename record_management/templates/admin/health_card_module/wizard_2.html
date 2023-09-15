@@ -123,10 +123,10 @@
                             </select>
                         </div>  
                     </div>
-                    <label class="small mb-1" for="nextAppointmentPurpose">Purpose</label>
+                    <label class="small mb-1" for="nextAppointmentPurpose">Purpose <span class="small text-red">(Auto)</span></label>
                     <div class="input-group mb-3">
                         
-                        <select class="form-select" id="nextAppointmentPurpose">
+                        <select class="form-select" id="nextAppointmentPurpose" disabled>
                             <!-- add empty option for null -->
                             <option value="">------------</option>
                             {% for service in services %}

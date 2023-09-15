@@ -250,6 +250,16 @@
                             selectedPetName = row.querySelector('.pet-name').textContent.trim();
                             const selectedPetImage = row.querySelector('.avatar-img').getAttribute('src');
                             const selectedPetLink = row.querySelector('.btn-to-pet').getAttribute('href');
+
+                            let radios = document.querySelectorAll('input[type="radio"]');
+                            radios.forEach(radio => {
+                                if(radio.checked == true)
+                                    radio.click();
+                                radio.disabled = false;
+                                radio.checked = false;
+                                delete radioStates[radio.id];
+                            });
+
                             const selectedPetInfoDivs = document.querySelectorAll('.selected-pet-info');
                             selectedPetInfoDivs.forEach(div => {
                                 div.querySelector('.selected-pet-image').setAttribute('src', selectedPetImage);

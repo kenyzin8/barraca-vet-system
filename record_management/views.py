@@ -1228,6 +1228,18 @@ class SubmitHealthCardTreatment(APIView):
                     appointment_time_of_the_day = serializer.validated_data.get('appointment_time_of_the_day')
                     appointment_purpose = serializer.validated_data.get('appointment_purpose')
 
+                    deworm_instance = Service.objects.get(service_type="Deworming")
+                    vaccine_instance = Service.objects.get(service_type="Vaccination")
+
+                    if appointment_purpose != deworm_instance.id and appointment_purpose != vaccine_instance.id:
+                        return Response({'success': False, 'message': 'Invalid appointment purpose. Only deworming and vaccination are allowed.'})
+
+                    if isDeworm and appointment_purpose != deworm_instance.id:
+                        return Response({'success': False, 'message': 'Invalid appointment purpose. You have selected deworming but the appointment purpose is different.'})
+
+                    if isVaccine and appointment_purpose != vaccine_instance.id:
+                        return Response({'success': False, 'message': 'Invalid appointment purpose. You have selected vaccination but the appointment purpose is different.'})
+
                     pet = Pet.objects.get(pk=selected_pet_id)
 
                     service = Service.objects.get(pk=appointment_purpose)

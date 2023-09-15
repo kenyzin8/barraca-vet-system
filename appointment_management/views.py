@@ -422,9 +422,12 @@ def check_if_full(request):
 @login_required
 @staff_required
 def get_pets(request):
-    client_id = request.GET.get('client_id')
-    pets = Pet.objects.filter(client=client_id, is_active=True).values('id', 'name')
-    return JsonResponse(list(pets), safe=False)
+    try:
+        client_id = request.GET.get('client_id')
+        pets = Pet.objects.filter(client=client_id, is_active=True).values('id', 'name')
+        return JsonResponse(list(pets), safe=False)
+    except:
+        return JsonResponse({'status': 'error', 'message': 'Client not found'})
 
 # @login_required
 # @staff_required
@@ -707,12 +710,20 @@ def get_all_data(request):
     date_slots = DateSlot.objects.filter(isActive=True).values('date', 'slots')
     date_slots_list = list(date_slots)
 
+    all_pets = Pet.objects.filter(is_active=True).values('id', 'client__id')
+    all_clients = Client.objects.filter(user__is_active=True, isBanned=False).values('id')
+
+    print(list(all_clients))
+    print(list(all_pets))
+
     # Construct response data
     data = {
         'appointments': event_list,
         'disabled_days': disabled_days_list,
         'max_appointments': max_appointments.max_appointments,
         'date_slots': date_slots_list,
+        'all_pets': list(all_pets),
+        'all_clients': list(all_clients),
     }
 
     return JsonResponse(data, safe=False)

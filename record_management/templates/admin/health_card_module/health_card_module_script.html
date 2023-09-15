@@ -35,6 +35,14 @@
         let selectedProductID = -1;
         let selectedProductName = "";
 
+        let parameter = new URLSearchParams(window.location.search);
+        let _pet_id = parameter.get('pet_id');
+
+        if(_pet_id != null)
+        {
+            selectedPetId = _pet_id;
+        }
+
         let radioStates = {};
         
         let nextAppointmentPurposeOptions = []
@@ -238,6 +246,17 @@
                             textSpan.textContent = 'Selected';
                             textSpan.style.color = 'green';
                             textSpan.style.fontWeight = '600';
+
+                            selectedPetName = row.querySelector('.pet-name').textContent.trim();
+                            const selectedPetImage = row.querySelector('.avatar-img').getAttribute('src');
+                            const selectedPetLink = row.querySelector('.btn-to-pet').getAttribute('href');
+                            const selectedPetInfoDivs = document.querySelectorAll('.selected-pet-info');
+                            selectedPetInfoDivs.forEach(div => {
+                                div.querySelector('.selected-pet-image').setAttribute('src', selectedPetImage);
+                                div.querySelector('.selected-pet-name').textContent = selectedPetName;
+                                div.querySelector('.selected-pet-link').setAttribute('href', selectedPetLink);
+                                div.style.display = 'flex'; 
+                            });
                         }
                     });
                 }
@@ -283,7 +302,12 @@
         }
     
         setupSelectButtons();
-    
+
+        if(selectedPetId != null){
+            parameter.delete('pet_id');
+            history.pushState({}, null, location.pathname);
+        }
+        
         $('#addMedicineModal').on('show.bs.modal', function (event) 
         {
             {% for type, products in product_dict.items %}

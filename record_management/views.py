@@ -74,6 +74,11 @@ def forgot_password(request):
             try:
                 user = User.objects.get(username=username)
                 client = user.client
+
+                if client.isBanned:
+                    messages.error(request, 'Your account is banned. Please contact the administrator.')
+                    return redirect('forgot-password-page')
+
                 phone_number = client.contact_number
                 otp_code = send_otp_sms(phone_number)
 
@@ -121,6 +126,10 @@ def login_view(request):
 
         if form.is_valid():
             user = form.get_user()
+
+            if user.client.isBanned:
+                messages.error(request, 'Your account is banned. Please contact the administrator.')
+                return redirect('login-page')
 
             if not user.is_active:
                 phone_number = user.client.contact_number

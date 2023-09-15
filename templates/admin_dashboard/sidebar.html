@@ -28,7 +28,7 @@
                         Dashboard
                     </a>
                     {% if request.user|has_permission:'record_management.add_client' %}
-                    <a class=" nav-link {% if current_url_name == 'user-list-page' %}active{% endif %}" href="{% url 'user-list-page' %}">
+                    <a class=" nav-link {% if current_url_name == 'user-list-page' or current_url_name == 'update-user-page' or current_url_name == 'update-user-2fa-page' %}active{% endif %}" href="{% url 'user-list-page' %}">
                         <div class="nav-link-icon"><i data-feather="users"></i></div>
                         Manage Users
                     </a>

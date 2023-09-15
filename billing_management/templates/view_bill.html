@@ -133,7 +133,7 @@
                     <tr>
                         <td>
                             <div class="fw-bold">
-                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.price_at_time_of_purchase|intcomma }}</span> x <span class="product-quantity">{{ product.quantity|floatformat:2 }})</span>
+                                {{ product.product.product_name }} (₱ <span class="product-price">{{ product.price_at_time_of_purchase|intcomma }}</span> x <span class="product-quantity">{{ product.quantity|floatformat:0 }})</span>
                             </div>
                             <div class="small text-muted d-none d-md-block" id="productType">{{ product.product.type }}</div>
                         </td> 
@@ -274,7 +274,7 @@
         var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 1px solid #232323; ${font}`;
         var css_gridStyle = `text-align: center; padding: 0px;border: 1px solid #232323; ${font};`;
         var css_headerStyle = `text-align: center; font-size: 14pt; color: #232323; font-weight: bold; margin-bottom: 20px; font-family: Roboto;`;
-        var headerName = "Sales Report";
+        var headerName = "Billing Report";
         var imgSrc = "{% static 'images/barraca.png' %}";
         var date = new Date();
         var formattedDate = getFormattedDate(date);

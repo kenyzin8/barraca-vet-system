@@ -1,0 +1,87 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Account Settings | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+{% endblock %}
+
+{% block content %}
+<main>
+    <!-- Main page content-->
+    <div class="container-xl px-4 mt-4 animated--fade-in-up">
+        <nav class="mt-4 rounded mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb px-3 py-2 rounded mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'user-list-page' %}">Users</a></li>
+                <li class="breadcrumb-item active">{{ user.client.full_name }}</li>
+            </ol>
+        </nav>
+        <!-- Account page navigation-->
+        <nav class="nav nav-borders">
+            <a class="nav-link ms-0" href="{% url 'update-user-page' user_id %}">Account</a>
+            <a class="nav-link active" href="{% url 'admin-otp-settings-page' %}">2FA</a>
+        </nav>
+        <hr class="mt-0 mb-4" />
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">Two-Factor Authentication</div>
+                    <div class="card-body">
+                        <p>Add another level of security to your account by enabling two-factor authentication during login.</p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <!-- Render the error for the phone_number field -->               
+                            <p>
+                                <label for="{{ two_factor_form.phone_number.id_for_label }}">Phone number:</label>
+                                {{ two_factor_form.phone_number }}
+                            </p>
+                        
+                            <p>
+                                <label>Two auth enabled:</label>
+                                {{ two_factor_form.two_auth_enabled }}
+                            </p>
+                        
+                            <button class="btn btn-sm btn-dark" type="submit">Save</button>
+                        </form>
+                        
+                        <br>
+                        {% if two_factor_form.phone_number.errors %}
+                            <div class="alert alert-danger">
+                                {% for error in two_factor_form.phone_number.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if messages %}
+                            {% for message in messages %}
+                            {% if message.tags == 'success' %}
+                                <div class="alert alert-success">
+                                    {{ message }}
+                                </div>
+                            {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">Phone Number</div>
+                    <div class="card-body">
+                        <center style="font-weight: 500;" class="text-primary">{{ sms_number }}</center>
+                        <p class="mt-2 text-center">Please make sure that the new number is manually verified.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</main>
+
+{% endblock %}
+
+{% block extrascripts %}
+
+{% endblock %}

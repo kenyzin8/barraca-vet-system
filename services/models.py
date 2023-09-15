@@ -27,6 +27,8 @@ class Service(models.Model):
         ('other', 'Other'),
     )
 
+    list_built_in_services = ['Check-up', 'Deworming', 'Vaccination', 'Doctor\'s Fee', 'Follow-up Check-up']
+
     service_type = models.CharField(max_length=50)
     fee = models.DecimalField(max_digits=10, decimal_places=2)
     #remarks = models.CharField(max_length=20, choices=REMARKS_TYPES)
@@ -41,31 +43,11 @@ class Service(models.Model):
         if self.pk is not None:
             orig = Service.objects.get(pk=self.pk)
 
-            if orig.service_type == 'Check-up':
+            if orig.service_type in self.list_built_in_services:
                 if orig.service_type != self.service_type:
-                    raise ValueError("Cannot change the name of the 'Check-up' service.")
+                    raise ValueError(f"Cannot change the name of the '{orig.service_type}' service.")
                 if orig.active != self.active:
-                    raise ValueError("Cannot change the active status of the 'Check-up' service.")
-            elif orig.service_type == 'Deworming':
-                if orig.service_type != self.service_type:
-                    raise ValueError("Cannot change the name of the 'Deworming' service.")
-                if orig.active != self.active:
-                    raise ValueError("Cannot change the active status of the 'Deworming' service.")
-            elif orig.service_type == 'Vaccination':
-                if orig.service_type != self.service_type:
-                    raise ValueError("Cannot change the name of the 'Vaccination' service.")
-                if orig.active != self.active:
-                    raise ValueError("Cannot change the active status of the 'Vaccination' service.")
-            elif orig.service_type == 'Doctor\'s Fee':
-                if orig.service_type != self.service_type:
-                    raise ValueError("Cannot change the name of the 'Doctor\'s Fee' service.")
-                if orig.active != self.active:
-                    raise ValueError("Cannot change the active status of the 'Doctor\'s Fee' service.")
-            elif orig.service_type == 'Follow-up Check-up':
-                if orig.service_type != self.service_type:
-                    raise ValueError("Cannot change the name of the 'Follow-up Check-up' service.")
-                if orig.active != self.active:
-                    raise ValueError("Cannot change the active status of the 'Follow-up Check-up' service.")
+                    raise ValueError(f"Cannot change the active status of the '{orig.service_type}' service.")
 
             changes = {}
 
@@ -93,12 +75,19 @@ class Service(models.Model):
                     self.changes_log.append(changes)
                 else:
                     self.changes_log = [changes]
+        else:
+            self.service_type = ' '.join([word.capitalize() for word in self.service_type.split()])
+
+            if self.service_type in self.list_built_in_services:
+                existing_service = Service.objects.filter(service_type__iexact=self.service_type, active=True).first()
+                if existing_service:
+                    raise ValueError(f"'{self.service_type}' service already exists and is active.")
 
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        if self.service_type == 'Check-up':
-            raise ValueError("The 'Check-up' service cannot be deleted.")
+        if self.service_type in self.list_built_in_services:
+            raise ValueError(f"Cannot delete the '{self.service_type}' service.")
         super(Service, self).delete(*args, **kwargs)
 
     @classmethod
@@ -119,9 +108,6 @@ class Service(models.Model):
 
             if created:
                 print(f"Created default '{service['type']}' service.")
-            else:
-                print(f"'{service['type']}' service already exists.")
-
 
     def __str__(self):
         return f"{self.service_type}"

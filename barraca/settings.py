@@ -40,8 +40,6 @@ if os.getenv('DJANGO_DEBUG') == 'True':
 else:
     DEBUG = False
 
-AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
-
 ALLOWED_HOSTS = ['*']
 
 # Application definition
@@ -273,6 +271,8 @@ CELERY_TIMEZONE = TIME_ZONE
 # }
 
 OTP_EXPIRATION_MINUTES = 5
+
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
 
 # JAZZMIN_SETTINGS = {
 #     # title of the window (Will default to current_admin_site.site_title if absent or None)

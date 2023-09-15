@@ -32,7 +32,7 @@
                 <tbody>
                     {% for user in users %}
                     <tr>
-                        <td>{{ user.id }}</td>
+                        <td><span class="user-id">{{ user.id }}</span></td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-2">
@@ -66,9 +66,16 @@
                             </span>
                             {% else %}
                             <span class="badge bg-danger">
+                                
+                                {% if user.client.isBanned %}
+                                Banned
+                                {% else %}
                                 Inactive
+                                {% endif %}
+                                
                             </span>
                             {% endif %}
+                            
                         </td>
                         <td>
                             {% if user.is_superuser %}
@@ -86,12 +93,18 @@
                             {% endfor %}
                         </td>
                         <td>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Update User">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'update-user-page' user.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update User">
                                 <i data-feather="settings"></i>
                             </a>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Ban User">
+                            {% if user.client.isBanned %}
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark unban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Unban User">
+                                <i data-feather="user-check"></i>
+                            </a>
+                            {% else %}
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark ban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Ban User">
                                 <i data-feather="slash"></i>
                             </a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -100,8 +113,155 @@
         </div>
     </div>
 </main>
+
+<div class="modal fade" id="confirmationUnbanModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationUnbanModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationUnbanModal">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to unban this user?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-unban-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmationModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to ban this user?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-ban-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="errorModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark errorOKBtn" type="button" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="successModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Success</h5>
+                {% comment %} <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button> {% endcomment %}
+            </div>
+            <div class="modal-body">
+                <span class="modal-body-success-message"></span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark successOKBtn" type="button" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script>
+    function showSuccess(message)
+    {
+        $('#successModal .modal-body-success-message').text(message);
+        $('#successModal').modal('show');
+    }
+
+    function showError(message)
+    {
+        $('#errorModal .modal-body').text(message);
+        $('#errorModal').modal('show');
+    }
+
+    $(document).ready(function() {
+
+        var selected_id = -1;
+
+        $(".unban-user-btn").on('click', function(event) {
+            event.preventDefault();
+            var $row = $(this).closest('tr');  
+            var user_id = $row.find('.user-id').text();
+            selected_id = parseInt(user_id);
+            $("#confirmationUnbanModal").modal('show');
+        });
+
+        $("#confirmationUnbanModal").on('click', function() {
+            var url = "{% url 'unban-user-page' 0 %}".replace('0', selected_id);
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if(response.success){
+                        showSuccess(response.message);
+
+                        $(".successOKBtn").on('click', function() {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(error) {
+                    showError(error.responseJSON.message);
+                }
+            });
+        });
+
+        $(".ban-user-btn").on('click', function(event) {
+            event.preventDefault();
+            var $row = $(this).closest('tr');  
+            var user_id = $row.find('.user-id').text();
+            selected_id = parseInt(user_id);
+            $("#confirmationModal").modal('show');
+        });
+    
+        $("#confirm-ban-button").on('click', function() {
+            var url = "{% url 'ban-user-page' 0 %}".replace('0', selected_id);
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if(response.success){
+                        showSuccess(response.message);
+
+                        $(".successOKBtn").on('click', function() {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(error) {
+                    showError(error.responseJSON.message);
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -112,16 +112,16 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Encode Health Card">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Encode Health Card">
                                 <i data-feather="credit-card"></i>
                             </a>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Medical Prescription">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-add-pet-medical-prescription-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Medical Prescription">
                                 <i data-feather="list"></i>
                             </a>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Encode Medical Record">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-medical-record-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Encode Medical Record">
                                 <i data-feather="heart"></i>
                             </a>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Set Appointment">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-calendar' %}?pet_id={{ pet.id }}&owner_id={{ pet.client.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Set Appointment">
                                 <i data-feather="calendar"></i>
                             </a>
                         </td>

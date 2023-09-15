@@ -507,8 +507,55 @@ document.addEventListener('DOMContentLoaded', function() {
             var disabledDays = response.disabled_days;
 
             var maxAppointments = response.max_appointments;
-            var dateSlots = {};
 
+            var allPets = response.all_pets;
+            var allClients = response.all_clients;
+
+            let parameter = new URLSearchParams(window.location.search);
+            let _pet_id = parameter.get('pet_id');
+            let _owner_id = parameter.get('owner_id');
+        
+            if (_pet_id && _owner_id) {
+                var petExists = allPets.some((pet) => pet.id == _pet_id);
+                var ownerExists = allClients.some((client) => client.id == _owner_id);
+                if (!petExists || !ownerExists) {
+                    parameter.delete('pet_id');
+                    parameter.delete('owner_id');
+                    _owner_id = null;
+                    _pet_id = null;
+                    history.pushState({}, null, location.pathname);
+                }
+            }
+
+            $('#id_client').change(function() {
+                var url = "{% url 'get_pets' %}";
+                var clientId = $(this).val();
+                $.ajax({
+                    url: url,
+                    data: {
+                        'client_id': clientId
+                    },
+                    success: function(data) {
+                        var select = $("#id_pet");
+                        select.html('');
+                        $.each(data, function(index, text) {
+                            select.append(
+                                $('<option></option>').val(text.id).html(text.name)
+                            );
+                        });
+                        if (_pet_id) {
+                            $('#id_pet').val(_pet_id);
+                        }
+                    }
+                });
+            });
+        
+            if(_owner_id != null && _pet_id != null) {
+                $('#id_client').val(_owner_id);
+                $('#id_client').trigger('change');
+            }
+
+            var dateSlots = {};
             for (var i = 0; i < response.date_slots.length; i++) {
                 // var date = new Date(response[i].date).toDateString();
                 dateSlots[response.date_slots[i].date] = response.date_slots[i].slots;
@@ -1206,6 +1253,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                     var clientId = info.event.extendedProps.client_id;
                                     var select_pet = $("#id_pet-rebook");
+
 
                                     $.ajax({
                                         url: "{% url 'get_pets' %}",
@@ -2060,33 +2108,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 return `${year}-${month}-${day}`;
             }
+
+            if (_pet_id && _owner_id) {
+                var petExists = allPets.some((pet) => pet.id == _pet_id);
+                var ownerExists = allClients.some((client) => client.id == _owner_id);
+                if (petExists || ownerExists) {
+                    parameter.delete('pet_id');
+                    parameter.delete('owner_id');
+                    history.pushState({}, null, location.pathname);
+                }
+            }
         },
         error: function(error) {
             console.error(error);
         }
-    });
-});
-</script>
-<script>
- $(document).ready(function() {
-    $('#id_client').change(function() {
-        var url = "{% url 'get_pets' %}";
-        var clientId = $(this).val();
-        $.ajax({
-            url: url,
-            data: {
-                'client_id': clientId
-            },
-            success: function(data) {
-                var select = $("#id_pet");
-                select.html('');
-                $.each(data, function(index, text) {
-                    select.append(
-                        $('<option></option>').val(text.id).html(text.name)
-                    );
-                });
-            }
-        });
     });
 });
 </script>

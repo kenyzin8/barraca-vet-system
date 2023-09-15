@@ -100,6 +100,9 @@ class LoginForm(AuthenticationForm):
                 'placeholder' : 'Password', 
                 'required' : 'true'
             }))
+            
+    def confirm_login_allowed(self, user):
+        pass
     # remember_me = forms.BooleanField(required=False)
 
 class UserUpdateForm(UserChangeForm):
@@ -138,3 +141,8 @@ class AdminChangePasswordForm(PasswordChangeForm):
 
 class TwoFactorAuthenticationForm(forms.Form):
     two_auth_enabled = forms.BooleanField(required=False, widget=forms.RadioSelect(choices=((True, 'On'), (False, 'Off'))))
+
+class AdminTwoFactorAuthenticationForm(forms.Form):
+    phone_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Phone Number'}), validators=[validate_phone_number])
+    two_auth_enabled = forms.BooleanField(required=False, widget=forms.RadioSelect(choices=((True, 'On'), (False, 'Off'))))
+    

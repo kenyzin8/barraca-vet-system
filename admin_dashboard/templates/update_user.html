@@ -12,11 +12,16 @@
 <main>
     <!-- Main page content-->
     <div class="container-xl px-4 mt-4 animated--fade-in-up">
+        <nav class="mt-4 rounded mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb px-3 py-2 rounded mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'user-list-page' %}">Users</a></li>
+                <li class="breadcrumb-item active">{{ client.full_name }}</li>
+            </ol>
+        </nav>
         <!-- Account page navigation-->
         <nav class="nav nav-borders">
             <a class="nav-link active ms-0" href="{% url 'admin-account-settings-page' %}">Account</a>
-            <a class="nav-link" href="{% url 'admin-password-settings-page' %}">Password</a>
-            <a class="nav-link" href="{% url 'admin-otp-settings-page' %}">2FA</a>
+            <a class="nav-link" href="{% url 'update-user-2fa-page' user_id %}">2FA</a>
             
             <!--<a class="nav-link" href="account-notifications.html">Notifications</a> -->
         </nav>
@@ -26,10 +31,10 @@
                 <div class="card mb-4 mb-xl-0">
                     <div class="card-header">Profile Picture</div>
                     <div class="card-body text-center">
-                        <img class="img-account-profile rounded-circle mb-2" src="{% static user.client.get_image %}" alt="" />
+                        <img class="img-account-profile rounded-circle mb-2" src="{% static client.get_image %}" alt="" />
                         <br>
                         <br>
-                        <div class="small font-italic text-muted mb-4">Your profile picture is based on your gender</div>
+                        <div class="small font-italic text-muted mb-4">{{ client.full_name }}'s profile picture is based on {% if client.gender == 'Female' %}her{% elif client.gender == 'Male' %}his{% endif %} gender</div>
                         <!-- <button class="btn btn-primary" type="button">Select new image</button> -->
                     </div>
                 </div>

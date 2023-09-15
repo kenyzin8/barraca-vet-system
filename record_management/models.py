@@ -24,7 +24,7 @@ class Client(models.Model):
     province = models.CharField(max_length=200, default="None")
     contact_number = models.CharField(max_length=15)
     two_auth_enabled = models.BooleanField(default=False)
-
+    isBanned = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 

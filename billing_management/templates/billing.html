@@ -236,8 +236,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                 <th>#</th>
                                 <th>Service</th>
                                 <th>Fee</th>
-                                <th>Remarks</th>
-                                <th>Control Number</th>
+                                <th>Description</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -255,17 +254,19 @@ window.addEventListener('DOMContentLoaded', event => {
                                         ₱ {{ service.fee|intcomma }}
                                     </span>
                                 </td>
+                                {% if service.service_description|length > 50 %}
+                                <td>
+                                    <span class="service-remarks" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ service.service_description }}">
+                                        {{ service.service_description|truncatechars:50 }}
+                                    </span>
+                                </td>
+                                {% else %}
                                 <td>
                                     <span class="service-remarks">
                                         {{ service.service_description }}
                                     </span>
                                 </td>
-                                <td>
-                                    {{ service.control_number }}
-                                    <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'service-update-page' service.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Updates" style="margin-bottom: 4px;">
-                                        <i data-feather="external-link"></i>
-                                    </a>
-                                </td>
+                                {% endif %}
                                 <td>
                                     <button class="btn btn-dark add-service btn-sm" data-service-id="{{ service.id }}">
                                         <span class="add-text">Add</span>
@@ -319,12 +320,13 @@ window.addEventListener('DOMContentLoaded', event => {
                                             <th>#</th>
                                             <th><span class="small">Name</span></th>
                                             <th><span class="small">Manufacturer</span></th>
+                                            <th><span class="small">Form</span></th>
                                             <th><span class="small">Description</span></th>
                                             <th><span class="small">Batch Number</span></th>
                                             <th><span class="small">Expiration Date</span></th>
                                             <th><span class="small">Stock Quantity</span></th>
                                             <th><span class="small">Quantity</span></th>
-                                            <th><span class="small">Price</span></th>
+                                            <th><span class="small">Selling Price</span></th>
                                             <th><span class="small">Action</span></th>
                                         </tr>
                                     </thead>
@@ -332,9 +334,9 @@ window.addEventListener('DOMContentLoaded', event => {
                                         {% for product in products %}
                                         {% if product.active %}
                                         <tr>
-                                            <td><span class="product-id">{{ product.id }}</span></td>
+                                            <td><span class="product-id small">{{ product.id }}</span></td>
                                             <td>
-                                                <span class="product-name">
+                                                <span class="product-name small">
                                                     {{ product.product_name }}
                                                 </span>
                                                 <span class="product-type" style="display: none;">
@@ -342,17 +344,30 @@ window.addEventListener('DOMContentLoaded', event => {
                                                 </span>
                                             </td>
                                             <td>
-                                                <span class="product-manufacturer">
+                                                <span class="product-manufacturer small">
                                                     {{ product.manufacturer }}
                                                 </span>
                                             </td>
                                             <td>
-                                                <span class="product-description">
+                                                <span class="product-form small">
+                                                    {{ product.get_form_display }}
+                                                </span>
+                                            </td>
+                                            {% if product.product_description|length > 25 %}
+                                            <td>
+                                                <span class="product-description small" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ product.product_description }}">
+                                                    {{ product.product_description|truncatechars:25 }}
+                                                </span>
+                                            </td>
+                                            {% else %}
+                                            <td>
+                                                <span class="product-description small">
                                                     {{ product.product_description }}
                                                 </span>
                                             </td>
+                                            {% endif %}
                                             <td>
-                                                <span class="product-batch-number">
+                                                <span class="product-batch-number small">
                                                     {{ product.batch_number }}
                                                 </span>
                                                 <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-update-page' product.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Updates" style="margin-bottom: 4px;">
@@ -360,6 +375,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                                 </a>
                                             </td>
                                             <td>
+                                                <span class="small">
                                                 {% if product.is_product_expired %}
                                                     {{ product.expiration_date }} 
                                                     <span style="color: red;">
@@ -368,20 +384,22 @@ window.addEventListener('DOMContentLoaded', event => {
                                                 {% else %}
                                                     {{ product.expiration_date }}
                                                 {% endif %}
+                                                </span>
                                             </td>
                                             <td>
-                                                <span class="product-stock-quantity">
-                                                    {{ product.quantity_on_stock|floatformat:2|intcomma }}
+                                                <span class="product-stock-quantity small">
+                                                    {{ product.quantity_on_stock|floatformat:0|intcomma }}
                                                     {% if product.quantity_on_stock == 0 %}
                                                         <span style="color: red;">(Out of Stock)</span>
                                                     {% endif %}
                                                 </span>
                                             </td>
                                             <td>
-                                                <input type="number" class="form-control product-quantity" min="1" step="0.01" value="1" style="width: 80px;" onkeydown="javascript: return event.keyCode !== 69">
+                                                <input type="number" class="form-control product-quantity small" min="1" value="1" step="1" style="width: 80px;" onkeydown="return preventDecimal(event);" oninput="removeDecimal(this);">
+
                                             </td>
                                             <td>
-                                                <span class="product-price">
+                                                <span class="product-price small">
                                                     ₱ {{ product.price|intcomma }}
                                                 </span>
                                             </td>

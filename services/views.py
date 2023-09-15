@@ -22,18 +22,22 @@ def service_add(request):
     if request.method == 'POST':
         form = ServiceForm(request.POST)
         if form.is_valid():
-            new_service = form.save(commit=False) 
-            
-            if Service.objects.filter(service_type=new_service.service_type, active=True).exists():
-                form.add_error('service_type', 'Error: Service already exists.')
-                context = {
-                    'form': form,
-                    'service_types': service_types,
-                }
-                return render(request, 'services_add.html', context)
-            
-            new_service.save()  
-            return redirect('service-list-page')
+            try:
+                new_service = form.save(commit=False) 
+                
+                # if Service.objects.filter(service_type=new_service.service_type, active=True).exists():
+                #     form.add_error('service_type', 'Error: Service already exists.')
+                #     context = {
+                #         'form': form,
+                #         'service_types': service_types,
+                #     }
+                #     return render(request, 'services_add.html', context)
+                
+                new_service.save()  
+                return redirect('service-list-page')
+            except ValueError as e:
+                form.add_error('service_type', str(e))
+
     else:
         form = ServiceForm()
 

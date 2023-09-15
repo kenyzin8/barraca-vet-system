@@ -94,27 +94,54 @@
             </div>
           </div>
         </div>
-        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal fade" id="errorModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="errorModalLabel">There was an error</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="errorModalLabel">There was an error</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                      {% if form.errors %}
+                          {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                            <div class="error-container">
+                              <i data-feather="corner-down-right" style="color:maroon;"></i> {{ error }}
+                            </div>
+                            {% endfor %}
+                              {% comment %} <li>{{ field|capfirst }} 
+                                  <ul class="errorlist">
+
+                                  </ul>
+                              </li> {% endcomment %}
+                          {% endfor %}
+                          {% comment %} <ul class="errorlist">
+
+                          </ul> {% endcomment %}
+                      {% endif %}
+                      {% if messages %}
+                          {% for message in messages %}
+                            <div class="error-container">
+                              <i data-feather="corner-down-right" style="color:maroon;"></i> {{ message }}
+                            </div>
+                          {% endfor %}
+                          {% comment %} <ul class="errorlist">
+
+                          </ul> {% endcomment %}
+                      {% endif %}
+                  </div>
+                  <div class="modal-footer">
+                      <button class="btn btn-dark btn-sm" type="button" data-bs-dismiss="modal">OK</button>
+                  </div>
               </div>
-              <div class="modal-body">
-                <p>{{ form.errors }}</p>
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-dark btn-sm" type="button" data-bs-dismiss="modal">OK</button>
-              </div>
-            </div>
           </div>
         </div>
-        {% if form.errors %}
+      
+        {% if form.errors or messages %}
         <script>
-          $(document).ready(function() {
-            $('#errorModal').modal('show');
-          });
+            $(document).ready(function() {
+                $('#errorModal').modal('show');
+            });
         </script>
         {% endif %}
         <div class="mb-3 get-started-button mt-3">

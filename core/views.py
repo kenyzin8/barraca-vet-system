@@ -3,6 +3,11 @@ from .decorators import staff_required
 from django.contrib.auth.decorators import login_required
 from .models import Notification
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from django.contrib.auth.models import User
+from record_management.models import Client
+from django.db.models import Q
 
 @staff_required
 @login_required
@@ -19,3 +24,21 @@ def handler404(request, exception):
 
 def handler500(request):
     return render(request, '404.html', {}, status=500)
+
+@csrf_exempt
+def test(request):
+    if request.method == 'POST':
+        try:
+            email = request.POST.get('email')
+            phone = request.POST.get('phone')
+            
+            user = User.objects.filter(Q(email=email) | Q(client__contact_number=phone), client__isBanned=True).first()
+
+            if user:
+                return JsonResponse({'result': 'Your account is banned. Please contact the administrator.'})
+            else:
+                return JsonResponse({'result': 'Your account is not banned.'})
+
+            return JsonResponse({'result': user.client.full_name, 'email': user.email, 'phone': user.client.contact_number})
+        except Exception as e:
+            return JsonResponse({'result': str(e)})

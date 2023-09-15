@@ -176,35 +176,47 @@ def register_user(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            with transaction.atomic():
-                user = form.save(commit=False)
-                user.is_active = False
-                user.save()
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data['contact_number']
 
-                client = Client(
-                    user=user,
-                    first_name=form.cleaned_data['first_name'],
-                    last_name=form.cleaned_data['last_name'],
-                    gender=form.cleaned_data['gender'],
-                    street=form.cleaned_data['street'],
-                    barangay=form.cleaned_data['barangay'],
-                    city=form.cleaned_data['city'],
-                    province=form.cleaned_data['province'],
-                    contact_number=form.cleaned_data['contact_number']
-                )
-                client.save()
+            if User.objects.filter(client__contact_number=phone, client__isBanned=True).first():
+                messages.error(request, 'You have a banned account linked to that phone number. Please contact the administrator.')
+            elif User.objects.filter(email=email, client__isBanned=True).first():
+                messages.error(request, 'You have a banned account linked to that email. Please contact the administrator.')
+            elif User.objects.filter(email=email).first():
+                messages.error(request, 'Email already exists.')
+            elif Client.objects.filter(contact_number=phone).first():
+                messages.error(request, 'Phone number already exists.')
+            else:
+                with transaction.atomic():
+                    user = form.save(commit=False)
+                    user.is_active = False
+                    user.save()
 
-            phone_number = client.contact_number
-            otp_code = send_otp_sms(phone_number)
+                    client = Client(
+                        user=user,
+                        first_name=form.cleaned_data['first_name'],
+                        last_name=form.cleaned_data['last_name'],
+                        gender=form.cleaned_data['gender'],
+                        street=form.cleaned_data['street'],
+                        barangay=form.cleaned_data['barangay'],
+                        city=form.cleaned_data['city'],
+                        province=form.cleaned_data['province'],
+                        contact_number=form.cleaned_data['contact_number']
+                    )
+                    client.save()
 
-            request.session['otp_code'] = otp_code
-            request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=OTP_EXPIRATION_MINUTE)).timestamp()
-            request.session['temp_user_id'] = user.id
-            request.session['temp_user_session'] = request.session.session_key
-            request.session['otp_attempt_count'] = 0
-            request.session.save()
+                phone_number = client.contact_number
+                otp_code = send_otp_sms(phone_number)
 
-            return redirect('otp_view')
+                request.session['otp_code'] = otp_code
+                request.session['otp_code_expiration'] = (datetime.now() + timedelta(minutes=OTP_EXPIRATION_MINUTE)).timestamp()
+                request.session['temp_user_id'] = user.id
+                request.session['temp_user_session'] = request.session.session_key
+                request.session['otp_attempt_count'] = 0
+                request.session.save()
+
+                return redirect('otp_view')
     else:
         form = UserRegistrationForm()
 

@@ -1247,6 +1247,7 @@ class SubmitHealthCardTreatment(APIView):
                     last_treatment = PetTreatment.objects.filter(
                         Q(pet_id=selected_pet_id) & 
                         Q(isHealthCard=True) &
+                        Q(hasMultipleCycles=True) &
                         Q(treatment=service.service_type) & 
                         (Q(isDeworm=True) | Q(isVaccine=True))
                     ).last()
@@ -1254,6 +1255,7 @@ class SubmitHealthCardTreatment(APIView):
                     previous_treatments = PetTreatment.objects.filter(
                         Q(pet_id=selected_pet_id) & 
                         Q(isHealthCard=True) &
+                        Q(hasMultipleCycles=True) &
                         Q(treatment=treatment) & 
                         (Q(isDeworm=True) | Q(isVaccine=True))
                     )
@@ -1318,12 +1320,12 @@ class SubmitHealthCardTreatment(APIView):
                     pet_treatment.save()
 
                     if not all_done:
-                        for cycle in last_treatment.appointment_cycles:
-                            if datetime.strptime(cycle['date'], "%Y-%m-%d").date() < datetime.today().date():
-                                cycle['status'] = 'done'
+                        # for cycle in last_treatment.appointment_cycles:
+                        #     if datetime.strptime(cycle['date'], "%Y-%m-%d").date() < datetime.today().date():
+                        #         cycle['status'] = 'done'
 
                         future_appointments = [x for x in last_treatment.appointment_cycles if x['status'] == 'pending']
-
+                        print(future_appointments)
                         if future_appointments:
                             future_appointments[0]['status'] = 'done'
                             
@@ -1370,7 +1372,7 @@ class SubmitHealthCardTreatment(APIView):
                                 next_appointment_date, new_appointment = create_appointment(pet, service, appointment_date, delta)
 
                                 appointments.append({
-                                    'date': new_appointment.date.strftime("%Y-%m-%d"),
+                                    #'date': new_appointment.date.strftime("%Y-%m-%d"),
                                     'appointment_id': new_appointment.id,
                                     'status': 'pending'
                                 })
@@ -1454,6 +1456,11 @@ def get_treatment_cycle_status(request, petID):
         for treatment in treatments:
             appointment_cycles = treatment.appointment_cycles
             if appointment_cycles:
+                # Enhance appointment_cycles with dates from the Appointment instance
+                for cycle in appointment_cycles:
+                    appointment = Appointment.objects.get(id=cycle['appointment_id'])
+                    cycle['date'] = appointment.date.strftime('%Y-%m-%d')
+
                 # Filter cycles which are 'done'
                 done_cycles = [cycle for cycle in appointment_cycles if cycle['status'] == 'done']
 
@@ -1465,19 +1472,12 @@ def get_treatment_cycle_status(request, petID):
 
                 cycle_status = len(done_cycles) == len(appointment_cycles) and all_inactive
 
-                if cycle_status:
-                    return JsonResponse({'success': True, 'appointment_cycles': appointment_cycles, 'cycle_status': cycle_status})
-                else:
-                    return JsonResponse({'success': True, 'appointment_cycles': appointment_cycles, 'cycle_status': cycle_status})
+                return JsonResponse({'success': True, 'appointment_cycles': appointment_cycles, 'cycle_status': cycle_status})
 
         return JsonResponse({'success': False, 'message': 'No pet treatment with relevant cycles found.'})
 
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
-
-
-
-
 
 @staff_required
 @login_required

@@ -143,7 +143,7 @@
                     return new bootstrap.Tooltip(tooltipTriggerEl)
                 })
 
-                console.log(selectedPetId)
+                //console.log(selectedPetId)
 
                 setupSelectButtons();
             });
@@ -601,6 +601,7 @@
                 },
                 dataType: 'json',
                 success: function(response) {
+                    //console.log(response)
                     if(response.success)
                     {
                         if (!response.cycle_status) {

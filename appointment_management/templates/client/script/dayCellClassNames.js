@@ -22,6 +22,11 @@ if (slots === undefined) {
     slots = maxAppointments;
 }
 
+if(timeOfDay === "whole_day")
+{
+    slots += 1;
+}
+
 let totalEventCountForDate = _appointmentCounts[formattedDate] || 0;
 //console.log(totalEventCountForDate, formattedDate, slots, eventCounts[date])
 

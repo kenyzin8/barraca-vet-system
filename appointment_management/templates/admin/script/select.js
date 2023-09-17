@@ -55,10 +55,12 @@ $('.afternoon-slots').text(availableAfternoonSlots + " / " + afternoonSlots);
 if (availableSlots <= 0) {
     $('#add-appointment-day-choice').prop('disabled', true);
     $('#disable-day-choice').prop('disabled', true);
+    $('#enable-day-choice').prop('disabled', true);
     $('#adjust-slot-choice').prop('disabled', true);
 } else {
     $('#add-appointment-day-choice').prop('disabled', false);
     $('#disable-day-choice').prop('disabled', false);
+    $('#enable-day-choice').prop('disabled', false);
     $('#adjust-slot-choice').prop('disabled', false);
 }
 

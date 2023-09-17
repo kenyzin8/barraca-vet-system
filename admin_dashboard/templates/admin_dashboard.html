@@ -43,7 +43,7 @@
     <!-- Example Colored Cards for Dashboard Demo-->
     
     <div class="row mt-5 animated--fade-in-up">
-        {% if request.user|has_permission:'billing_management.add_billing' %}
+        {% if request.user|has_permission:'billing_management.view_billing' %}
         <div class="col-lg-6 col-xl-3 mb-4">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body">
@@ -128,7 +128,7 @@
                 </table>
             </div>
         </div>
-    {% if request.user|has_permission:'billing_management.add_billing' %}
+    {% if request.user|has_permission:'billing_management.view_billing' %}
     <div class="row">
         <div class="col-xl-6 mb-4">
             <div class="card card-header-actions h-100">

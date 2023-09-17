@@ -158,11 +158,32 @@ def post_bill(request):
 
         return JsonResponse({'status': 'success'}, status=200)
 
-@staff_required
 @login_required
+@staff_required
 def view_bill(request, bill_id):
     bill = get_object_or_404(Billing, pk=bill_id)
-    context = {'bill': bill}
+    
+    bill_data = []
+
+    for b in bill.billing_products.all():
+        bill_data.append({
+            'type': 'Product',
+            'particulars': b.product.product_name,
+            'qty': str(b.quantity),
+            'amount': str(b.product.price), 
+            'amount_total': str(b.quantity * b.product.price)  
+        })
+
+    for b in bill.billing_services.all():
+        bill_data.append({
+            'type': 'Service',
+            'particulars': b.service.service_type,
+            'qty': '1', 
+            'amount': str(b.service.fee),
+            'amount_total': str(b.service.fee)
+        })
+
+    context = {'bill': bill, 'bill_data': bill_data}
     return render(request, 'view_bill.html', context)
 
 @login_required

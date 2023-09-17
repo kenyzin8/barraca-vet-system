@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load humanize %}
+{% load templatetags %}
 
 {% block title %} New Bill | Barraca Veterinary Clinic {% endblock %}
 
@@ -435,7 +436,11 @@ window.addEventListener('DOMContentLoaded', event => {
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                {% if request.user|has_permission:'billing_management.view_billing' %}
                 Billing <span class="billing-number-modal">{{ next_bill_number }}</span> has been submitted. Click <a href="{% url 'view-bill-page' next_bill_number %}">here</a> to view.
+                {% else %}
+                Billing <span class="billing-number-modal">{{ next_bill_number }}</span> has been submitted.
+                {% endif %}
             </div>
             <div class="modal-footer">
                 <button id="success-add-billing" class="btn btn-dark" type="button" data-bs-dismiss="modal">OK</button>

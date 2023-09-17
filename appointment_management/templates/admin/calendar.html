@@ -61,9 +61,11 @@
     <div class="card mb-5 card-collapsable card-waves animated--fade-in-up ">
         <a class="card-header" href="#collapseCardExample" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
                 Calendar
-          <div class="card-collapsable-arrow">
-              <i class="fas fa-chevron-down"></i>
-          </div>
+            <div>
+                <div class="card-collapsable-arrow">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
         </a>
         <div class="collapse show" id="collapseCardExample">
           <div class="card-body animated--fade-in-up flex-container">
@@ -101,6 +103,10 @@
                         <span class="badge" style="background: green;">Afternoon</span> 
                         <span class="badge" style="background: darkorange;">Pending Rebook</span>
                     </div>
+                    <div class="col text-end">
+                        <a href="{% url 'sms-history' %}" class="btn btn-sm btn-transparent-dark"><span class="small">SMS Logs</span></a>
+                    </div>
+                    
                 </div>
                 <div class="row mobile-only">
                     Please visit the desktop version of this page for better experience.

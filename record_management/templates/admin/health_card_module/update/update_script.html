@@ -541,7 +541,7 @@
             formData.append('treatmentID', {{ treatmentID }})
             formData.append('productSelected', selectedProductID);
             formData.append('selectedPetId', selectedPetId);
-            formData.append('appointmentId', {{ appointment.id }})
+            //formData.append('appointmentId', {% if appointment.id %}{{ appointment.id }}{% else %}-1{% endif %})
             formData.append('appointment_date', appointment_date);
             formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
             formData.append('appointment_purpose', appointment_purpose);
@@ -551,6 +551,7 @@
             formData.append('isDeworming', isDeworming);
             formData.append('isVaccination', isVaccination);
             formData.append('medicine_sticker', medicine_sticker);
+            formData.append('hasCycles', hasCycles);
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
             $.ajax({

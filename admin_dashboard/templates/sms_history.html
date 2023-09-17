@@ -9,7 +9,52 @@
 {% endblock %}
 
 {% block content %}
-<div class="card card-collapsable mb-3 mt-5 animated--fade-in-up">
+<div class="card card-collapsable mt-5 animated--fade-in-up">
+    <a class="card-header" href="#collapseCardSystem" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardSystem">
+        Appointment SMS Logs
+        <div class="card-collapsable-arrow">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </a>
+    <div class="collapse show" id="collapseCardSystem">
+        <div class="card-body">
+            <table id="datatablesSimple2" class="sms-history-table">
+                <thead>
+                    <tr>
+                        <th><span class="small">Message ID</span></th>
+                        <th><span class="small">Client</span></th>
+                        <th><span class="small">Type</span></th>
+                        <th><span class="small">Content</span></th>
+                        <th><span class="small">Date</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sms in sms_logs %}
+                    <tr>
+                        <td>
+                            <span style="font-weight: 600;">
+                                {{ sms.id }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-dark rounded-pill">
+                                {{ sms.client.full_name }}
+                            </span> 
+                            <span class="badge bg-dark rounded-pill">
+                                {{ sms.client.contact_number }}
+                            </span>
+                        </td>
+                        <td><span class="small">{{ sms.sms_type|capfirst  }}</span></td>
+                        <td><span class="small">{{ sms.text }}</span></td>
+                        <td><span class="small">{{ sms.date_created }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% comment %} <div class="card card-collapsable mb-3 mt-5 animated--fade-in-up">
     <a class="card-header" href="#collapseCardSemaphore" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardSemaphore">
         SMS History - Semaphore
         <div class="card-collapsable-arrow">
@@ -24,7 +69,7 @@
                         <th>Message ID</th>
                         <th>Status</th>
                         {% comment %} <th>Message</th> {% endcomment %}
-                        <th>Recipient</th>
+                        {% comment %}<th>Recipient</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -34,7 +79,7 @@
                         <td><span style="font-weight: 600;">{{ sms.message_id }}</span></td>
                         <td><span class="badge bg-success rounded-pill">{{ sms.status }}</span></td>
                         {% comment %} <td>{{ sms.message }}</td> {% endcomment %}
-                        <td>{{ sms.recipient }}</td>
+                        {% comment %}<td>{{ sms.recipient }}</td>
                         <td>{{ sms.created_at }}</td>
                     </tr>
                     {% endfor %}
@@ -43,39 +88,7 @@
             <span style="font-style: italic; font-size: 12px">Only shows 50 SMS history. For more detailed view of history, visit Semaphore dashboard.</span>
         </div>
     </div>
-</div>
-<div class="card card-collapsable mb-3 animated--fade-in-up">
-    <a class="card-header" href="#collapseCardSystem" data-bs-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardSystem">
-        SMS History - System
-        <div class="card-collapsable-arrow">
-            <i class="fas fa-chevron-down"></i>
-        </div>
-    </a>
-    <div class="collapse show" id="collapseCardSystem">
-        <div class="card-body">
-            <table id="datatablesSimple2" class="sms-history-table">
-                <thead>
-                    <tr>
-                        <th>Message ID</th>
-                        <th>Client</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sms in sms_logs %}
-                    <tr>
-                        <td><span style="font-weight: 600;">{{ sms.id }}</span></td>
-                        <td><span class="badge bg-success rounded-pill">{{ sms.client.full_name }}</span> <span class="badge bg-success rounded-pill">{{ sms.client.contact_number }}</span></td>
-                        <td>{{ sms.sms_type }}</td>
-                        <td>{{ sms.date_created }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+</div> {% endcomment %}
 {% endblock %}
 
 {% block extrascripts %}

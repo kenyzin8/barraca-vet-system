@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load humanize %}
+{% load templatetags %}
 
 {% block title %} Dashboard | Barraca Veterinary Clinic {% endblock %}
 
@@ -42,6 +43,7 @@
     <!-- Example Colored Cards for Dashboard Demo-->
     
     <div class="row mt-5 animated--fade-in-up">
+        {% if request.user|has_permission:'billing_management.add_billing' %}
         <div class="col-lg-6 col-xl-3 mb-4">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body">
@@ -55,6 +57,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         <div class="col-lg-6 col-xl-3 mb-4">
             <div class="card bg-danger text-white h-100">
                 <div class="card-body">
@@ -125,7 +128,7 @@
                 </table>
             </div>
         </div>
-    <!-- Example Charts for Dashboard Demo-->
+    {% if request.user|has_permission:'billing_management.add_billing' %}
     <div class="row">
         <div class="col-xl-6 mb-4">
             <div class="card card-header-actions h-100">
@@ -148,8 +151,10 @@
             </div>
         </div>
     </div>
+    
     {{ monthly_revenue|json_script:"monthly-revenue-data" }}
     {{ yearly_revenue|json_script:"yearly-revenue-data" }}
+    {% endif %}
 {% endblock %}
 
 {% block extrascripts %}
@@ -190,7 +195,7 @@
                 paging: true,
                 perPageSelect: [5, 10, 25, lastIndex],
                 perPage: 10,
-                fixedHeight: true,
+                fixedHeight: false,
                 sortable: true,
                 searchable: true,
                 hiddenHeader: false,

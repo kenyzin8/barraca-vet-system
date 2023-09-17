@@ -147,7 +147,7 @@
                 </div>
                 <label class="small mb-1" for="nextAppointmentPurpose">Purpose</label>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Input purpose of select from the dropbox" id="inputCustomPurpose">
+                    {% comment %} <input type="text" class="form-control" placeholder="Input purpose of select from the dropbox" id="inputCustomPurpose"> {% endcomment %}
                     <select class="form-select" id="nextAppointmentPurpose">
                         <option value="">------------</option>
                         {% for service in services %}

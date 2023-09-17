@@ -1,6 +1,7 @@
 {% extends 'admin_dashboard/base.html' %}
 
 {% load static %}
+{% load templatetags %}
 
 {% block title %} Pets | Barraca Veterinary Clinic {% endblock %}
 
@@ -72,7 +73,9 @@
                         <th>Birthday</th>
                         <th>Owner</th>
                         <th>Status</th>
+                        {% if request.user|has_permission:'record_management.add_treatment' %}
                         <th>Actions</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -111,6 +114,7 @@
                                 <span class="badge bg-danger">Deleted</span>
                             {% endif %}
                         </td>
+                        {% if request.user|has_permission:'record_management.add_treatment' %}
                         <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Encode Health Card">
                                 <i data-feather="credit-card"></i>
@@ -125,6 +129,7 @@
                                 <i data-feather="calendar"></i>
                             </a>
                         </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

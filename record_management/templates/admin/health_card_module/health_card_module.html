@@ -284,11 +284,29 @@ window.addEventListener('DOMContentLoaded', event => {
 
     function isDateFull(targetDate) {
         let slotForDate = date_slots.find(slot => slot.fields.date === targetDate);
-        let morningMaxSlotsForDate = slotForDate ? slotForDate.fields.morning_slots : max_appointment;
-        let afternoonMaxSlotsForDate = slotForDate ? slotForDate.fields.afternoon_slots : max_appointment;
-        let appointmentCountForDate = all_appointments.filter(appointment => appointment.fields.date === targetDate).length;
-
-        return (appointmentCountForDate >= morningMaxSlotsForDate) && (appointmentCountForDate >= afternoonMaxSlotsForDate);
+        let doctorScheduleForDate = doctor_schedules.find(schedule => schedule.fields.date === targetDate);
+    
+        let morningMaxSlotsForDate = slotForDate ? slotForDate.fields.morning_slots : (max_appointment / 2);
+        let afternoonMaxSlotsForDate = slotForDate ? slotForDate.fields.afternoon_slots : (max_appointment / 2);
+    
+        if (doctorScheduleForDate) {
+            if (doctorScheduleForDate.fields.timeOfTheDay === 'morning') {
+                morningMaxSlotsForDate = 0;
+            } else if (doctorScheduleForDate.fields.timeOfTheDay === 'afternoon') {
+                afternoonMaxSlotsForDate = 0;
+            } else if (doctorScheduleForDate.fields.timeOfTheDay === 'whole_day') {
+                morningMaxSlotsForDate = 0;
+                afternoonMaxSlotsForDate = 0;
+            }
+        }
+    
+        let morningAppointmentsForDate = all_appointments.filter(appointment => 
+            appointment.fields.date === targetDate && appointment.fields.timeOfTheDay === 'morning').length;
+    
+        let afternoonAppointmentsForDate = all_appointments.filter(appointment => 
+            appointment.fields.date === targetDate && appointment.fields.timeOfTheDay === 'afternoon').length;
+    
+        return (morningAppointmentsForDate >= morningMaxSlotsForDate) && (afternoonAppointmentsForDate >= afternoonMaxSlotsForDate);
     }
 
     function updateSelectOptions(selectedDate) {
@@ -327,6 +345,8 @@ window.addEventListener('DOMContentLoaded', event => {
                 lockDaysArray.push(appointment.fields.date);
             }
         });
+
+        console.log(lockDaysArray)
 
         var lp = new Litepicker({
             element: litepickerSingleDate,
@@ -396,14 +416,14 @@ window.addEventListener('DOMContentLoaded', event => {
                                 day.classList.add('afternoon-disabled');
                                 day.setAttribute('data-bs-toggle', 'tooltip');
                                 day.setAttribute('data-bs-placement', 'top');
-                                day.setAttribute('title', 'Morning unavailable');
+                                day.setAttribute('title', 'Morning available');
                                 
                             }
                             else if(scheduleForTheDay.fields.timeOfTheDay === 'morning') {
                                 day.classList.add('morning-disabled');
                                 day.setAttribute('data-bs-toggle', 'tooltip');
                                 day.setAttribute('data-bs-placement', 'top');
-                                day.setAttribute('title', 'Afternoon unavailable');
+                                day.setAttribute('title', 'Afternoon available');
                             }
                             else if(scheduleForTheDay.fields.timeOfTheDay === 'whole_day') {
                                 day.classList.add('whole-day-disabled');
@@ -412,12 +432,14 @@ window.addEventListener('DOMContentLoaded', event => {
                                 day.setAttribute('title', 'Whole day unavailable');
                             }
                         }
-
-                        if (lockDaysArray.includes(formattedDateValue)) {
-                            day.classList.add('day-full');
-                            day.setAttribute('data-bs-toggle', 'tooltip');
-                            day.setAttribute('data-bs-placement', 'top');
-                            day.setAttribute('title', 'Day full');
+                        else
+                        {
+                            if (lockDaysArray.includes(formattedDateValue)) {
+                                day.classList.add('day-full');
+                                day.setAttribute('data-bs-toggle', 'tooltip');
+                                day.setAttribute('data-bs-placement', 'top');
+                                day.setAttribute('title', 'Day full');
+                            }
                         }
                     });
 

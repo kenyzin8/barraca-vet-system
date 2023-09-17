@@ -12,6 +12,48 @@
 <!-- <script src="{% static 'plugins/sb-admin/js/datatables/my-datatable-setting.js' %}"></script> -->
 <script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
 <script src="{% static 'js/sms/send_sms.js' %}"></script>
+<style>
+    .fc .fc-daygrid-event-harness {
+        position: relative;
+        background: #232323;
+        border: none;
+        border-radius: 8px;
+        margin-right: 5px;
+        margin-left: 5px;
+        margin-top: 1px !important;
+        margin-bottom: 1px;
+        text-align: center;
+    }
+    .fc .fc-daygrid-event-harness a.fc-event {
+        border-radius: 8px;
+        outline: none;
+        background: none;
+    }
+   
+    .fc-event-title
+    {
+        font-weight: 500 !important;
+    }
+    .fc-daygrid-event-harness {
+        user-select: none !important;
+    }
+    .fc-daygrid-event-dot[style*="border-color: green"] + .fc-event-time,
+    .fc-daygrid-event-dot[style*="border-color: green"] ~ .fc-event-title {
+        color: green;
+    }
+    .fc-daygrid-event-dot[style*="border-color: rgb(55, 136, 216)"] + .fc-event-time,
+    .fc-daygrid-event-dot[style*="border-color: rgb(55, 136, 216)"] ~ .fc-event-title {
+        color: rgb(55, 136, 216);
+    }
+
+    .fc-daygrid-event-dot[style*="border-color: rgb(55, 136, 216)"] + .fc-daygrid-event-harness {
+        background: rgb(55, 136, 216);
+    }
+
+    .fc .fc-daygrid-body-natural .fc-daygrid-day-events {
+        margin-bottom: 1.5em;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -78,7 +120,8 @@
             <thead>
                 <tr>
                     <th>Appointment Number</th>
-                    <th>Name</th>
+                    <th>Client Name</th>
+                    <th>Pet Name</th>
                     <th>Contact Number</th>
                     <th>Day Reminder Status</th>
                     <th>Week Reminder Status</th>

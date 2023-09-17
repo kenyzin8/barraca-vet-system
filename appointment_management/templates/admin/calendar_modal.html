@@ -110,7 +110,9 @@
         </div>
         <div class="modal-body" id="messageModalBody">
             <span class="fw-700">Day Clicked:</span> <span class="day-clicked"></span> <br>
-            <span class="fw-700">Available Slots:</span> <span class="available-slots"></span> <br>
+            <span class="fw-700" style="display: none;">Available Slots:</span> <span class="available-slots" style="display: none;"></span>
+            <span class="fw-700">Morning Slots:</span> <span class="morning-slots"></span> <br>
+            <span class="fw-700">Afternoon Slots:</span> <span class="afternoon-slots"></span> <br>
             <!-- <span class="fw-700">Slots:</span> <span class="slots"></span> <br> -->
             <span class="fw-700">Availability:</span> <span class="availability"></span>
         </div>
@@ -202,6 +204,8 @@
         </div>
         <div class="modal-body">
             Are you sure you want to cancel this appointment?<br><br>
+            <label for="cancel-appointment-reason" class="form-label small">Reason <span class="text-red">*</span></label>
+            <input class="form-control" id="cancel-appointment-reason" type="text" placeholder="Reason" aria-label="Reason">
         </div>
         <div class="modal-footer">
             <button id="cancelDeleteAppointmentButton" type="button" class="btn btn-dark btn-sm cancelDeleteAppointmentButton" data-bs-dismiss="modal">No</button>
@@ -322,7 +326,7 @@
             <div class="modal-body">
                 Day Clicked: <span class="day-clicked"></span> <br><br>
                 Minimum 1 - Maximum <span id="maximum-appointments-allowed"></span><br><br>
-                You can also disable this day, by clicking Disable Day button in the previous modal.
+                <span class="small">You can also disable this day, by clicking Disable Day button in the previous modal.</span>
                 <br><br>
                 <form method="POST" id="adjustSlotForm">
                 {% csrf_token %}

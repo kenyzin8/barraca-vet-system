@@ -32,6 +32,7 @@
                         <th>#</th>
                         <th>Service</th>
                         <th>Fee</th>
+                        <th>Job Title</th>
                         <th>Description</th>
                         <th>Actions</th>
                     </tr>
@@ -42,6 +43,15 @@
                         <td>{{ service.id }}</td>
                         <td>{{ service.service_type }}</td>
                         <td>₱ {{ service.fee|intcomma }}</td>
+                        <td>
+                          {% if service.job_for == 'doctor' %}
+                            <span class="badge bg-dark">{{ service.get_job_for_display }}</span>
+                          {% elif service.job_for == 'veterinary technician' %}
+                            <span class="badge bg-info text-dark">{{ service.get_job_for_display }}</span>
+                          {% elif service.job_for == 'veterinary assistant' %}
+                            <span class="badge bg-secondary text-light">{{ service.get_job_for_display }}</span>
+                          {% endif %}
+                        </td>
                         {% if service.service_description|length > 10 %}
                         <td>
                           <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ service.service_description }}">

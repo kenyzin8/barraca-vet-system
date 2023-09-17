@@ -3,6 +3,7 @@ from record_management.models import Pet, Client
 from core.models import SMSLogs
 from services.models import Service
 from core.semaphore import send_sms
+from .utils import time_choices
 
 class MaximumAppointment(models.Model):
     max_appointments = models.IntegerField(default=8)
@@ -28,7 +29,10 @@ class MaximumAppointment(models.Model):
 
 class DateSlot(models.Model):
     date = models.DateField()
-    slots = models.IntegerField(default=8)
+    
+    morning_slots = models.IntegerField(default=4)
+    afternoon_slots = models.IntegerField(default=4)
+    
     isActive = models.BooleanField(default=True)
 
     def __str__(self):
@@ -64,11 +68,14 @@ class DoctorSchedule(models.Model):
 class Appointment(models.Model):
     status_choices = [('pending', 'Pending'), ('rebook', 'Rebook'), ('cancelled', 'Cancelled'), ('done', 'Done'), ('petdeleted', 'Pet Deleted')]
     time_of_the_day_choices = [('morning', 'Morning'), ('afternoon', 'Afternoon')]
+    # 7:30 AM to 5:00 PM and each is 30 minutes
+    time_choices = time_choices
 
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
     timeOfTheDay = models.CharField(max_length=10, choices=time_of_the_day_choices)
     date = models.DateField()
+    time = models.TimeField(default='00:00:00')
     purpose = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=10, choices=status_choices)
     isActive = models.BooleanField(default=True)
@@ -93,7 +100,7 @@ class Appointment(models.Model):
 
     def remindClient(self, reminder_type):
         phone_number = self.client.contact_number
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} Appointment about {self.pet.name} on {self.date} in the {self.timeOfTheDay}. Thank you!'
+        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} in the {self.timeOfTheDay}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(
@@ -109,6 +116,28 @@ class Appointment(models.Model):
         elif reminder_type == 'renotify':
             pass
         self.save()
+
+    def remindClientCancel(self, reason):
+        phone_number = self.client.contact_number
+        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} in the {self.timeOfTheDay} has been cancelled. Due to {reason}. Thank you!'
+        send_sms(phone_number, message)
+
+        SMSLogs.objects.create(
+            text = message,
+            client = self.client,
+            sms_type = 'cancel'
+        )
+
+    def remindClientRebook(self, newDate):
+        phone_number = self.client.contact_number
+        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} in the {self.timeOfTheDay} has been rebooked to {newDate}. Thank you!'
+        send_sms(phone_number, message)
+
+        SMSLogs.objects.create(
+            text = message,
+            client = self.client,
+            sms_type = 'rebook'
+        )
 
     def getTimeOfDayColor(self):
         if self.timeOfTheDay == 'morning':

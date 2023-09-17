@@ -120,7 +120,7 @@
                         </select>  
                     </div>
                     {% else %}
-                    <label class="small mb-1 fw-500" for="inputNextAppointment">This treatment has an active <span class="text-lowercase">{{ appointment.purpose.service_type }}</span> cycle, you cannot alter the appointment and treatment type.</label>
+                    <label class="small mb-1 fw-500" for="inputNextAppointment">This treatment is part of a <span class="text-lowercase">{{ appointment.purpose.service_type }}</span> cycle, you cannot alter the appointment and treatment type.</label>
                     <hr class="my-4" />
                     {% endif %}
                 </div>

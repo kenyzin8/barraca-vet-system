@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
+from datetime import time as dt_time
 
 import json
 import time
@@ -900,17 +901,29 @@ class SubmitConsultationView(APIView):
                 if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == appointment_time_of_the_day:
                     return JsonResponse({'success': False, 'appointment_error': True, 'message': f'Doctor is not available in the {appointment_time_of_the_day} on the selected date.'})
 
-                appointments_for_date = Appointment.objects.filter(date=appointment_date, isActive=True, status='pending').count()
+                appointments_for_date = Appointment.objects.filter(date=appointment_date, isActive=True, status='pending')
                 date_slot = DateSlot.objects.filter(date=appointment_date).first()
+                
                 max_appointment = MaximumAppointment.objects.first().max_appointments
 
                 if date_slot:
-                    max_allowed = date_slot.slots
+                    morning_date_slot = date_slot.morning_slots
+                    afternoon_date_slot = date_slot.afternoon_slots
+                    
+                    max_allowed_morning = morning_date_slot
+                    max_allowed_afternoon = afternoon_date_slot
                 else:
-                    max_allowed = max_appointment
-                if appointments_for_date >= max_allowed:
-                    return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available slots on the selected date.'})
+                    max_allowed_morning = max_appointment / 2
+                    max_allowed_afternoon = max_appointment / 2
 
+                if appointment_time_of_the_day == 'morning':
+                    morning_appointment_count = appointments_for_date.filter(timeOfTheDay='morning').count()
+                    if morning_appointment_count >= max_allowed_morning:
+                        return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available morning slots on the selected date.'})
+                elif appointment_time_of_the_day == 'afternoon':
+                    afternoon_appointment_count = appointments_for_date.filter(timeOfTheDay='afternoon').count()
+                    if afternoon_appointment_count >= max_allowed_afternoon:
+                        return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available afternoon slots on the selected date.'})
             try:
                 with transaction.atomic():
                     
@@ -921,10 +934,18 @@ class SubmitConsultationView(APIView):
                     if appointment_date:
                         selected_purpose = Service.objects.get(pk=appointment_purpose)
 
+                        if appointment_time_of_the_day in ['morning', 'afternoon']:
+                            next_time = next_available_time_for_slot(appointment_date, selected_purpose.job_for, appointment_time_of_the_day)
+                            if not next_time:
+                                return JsonResponse({'success': False, 'appointment_error': True, 'message': f'No available slots in the {appointment_time_of_the_day} on the selected date.'})
+                        else:
+                            next_time = None
+                        
                         appointment = Appointment.objects.create(
                             pet=selected_pet,
                             client=selected_pet.client,
                             date=appointment_date,
+                            time=next_time,
                             timeOfTheDay=appointment_time_of_the_day,
                             purpose=selected_purpose,
                             status='pending',
@@ -1160,16 +1181,34 @@ def add_health_card_treatment(request):
     }
     return render(request, 'admin/health_card_module/health_card_module.html', context)
 
-def get_scheduled_appointments_count(date):
-    return Appointment.objects.filter(date=date, isActive=True).count()
+def get_scheduled_appointments_count(date, time_of_day=None):
+    if time_of_day:
+        return Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay=time_of_day).count()
+    else:
+        return Appointment.objects.filter(date=date, isActive=True, status='pending').count()
 
-def get_available_slots(date):
+def get_available_slots(date, time_of_day=None):
     date_slot = DateSlot.objects.filter(date=date, isActive=True).first()
+
     if date_slot:
-        return date_slot.slots
+        if time_of_day == 'morning':
+            return date_slot.morning_slots
+        elif time_of_day == 'afternoon':
+            return date_slot.afternoon_slots
+        else:
+            return date_slot.morning_slots + date_slot.afternoon_slots
     else:
         max_appointment = MaximumAppointment.objects.first()
-        return max_appointment.max_appointments if max_appointment else 8
+        if max_appointment:
+            half_max = max_appointment.max_appointments // 2
+            if time_of_day == 'morning':
+                return half_max
+            elif time_of_day == 'afternoon':
+                return half_max
+            else:
+                return max_appointment.max_appointments
+        else:
+            return 4 if time_of_day in ['morning', 'afternoon'] else 8
 
 def check_doctor_schedule(date):
     schedule = DoctorSchedule.objects.filter(date=date, isActive=True).first()
@@ -1184,25 +1223,76 @@ def check_doctor_schedule(date):
     elif schedule.timeOfTheDay == 'morning':
         return 'afternoon'
         
+def next_available_time(date, job_for):
+    MORNING_START = dt_time(7, 30)
+    MORNING_END = dt_time(12, 0)  
+    AFTERNOON_START = dt_time(13, 0)
+    AFTERNOON_END = dt_time(17, 0)
+    
+    time_of_the_day = check_doctor_schedule(date)
+
+    if time_of_the_day == 'morning':
+        start_time = MORNING_START
+        end_time = MORNING_END
+    elif time_of_the_day == 'afternoon':
+        start_time = AFTERNOON_START
+        end_time = AFTERNOON_END
+    else:
+        return None
+
+    current_time = start_time
+    while current_time < end_time:
+        exists = Appointment.objects.filter(
+            date=date, 
+            time=current_time, 
+            isActive=True,
+            status='pending',
+            purpose__job_for=job_for
+        ).exists()
+
+        if not exists:
+            return current_time
+
+        hours, remainder = divmod(current_time.minute + 30, 60)
+        current_time = dt_time((current_time.hour + hours) % 24, remainder)
+
+    return None
+
+def is_day_full(date):
+    doctor_schedule = check_doctor_schedule(date)
+
+    morning_count = get_scheduled_appointments_count(date, 'morning')
+    afternoon_count = get_scheduled_appointments_count(date, 'afternoon')
+
+    available_morning_slots = get_available_slots(date, 'morning')
+    available_afternoon_slots = get_available_slots(date, 'afternoon')
+
+    if doctor_schedule == 'morning':
+        return morning_count >= available_morning_slots
+    elif doctor_schedule == 'afternoon':
+        return afternoon_count >= available_afternoon_slots
+    else:
+        return (morning_count >= available_morning_slots) and (afternoon_count >= available_afternoon_slots)
+
 def create_appointment(pet, service, default_date, delta):
     appointment_date = default_date
-
     while True:
         if appointment_date.weekday() == 6:
             appointment_date += timedelta(days=1)
             continue 
 
-        available_slots = get_available_slots(appointment_date)
-        scheduled_appointments = get_scheduled_appointments_count(appointment_date)
-        remaining_slots = available_slots - scheduled_appointments
-        time_of_the_day = check_doctor_schedule(appointment_date)
+        if is_day_full(appointment_date):
+            appointment_date += timedelta(days=1)
+            continue 
 
-        if remaining_slots > 0 and time_of_the_day:
+        available_time = next_available_time(appointment_date, service.job_for)
+        if available_time:
             appointment = Appointment.objects.create(
                 pet=pet,
                 client=pet.client,
                 date=appointment_date,
-                timeOfTheDay=time_of_the_day,
+                time=available_time,
+                timeOfTheDay=check_doctor_schedule(appointment_date),
                 purpose=service,
                 status='pending',
                 isActive=True
@@ -1212,6 +1302,71 @@ def create_appointment(pet, service, default_date, delta):
             appointment_date += timedelta(days=1)
 
     return default_date + delta, appointment
+
+
+# def create_appointment(pet, service, default_date, delta):
+#     appointment_date = default_date
+
+#     while True:
+#         if appointment_date.weekday() == 6:
+#             appointment_date += timedelta(days=1)
+#             continue 
+
+#         available_slots = get_available_slots(appointment_date)
+#         scheduled_appointments = get_scheduled_appointments_count(appointment_date)
+#         remaining_slots = available_slots - scheduled_appointments
+#         time_of_the_day = check_doctor_schedule(appointment_date)
+
+#         if remaining_slots > 0 and time_of_the_day:
+#             appointment = Appointment.objects.create(
+#                 pet=pet,
+#                 client=pet.client,
+#                 date=appointment_date,
+#                 timeOfTheDay=time_of_the_day,
+#                 purpose=service,
+#                 status='pending',
+#                 isActive=True
+#             )
+#             break
+#         else:
+#             appointment_date += timedelta(days=1)
+
+#     return default_date + delta, appointment
+
+def next_available_time_for_slot(date, job_for, time_of_the_day):
+    MORNING_START = dt_time(7, 30)
+    MORNING_END = dt_time(12, 0)  
+    AFTERNOON_START = dt_time(13, 0)
+    AFTERNOON_END = dt_time(17, 0)
+
+    # Use the given time_of_the_day to determine the start and end times
+    if time_of_the_day == 'morning':
+        start_time = MORNING_START
+        end_time = MORNING_END
+    elif time_of_the_day == 'afternoon':
+        start_time = AFTERNOON_START
+        end_time = AFTERNOON_END
+    else:
+        return None
+
+    current_time = start_time
+    while current_time < end_time:
+        exists = Appointment.objects.filter(
+            date=date, 
+            time=current_time, 
+            isActive=True,
+            status='pending',
+            purpose__job_for=job_for
+        ).exists()
+
+        if not exists:
+            return current_time
+
+        hours, remainder = divmod(current_time.minute + 30, 60)
+        current_time = dt_time((current_time.hour + hours) % 24, remainder)
+
+    return None
+
 
 @method_decorator(login_required, name='dispatch')
 @method_decorator(staff_required, name='dispatch')
@@ -1252,8 +1407,10 @@ class SubmitHealthCardTreatment(APIView):
                     if isVaccine and appointment_purpose != vaccine_instance.id:
                         return Response({'success': False, 'message': 'Invalid appointment purpose. You have selected vaccination but the appointment purpose is different.'})
 
-                    pet = Pet.objects.get(pk=selected_pet_id)
+                    if appointment_cycle and appointment_date:
+                        return Response({'success': False, 'message': 'You can only select either appointment cycle or appointment date.'})
 
+                    pet = Pet.objects.get(pk=selected_pet_id)
                     service = Service.objects.get(pk=appointment_purpose)
 
                     last_treatment = PetTreatment.objects.filter(
@@ -1281,13 +1438,12 @@ class SubmitHealthCardTreatment(APIView):
                         last_cycle_remaining = previous_treatments.last().cycles_remaining
                         if last_cycle_remaining > 0:  
                             last_cycle_remaining -= 1
+                    else:
+                        last_cycle_remaining = 0
 
                     if appointment_cycle:
-                        if last_treatment and last_treatment.hasMultipleCycles:
-                            last_treatment_cycle = last_treatment.cycles.all().order_by('-cycle_number').first()
-
-                            if last_treatment_cycle and datetime.today().date() <= last_treatment_cycle.appointment.date:
-                                return Response({'success': False, 'message': 'The previous treatment cycle for this pet is still active. You cannot start a new one.'})
+                        if not all_done:
+                            return Response({'success': False, 'message': 'The previous treatment cycle for this pet is still active. You cannot start a new one.'})
 
                     if last_treatment:
                         last_treatment_appointment = last_treatment.appointment
@@ -1312,9 +1468,6 @@ class SubmitHealthCardTreatment(APIView):
                         result_image=medicine_sticker
                     )
 
-                    if appointment_cycle and appointment_date:
-                        return Response({'success': False, 'message': 'You can only select either appointment cycle or appointment date.'})
-
                     appointment = None
 
                     pet_treatment = PetTreatment(
@@ -1326,8 +1479,13 @@ class SubmitHealthCardTreatment(APIView):
                         isDeworm=isDeworm,
                         isVaccine=isVaccine,
                         isHealthCard=True,
-                        cycles_remaining=last_cycle_remaining if previous_treatments.exists() else appointment_cycle_repeat
                     )
+
+                    if previous_treatments.exists():
+                        cycles_remaining = last_cycle_remaining if last_cycle_remaining > 0 else appointment_cycle_repeat
+                        pet_treatment.cycles_remaining = cycles_remaining
+                    else:
+                        pet_treatment.cycles_remaining = appointment_cycle_repeat
 
                     pet_treatment.save()
 
@@ -1337,7 +1495,7 @@ class SubmitHealthCardTreatment(APIView):
                         #         cycle['status'] = 'done'
 
                         future_appointments = [x for x in last_treatment.appointment_cycles if x['status'] == 'pending']
-                        print(future_appointments)
+
                         if future_appointments:
                             future_appointments[0]['status'] = 'done'
                             
@@ -1380,9 +1538,9 @@ class SubmitHealthCardTreatment(APIView):
                             appointments = []
 
                             for i in range(appointment_cycle_repeat):
-                                
+                               
                                 next_appointment_date, new_appointment = create_appointment(pet, service, appointment_date, delta)
-
+                                
                                 appointments.append({
                                     #'date': new_appointment.date.strftime("%Y-%m-%d"),
                                     'appointment_id': new_appointment.id,
@@ -1397,10 +1555,53 @@ class SubmitHealthCardTreatment(APIView):
                             pet_treatment.hasMultipleCycles = True
                             pet_treatment.save()
                         elif appointment_date:
+                            if appointment_date < date.today():
+                                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Selected date is in the past.'})
+                            
+                            doctor_schedule_for_date = DoctorSchedule.objects.filter(date=appointment_date).first()
+
+                            if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == "whole_day":
+                                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Doctor is not available the whole day on the selected date.'})
+                            
+                            if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == appointment_time_of_the_day:
+                                return JsonResponse({'success': False, 'appointment_error': True, 'message': f'Doctor is not available in the {appointment_time_of_the_day} on the selected date.'})
+
+                            appointments_for_date = Appointment.objects.filter(date=appointment_date, isActive=True, status='pending')
+                            date_slot = DateSlot.objects.filter(date=appointment_date).first()
+                            
+                            max_appointment = MaximumAppointment.objects.first().max_appointments
+
+                            if date_slot:
+                                morning_date_slot = date_slot.morning_slots
+                                afternoon_date_slot = date_slot.afternoon_slots
+                                
+                                max_allowed_morning = morning_date_slot
+                                max_allowed_afternoon = afternoon_date_slot
+                            else:
+                                max_allowed_morning = max_appointment / 2
+                                max_allowed_afternoon = max_appointment / 2
+
+                            if appointment_time_of_the_day == 'morning':
+                                morning_appointment_count = appointments_for_date.filter(timeOfTheDay='morning').count()
+                                if morning_appointment_count >= max_allowed_morning:
+                                    return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available morning slots on the selected date.'})
+                            elif appointment_time_of_the_day == 'afternoon':
+                                afternoon_appointment_count = appointments_for_date.filter(timeOfTheDay='afternoon').count()
+                                if afternoon_appointment_count >= max_allowed_afternoon:
+                                    return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available afternoon slots on the selected date.'})
+
+                            if appointment_time_of_the_day in ['morning', 'afternoon']:
+                                next_time = next_available_time_for_slot(appointment_date, service.job_for, appointment_time_of_the_day)
+                                if not next_time:
+                                    return JsonResponse({'success': False, 'appointment_error': True, 'message': f'No available slots in the {appointment_time_of_the_day} on the selected date.'})
+                            else:
+                                next_time = None
+
                             appointment = Appointment.objects.create(
                                 pet=pet,
                                 client=pet.client,
                                 date=appointment_date,
+                                time=next_time,
                                 timeOfTheDay=appointment_time_of_the_day,
                                 purpose=service if appointment_purpose else custom_purpose,
                                 status='pending',
@@ -1895,7 +2096,8 @@ def submit_update_health_card(request):
                 product_selected = request.POST.get('productSelected')
                 pet_id = request.POST.get('petID')
                 appointment_date = request.POST.get('appointment_date')
-                appointment_date = datetime.strptime(appointment_date, '%b %d, %Y').strftime('%Y-%m-%d')
+                if appointment_date != 'undefined':
+                    appointment_date = datetime.strptime(appointment_date, '%b %d, %Y').strftime('%Y-%m-%d')
                 appointment_time_of_the_day = request.POST.get('appointment_time_of_the_day')
                 appointment_purpose = request.POST.get('appointment_purpose')
                 temperature = request.POST.get('temperature')
@@ -1920,10 +2122,9 @@ def submit_update_health_card(request):
                     lab_result_desc = "Vaccination"
                 else:
                     lab_result_desc = "medicine_sticker"
-                print(pet_treatment.isDeworm)
-                print(pet_treatment.isVaccine)
+                
                 if appointment:
-                    if appointment_date:
+                    if appointment_date != 'undefined':
                         appointment.date = appointment_date
                         appointment.timeOfTheDay = appointment_time_of_the_day
                         appointment.purpose_id = appointment_purpose

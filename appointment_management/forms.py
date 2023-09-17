@@ -7,7 +7,7 @@ from django.db.models import Q
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['client', 'pet', 'timeOfTheDay', 'purpose']
+        fields = ['client', 'pet', 'purpose', 'time']
 
     client = forms.ModelChoiceField(
         #filter only clients with pets
@@ -24,16 +24,22 @@ class AppointmentForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Service'
     )
-    timeOfTheDay = forms.ChoiceField(
-        choices=Appointment.time_of_the_day_choices,
-        widget=forms.Select(attrs={'class': 'form-select'}), 
-        label='Time of the Day'
+    # timeOfTheDay = forms.ChoiceField(
+    #     choices=Appointment.time_of_the_day_choices,
+    #     widget=forms.Select(attrs={'class': 'form-select'}), 
+    #     label='Time of the Day'
+    # )
+
+    time = forms.ChoiceField(
+        choices=Appointment.time_choices,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Time'
     )
 
 class AppointmentFormClient(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['pet', 'timeOfTheDay', 'purpose']
+        fields = ['pet', 'purpose', 'time']
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request', None)
@@ -52,16 +58,21 @@ class AppointmentFormClient(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Service'
     )
-    timeOfTheDay = forms.ChoiceField(
-        choices=Appointment.time_of_the_day_choices,
-        widget=forms.Select(attrs={'class': 'form-select'}), 
-        label='Time of the Day'
+    time = forms.ChoiceField(
+        choices=Appointment.time_choices,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Time'
     )
+    # timeOfTheDay = forms.ChoiceField(
+    #     choices=Appointment.time_of_the_day_choices,
+    #     widget=forms.Select(attrs={'class': 'form-select'}), 
+    #     label='Time of the Day'
+    # )
 
 class RebookAppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['pet', 'purpose', 'timeOfTheDay']
+        fields = ['pet', 'purpose', 'time']
 
     pet = forms.ModelChoiceField(
         queryset=Pet.objects.none(),  
@@ -74,16 +85,22 @@ class RebookAppointmentForm(forms.ModelForm):
         label='Service'
     )
 
-    timeOfTheDay = forms.ChoiceField(
-        choices=Appointment.time_of_the_day_choices,
-        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-rebook'}),
-        label='Time of the Day'
+    # timeOfTheDay = forms.ChoiceField(
+    #     choices=Appointment.time_of_the_day_choices,
+    #     widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-rebook'}),
+    #     label='Time of the Day'
+    # )
+
+    time = forms.ChoiceField(
+        choices=Appointment.time_choices,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_time-rebook'}),
+        label='Time'
     )
 
 class RebookAppointmentFormClient(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['pet_rebook', 'purpose', 'timeOfTheDay']
+        fields = ['pet_rebook', 'purpose', 'time']
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request', None)
@@ -102,10 +119,15 @@ class RebookAppointmentFormClient(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_purpose-rebook'}),
         label='Service'
     )
-    timeOfTheDay = forms.ChoiceField(
-        choices=Appointment.time_of_the_day_choices,
-        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-rebook'}),
-        label='Time of the Day'
+    # timeOfTheDay = forms.ChoiceField(
+    #     choices=Appointment.time_of_the_day_choices,
+    #     widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-rebook'}),
+    #     label='Time of the Day'
+    # )
+    time = forms.ChoiceField(
+        choices=Appointment.time_choices,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_time-rebook'}),
+        label='Time'
     )
 
 class DisableDayForm(forms.ModelForm):
@@ -126,25 +148,32 @@ class DisableDayForm(forms.ModelForm):
 class DateSlotForm(forms.ModelForm):
     class Meta:
         model = DateSlot
-        fields = ['slots']
+        fields = ['morning_slots', 'afternoon_slots']
 
-    slots = forms.IntegerField(
+    morning_slots = forms.IntegerField(
         widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1}), 
-        label='Slots'
+        label='Morning Slots'
+    )
+
+    afternoon_slots = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1}), 
+        label='Afternoon Slots'
     )
 
     def __init__(self, *args, **kwargs):
         super(DateSlotForm, self).__init__(*args, **kwargs)
         max_appointments = MaximumAppointment.load().max_appointments  
-        self.fields['slots'].widget.attrs['max'] = max_appointments 
+        
+        self.fields['morning_slots'].widget.attrs['max'] = max_appointments // 2
+        self.fields['afternoon_slots'].widget.attrs['max'] = max_appointments // 2
 
 class ChangeTimeForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['timeOfTheDay']
+        fields = ['time']
 
-    timeOfTheDay = forms.ChoiceField(
-        choices=Appointment.time_of_the_day_choices,
-        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-change'}),
-        label='Time of the Day'
+    time = forms.ChoiceField(
+        choices=Appointment.time_choices,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_time-change'}),
+        label='Time'
     )

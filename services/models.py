@@ -29,15 +29,22 @@ class Service(models.Model):
 
     list_built_in_services = ['Check-up', 'Deworming', 'Vaccination', 'Doctor\'s Fee', 'Follow-up Check-up']
 
+    VET_CLINIC_POSITION_CHOICES = [
+        ('doctor', 'Doctor'),
+        ('veterinary technician', 'Veterinary Technician'),
+        ('veterinary assistant', 'Veterinary Assistant')
+    ]
+
     service_type = models.CharField(max_length=50)
     fee = models.DecimalField(max_digits=10, decimal_places=2)
     #remarks = models.CharField(max_length=20, choices=REMARKS_TYPES)
     date_added = models.DateTimeField(auto_now=True)
-    control_number = models.CharField(max_length=50, default=1) #DEPRECIATED
+    job_for = models.CharField(max_length=50, choices=VET_CLINIC_POSITION_CHOICES, default='doctor')
     service_description = models.TextField(max_length=200, blank=True)
     active = models.BooleanField(default=True)
-    
+
     changes_log = models.JSONField(default=dict, blank=True)
+    control_number = models.CharField(max_length=50, default=1) #DEPRECIATED
 
     def save(self, *args, **kwargs):
         if self.pk is not None:

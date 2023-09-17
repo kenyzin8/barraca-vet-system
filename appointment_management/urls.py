@@ -21,6 +21,7 @@ urlpatterns = [
     # path('admin/get_date_slots/', views.get_date_slots, name='get_date_slots'),
     path('admin/adjust_slot/', permission_required('appointment_management.add_appointment', raise_exception=True)(views.adjust_slots), name='adjust_slots'),
     path('admin/get-all-data/', views.get_all_data, name='get_all_data'),
+    path('admin/get-busy-times/', views.get_busy_times_for_service, name='get-busy-times'),
     #client
     path('appointments/', views.client_calendar, name='client_calendar'),
     path('appointments/add/', views.set_appointment_client, name='client-add-appointment'),

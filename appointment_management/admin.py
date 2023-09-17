@@ -5,8 +5,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import force_str
 
 class DateSlotAdmin(admin.ModelAdmin):
-    list_display = ('date', 'slots', 'isActive')
-    search_fields = ('date', 'slots', 'isActive')
+    list_display = ('date', 'morning_slots', 'afternoon_slots', 'isActive')
+    search_fields = ('date','isActive')
 
 class MaximumAppointmentAdmin(admin.ModelAdmin):
     list_display = ('max_appointments',)
@@ -23,8 +23,8 @@ class DoctorScheduleAdmin(admin.ModelAdmin):
     search_fields = ('date', 'reason', 'isActive', 'timeOfTheDay')
 
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ('client', 'pet', 'timeOfTheDay', 'date', 'purpose', 'status', 'isActive', 'weekly_reminder_sent', 'daily_reminder_sent')
-    search_fields = ('client', 'pet', 'timeOfTheDay', 'date', 'purpose', 'status', 'isActive')
+    list_display = ('id', 'client', 'pet', 'time', 'date', 'purpose', 'status', 'isActive', 'weekly_reminder_sent', 'daily_reminder_sent')
+    search_fields = ('client', 'pet', 'time', 'date', 'purpose', 'status', 'isActive')
     actions = ['set_as_pending', 'set_as_cancelled', 'set_as_done', 'set_as_rebook']
 
     def log_change(self, request, queryset, action, status):

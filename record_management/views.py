@@ -1027,7 +1027,7 @@ class SubmitConsultationView(APIView):
                     checkup_service = Service.objects.get(service_type="Doctor's Fee") #MAKE THIS DYNAMIC AT POLISHING
                     request.session['selected_service'] = checkup_service.id
 
-                    pet_owner_id = selected_pet.client.user.id
+                    pet_owner_id = selected_pet.client.id
 
                     return Response({'success': True, 'message': 'Consultation submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:
@@ -1104,7 +1104,7 @@ class SubmitPrescription(APIView):
                     products_selected = serializer.validated_data.get('productsSelected')
 
                     selected_pet = Pet.objects.get(pk=selected_pet_id)
-                    pet_owner_id = selected_pet.client.user.id
+                    pet_owner_id = selected_pet.client.id
 
                     if products_selected:
                         pet_medical_prescription = PetMedicalPrescription.objects.create(
@@ -1411,6 +1411,7 @@ class SubmitHealthCardTreatment(APIView):
                         return Response({'success': False, 'message': 'You can only select either appointment cycle or appointment date.'})
 
                     pet = Pet.objects.get(pk=selected_pet_id)
+                    print(pet.client.id)
                     service = Service.objects.get(pk=appointment_purpose)
 
                     last_treatment = PetTreatment.objects.filter(
@@ -1650,8 +1651,8 @@ class SubmitHealthCardTreatment(APIView):
                     request.session['selected_medicines'] = medicines_for_session
                     request.session['selected_service'] = checkup_service.id
 
-                    pet_owner_id = pet.client.user.id
-
+                    pet_owner_id = pet.client.id
+                    
                     return Response({'success': True, 'message': 'Health card treatment submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})
@@ -1993,7 +1994,7 @@ class UpdateConsultationView(APIView):
                     checkup_service = Service.objects.get(service_type="Doctor's Fee") #MAKE THIS DYNAMIC AT POLISHING
                     request.session['selected_service'] = checkup_service.id
 
-                    pet_owner_id = selected_pet.client.user.id
+                    pet_owner_id = selected_pet.client.id
 
                     return Response({'success': True, 'message': 'Consultation updated successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:

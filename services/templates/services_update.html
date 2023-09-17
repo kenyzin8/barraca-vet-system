@@ -38,7 +38,7 @@
             </ol>
         </nav>
         <div class="row">
-            <div>
+            <div class="col-xl-8">
                 <div class="card mb-4">
                     <div class="card-header">Update Service</div>
                     <div class="card-body">
@@ -60,8 +60,12 @@
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
-                                <div>
-                                    <label class="small mb-1" for="inputLastName">Description</label>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputJF">Job For <span class="text-red">*</span></label>
+                                    {{ form.job_for }} 
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputDescription">Description <span class="text-red">*</span></label>
                                     {{ form.service_description }}
                                 </div>
                             </div>

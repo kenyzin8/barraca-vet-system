@@ -1,5 +1,13 @@
 <script>
     let ind = 1; 
+    
+    function preventDecimal(event) {
+        return ![69, 190, 188].includes(event.keyCode);
+    }
+    
+    function removeDecimal(inputElement) {
+        inputElement.value = inputElement.value.replace('.', '');
+    }
 
     function showSuccess(message)
     {

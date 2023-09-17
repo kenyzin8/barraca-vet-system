@@ -2,6 +2,14 @@
     let ind = 1; 
     let labResultsData = [];
 
+    function preventDecimal(event) {
+        return ![69, 190, 188].includes(event.keyCode);
+    }
+    
+    function removeDecimal(inputElement) {
+        inputElement.value = inputElement.value.replace('.', '');
+    }
+
     function uploadImage(inputElement, progressBarInner) {
         var formData = new FormData();
         formData.append('image', inputElement.files[0]);

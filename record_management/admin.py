@@ -28,7 +28,7 @@ class PetMedicalPrescriptionAdmin(admin.ModelAdmin):
 
 
 class ClientAdmin(admin.ModelAdmin):
-    list_display = ('user', 'first_name', 'last_name', 'gender', 'contact_number', 'street', 'barangay', 'city', 'province', 'two_auth_enabled')
+    list_display = ('id', 'user', 'first_name', 'last_name', 'gender', 'contact_number', 'street', 'barangay', 'city', 'province', 'two_auth_enabled')
     search_fields = ('first_name', 'last_name', 'gender', 'user__email')
 
     def email(self, obj):
@@ -37,7 +37,7 @@ class ClientAdmin(admin.ModelAdmin):
     email.short_description = 'Email'
 
 class PetAdmin(admin.ModelAdmin):
-    list_display = ('name', 'birthday', 'breed', 'gender', 'color', 'weight', 'picture', 'species', 'is_active')
+    list_display = ('id', 'name', 'birthday', 'breed', 'gender', 'color', 'weight', 'picture', 'species', 'is_active')
     search_fields = ('name', 'species', 'client__first_name', 'client__last_name')
 
 class TemporaryLabResultImageAdmin(admin.ModelAdmin):

@@ -25,6 +25,7 @@ class Client(models.Model):
     contact_number = models.CharField(max_length=15)
     two_auth_enabled = models.BooleanField(default=False)
     isBanned = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
@@ -43,6 +44,19 @@ class Client(models.Model):
 
     def get_address(self):
         return f"{self.street}, {self.barangay}, {self.city}, {self.province}"
+
+    def get_print_name(self):
+        return f"{self.last_name}, {self.first_name}"
+
+    def get_status(self):
+        if self.isBanned and not self.user.is_active:
+            return "Banned" 
+        elif self.user.is_active:
+            return "Active"
+        elif not self.user.is_active:
+            return "Inactive"
+        else:
+            return "Unknown"
 
     class Meta:
         verbose_name_plural = "Clients"
@@ -200,8 +214,9 @@ class PrescriptionMedicines(models.Model):
         self.remarks = self.remarks[0].lower() + self.remarks[1:]
         self.frequency = self.frequency[0].lower() + self.frequency[1:]
         self.quantity = int(self.quantity)
-        prescription_details = f"{self.quantity} of {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
-        #VOLUME
+        self.medicine.volume = int(self.medicine.volume)
+        prescription_details = f"{self.quantity} of {self.medicine.volume} {self.get_dosage_unit()} {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
+
         prescription_details += f"Dosage: Administer {self.dosage} {self.get_dosage_unit()} to the pet {self.frequency}. "
 
         prescription_details += f"For best results or safety, it's recommended to {self.remarks}."
@@ -209,7 +224,7 @@ class PrescriptionMedicines(models.Model):
         return prescription_details
 
     def get_dosage_unit(self, for_dosage=False):
-        liquid_forms = ['syrup', 'liquid', 'oral_solution', 'suspension', 'ear_drop', 'gel', 'cream', 'ointment', 'lotion']
+        liquid_forms = ['syrup', 'liquid', 'oral_solution', 'suspension', 'ear_drop', 'gel', 'cream', 'ointment', 'lotion', 'feed_additive', 'drop', 'spray']
         
         if self.medicine.form in liquid_forms:
             return 'mL'

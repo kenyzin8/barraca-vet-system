@@ -637,7 +637,20 @@ def admin_change_otp_view(request):
 @login_required
 def client_module(request):
     clients = Client.objects.filter(user__is_active=True).annotate(total_pets=Count('pet')).order_by('-id')
-    context = {'clients': clients}
+    
+    clients_for_print = []
+    for client in clients.order_by('id'):
+        clients_for_print.append({
+            'id': client.id,
+            'name': client.get_print_name(),
+            'gender': client.gender,
+            'address': client.get_address(),
+            'contact_number': client.contact_number,
+            'total_pets': client.total_pets,
+            'status': client.get_status()
+        })
+    
+    context = {'clients': clients, 'clients_for_print': clients_for_print}
     return render(request, 'admin/client_module.html', context)
 
 @staff_required
@@ -653,7 +666,27 @@ def admin_view_client(request, client_id):
 @login_required
 def pet_module(request):
     pets = Pet.objects.all().order_by('-id')
-    context = {'pets': pets}
+
+    pet_data = []
+
+    for pet in pets.order_by('id'):
+        pet_data.append({
+            'id': pet.id,
+            'name': pet.name,
+            'species': pet.species,
+            'breed': pet.breed,
+            # from 2023-09-05 to Sep 5, 2023
+            'birthday': pet.birthday.strftime('%b %d, %Y'),
+            'weight': str(pet.weight),
+            'owner': pet.client.full_name,
+            'color': pet.color,
+            'gender': pet.gender,
+            'status': 'Active' if pet.is_active else 'Deleted'
+        })
+
+    print(pet_data)
+
+    context = {'pets': pets, 'pet_data': pet_data}
     return render(request, 'admin/pet_module/pet_module.html', context)
 
 @staff_required
@@ -1046,11 +1079,26 @@ def view_prescription(request, prescription_id):
 
     prescription_medicines = PrescriptionMedicines.objects.filter(prescription=prescription)
 
+    prescription_data = []
+    for medicine in prescription_medicines:
+        prescription_data.append({
+            'id': medicine.medicine.id,
+            'name': medicine.medicine.product_name,
+            'strength': medicine.strength,
+            'form': medicine.medicine.get_form_display(),
+            'quantity': int(medicine.quantity),
+            'volume': f'{int(medicine.medicine.volume)} {medicine.get_dosage_unit()}',
+            'dosage': f'{medicine.dosage} {medicine.get_dosage_unit()}',
+            'frequency': medicine.frequency,
+            'remarks': medicine.remarks,
+        })
+
     context = {
         'prescription': prescription,
         'pet': pet,
         'client': client,
-        'prescription_medicines': prescription_medicines
+        'prescription_medicines': prescription_medicines,
+        'prescription_data': prescription_data
     }
     
     return render(request, 'admin/prescription_module/view_prescription.html', context)

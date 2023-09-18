@@ -1088,7 +1088,7 @@ def view_prescription(request, prescription_id):
             'form': medicine.medicine.get_form_display(),
             'quantity': int(medicine.quantity),
             'volume': f'{int(medicine.medicine.volume)} {medicine.get_dosage_unit()}',
-            'dosage': f'{medicine.dosage} {medicine.get_dosage_unit()}',
+            'dosage': f'{medicine.dosage} {medicine.get_dosage_unit(True)}',
             'frequency': medicine.frequency,
             'remarks': medicine.remarks,
         })

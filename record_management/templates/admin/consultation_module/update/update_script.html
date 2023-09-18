@@ -991,7 +991,10 @@
                 },
                 error: function(response)
                 {
-                    showError(response.message);
+                    if(response.status == 429)
+                    {
+                        showError(`${response.responseJSON.message} Please wait for ${response.responseJSON.wait} second(s) before submitting again.`);
+                    } 
                 }
             });
         });

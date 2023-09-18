@@ -12,7 +12,7 @@ class TemporaryLabResultImageSerializer(serializers.ModelSerializer):
 class ConsultationSerializer(serializers.Serializer):
     selectedPetId = serializers.IntegerField()
     appointment_date = serializers.DateField(input_formats=['%b %d, %Y'], required=False)
-    appointment_time_of_the_day = serializers.CharField(required=False)
+    appointment_time = serializers.TimeField(required=False)
     symptoms = serializers.CharField()
     temperature = serializers.FloatField()
     weight = serializers.FloatField()

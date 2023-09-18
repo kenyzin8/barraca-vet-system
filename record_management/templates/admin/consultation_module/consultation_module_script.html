@@ -862,7 +862,7 @@
             }
 
             var appointment_date = $('#litepickerSingleDate').val();
-            var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
+            var appointment_time = $('#inputNextAppointmentTime').val();
             var appointment_purpose = $('#nextAppointmentPurpose').val();
 
             var custom_purpose = $('#inputCustomPurpose').val();
@@ -875,7 +875,7 @@
             formData.append('productsSelected', JSON.stringify([...productsSelected]));
             formData.append('selectedPetId', selectedPetId);
             formData.append('appointment_date', appointment_date);
-            formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
+            formData.append('appointment_time', appointment_time);
             formData.append('appointment_purpose', appointment_purpose);
             formData.append('symptoms', symptoms);
             formData.append('temperature', temperature);
@@ -930,7 +930,7 @@
                     }
                     else
                     {
-                        showError(response.message);
+                        showError(response.message +"qwe");
                         $(document).on('click', '.errorOKBtn', function(e)
                         {
                             if(response.appointment_error)
@@ -944,7 +944,10 @@
                 },
                 error: function(response)
                 {
-                    showError(response.message);
+                    if(response.status == 429)
+                    {
+                        showError(`${response.responseJSON.message} Please wait for ${response.responseJSON.wait} second(s) before submitting again.`);
+                    } 
                 }
             });
         });

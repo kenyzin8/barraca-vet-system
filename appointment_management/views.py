@@ -784,7 +784,7 @@ def set_appointment_client(request):
                 if time_of_day == 'morning':
                     morning_slots_remaining = date_slot.morning_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning').count()
                     
-                    print(morning_slots_remaining)
+                    #print(morning_slots_remaining)
 
                     if morning_slots_remaining != 1:
                         morning_slots_remaining -= 1
@@ -796,7 +796,7 @@ def set_appointment_client(request):
                     if afternoon_slots_remaining != 1:
                         afternoon_slots_remaining -= 1
                     
-                    print(afternoon_slots_remaining)
+                    #print(afternoon_slots_remaining)
 
                     if afternoon_slots_remaining <= 0:
                         return JsonResponse({'status': 'error', 'message': 'No more slots available for afternoon on this date.'}, status=400)
@@ -1034,7 +1034,7 @@ def get_all_data_client(request):
         }
         event_list.append(event)
 
-    print(event_list)
+    #print(event_list)
 
     # Get disabled days
     disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay')

@@ -260,11 +260,24 @@ function showAppointmentDetailsFromOtherModule() {
         };
 
         document.getElementById('yesDeleteAppointmentButton').onclick = function() {
+            
+            var reason = document.getElementById('cancel-appointment-reason').value;
+            if(reason == ""){
+                deleteAppointmentModal.hide();
+                showError("Please enter a reason for cancellation.");
+        
+                $('#OKErrorModalButton').on('click', function() {
+                    $('#errorModal').modal('hide');
+                    deleteAppointmentModal.show();
+                });
+                return;
+            }
             $.ajax({
                 type: 'POST',
                 url: '{% url "cancel_appointment" %}',
                 data: {
                     'appointment_id': appointmentId,
+                    'reason': $('#cancel-appointment-reason').val(),
                     'csrfmiddlewaretoken': '{{ csrf_token }}'
                 },
                 success: function(response) {

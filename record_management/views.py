@@ -879,7 +879,7 @@ class SubmitConsultationView(APIView):
         if serializer.is_valid():
             selected_pet_id = serializer.validated_data.get('selectedPetId')
             appointment_date = serializer.validated_data.get('appointment_date')
-            appointment_time_of_the_day = serializer.validated_data.get('appointment_time_of_the_day')
+            appointment_time = serializer.validated_data.get('appointment_time')
             appointment_purpose = serializer.validated_data.get('appointment_purpose')
             symptoms = serializer.validated_data.get('symptoms')
             temperature = serializer.validated_data.get('temperature')
@@ -891,41 +891,9 @@ class SubmitConsultationView(APIView):
             is_vaccine = serializer.validated_data.get('isVaccination')
             products_selected = serializer.validated_data.get('productsSelected')
 
-            if appointment_date:
-                if appointment_date < date.today():
-                    return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Selected date is in the past.'})
+            noon = dt_time(12, 0, 0)
+            evening = dt_time(18, 0, 0)
 
-                doctor_schedule_for_date = DoctorSchedule.objects.filter(date=appointment_date).first()
-
-                if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == "whole_day":
-                    return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Doctor is not available the whole day on the selected date.'})
-                
-                if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == appointment_time_of_the_day:
-                    return JsonResponse({'success': False, 'appointment_error': True, 'message': f'Doctor is not available in the {appointment_time_of_the_day} on the selected date.'})
-
-                appointments_for_date = Appointment.objects.filter(date=appointment_date, isActive=True, status='pending')
-                date_slot = DateSlot.objects.filter(date=appointment_date).first()
-                
-                max_appointment = MaximumAppointment.objects.first().max_appointments
-
-                if date_slot:
-                    morning_date_slot = date_slot.morning_slots
-                    afternoon_date_slot = date_slot.afternoon_slots
-                    
-                    max_allowed_morning = morning_date_slot
-                    max_allowed_afternoon = afternoon_date_slot
-                else:
-                    max_allowed_morning = max_appointment / 2
-                    max_allowed_afternoon = max_appointment / 2
-
-                if appointment_time_of_the_day == 'morning':
-                    morning_appointment_count = appointments_for_date.filter(timeOfTheDay='morning').count()
-                    if morning_appointment_count >= max_allowed_morning:
-                        return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available morning slots on the selected date.'})
-                elif appointment_time_of_the_day == 'afternoon':
-                    afternoon_appointment_count = appointments_for_date.filter(timeOfTheDay='afternoon').count()
-                    if afternoon_appointment_count >= max_allowed_afternoon:
-                        return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available afternoon slots on the selected date.'})
             try:
                 with transaction.atomic():
                     
@@ -934,20 +902,52 @@ class SubmitConsultationView(APIView):
                     appointment = None
 
                     if appointment_date:
+                        if noon <= appointment_time < evening:
+                            appointment_time_of_the_day = 'afternoon'
+                        else:
+                            appointment_time_of_the_day = 'morning'
+
+                        if appointment_date < date.today():
+                            return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Selected date is in the past.'})
+
+                        doctor_schedule_for_date = DoctorSchedule.objects.filter(date=appointment_date).first()
+
+                        if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == "whole_day":
+                            return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Doctor is not available the whole day on the selected date.'})
+                        
+                        if doctor_schedule_for_date and doctor_schedule_for_date.timeOfTheDay == appointment_time_of_the_day:
+                            return JsonResponse({'success': False, 'appointment_error': True, 'message': f'Doctor is not available in the {appointment_time_of_the_day} on the selected date.'})
+
+                        appointments_for_date = Appointment.objects.filter(date=appointment_date, isActive=True, status='pending')
+                        date_slot = DateSlot.objects.filter(date=appointment_date).first()
+                        max_appointment = MaximumAppointment.objects.first().max_appointments
+
+                        if date_slot:
+                            morning_date_slot = date_slot.morning_slots
+                            afternoon_date_slot = date_slot.afternoon_slots
+                            
+                            max_allowed_morning = morning_date_slot
+                            max_allowed_afternoon = afternoon_date_slot
+                        else:
+                            max_allowed_morning = max_appointment / 2
+                            max_allowed_afternoon = max_appointment / 2
+
+                        if appointment_time_of_the_day == 'morning':
+                            morning_appointment_count = appointments_for_date.filter(timeOfTheDay='morning').count()
+                            if morning_appointment_count >= max_allowed_morning:
+                                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available morning slots on the selected date.'})
+                        elif appointment_time_of_the_day == 'afternoon':
+                            afternoon_appointment_count = appointments_for_date.filter(timeOfTheDay='afternoon').count()
+                            if afternoon_appointment_count >= max_allowed_afternoon:
+                                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available afternoon slots on the selected date.'})
+
                         selected_purpose = Service.objects.get(pk=appointment_purpose)
 
-                        if appointment_time_of_the_day in ['morning', 'afternoon']:
-                            next_time = next_available_time_for_slot(appointment_date, selected_purpose.job_for, appointment_time_of_the_day)
-                            if not next_time:
-                                return JsonResponse({'success': False, 'appointment_error': True, 'message': f'No available slots in the {appointment_time_of_the_day} on the selected date.'})
-                        else:
-                            next_time = None
-                        
                         appointment = Appointment.objects.create(
                             pet=selected_pet,
                             client=selected_pet.client,
                             date=appointment_date,
-                            time=next_time,
+                            time=appointment_time,
                             timeOfTheDay=appointment_time_of_the_day,
                             purpose=selected_purpose,
                             status='pending',
@@ -1806,6 +1806,8 @@ def update_medical_record(request, treatmentID):
     }
     return render(request, 'admin/consultation_module/update/update.html', context)
 
+from rest_framework.exceptions import Throttled
+
 @method_decorator(login_required, name='dispatch')
 @method_decorator(staff_required, name='dispatch')
 class UpdateConsultationView(APIView):
@@ -1815,7 +1817,6 @@ class UpdateConsultationView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = UpdateConsultationSerializer(data=request.data)
         #print(serializer)
-
         if serializer.is_valid():
             treatment_id = serializer.validated_data.get('treatmentId')
             selected_pet_id = serializer.validated_data.get('selectedPetId')

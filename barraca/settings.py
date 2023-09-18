@@ -88,8 +88,9 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'get_pet': '5/minute',
         'mobile_login': '5/minute',
-        'submit_consultation': '1/minute',
-    }
+        'submit_consultation': '5/minute',
+    },
+    'EXCEPTION_HANDLER': 'rest_api.rest_exceptions.custom_exception_handler',
 }
 
 ADMIN_REORDER = (

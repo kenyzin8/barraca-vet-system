@@ -223,6 +223,10 @@
     background-color: rgba(0, 0, 0, 0.15);
     box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
 }
+.active a
+{
+    font-weight: 600 !important;
+}
 </style>
 
 {% include 'admin/consultation_module/update/update_script.html' %}
@@ -238,7 +242,8 @@
     <nav class="mt-4 rounded mb-3" aria-label="breadcrumb">
         <ol class="breadcrumb px-3 py-2 rounded mb-0">
             <li class="breadcrumb-item"><a href="{% url 'admin-pet-list-page' %}">Pets</a></li>
-            <li class="breadcrumb-item active">Medical Record</li>
+            <li class="breadcrumb-item">Medical Record</li>
+            <li class="breadcrumb-item">Update</li>
             <li class="breadcrumb-item active"><a href="{% url 'admin-view-pet-page' pet_treatment.pet.id %}">{{ pet_treatment.pet.name }}</a></li>
         </ol>
     </nav>

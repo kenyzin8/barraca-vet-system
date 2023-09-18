@@ -1062,12 +1062,15 @@
 
         document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard1');
+            $("#inputNextAppointmentTime").off("change");
         });
+
         document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard2');
         });
         document.getElementById('wizard3-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard3');
+            $("#inputNextAppointmentTime").off("change");
         });
         document.getElementById('wizard4-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard4');
@@ -1082,6 +1085,7 @@
             let appointmentTimeText = $('#inputNextAppointmentTimeOfTheDay option:selected').text();
             $('.next-appointment').text((appointmentDate && appointmentTimeText) ? (appointmentDate + ' - ' + appointmentTimeText) : "None");   
             let rows = prescriptionSummaryDataTable.rows;
+            $("#inputNextAppointmentTime").off("change");
         });
     });
     </script>

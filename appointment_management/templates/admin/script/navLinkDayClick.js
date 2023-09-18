@@ -107,8 +107,8 @@ eventsOnDate.forEach(function(event, index) {
     dataTable.rows.add(row);
 });
 
+calendar.changeView('listDay', date);
+
 $('html, body').animate({
     scrollTop: $(".appointments-list-table").offset().top
-}, 100);
-
-calendar.changeView('listDay', date);
+}, 800);

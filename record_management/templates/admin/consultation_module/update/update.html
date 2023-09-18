@@ -315,29 +315,57 @@ window.addEventListener('DOMContentLoaded', event => {
 
     function isDateFull(targetDate) {
         let slotForDate = date_slots.find(slot => slot.fields.date === targetDate);
-        let maxSlotsForDate = slotForDate ? slotForDate.fields.slots : max_appointment;
-        let appointmentCountForDate = all_appointments.filter(appointment => appointment.fields.date === targetDate).length;
-
-        return appointmentCountForDate >= maxSlotsForDate;
+        let doctorScheduleForDate = doctor_schedules.find(schedule => schedule.fields.date === targetDate);
+    
+        let morningMaxSlotsForDate = slotForDate ? slotForDate.fields.morning_slots : (max_appointment / 2);
+        let afternoonMaxSlotsForDate = slotForDate ? slotForDate.fields.afternoon_slots : (max_appointment / 2);
+    
+        if (doctorScheduleForDate) {
+            if (doctorScheduleForDate.fields.timeOfTheDay === 'morning') {
+                morningMaxSlotsForDate = 0;
+            } else if (doctorScheduleForDate.fields.timeOfTheDay === 'afternoon') {
+                afternoonMaxSlotsForDate = 0;
+            } else if (doctorScheduleForDate.fields.timeOfTheDay === 'whole_day') {
+                morningMaxSlotsForDate = 0;
+                afternoonMaxSlotsForDate = 0;
+            }
+        }
+    
+        let morningAppointmentsForDate = all_appointments.filter(appointment => 
+            appointment.fields.date === targetDate && appointment.fields.timeOfTheDay === 'morning').length;
+    
+        let afternoonAppointmentsForDate = all_appointments.filter(appointment => 
+            appointment.fields.date === targetDate && appointment.fields.timeOfTheDay === 'afternoon').length;
+    
+        return (morningAppointmentsForDate >= morningMaxSlotsForDate) && (afternoonAppointmentsForDate >= afternoonMaxSlotsForDate);
     }
-    function updateSelectOptions(selectedDate) {
-        
-        timeOfTheDaySelect.innerHTML = `
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-        `;
 
+    function updateSelectOptions(selectedDate) {
+        $('#inputNextAppointmentTime option').each(function() {
+            $(this).show();
+        });
         let scheduleForDate = doctor_schedules.find(schedule => schedule.fields.date === selectedDate);
 
         if (scheduleForDate) {
             if (scheduleForDate.fields.timeOfTheDay === 'morning') {
-                timeOfTheDaySelect.querySelector('option[value="morning"]').remove();
+                $('#inputNextAppointmentTime option').each(function() {
+                    let time = $(this).val();
+                    if (time >= "07:30:00" && time < "12:00:00") {
+                        $(this).hide();
+                    }
+                });
             } else if (scheduleForDate.fields.timeOfTheDay === 'afternoon') {
-                timeOfTheDaySelect.querySelector('option[value="afternoon"]').remove();
+                $('#inputNextAppointmentTime option').each(function() {
+                    let time = $(this).val();
+                    if (time >= "12:00:00" && time <= "17:59:00") { 
+                        $(this).hide();
+                    }
+                });
             } else if (scheduleForDate.fields.timeOfTheDay === 'whole_day') {
-                timeOfTheDaySelect.innerHTML = '';
+                $("#inputNextAppointmentTime").show();
             }
         }
+        
     }
 
     if (litepickerSingleDate) {
@@ -389,6 +417,48 @@ window.addEventListener('DOMContentLoaded', event => {
                 return [7, 0].includes(d);
             },
             setup: (picker) => {
+                const updateBusyTimes = function()
+                {
+                    const selectedServiceId = $('#nextAppointmentPurpose').val();
+                    const selectedDate = $('#litepickerSingleDate').val();
+        
+                    if (selectedServiceId && selectedDate) {
+    
+                        let dateStr = selectedDate;
+                        let dateObj = new Date(dateStr);
+                        let formattedDateStr = dateObj.getFullYear() + '-' + 
+                                               String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                                               String(dateObj.getDate()).padStart(2, '0');
+                    
+                        $.ajax({
+                            url: "{% url 'get-busy-times' %}", 
+                            method: "GET",
+                            data: {
+                                service_id: selectedServiceId,
+                                date: formattedDateStr
+                            },
+                            success: function(response) {
+                                if (response.status === "success") {
+                                    const busyTimes = response.busy_times;
+        
+                                    busyTimes.forEach(function(time) {
+                                        $("#inputNextAppointmentTime option[value='" + time + "']").hide();
+                                    });
+                                    var app_time = '{{ appointment.time }}'
+    
+                                    $("#inputNextAppointmentTime option[value='" + app_time + "']").show();
+                                }
+                            },
+                            error: function(error) {
+                                showError("Failed to fetch busy times:", error);
+                            }
+                        });
+    
+                        updateSelectOptions(formattedDateStr); 
+                    }
+                    
+                }
+
                 picker.on('selected', (date1) => {
                     var date = date1.dateInstance;
                     var dateObj = new Date(date);
@@ -400,12 +470,22 @@ window.addEventListener('DOMContentLoaded', event => {
                     var formattedDate = `${year}-${month}-${day}`;
 
                     updateSelectOptions(formattedDate);
+
+                    updateBusyTimes();
+                    
+                    $("#nextAppointmentPurpose").change(updateBusyTimes);
+                    $("#dewormingRadio").change(updateBusyTimes);
+                    $("#vaccinationRadio").change(updateBusyTimes);
+
                 });
+                
+                var stopper = 0;
+
                 picker.on('render', (ui) => {
                     const days = ui.querySelectorAll('.day-item');
                     days.forEach(day => {
                         const dateValue = new Date(Number(day.getAttribute('data-time')));
-                        
+                        today.setHours(0, 0, 0, 0);
                         if(dateValue < today) {
                             day.classList.add('old-date');
                         }
@@ -415,14 +495,6 @@ window.addEventListener('DOMContentLoaded', event => {
                         const dayOfMonth = dateValue.getDate().toString().padStart(2, '0');
                         const formattedDateValue = `${year}-${month}-${dayOfMonth}`;
                     
-
-                        if (lockDaysArray.includes(formattedDateValue)) {
-                            day.classList.add('day-full');
-                            day.setAttribute('data-bs-toggle', 'tooltip');
-                            day.setAttribute('data-bs-placement', 'top');
-                            day.setAttribute('title', 'Day full');
-                        }
-
                         const scheduleForTheDay = doctor_schedules.find(schedule => schedule.fields.date === formattedDateValue);
 
                         if(scheduleForTheDay)
@@ -445,6 +517,24 @@ window.addEventListener('DOMContentLoaded', event => {
                                 day.setAttribute('data-bs-placement', 'top');
                                 day.setAttribute('title', 'Whole day unavailable');
                             }
+                        }
+
+                        if (lockDaysArray.includes(formattedDateValue)) {
+                            day.classList.add('day-full');
+                            day.setAttribute('data-bs-toggle', 'tooltip');
+                            day.setAttribute('data-bs-placement', 'top');
+                            day.setAttribute('title', 'Day full');
+                        }
+                        
+
+                        if(stopper == 0)
+                        {
+                            updateBusyTimes();
+                            $("#nextAppointmentPurpose").change(updateBusyTimes);
+                            $("#dewormingRadio").change(updateBusyTimes);
+                            $("#vaccinationRadio").change(updateBusyTimes);
+                            stopper++;
+                            console.log(stopper);
                         }
                     });
 

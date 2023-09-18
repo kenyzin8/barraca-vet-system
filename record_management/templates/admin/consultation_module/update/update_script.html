@@ -831,6 +831,10 @@
 
             var labResults = $('#inputLabResults').val();
 
+            var appointment_date = $('#litepickerSingleDate').val();
+            var appointment_time = $('#inputNextAppointmentTime').val();
+            var appointment_purpose = $('#nextAppointmentPurpose').val();
+
             if(symptoms == null || symptoms == "")
             {
                 activateTab(0);
@@ -867,10 +871,15 @@
                 showError("Please enter the lab results.");
                 return;
             }
-
-            var appointment_date = $('#litepickerSingleDate').val();
-            var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
-            var appointment_purpose = $('#nextAppointmentPurpose').val();
+            else if(appointment_date != undefined || appointment_date != "")
+            {
+                if(appointment_time == undefined || appointment_time == "")
+                {
+                    activateTab(2);
+                    showError("Please enter the appointment time.");
+                    return false;
+                }
+            }
 
             var custom_purpose = $('#inputCustomPurpose').val();
             
@@ -884,7 +893,7 @@
             formData.append('productsSelected', JSON.stringify([...productsSelected]));
             formData.append('selectedPetId', selectedPetId);
             formData.append('appointment_date', appointment_date);
-            formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
+            formData.append('appointment_time', appointment_time);
             formData.append('appointment_purpose', appointment_purpose);
             formData.append('symptoms', symptoms);
             formData.append('temperature', temperature);

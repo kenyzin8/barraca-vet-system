@@ -4,6 +4,7 @@ from core.models import SMSLogs
 from services.models import Service
 from core.semaphore import send_sms
 from .utils import time_choices
+from datetime import time
 
 class MaximumAppointment(models.Model):
     max_appointments = models.IntegerField(default=8)
@@ -84,7 +85,7 @@ class Appointment(models.Model):
     daily_reminder_sent = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.client} ({self.pet}) - {self.date} - {self.timeOfTheDay}'
+        return f'{self.client} ({self.pet}) - {self.date} - {self.time}'
 
     def setActive(self, isActive):
         self.isActive = isActive
@@ -100,7 +101,8 @@ class Appointment(models.Model):
 
     def remindClient(self, reminder_type):
         phone_number = self.client.contact_number
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} in the {self.timeOfTheDay}. Thank you!'
+        formatted_time = self.time.strftime('%I:%M %p')
+        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(
@@ -119,7 +121,8 @@ class Appointment(models.Model):
 
     def remindClientCancel(self, reason):
         phone_number = self.client.contact_number
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} in the {self.timeOfTheDay} has been cancelled. Due to {reason}. Thank you!'
+        formatted_time = self.time.strftime('%I:%M %p')
+        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time} has been cancelled. Due to {reason}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(
@@ -128,9 +131,11 @@ class Appointment(models.Model):
             sms_type = 'cancel'
         )
 
-    def remindClientRebook(self, newDate):
+    def remindClientRebook(self, newDate, newTime):
         phone_number = self.client.contact_number
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} in the {self.timeOfTheDay} has been rebooked to {newDate}. Thank you!'
+        formatted_time = self.time.strftime('%I:%M %p')
+        formatted_new_time = newTime.strftime('%I:%M %p')
+        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time} has been rebooked to {newDate} {formatted_new_time}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(

@@ -468,6 +468,9 @@
             var medicine = $('#inputMedicine').val();
             var medicine_sticker = $('#inputLabResultsImages').prop('files')[0];
 
+            var appointment_date = $('#litepickerSingleDate').val();
+            var appointment_time = $('#inputNextAppointmentTime').val();
+
             if((treatment == undefined || treatment == "") && !hasCycles)
             {
                 activateTab(1);
@@ -504,6 +507,15 @@
                 showError("Please upload the medicine sticker.");
                 return false;
             }
+            else if(appointment_date != undefined || appointment_date != "")
+            {
+                if(appointment_time == undefined || appointment_time == "")
+                {
+                    activateTab(2);
+                    showError("Please enter the appointment time.");
+                    return false;
+                }
+            }
 
 
             return true;
@@ -533,6 +545,7 @@
 
             var appointment_date = $('#litepickerSingleDate').val();
             var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
+            var appointment_time = $('#inputNextAppointmentTime').val();
             var appointment_purpose = $('#nextAppointmentPurpose').val();
 
             var medicine_sticker = $('#inputLabResultsImages').prop('files')[0];
@@ -543,7 +556,7 @@
             formData.append('selectedPetId', selectedPetId);
             //formData.append('appointmentId', {% if appointment.id %}{{ appointment.id }}{% else %}-1{% endif %})
             formData.append('appointment_date', appointment_date);
-            formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
+            formData.append('appointment_time', appointment_time);
             formData.append('appointment_purpose', appointment_purpose);
             formData.append('temperature', temperature);
             formData.append('weight', weight);
@@ -593,6 +606,7 @@
                 },
                 error: function(response)
                 {
+                    console.log(response);
                     showError(response.message);
                 }
             });

@@ -609,13 +609,14 @@
                     {
                         if (!response.cycle_status) {
                             $('#cycle-type-message').text(selectedTreatmentType);
+                          
                             const $cycleDatesList = $('#cycle-dates-list');
                             $cycleDatesList.empty(); 
                     
                             if (response.appointment_cycles)
                             {
                                 response.appointment_cycles.forEach((cycle, index) => {
-                                    $cycleDatesList.append(`<li>Date: ${cycle.date} - ${cycle.status}</li>`);
+                                    $cycleDatesList.append(`<li>Schedule: ${cycle.date} ${cycle.time} - ${cycle.status}</li>`);
                                 });
                             }
     
@@ -723,6 +724,8 @@
 
             var appointment_date = $('#litepickerSingleDate').val();
             var appointment_time_of_the_day = $('#inputNextAppointmentTimeOfTheDay').val();
+            var appointment_time = $('#inputNextAppointmentTime').val();
+            
             var appointment_purpose = $('#nextAppointmentPurpose').val();
 
             var medicine_sticker = $('#inputLabResultsImages').prop('files')[0];
@@ -734,7 +737,7 @@
             formData.append('appointment_cycle', appointment_cycle);
             formData.append('appointment_cycle_repeat', appointment_cycle_repeat);
             formData.append('appointment_date', appointment_date);
-            formData.append('appointment_time_of_the_day', appointment_time_of_the_day);
+            formData.append('appointment_time', appointment_time);
             formData.append('appointment_purpose', appointment_purpose);
             formData.append('temperature', temperature);
             formData.append('weight', weight);
@@ -791,9 +794,10 @@
     
         document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard1');
+            $("#inputNextAppointmentTime").off("change");
         });
         document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
-
+            $("#inputNextAppointmentTime").off("change");
         });
     });
     </script>

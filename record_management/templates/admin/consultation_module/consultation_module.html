@@ -278,6 +278,7 @@ window.addEventListener('DOMContentLoaded', event => {
 
     const litepickerSingleDate = document.getElementById('litepickerSingleDate');
     const timeOfTheDaySelect = document.getElementById('inputNextAppointmentTimeOfTheDay');
+    const timeSelect = document.getElementById('inputNextAppointmentTime');
 
     var tooltipInstances = [];
 
@@ -290,29 +291,54 @@ window.addEventListener('DOMContentLoaded', event => {
 
     function isDateFull(targetDate) {
         let slotForDate = date_slots.find(slot => slot.fields.date === targetDate);
-        let morningMaxSlotsForDate = slotForDate ? slotForDate.fields.morning_slots : max_appointment;
-        let afternoonMaxSlotsForDate = slotForDate ? slotForDate.fields.afternoon_slots : max_appointment;
-        let appointmentCountForDate = all_appointments.filter(appointment => appointment.fields.date === targetDate).length;
-
-        return (appointmentCountForDate >= morningMaxSlotsForDate) && (appointmentCountForDate >= afternoonMaxSlotsForDate);
+        let doctorScheduleForDate = doctor_schedules.find(schedule => schedule.fields.date === targetDate);
+    
+        let morningMaxSlotsForDate = slotForDate ? slotForDate.fields.morning_slots : (max_appointment / 2);
+        let afternoonMaxSlotsForDate = slotForDate ? slotForDate.fields.afternoon_slots : (max_appointment / 2);
+    
+        if (doctorScheduleForDate) {
+            if (doctorScheduleForDate.fields.timeOfTheDay === 'morning') {
+                morningMaxSlotsForDate = 0;
+            } else if (doctorScheduleForDate.fields.timeOfTheDay === 'afternoon') {
+                afternoonMaxSlotsForDate = 0;
+            } else if (doctorScheduleForDate.fields.timeOfTheDay === 'whole_day') {
+                morningMaxSlotsForDate = 0;
+                afternoonMaxSlotsForDate = 0;
+            }
+        }
+    
+        let morningAppointmentsForDate = all_appointments.filter(appointment => 
+            appointment.fields.date === targetDate && appointment.fields.timeOfTheDay === 'morning').length;
+    
+        let afternoonAppointmentsForDate = all_appointments.filter(appointment => 
+            appointment.fields.date === targetDate && appointment.fields.timeOfTheDay === 'afternoon').length;
+    
+        return (morningAppointmentsForDate >= morningMaxSlotsForDate) && (afternoonAppointmentsForDate >= afternoonMaxSlotsForDate);
     }
 
     function updateSelectOptions(selectedDate) {
-        
-        timeOfTheDaySelect.innerHTML = `
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-        `;
-
+        $('#inputNextAppointmentTime option').each(function() {
+            $(this).show();
+        });
         let scheduleForDate = doctor_schedules.find(schedule => schedule.fields.date === selectedDate);
 
         if (scheduleForDate) {
             if (scheduleForDate.fields.timeOfTheDay === 'morning') {
-                timeOfTheDaySelect.querySelector('option[value="morning"]').remove();
+                $('#inputNextAppointmentTime option').each(function() {
+                    let time = $(this).val();
+                    if (time >= "07:30:00" && time < "12:00:00") {
+                        $(this).hide();
+                    }
+                });
             } else if (scheduleForDate.fields.timeOfTheDay === 'afternoon') {
-                timeOfTheDaySelect.querySelector('option[value="afternoon"]').remove();
+                $('#inputNextAppointmentTime option').each(function() {
+                    let time = $(this).val();
+                    if (time >= "12:00:00" && time <= "17:59:00") { 
+                        $(this).hide();
+                    }
+                });
             } else if (scheduleForDate.fields.timeOfTheDay === 'whole_day') {
-                timeOfTheDaySelect.innerHTML = '';
+                $("#inputNextAppointmentTime").show();
             }
         }
     }
@@ -325,14 +351,15 @@ window.addEventListener('DOMContentLoaded', event => {
             if (schedule.fields.timeOfTheDay === 'whole_day') {
                 lockDaysArray.push(schedule.fields.date);
             }
-        });
 
+        });
+        
         all_appointments.forEach(appointment => {
             if (isDateFull(appointment.fields.date) && !lockDaysArray.includes(appointment.fields.date)) {
                 lockDaysArray.push(appointment.fields.date);
             }
         });
-
+        console.log(lockDaysArray)
         var lp = new Litepicker({
             element: litepickerSingleDate,
             format: 'MMM DD, YYYY',
@@ -376,13 +403,58 @@ window.addEventListener('DOMContentLoaded', event => {
 
                     var formattedDate = `${year}-${month}-${day}`;
 
+                    const updateBusyTimes = function()
+                    {
+                        const selectedServiceId = $('#nextAppointmentPurpose').val();
+                        const selectedDate = $('#litepickerSingleDate').val();
+            
+                        if (selectedServiceId && selectedDate) {
+        
+                            let dateStr = selectedDate;
+                            let dateObj = new Date(dateStr);
+                            let formattedDateStr = dateObj.getFullYear() + '-' + 
+                                                   String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                                                   String(dateObj.getDate()).padStart(2, '0');
+                        
+                            $.ajax({
+                                url: "{% url 'get-busy-times' %}", 
+                                method: "GET",
+                                data: {
+                                    service_id: selectedServiceId,
+                                    date: formattedDateStr
+                                },
+                                success: function(response) {
+                                    if (response.status === "success") {
+                                        const busyTimes = response.busy_times;
+            
+                                        busyTimes.forEach(function(time) {
+                                            $("#inputNextAppointmentTime option[value='" + time + "']").hide();
+                                        });
+        
+                                        var firstAvailableTime = $('#inputNextAppointmentTime option:visible:first').val();
+                                        $('#inputNextAppointmentTime').val(firstAvailableTime);
+                                    }
+                                },
+                                error: function(error) {
+                                    showError("Failed to fetch busy times:", error);
+                                }
+                            });
+        
+                            updateSelectOptions(formattedDateStr); 
+                        }
+                    }
+
                     updateSelectOptions(formattedDate);
+
+                    updateBusyTimes();
+                    
+                    $("#nextAppointmentPurpose").change(updateBusyTimes);
                 });
                 picker.on('render', (ui) => {
                     const days = ui.querySelectorAll('.day-item');
                     days.forEach(day => {
                         const dateValue = new Date(Number(day.getAttribute('data-time')));
-                        
+                        today.setHours(0, 0, 0, 0);
                         if(dateValue < today) {
                             day.classList.add('old-date');
                         }
@@ -400,13 +472,13 @@ window.addEventListener('DOMContentLoaded', event => {
                                 day.classList.add('afternoon-disabled');
                                 day.setAttribute('data-bs-toggle', 'tooltip');
                                 day.setAttribute('data-bs-placement', 'top');
-                                day.setAttribute('title', 'Morning unavailable');
+                                day.setAttribute('title', 'Morning available');
                             }
                             else if(scheduleForTheDay.fields.timeOfTheDay === 'morning') {
                                 day.classList.add('morning-disabled');
                                 day.setAttribute('data-bs-toggle', 'tooltip');
                                 day.setAttribute('data-bs-placement', 'top');
-                                day.setAttribute('title', 'Afternoon unavailable');
+                                day.setAttribute('title', 'Afternoon available');
                             }
                             else if(scheduleForTheDay.fields.timeOfTheDay === 'whole_day') {
                                 day.classList.add('whole-day-disabled');
@@ -415,13 +487,14 @@ window.addEventListener('DOMContentLoaded', event => {
                                 day.setAttribute('title', 'Whole day unavailable');
                             }
                         }
-
+                       
                         if (lockDaysArray.includes(formattedDateValue)) {
                             day.classList.add('day-full');
                             day.setAttribute('data-bs-toggle', 'tooltip');
                             day.setAttribute('data-bs-placement', 'top');
                             day.setAttribute('title', 'Day full');
                         }
+                        
                     });
 
                     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

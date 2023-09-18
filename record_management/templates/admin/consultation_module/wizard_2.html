@@ -77,23 +77,7 @@
                     <span class="small">Add another lab result</span>
                 </div> -->
                 <hr class="my-4" />
-                <label class="small mb-1 fw-700" for="inputNextAppointment">Next Appointment</label>
-                <div class="row gx-3">
-                    <div class="mb-3 col-md-6">
-                        <label class="small mb-1" for="inputNextAppointmentDate">Date</label>
-                        <div class="input-group input-group-joined border-1">
-                            <span class="input-group-text"><i class="text-primary" data-feather="calendar"></i></span>
-                            <input class="form-control ps-0 pointer" name="appointment_date" id="litepickerSingleDate" placeholder="Select date" />
-                        </div>
-                    </div>
-                    <div class="mb-3 col-md-6">
-                        <label class="small mb-1" for="inputNextAppointmentTimeOfTheDay">Time of the Day</label>
-                        <select class="form-select" id="inputNextAppointmentTimeOfTheDay" name="appointment_time_of_the_day">
-                            <option value="morning">Morning</option>
-                            <option value="afternoon">Afternoon</option>
-                        </select>
-                    </div>  
-                </div>
+                <label class="small mb-1 fw-700" for="inputNextAppointment">Next Appointment</label><br>
                 <label class="small mb-1" for="nextAppointmentPurpose">Purpose</label>
                 <div class="input-group mb-3">
                     {% comment %} <input type="text" class="form-control" placeholder="Input purpose of select from the dropbox" id="inputCustomPurpose"> {% endcomment %}
@@ -104,7 +88,29 @@
                             <option value="{{ service.id }}" {% if service.service_type == "Check-up" %}selected{% endif %}>{{ service.service_type }}</option>
                         {% endfor %}
                     </select>  
-                  </div>
+                </div>
+                <div class="row gx-3">
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputNextAppointmentDate">Date</label>
+                        <div class="input-group input-group-joined border-1">
+                            <span class="input-group-text"><i class="text-primary" data-feather="calendar"></i></span>
+                            <input class="form-control ps-0 pointer" name="appointment_date" id="litepickerSingleDate" placeholder="Select date" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label class="small mb-1" for="inputNextAppointmentTime">Time</label>
+                        <select class="form-select" id="inputNextAppointmentTime" name="appointment_time">
+                            {% for opt_value, opt_label in time_choices %}
+                            <option value="{{ opt_value }}">{{ opt_label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% comment %} <label class="small mb-1" for="inputNextAppointmentTimeOfTheDay">Time of the Day</label>
+                        <select class="form-select" id="inputNextAppointmentTimeOfTheDay" name="appointment_time_of_the_day">
+                            <option value="morning">Morning</option>
+                            <option value="afternoon">Afternoon</option>
+                        </select> {% endcomment %}
+                    </div>  
+                </div>
                 <hr class="my-4" />
                 <div class="d-flex justify-content-between">
                     <button class="btn btn-light previous-button" type="button">Previous</button>

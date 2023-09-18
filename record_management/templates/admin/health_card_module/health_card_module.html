@@ -310,21 +310,28 @@ window.addEventListener('DOMContentLoaded', event => {
     }
 
     function updateSelectOptions(selectedDate) {
-        
-        timeOfTheDaySelect.innerHTML = `
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-        `;
-
+        $('#inputNextAppointmentTime option').each(function() {
+            $(this).show();
+        });
         let scheduleForDate = doctor_schedules.find(schedule => schedule.fields.date === selectedDate);
 
         if (scheduleForDate) {
             if (scheduleForDate.fields.timeOfTheDay === 'morning') {
-                timeOfTheDaySelect.querySelector('option[value="morning"]').remove();
+                $('#inputNextAppointmentTime option').each(function() {
+                    let time = $(this).val();
+                    if (time >= "07:30:00" && time < "12:00:00") {
+                        $(this).hide();
+                    }
+                });
             } else if (scheduleForDate.fields.timeOfTheDay === 'afternoon') {
-                timeOfTheDaySelect.querySelector('option[value="afternoon"]').remove();
+                $('#inputNextAppointmentTime option').each(function() {
+                    let time = $(this).val();
+                    if (time >= "12:00:00" && time <= "17:59:00") { 
+                        $(this).hide();
+                    }
+                });
             } else if (scheduleForDate.fields.timeOfTheDay === 'whole_day') {
-                timeOfTheDaySelect.innerHTML = '';
+                $("#inputNextAppointmentTime").show();
             }
         }
     }
@@ -391,7 +398,54 @@ window.addEventListener('DOMContentLoaded', event => {
 
                     var formattedDate = `${year}-${month}-${day}`;
 
+                    const updateBusyTimes = function()
+                    {
+                        const selectedServiceId = $('#nextAppointmentPurpose').val();
+                        const selectedDate = $('#litepickerSingleDate').val();
+            
+                        if (selectedServiceId && selectedDate) {
+        
+                            let dateStr = selectedDate;
+                            let dateObj = new Date(dateStr);
+                            let formattedDateStr = dateObj.getFullYear() + '-' + 
+                                                   String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                                                   String(dateObj.getDate()).padStart(2, '0');
+                        
+                            $.ajax({
+                                url: "{% url 'get-busy-times' %}", 
+                                method: "GET",
+                                data: {
+                                    service_id: selectedServiceId,
+                                    date: formattedDateStr
+                                },
+                                success: function(response) {
+                                    if (response.status === "success") {
+                                        const busyTimes = response.busy_times;
+            
+                                        busyTimes.forEach(function(time) {
+                                            $("#inputNextAppointmentTime option[value='" + time + "']").hide();
+                                        });
+        
+                                        var firstAvailableTime = $('#inputNextAppointmentTime option:visible:first').val();
+                                        $('#inputNextAppointmentTime').val(firstAvailableTime);
+                                    }
+                                },
+                                error: function(error) {
+                                    showError("Failed to fetch busy times:", error);
+                                }
+                            });
+        
+                            updateSelectOptions(formattedDateStr); 
+                        }
+                    }
+
                     updateSelectOptions(formattedDate);
+
+                    updateBusyTimes();
+                    
+                    $("#nextAppointmentPurpose").change(updateBusyTimes);
+                    $("#dewormingRadio").change(updateBusyTimes);
+                    $("#vaccinationRadio").change(updateBusyTimes);
                 });
                 picker.on('render', (ui) => {
                     const days = ui.querySelectorAll('.day-item');
@@ -432,15 +486,14 @@ window.addEventListener('DOMContentLoaded', event => {
                                 day.setAttribute('title', 'Whole day unavailable');
                             }
                         }
-                        else
-                        {
-                            if (lockDaysArray.includes(formattedDateValue)) {
-                                day.classList.add('day-full');
-                                day.setAttribute('data-bs-toggle', 'tooltip');
-                                day.setAttribute('data-bs-placement', 'top');
-                                day.setAttribute('title', 'Day full');
-                            }
+                        
+                        if (lockDaysArray.includes(formattedDateValue)) {
+                            day.classList.add('day-full');
+                            day.setAttribute('data-bs-toggle', 'tooltip');
+                            day.setAttribute('data-bs-placement', 'top');
+                            day.setAttribute('title', 'Day full');
                         }
+                    
                     });
 
                     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

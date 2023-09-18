@@ -13,6 +13,22 @@ let disabledDay = disabledDays.find(function(day) {
     return day.date === dateString;
 });
 
+let appointmentsForDate = allAppointments.filter(function(appointment) {
+    var _date = new Date(appointment.start);
+    var _formattedDate = _date.getFullYear() + '-' + (_date.getMonth() + 1).toString().padStart(2, '0') + '-' + _date.getDate().toString().padStart(2, '0');
+    return _formattedDate === dateString;
+}).length;
+
+let availableSlots = dateSlots[dateString] != undefined ?
+    (dateSlots[dateString] - appointmentsForDate) :
+    (maxAppointments - appointmentsForDate);
+
+if (availableSlots <= 0) {
+    showError('This date is full.');
+    info.revert();
+    return;
+}
+
 if (disabledDay && disabledDay.timeOfTheDay === 'whole_day') {
     showError('This date is disabled for the whole day.');
     info.revert();
@@ -56,7 +72,8 @@ else
             if (response.status === 'full') {
                 showError('This date is full.');
                 info.revert();
-            } else {
+            } 
+            else {
 
                 $('#closeRebookConfirmationAppointmentModal').click(function() {
                     info.revert();

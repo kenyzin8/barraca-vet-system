@@ -101,11 +101,18 @@
                             </div>
                         </div>
                         <div class="mb-3 col-md-6">
-                            <label class="small mb-1" for="inputNextAppointmentTimeOfTheDay">Time of the Day</label>
+                            <label class="small mb-1" for="inputNextAppointmentTime">Time</label>
+                            <select class="form-select" id="inputNextAppointmentTime" name="appointment_time">
+                                {% for opt_value, opt_label in time_choices %}
+                                
+                                <option value="{{ opt_value }}" {% if appointment.time == opt_value %}selected{% endif %}>{{ opt_label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% comment %} <label class="small mb-1" for="inputNextAppointmentTimeOfTheDay">Time of the Day</label>
                             <select class="form-select" id="inputNextAppointmentTimeOfTheDay" name="appointment_time_of_the_day">
                                 <option value="morning" {% if appointment.timeOfTheDay == 'morning' %}selected{% endif %}>Morning</option>
                                 <option value="afternoon" {% if appointment.timeOfTheDay == 'afternoon' %}selected{% endif %}>Afternoon</option>
-                            </select>
+                            </select> {% endcomment %}
                         </div>  
                     </div>
                     <label class="small mb-1" for="nextAppointmentPurpose">Purpose</label>

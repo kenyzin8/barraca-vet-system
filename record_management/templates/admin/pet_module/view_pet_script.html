@@ -414,9 +414,6 @@
             currentTab = 3;
         });
 
-        //remove all activeTab on browser close or any close listener
-
-
         $(document).on('click', '.selectable-image', function() {
             var newImageSrc = $(this).attr('data-full-image');
             var imageName = $(this).attr('alt');

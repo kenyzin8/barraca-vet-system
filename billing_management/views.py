@@ -186,6 +186,39 @@ def view_bill(request, bill_id):
     context = {'bill': bill, 'bill_data': bill_data}
     return render(request, 'view_bill.html', context)
 
+def custom_format(number):
+    if number == int(number):
+        return "{:.2f}".format(number)
+    else:
+        return str(number).rstrip('0').rstrip('.') if '.' in str(number) else str(number)
+
+def get_range_name(start_date_str, end_date_str, current_year):
+    today = datetime.today().date()
+    week_start = today - timedelta(days=today.weekday())
+    week_end = week_start + timedelta(days=6)
+    
+    month_start = datetime(current_year, today.month, 1).date()
+    month_end = (datetime(current_year, today.month + 1, 1) - timedelta(days=1)).date()
+
+    year_start = datetime(current_year, 1, 1).date()
+    year_end = datetime(current_year, 12, 31).date()
+
+    lifetime_start = datetime(2010, 1, 1).date()
+    lifetime_end = year_end
+
+    if start_date_str == today and end_date_str == today:
+        return "Today (" + start_date_str.strftime("%B %d, %Y") + ")"
+    elif start_date_str == week_start and end_date_str == week_end:
+        return "This Week (" + start_date_str.strftime("%B %d") + " - " + end_date_str.strftime("%B %d, %Y") + ")"
+    elif start_date_str == month_start and end_date_str == month_end:
+        return "This Month (" + start_date_str.strftime("%B %Y") + ")"
+    elif start_date_str == year_start and end_date_str == year_end:
+        return "Year (" + start_date_str.strftime("%Y") + ")"
+    elif start_date_str == lifetime_start and end_date_str == lifetime_end:
+        return "Lifetime"
+    else:
+        return start_date_str.strftime("%B %d, %Y") + " - " + end_date_str.strftime("%B %d, %Y")
+
 @login_required
 @staff_required
 def sales(request):
@@ -218,7 +251,49 @@ def sales(request):
     total_products_count = sum(bill.billing_products.all().count() for bill in bills)
     total_services_count = sum(bill.billing_services.all().count() for bill in bills)
 
-    context = {'bills': bills, 'gross_revenue': gross_revenue, 'total_products_count': total_products_count, 'total_services_count': total_services_count}
+    billing_services_data = []
+    billing_products_data = []
+
+    for bill in bills.order_by('id'):
+        _date = bill.date_created.strftime("%b %d, %Y %I:%M %p")
+        for bs in bill.billing_services.all():
+            billing_services_data.append({
+                'id': bill.id,
+                'date_created': _date,
+                'service': bs.service.service_type,
+                'sold_under': bill.client.full_name,
+                'price': custom_format(bs.service.fee)
+            })
+
+        for bp in bill.billing_products.all():
+            total = bp.quantity * bp.product.price
+            billing_products_data.append({
+                'id': bill.id,
+                'date_created': _date,
+                'product': bp.product.product_name,
+                'quantity': int(bp.quantity),
+                'sold_under': bill.client.full_name,
+                'price': custom_format(bp.product.price),
+                'total_due': custom_format(total)
+            })
+
+    _range = "Today (" + datetime.now().strftime("%B %d, %Y") + ")"
+
+    if startDateStr and endDateStr:
+        startDateStr_obj = datetime.strptime(startDateStr, '%Y-%m-%d').date()
+        endDateStr_obj = datetime.strptime(endDateStr, '%Y-%m-%d').date()
+        _range = get_range_name(startDateStr_obj, endDateStr_obj, datetime.now().year)
+
+    context = {
+        'bills': bills,
+        'gross_revenue': custom_format(gross_revenue), 
+        'total_products_count': total_products_count, 
+        'total_services_count': total_services_count,
+        'billing_services_data': billing_services_data,
+        'billing_products_data': billing_products_data,
+        'range': _range
+        }
+
     return render(request, 'sales.html', context)
 
 # @csrf_exempt

@@ -194,7 +194,22 @@ def delete_product(request, product_id):
 @login_required
 def reorder_list(request):
     products = Product.objects.filter(quantity_on_stock__lte=F('critical_level'), active=True).order_by('-id')
-    context = {'products': products}
+    
+    reorder_data = []
+
+    for product in products:
+        reorder_data.append({
+            'id': product.id,
+            'name': product.product_name,
+            'type': product.type.name,
+            'form': product.get_form_display(),
+            'description': product.product_description,
+            'quantity': int(product.quantity_on_stock),
+            'critical_level': product.critical_level,
+            'price': str(product.price)
+        })
+    context = {'products': products, 'reorder_data': reorder_data}
+    print(reorder_data)
     return render(request, 'reorder_list.html', context)
 
 @staff_required

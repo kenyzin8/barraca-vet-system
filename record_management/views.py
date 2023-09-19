@@ -483,17 +483,101 @@ def view_pet(request, pet_id):
     if pet.client != request.user.client:
         return redirect('pet-list-page')
 
-    pet_treatment = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=False, isDeworm=False).order_by('-id')
+    pet_treatment = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=False, isDeworm=False, isActive=True).order_by('-id')
 
-    deworming_health_card = PetTreatment.objects.select_related('appointment').filter(pet=pet, isDeworm=True).order_by('-id')
-    vaccination_health_card = PetTreatment.objects.select_related('appointment').filter(pet=pet, isVaccine=True).order_by('-id')
+    deworming_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isDeworm=True, isActive=True).order_by('-id')
+    vaccination_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=True, isActive=True).order_by('-id')
+    
+    deworming_data = []
+    vaccination_data = []
+    
+    for treatment in deworming_health_card.order_by('id'):
+        lab_result = treatment.lab_results.first()
+        lab_result_image = lab_result.result_image.url if lab_result and lab_result.result_image else ""
 
+        _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
+
+        prescription = treatment.petmedicalprescription
+        medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
+
+        deworming_data.append({
+            'id': treatment.id,
+            'visit_date': _date,
+            'next_visit_date': treatment.appointment.getAppointmentDate() if treatment.appointment else "None",
+            'weight': str(treatment.treatment_weight),
+            'treatment': treatment.treatment,
+            'temp': str(treatment.temperature),
+            'medicine': medicine,
+            'sticker': lab_result_image,
+        })
+
+    for treatment in vaccination_health_card.order_by('id'):
+        lab_result = treatment.lab_results.first()
+        lab_result_image = lab_result.result_image.url if lab_result and lab_result.result_image else ""
+
+        _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
+
+        prescription = treatment.petmedicalprescription
+        medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
+
+        vaccination_data.append({
+            'id': treatment.id,
+            'visit_date': _date,
+            'next_visit_date': treatment.appointment.getAppointmentDate() if treatment.appointment else "None",
+            'weight': str(treatment.treatment_weight),
+            'treatment': treatment.treatment,
+            'temp': str(treatment.temperature),
+            'medicine': medicine,
+            'sticker': lab_result_image,
+        })
+
+    medical_record_data = []
+    
+    for treatment in pet_treatment.order_by('id'):
+        _lab_results = []
+        for lab_result in treatment.lab_results.all():
+            if lab_result.result_image:
+                _lab_results.append({
+                    'desc': lab_result.result_name,
+                    'image': lab_result.result_image.url
+                })
+
+        _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
+
+        medicines = []
+
+        if hasattr(treatment, 'petmedicalprescription'):
+            for medicine_detail in treatment.petmedicalprescription.prescriptionmedicines_set.all():
+                medicines.append({
+                    'medicine': medicine_detail.medicine.product_name,
+                    'strength': medicine_detail.strength,
+                    'quantity': int(medicine_detail.quantity),
+                    'dosage': medicine_detail.dosage,
+                    'frequency': medicine_detail.frequency,
+                    'remarks': medicine_detail.remarks,
+                })
+
+        medical_record_data.append({
+            'id': treatment.id,
+            'visit_date': _date,
+            'next_visit_date': treatment.appointment.getAppointmentDate() if treatment.appointment else "None",
+            'symptoms': treatment.symptoms if treatment.symptoms else 'None',
+            'temp': str(treatment.temperature),
+            'weight': str(treatment.treatment_weight),
+            'diagnosis': treatment.diagnosis if treatment.diagnosis else 'None',
+            'treatment': treatment.treatment,
+            'lab_results': _lab_results,
+            'prescription': medicines,
+        })
 
     context = {
         'pet': pet, 'appointment': appointment,
         'pet_treatment': pet_treatment,
         'deworming_health_card': deworming_health_card,
-        'vaccination_health_card': vaccination_health_card
+        'vaccination_health_card': vaccination_health_card,
+        'deworming_data': deworming_data,
+        'vaccination_data': vaccination_data,
+        'medical_record_data': medical_record_data
     }
     return render(request, 'client/view_pet.html', context)
 
@@ -694,10 +778,10 @@ def pet_module(request):
 def admin_view_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
 
-    pet_treatment = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=False, isDeworm=False).order_by('-id')
+    pet_treatment = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=False, isDeworm=False, isActive=True).order_by('-id')
 
-    deworming_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isDeworm=True).order_by('-id')
-    vaccination_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=True).order_by('-id')
+    deworming_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isDeworm=True, isActive=True).order_by('-id')
+    vaccination_health_card = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=True, isActive=True).order_by('-id')
 
     inactive_pet_treatment = PetTreatment.objects.select_related('appointment').prefetch_related('petmedicalprescription').filter(pet=pet, isVaccine=False, isDeworm=False, isActive=False).order_by('-id')
 
@@ -710,13 +794,101 @@ def admin_view_pet(request, pet_id):
         )\
         .order_by('-id')
 
+    deworming_data = []
+    vaccination_data = []
+
+    for treatment in deworming_health_card.order_by('id'):
+        lab_result = treatment.lab_results.first()
+        lab_result_image = lab_result.result_image.url if lab_result and lab_result.result_image else ""
+
+        _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
+
+        prescription = treatment.petmedicalprescription
+        medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
+
+        deworming_data.append({
+            'id': treatment.id,
+            'visit_date': _date,
+            'next_visit_date': treatment.appointment.getAppointmentDate() if treatment.appointment else "None",
+            'weight': str(treatment.treatment_weight),
+            'treatment': treatment.treatment,
+            'temp': str(treatment.temperature),
+            'medicine': medicine,
+            'sticker': lab_result_image,
+        })
+
+    for treatment in vaccination_health_card.order_by('id'):
+        lab_result = treatment.lab_results.first()
+        lab_result_image = lab_result.result_image.url if lab_result and lab_result.result_image else ""
+
+        _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
+
+        prescription = treatment.petmedicalprescription
+        medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
+
+        vaccination_data.append({
+            'id': treatment.id,
+            'visit_date': _date,
+            'next_visit_date': treatment.appointment.getAppointmentDate() if treatment.appointment else "None",
+            'weight': str(treatment.treatment_weight),
+            'treatment': treatment.treatment,
+            'temp': str(treatment.temperature),
+            'medicine': medicine,
+            'sticker': lab_result_image,
+        })
+
+    medical_record_data = []
+    
+    for treatment in pet_treatment.order_by('id'):
+        _lab_results = []
+        for lab_result in treatment.lab_results.all():
+            if lab_result.result_image:
+                _lab_results.append({
+                    'desc': lab_result.result_name,
+                    'image': lab_result.result_image.url
+                })
+
+        _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
+
+        medicines = []
+
+        if hasattr(treatment, 'petmedicalprescription'):
+            for medicine_detail in treatment.petmedicalprescription.prescriptionmedicines_set.all():
+                medicines.append({
+                    'medicine': medicine_detail.medicine.product_name,
+                    'strength': medicine_detail.strength,
+                    'quantity': int(medicine_detail.quantity),
+                    'dosage': medicine_detail.dosage,
+                    'frequency': medicine_detail.frequency,
+                    'remarks': medicine_detail.remarks,
+                })
+
+        medical_record_data.append({
+            'id': treatment.id,
+            'visit_date': _date,
+            'next_visit_date': treatment.appointment.getAppointmentDate() if treatment.appointment else "None",
+            'symptoms': treatment.symptoms if treatment.symptoms else 'None',
+            'temp': str(treatment.temperature),
+            'weight': str(treatment.treatment_weight),
+            'diagnosis': treatment.diagnosis if treatment.diagnosis else 'None',
+            'treatment': treatment.treatment,
+            'lab_results': _lab_results,
+            'prescription': medicines,
+        })
+
+
+    print(medical_record_data)
+
     context = {
         'pet': pet,
         'pet_treatment': pet_treatment,
         'deworming_health_card': deworming_health_card,
         'vaccination_health_card': vaccination_health_card,
         'inactive_pet_treatment': inactive_pet_treatment,
-        'inactive_health_card': inactive_health_card
+        'inactive_health_card': inactive_health_card, 
+        'deworming_data': deworming_data,
+        'vaccination_data': vaccination_data,
+        'medical_record_data': medical_record_data
     }
     return render(request, 'admin/pet_module/view_pet.html', context)
 
@@ -1102,6 +1274,39 @@ def view_prescription(request, prescription_id):
     }
     
     return render(request, 'admin/prescription_module/view_prescription.html', context)
+
+@login_required
+def view_client_prescription(request, prescription_id):
+    prescription = get_object_or_404(PetMedicalPrescription, id=prescription_id)
+    
+    pet = prescription.pet
+    client = pet.client
+
+    prescription_medicines = PrescriptionMedicines.objects.filter(prescription=prescription)
+
+    prescription_data = []
+    for medicine in prescription_medicines:
+        prescription_data.append({
+            'id': medicine.medicine.id,
+            'name': medicine.medicine.product_name,
+            'strength': medicine.strength,
+            'form': medicine.medicine.get_form_display(),
+            'quantity': int(medicine.quantity),
+            'volume': f'{int(medicine.medicine.volume)} {medicine.get_dosage_unit()}',
+            'dosage': f'{medicine.dosage} {medicine.get_dosage_unit(True)}',
+            'frequency': medicine.frequency,
+            'remarks': medicine.remarks,
+        })
+
+    context = {
+        'prescription': prescription,
+        'pet': pet,
+        'client': client,
+        'prescription_medicines': prescription_medicines,
+        'prescription_data': prescription_data
+    }
+    
+    return render(request, 'client/view_prescription.html', context)
 
 @method_decorator(login_required, name='dispatch')
 @method_decorator(staff_required, name='dispatch')
@@ -1753,7 +1958,6 @@ def get_treatment_cycle_status(request, petID):
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
 
-@staff_required
 @login_required
 def get_laboratory_results_data(request, treatmentID):
 

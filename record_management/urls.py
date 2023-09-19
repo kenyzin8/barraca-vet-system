@@ -23,6 +23,7 @@ urlpatterns = [
     path('otp/', views.otp_view, name='otp_view'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),
     path('does_pet_have_appointment/<int:pet_id>/', views.does_pet_have_appointment, name='does_pet_have_appointment'),
+    path('view-prescription/<int:prescription_id>/',views.view_client_prescription, name='view-prescription-page'),
     #BACKEND-ADMIN-SIDE
     path('admin/account-settings/', views.admin_profile_view, name='admin-account-settings-page'),
     path('admin/password-settings/', views.admin_change_password_view, name='admin-password-settings-page'),
@@ -40,7 +41,7 @@ urlpatterns = [
     path('admin/add-pet-medical-prescription/submit/', permission_required('record_management.add_pet', raise_exception=True)(views.SubmitPrescription.as_view()), name='admin-submit-pet-medical-prescription-page'),
     path('admin/add-pet-health-card-treatment/', permission_required('record_management.add_pet', raise_exception=True)(views.add_health_card_treatment), name='admin-add-pet-health-card-treatment-page'),
     path('admin/add-pet-health-card-treatment/submit/', permission_required('record_management.add_pet', raise_exception=True)(views.SubmitHealthCardTreatment.as_view()), name='admin-submit-pet-health-card-treatment-page'),
-    path('admin/get-laboratory-results-image/<int:treatmentID>/', permission_required('record_management.add_pet', raise_exception=True)(views.get_laboratory_results_data), name='admin-get-laboratory-results-data-page'),
+    path('admin/get-laboratory-results-image/<int:treatmentID>/', views.get_laboratory_results_data, name='admin-get-laboratory-results-data-page'),
     path('admin/update-consultation/<int:treatmentID>/', permission_required('record_management.add_pet', raise_exception=True)(views.update_medical_record), name='admin-update-consultation-page'),
     path('admin/update-consultation/submit/', permission_required('record_management.add_pet', raise_exception=True)(views.UpdateConsultationView.as_view()), name='admin-submit-update-consultation-page'),
     path('admin/delete-consultation/<int:treatmentID>/', permission_required('record_management.add_pet', raise_exception=True)(views.delete_treatment), name='admin-delete-consultation-page'),

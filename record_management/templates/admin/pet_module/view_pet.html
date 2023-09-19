@@ -135,9 +135,9 @@
                             </div>
                         </div>
                         <br>
-                        <a href="{% url 'admin-update-pet-page' pet.id %}" class="btn btn-dark"><i data-feather="settings"></i>&nbsp;Update</a>
+                        <a href="{% url 'admin-update-pet-page' pet.id %}" class="btn btn-dark btn-sm lift-sm"><i data-feather="settings"></i>&nbsp;Update</a>
                         <!-- <a href="{% url 'delete-pet-page' pet.id %}" class="btn btn-dark">Delete</a> -->
-                        <a href="#" class="btn btn-dark"><i data-feather="calendar"></i>&nbsp;Set Appointment</a>
+                        <a href="{% url 'admin-calendar' %}?pet_id={{ pet.id }}&owner_id={{ pet.client.id }}" class="btn btn-dark btn-sm lift-sm"><i data-feather="calendar"></i>&nbsp;Set Appointment</a>
                     </div>
                     
                     <!-- Wizard tab pane item 2-->
@@ -161,6 +161,7 @@
                                                     <th>Weight</th>
                                                     <th>Treatment</th>
                                                     <th>Veterenarian</th>
+                                                    <th>Medicine</th>
                                                     <th>Medicine Sticker</th>
                                                     <th>Actions</th>
                                                 </tr>
@@ -184,6 +185,11 @@
                                                     <td>{{ treatment.treatment_weight }}</td>
                                                     <td>{{ treatment.treatment }}</td>
                                                     <td>Yvette Mae Barraca</td>
+                                                    <td>
+                                                    {% for prescription_medicine in treatment.petmedicalprescription.prescriptionmedicines_set.all %}
+                                                        {{ prescription_medicine.medicine.product_name }} 
+                                                    {% endfor %}
+                                                    </td>
                                                     <td>
                                                         {% if treatment.get_lab_result_image_for_health_card %}
                                                         <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
@@ -228,6 +234,7 @@
                                                     <th>Weight</th>
                                                     <th>Treatment</th>
                                                     <th>Veterenarian</th>
+                                                    <th>Medicine</th>
                                                     <th>Medicine Sticker</th>
                                                     <th>Actions</th>
                                                 </tr>
@@ -251,6 +258,11 @@
                                                     <td>{{ treatment.treatment_weight }}</td>
                                                     <td>{{ treatment.treatment }}</td>
                                                     <td>Yvette Mae Barraca</td>
+                                                    <td>
+                                                    {% for prescription_medicine in treatment.petmedicalprescription.prescriptionmedicines_set.all %}
+                                                        {{ prescription_medicine.medicine.product_name }} 
+                                                    {% endfor %}
+                                                    </td>
                                                     <td>
                                                         {% if treatment.get_lab_result_image_for_health_card %}
                                                         <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
@@ -279,8 +291,16 @@
                             </div>
                         </div>
                         <div class="mb-4">
-                        <a href="{% url 'admin-update-pet-page' pet.id %}" class="btn btn-dark mt-4"><i data-feather="plus-circle"></i>&nbsp;Add Treatment</a>
-                        <a href="#" class="btn btn-dark mt-4"><i data-feather="printer"></i>&nbsp;Print</a>
+                            <a href="{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm">
+                                <i data-feather="plus-circle"></i>
+                                &nbsp;
+                                Add Treatment
+                            </a>
+                            <button class="btn btn-dark btn-sm mt-4 lift-sm" onclick="printHealthCard()">
+                                <i data-feather="printer"></i>
+                                &nbsp;
+                                Print
+                            </button>
                         </div>
                         <div class="card card-collapsable">
                             <a class="card-header collapsed" href="#acrhiveHealthCardCollapseCard" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="acrhiveHealthCardCollapseCard"><div><i data-feather="archive" style="margin-top: 3px;"></i> Archive ({{ inactive_health_card|length }})</div>
@@ -299,6 +319,7 @@
                                                 <th>Weight</th>
                                                 <th>Treatment</th>
                                                 <th>Veterenarian</th>
+                                                <th>Medicine</th>
                                                 <th>Medicine Sticker</th>
                                                 <th>Actions</th>
                                             </tr>
@@ -321,6 +342,11 @@
                                                 <td>{{ treatment.treatment_weight }}</td>
                                                 <td>{{ treatment.treatment }}</td>
                                                 <td>Yvette Mae Barraca</td>
+                                                <td>
+                                                {% for prescription_medicine in treatment.petmedicalprescription.prescriptionmedicines_set.all %}
+                                                    {{ prescription_medicine.medicine.product_name }} 
+                                                {% endfor %}
+                                                </td>
                                                 <td>
                                                     {% if treatment.get_lab_result_image_for_health_card %}
                                                     <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
@@ -420,8 +446,12 @@
                             </table>
                         </div>
                         <div class="mb-4">
-                            <a href="#" class="btn btn-dark mt-4"><i data-feather="plus-circle"></i>&nbsp;Add Treatment</a>
-                            <a href="#" class="btn btn-dark mt-4"><i data-feather="printer"></i>&nbsp;Print</a>
+                            <a href="{% url 'admin-medical-record-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm"><i data-feather="plus-circle"></i>&nbsp;Add Treatment</a>
+                            <button class="btn btn-dark btn-sm mt-4 lift-sm" onclick="printMedicalRecord()">
+                                <i data-feather="printer"></i>
+                                &nbsp;
+                                Print
+                            </button>
                         </div>
                         <div class="card card-collapsable">
                             <a class="card-header collapsed" href="#acrhiveCollapseCard" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="acrhiveCollapseCard"><div><i data-feather="archive" style="margin-top: 3px;"></i> Archive ({{ inactive_pet_treatment|length }})</div>
@@ -513,4 +543,404 @@
 
 {% block extrascripts %}
 {% include 'admin/pet_module/view_pet_script.html' %}
+<script src="{% static 'plugins/print-js/print.min.js' %}"></script>
+<script>
+    function getFormattedDate(date)
+    {
+        var months = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var day = date.getDate();
+        day = day < 10 ? '0' + day : day;
+
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+
+        var strTime = hours + ':' + minutes + ' ' + ampm;
+        return formattedDate = months[monthIndex] + ' ' + day + ', ' + year + ' - ' + strTime;
+    }
+
+    function printMedicalRecord()
+    {
+        var medicalRecordDataRaw = {{ medical_record_data|safe }}
+
+        var signatureData = [];
+
+        for (var i = 0; i < 5; i++) {
+            signatureData.push({
+                signature: '‎'
+            });
+        }
+
+        signatureData.push({
+            total: '‎',
+            signature: `
+            <div style="line-height:1.5;float:right; width:200px; text-align:center; margin-right:50px;">
+                <span style='font-size:12pt;font-weight:600;'>
+                    Yvette Mae Barraca, DVM
+                </span>
+                <br>
+                <span style='font-size:9pt;font-weight:600;'>
+                    LC. NO: 00000
+                </span>
+            </div>`,
+        });
+
+        signatureData.push({
+            signature: '‎',
+            total: '‎',
+        });
+
+        signatureData.push({
+            total: '‎', 
+            signature: `
+            <div style="line-height:1.5;float:right; width:200px; text-align:center; margin-right:50px;">
+                <span style='font-size:12pt;font-weight:600;'>
+                    ____________________
+                </span>
+                <br>
+                <span style='font-size:10pt;font-weight:600;'>
+                    Date Signed
+                </span>
+            </div>`,
+        });
+
+        var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
+        var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 0px solid #232323; ${font}`;
+        var css_gridStyle = `text-align: center; padding: 0px;border: 0px solid #232323; ${font};`;
+        var css_headerStyle = `text-align: center; font-size: 14pt; color: #232323; font-weight: 600; margin-bottom: 20px; ${font}`;
+        var headerName = "PET MEDICAL RECORD";
+        var imgSrc = "{% static 'images/barraca.png' %}";
+
+        var date = new Date();
+        var formattedDate = getFormattedDate(date);
+
+        var header = `
+            <div style='display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0px solid #000; margin-bottom:20px;'>
+                <div style='width: 70%; display: flex; flex-direction: column; align-items: flex-start;'>
+                    <h1 style='${css_headerStyle}; font-family: Roboto;'>${headerName}</h1>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Client:</span> ${'{{ pet.client.full_name }}'}</div>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Pet Name:</span> ${'{{ pet.name }}'}</div>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Report Generated:</span> ${formattedDate}</div>
+                </div>
+                <img src='${imgSrc}' style='width: 30%;' />
+            </div>
+        `;
+
+        var tableContent = medicalRecordDataRaw.map(c => 
+        `
+        <tr>
+            <td style="font-size:9pt;">${c.visit_date}</td>
+            <td style="font-size:9pt;">${c.next_visit_date}</td>
+            <td>${c.symptoms}</td>
+            <td>${c.weight}</td>
+            <td>${c.temp}</td>
+            <td>${c.diagnosis}</td>
+            <td>${c.treatment}</td>
+        </tr>
+        `).join('');
+
+        var footerContent = signatureData.map(row => `
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>${row.signature}</td>
+        </tr>
+            `).join('');
+
+        var completeHTML = `
+            ${header}
+            <table>
+                <thead class="first-thead">
+                    <tr>
+                        <th class="table-header">Visit Date</th>
+                        <th class="table-header">Next Visit</th>
+                        <th class="table-header">Symptoms</th>
+                        <th class="table-header">Weight (kg)</th>
+                        <th class="table-header">Temperature (celcius)</th>
+                        <th class="table-header">Diagnosis</th>
+                        <th class="table-header">Treatment</th>
+                    </tr>
+                </thead>
+                <tbody class="first-tbody">
+                    ${tableContent}
+                </tbody>
+            </table>
+            <table>
+                <thead class="second-thead"> 
+                    <tr>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                    </tr> 
+                </thead>
+                <tbody class="second-tbody">
+                    ${footerContent}
+                </tobdy>
+            </table>
+        `;
+
+        printJS({
+            printable: completeHTML,
+            type: 'raw-html',
+            gridHeaderStyle: css_gridHeaderStyle,
+            font_size: "15pt",
+            documentTitle: 'Original Copy',
+            showModal: true,
+            header: header,
+            repeatTableHeader: true,
+            scanStyles: true,
+            gridStyle: css_gridStyle,
+            modalMessage: 'Generating prescription report, this might take a while...',
+            style: `
+            @page { 
+                size: auto;  
+                margin: 5mm; 
+            }
+            body {
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+                color: #232323;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            .first-thead th, .first-tbody td {
+                padding: 12px 12px;
+                text-align: center; 
+                border-bottom: 1px solid black;
+            }
+            
+            .first-thead th, .first-tbody td{
+                font-size: 10pt;
+            }
+            
+            tfoot td {
+                border: none; 
+                padding: 2px 2px;
+                padding-top: 12px;
+            }
+        `,
+        });
+    }
+
+    function printHealthCard()
+    {
+        var dewormingDataRaw = {{ deworming_data|safe }};
+        var vaccinationDataRaw = {{ vaccination_data|safe }};
+
+        var signatureData = [];
+
+        for (var i = 0; i < 5; i++) {
+            signatureData.push({
+                signature: '‎'
+            });
+        }
+
+        signatureData.push({
+            total: '‎',
+            signature: `
+            <div style="line-height:1.5;float:right; width:200px; text-align:center; margin-right:50px;">
+                <span style='font-size:12pt;font-weight:600;'>
+                    Yvette Mae Barraca, DVM
+                </span>
+                <br>
+                <span style='font-size:9pt;font-weight:600;'>
+                    LC. NO: 00000
+                </span>
+            </div>`,
+        });
+
+        signatureData.push({
+            signature: '‎',
+            total: '‎',
+        });
+
+        signatureData.push({
+            total: '‎', 
+            signature: `
+            <div style="line-height:1.5;float:right; width:200px; text-align:center; margin-right:50px;">
+                <span style='font-size:12pt;font-weight:600;'>
+                    ____________________
+                </span>
+                <br>
+                <span style='font-size:10pt;font-weight:600;'>
+                    Date Signed
+                </span>
+            </div>`,
+        });
+
+        var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
+        var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 0px solid #232323; ${font}`;
+        var css_gridStyle = `text-align: center; padding: 0px;border: 0px solid #232323; ${font};`;
+        var css_headerStyle = `text-align: center; font-size: 14pt; color: #232323; font-weight: 600; margin-bottom: 20px; ${font}`;
+        var headerName = "PET HEALTH CARD";
+        var imgSrc = "{% static 'images/barraca.png' %}";
+
+        var date = new Date();
+        var formattedDate = getFormattedDate(date);
+
+        var header = `
+            <div style='display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0px solid #000; margin-bottom:20px;'>
+                <div style='width: 70%; display: flex; flex-direction: column; align-items: flex-start;'>
+                    <h1 style='${css_headerStyle}; font-family: Roboto;'>${headerName}</h1>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Client:</span> ${'{{ pet.client.full_name }}'}</div>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Pet Name:</span> ${'{{ pet.name }}'}</div>
+                    <div><span style='font-size:12pt;font-weight:bold;'>Report Generated:</span> ${formattedDate}</div>
+                </div>
+                <img src='${imgSrc}' style='width: 30%;' />
+            </div>
+        `;
+
+        var tableContentDew = dewormingDataRaw.map(c => 
+        `
+        <tr>
+            <td style="font-size:9pt;">${c.visit_date}</td>
+            <td style="font-size:9pt;">${c.next_visit_date}</td>
+            <td>${c.weight}</td>
+            <td>${c.temp}</td>
+            <td>${c.medicine}</td>
+        </tr>
+        `).join('');
+
+        var tableContentVacc = vaccinationDataRaw.map(c => 
+        `
+        <tr>
+            <td style="font-size:9pt;">${c.visit_date}</td>
+            <td style="font-size:9pt;">${c.next_visit_date}</td>
+            <td>${c.weight}</td>
+            <td>${c.temp}</td>
+            <td>${c.medicine}</td>
+        </tr>
+        `).join('');
+
+        var footerContent = signatureData.map(row => `
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>${row.signature}</td>
+        </tr>
+            `).join('');
+
+        var completeHTML = `
+            ${header}
+            {% if deworming_data|length > 0 %}
+            <div style="width: 100%; text-align:center;">
+                <span style="font-weight:600;">- DEWORMING -</span>
+            </div>
+            <table>
+                <thead class="first-thead">
+                    <tr>
+                        <th class="table-header">Visit Date</th>
+                        <th class="table-header">Next Visit</th>
+                        <th class="table-header">Weight (kg)</th>
+                        <th class="table-header">Temperature (celcius)</th>
+                        <th class="table-header">Medicine</th>
+                    </tr>
+                </thead>
+                <tbody class="first-tbody">
+                    ${tableContentDew}
+                </tbody>
+            </table>
+            {% endif %}
+            {% if vaccination_data|length > 0 %}
+            <div style="width: 100%; text-align:center;">
+                <span style="font-weight:600;">- VACCINATION -</span>
+            </div>
+            <table>
+                <thead class="first-thead">
+                    <tr>
+                        <th class="table-header">Visit Date</th>
+                        <th class="table-header">Next Visit</th>
+                        <th class="table-header">Weight (kg)</th>
+                        <th class="table-header">Temperature (celcius)</th>
+                        <th class="table-header">Medicine</th>
+                    </tr>
+                </thead>
+                <tbody class="first-tbody">
+                    ${tableContentVacc}
+                </tbody>
+            </table>
+            {% endif %}
+            <table>
+                <thead class="second-thead"> 
+                    <tr>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+                        <th class="table-header">‎</th>
+
+                    </tr> 
+                </thead>
+                <tbody class="second-tbody">
+                    ${footerContent}
+                </tobdy>
+            </table>
+        `;
+
+        printJS({
+            printable: completeHTML,
+            type: 'raw-html',
+            gridHeaderStyle: css_gridHeaderStyle,
+            font_size: "15pt",
+            documentTitle: 'Original Copy',
+            showModal: true,
+            header: header,
+            repeatTableHeader: true,
+            scanStyles: true,
+            gridStyle: css_gridStyle,
+            modalMessage: 'Generating prescription report, this might take a while...',
+            style: `
+            @page { 
+                size: auto;  
+                margin: 5mm; 
+            }
+            body {
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+                color: #232323;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            .first-thead th, .first-tbody td {
+                padding: 12px 12px;
+                text-align: center; 
+                border-bottom: 1px solid black;
+            }
+            
+            .first-thead th, .first-tbody td{
+                font-size: 10pt;
+            }
+            
+            tfoot td {
+                border: none; 
+                padding: 2px 2px;
+                padding-top: 12px;
+            }
+        `,
+        });
+    }
+</script>
 {% endblock %}

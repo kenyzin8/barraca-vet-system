@@ -142,10 +142,17 @@ class PetTreatment(models.Model):
                 return None
         except:
             return None
+    
+    def get_lab_result(self):
+        try:
+            return self.lab_results.first().result_name
+        except:
+            return None
+
     class Meta:
         verbose_name_plural = "Pet Treatments"
 
-
+    
 class LabResult(models.Model):
     result_name = models.CharField(max_length=100, null=True, blank=True)
     result_image = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])

@@ -359,7 +359,6 @@ def set_appointment(request):
         return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @login_required
-@staff_required
 def get_busy_times_for_service(request):
     date_str = request.GET.get('date', None)
     service_id = request.GET.get('service_id', None)

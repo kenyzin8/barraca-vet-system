@@ -87,6 +87,11 @@ class Appointment(models.Model):
     def __str__(self):
         return f'{self.client} ({self.pet}) - {self.date} - {self.time}'
 
+    def getAppointmentDate(self):
+        time = self.time.strftime('%I:%M %p')
+        date = self.date.strftime('%B %d, %Y')
+        return f'{date} {time}'
+
     def setActive(self, isActive):
         self.isActive = isActive
 

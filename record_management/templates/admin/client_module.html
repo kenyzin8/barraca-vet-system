@@ -181,7 +181,7 @@
         var dataRaw = {{ clients_for_print|safe }};
         var signatureData = [];
 
-        for (var i = 0; i < 7; i++) {
+        for (var i = 0; i < 1; i++) {
             signatureData.push({
                 signature: '‎',
                 total: '‎',
@@ -321,31 +321,7 @@
                 padding-top: 12px !important;
                 font-size: 11pt;
             }
-            .first-thead th:first-child, .first-tbody td:first-child {
-                width: 5%;
-                text-align:left !important;
-            }
-            .first-thead th:nth-child(2), .first-tbody td:nth-child(2) {
-                width: 20% !important;
-            }
-            .first-thead th:nth-child(3), .first-tbody td:nth-child(3)
-            {
-                width: 5% !important;
-            }
-            .first-thead th:nth-child(4), .first-tbody td:nth-child(4)
-            {
-                width: 45% !important;
-            }
-            .first-thead th:nth-child(5), .first-tbody td:nth-child(5) {
-                width: 20% !important;
-            }
-            .first-thead th:nth-child(6), .first-tbody td:nth-child(6) {
-                width: 20% !important;
-            }
-            .first-thead th:nth-child(7), .first-tbody td:nth-child(7) {
-                width: 5% !important;
-            }
-            
+
             .second-tbody td {
                 border: none; 
                 padding: 2px 2px;

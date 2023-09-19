@@ -27,7 +27,7 @@ def product_list(request):
                 old_price, new_price = change['price']
                 change_date = change['date']
                 update_id = change['update_id']
-                print(f'[{update_id}] - {product.product_name} price changed from {old_price} to {new_price} - Date: {change_date}')
+                #print(f'[{update_id}] - {product.product_name} price changed from {old_price} to {new_price} - Date: {change_date}')
 
     products = Product.objects.filter(active=True).order_by('-id')
 
@@ -209,7 +209,7 @@ def reorder_list(request):
             'price': str(product.price)
         })
     context = {'products': products, 'reorder_data': reorder_data}
-    print(reorder_data)
+    #print(reorder_data)
     return render(request, 'reorder_list.html', context)
 
 @staff_required

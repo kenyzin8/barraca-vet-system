@@ -768,7 +768,7 @@ def pet_module(request):
             'status': 'Active' if pet.is_active else 'Deleted'
         })
 
-    print(pet_data)
+    #print(pet_data)
 
     context = {'pets': pets, 'pet_data': pet_data}
     return render(request, 'admin/pet_module/pet_module.html', context)
@@ -877,7 +877,7 @@ def admin_view_pet(request, pet_id):
         })
 
 
-    print(medical_record_data)
+    #print(medical_record_data)
 
     context = {
         'pet': pet,

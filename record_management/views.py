@@ -175,8 +175,10 @@ def register_user(request):
         return redirect('home')
 
     if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
+        form = UserRegistrationForm(data=request.POST)
+
         if form.is_valid():
+            
             email = form.cleaned_data['email']
             phone = form.cleaned_data['contact_number']
 

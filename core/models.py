@@ -37,3 +37,43 @@ class Notification(models.Model):
 
     def __str__(self):
         return self.text
+
+class Region(models.Model):
+    code = models.CharField(max_length=10)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Regions"
+
+class Province(models.Model):
+    region = models.ForeignKey(Region, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Provinces"
+
+class Municipality(models.Model):
+    province = models.ForeignKey(Province, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Cities"
+
+class Barangay(models.Model):
+    municipality = models.ForeignKey(Municipality, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "Barangays"

@@ -5,7 +5,7 @@ from django.contrib.admin.models import LogEntry
 from django_celery_beat.models import ClockedSchedule, CrontabSchedule, IntervalSchedule, PeriodicTask, SolarSchedule
 from django_celery_results.models import TaskResult, GroupResult
 
-from .models import Notification, SMSLogs
+from .models import Notification, SMSLogs, Region, Province, Municipality, Barangay
 
 class SMSLogsAdmin(admin.ModelAdmin):
     list_display = ('text', 'date_created', 'client', 'sms_type')
@@ -38,6 +38,26 @@ class LogEntryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+
+@admin.register(Region)
+class RegionAdmin(admin.ModelAdmin):
+    list_display = ('code', 'name')
+    search_fields = ('code', 'name')
+
+@admin.register(Province)
+class ProvinceAdmin(admin.ModelAdmin):
+    list_display = ('region', 'name')
+    search_fields = ('region__name', 'name')
+
+@admin.register(Municipality)
+class MunicipalityAdmin(admin.ModelAdmin):
+    list_display = ('province', 'name')
+    search_fields = ('province__name', 'name')
+
+@admin.register(Barangay)
+class BarangayAdmin(admin.ModelAdmin):
+    list_display = ('municipality', 'name')
+    search_fields = ('municipality__name', 'name')
 
 admin.site.unregister(User)
 admin.site.register(SMSLogs, SMSLogsAdmin)

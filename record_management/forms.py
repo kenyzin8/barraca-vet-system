@@ -5,6 +5,7 @@ from .validators import validate_phone_number, validate_image_size
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
+from core.models import Region, Province, Municipality, Barangay
 
 User = get_user_model()
 
@@ -33,10 +34,33 @@ class UserRegistrationForm(UserCreationForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name', 'autocomplete': 'off'}))
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name','autocomplete': 'off'}))
     gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')], widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
-    street = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Street', 'autocomplete': 'off'}))
-    barangay = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Barangay', 'autocomplete': 'off'}))
-    city = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'City', 'autocomplete': 'off'}))
-    province = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Province', 'autocomplete': 'off'}))
+    street = forms.CharField(
+        required=True, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control wider-input', 
+            'placeholder': 'Street', 
+            'autocomplete': 'off'
+        })
+    )
+
+    province = forms.ModelChoiceField(
+        required=True,
+        queryset=Province.objects.all().order_by('name'), 
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        empty_label="Select Province"
+    )
+    city = forms.ModelChoiceField(
+        required=True,
+        queryset=Municipality.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-select'}), 
+        empty_label="Select City/Municipality"
+    )
+    barangay = forms.ModelChoiceField(
+        required=True,
+        queryset=Barangay.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        empty_label="Select Barangay"
+    )
     contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={
                                 'class': 'form-control wider-input', 
                                 'placeholder': 'Contact Number',
@@ -46,6 +70,16 @@ class UserRegistrationForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if 'data' in kwargs:
+            if 'province' in kwargs['data']:
+                province_id = kwargs['data']['province']
+                self.fields['city'].queryset = Municipality.objects.filter(province_id=province_id)
+
+            if 'city' in kwargs['data']:
+                city_id = kwargs['data']['city']
+                self.fields['barangay'].queryset = Barangay.objects.filter(municipality_id=city_id)
+        
         self.fields['username'].widget.attrs.update({'autofocus': False})
 
     class Meta:

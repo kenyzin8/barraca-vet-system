@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .decorators import staff_required
 from django.contrib.auth.decorators import login_required
-from .models import Notification
+from .models import Notification, Province, Municipality, Barangay
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -42,3 +42,15 @@ def test(request):
             return JsonResponse({'result': user.client.full_name, 'email': user.email, 'phone': user.client.contact_number})
         except Exception as e:
             return JsonResponse({'result': str(e)})
+
+def get_municipalities(request):
+    province_id = request.GET.get('province_id')
+    municipalities = Municipality.objects.filter(province_id=province_id)
+    data = [{'id': m.id, 'name': m.name} for m in municipalities]
+    return JsonResponse(data, safe=False)
+
+def get_barangays(request):
+    municipality_id = request.GET.get('municipality_id')
+    barangays = Barangay.objects.filter(municipality_id=municipality_id)
+    data = [{'id': b.id, 'name': b.name} for b in barangays]
+    return JsonResponse(data, safe=False)

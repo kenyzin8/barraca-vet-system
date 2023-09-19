@@ -59,16 +59,16 @@
               {{ form.last_name }}
             </div>
             <div class="mb-3">
-              {{ form.street }}
-            </div>
-            <div class="mb-3">
-              {{ form.barangay }}
+              {{ form.province }}
             </div>
             <div class="mb-3">
               {{ form.city }}
             </div>
             <div class="mb-3">
-              {{ form.province }}
+              {{ form.barangay }}
+            </div>
+            <div class="mb-3">
+              {{ form.street }}
             </div>
           </div>
           
@@ -268,6 +268,50 @@
                 } else {
                     this.style.color = ''; // Reset to default color if selection is not 'Male' or 'Female'
                 }
+            });
+        });
+      </script>
+      <script>
+        const provinceDropdown = document.getElementById('id_province');
+        const cityDropdown = document.getElementById('id_city');
+        const barangayDropdown = document.getElementById('id_barangay');
+        provinceDropdown.addEventListener('change', function() {
+          const provinceId = this.value;
+  
+          // Fetch the cities/municipalities for the selected province
+          fetch(`/get_municipalities/?province_id=${provinceId}`)
+          .then(response => response.json())
+          .then(data => {
+              // Clear the existing options in cityDropdown
+              cityDropdown.innerHTML = '<option value="">Select City/Municipality</option>';
+  
+              // Populate the dropdown with the new data
+              data.forEach(item => {
+                  const option = document.createElement('option');
+                  option.value = item.id;
+                  option.textContent = item.name;
+                  cityDropdown.append(option);
+              });
+          });
+        });
+
+        cityDropdown.addEventListener('change', function() {
+            const municipalityId = this.value;
+
+            // Fetch the barangays for the selected municipality
+            fetch(`/get_barangays/?municipality_id=${municipalityId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Clear the existing options in barangayDropdown
+                barangayDropdown.innerHTML = '<option value="">Select Barangay</option>';
+
+                // Populate the dropdown with the new data
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    barangayDropdown.append(option);
+                });
             });
         });
       </script>

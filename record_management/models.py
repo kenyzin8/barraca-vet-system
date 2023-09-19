@@ -4,6 +4,7 @@ from datetime import date
 import datetime
 from django.contrib.auth.models import User as AuthUser, Group as AuthGroup
 from django.apps import apps
+#from core.models import Province, Barangay, Municipality
 
 class User(AuthUser):
     class Meta:

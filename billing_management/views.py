@@ -258,7 +258,7 @@ def sales(request):
         _date = bill.date_created.strftime("%b %d, %Y %I:%M %p")
         for bs in bill.billing_services.all():
             billing_services_data.append({
-                'id': bill.id,
+                'id': bill.get_billing_number(),
                 'date_created': _date,
                 'service': bs.service.service_type,
                 'sold_under': bill.client.full_name,
@@ -268,7 +268,7 @@ def sales(request):
         for bp in bill.billing_products.all():
             total = bp.quantity * bp.product.price
             billing_products_data.append({
-                'id': bill.id,
+                'id': bill.get_billing_number(),
                 'date_created': _date,
                 'product': bp.product.product_name,
                 'quantity': int(bp.quantity),

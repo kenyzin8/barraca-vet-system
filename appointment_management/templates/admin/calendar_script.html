@@ -296,20 +296,6 @@ function _showAppointmentDetails(event) {
 }
 
 function updateSlots(info, dateString, dateSlots, maxAppointments, allAppointments, slotElements) {
-    {% comment %} console.log(`Info: ${info}` + info);
-    console.log(info);
-    console.log(`Date String: ${dateString}`);
-    console.log(dateString);
-    console.log(`Date Slots: ${dateSlots}`);
-    console.log(dateSlots);
-    console.log(`Max Appointments: ${maxAppointments}`);
-    console.log(maxAppointments);
-    console.log(`All Appointments: ${allAppointments}`);
-    console.log(allAppointments);
-    console.log(`Slot Elements: ${slotElements}`);
-    console.log(slotElements); {% endcomment %}
-    
-    
     var oldDate = new Date(info.oldEvent.start);
     var oldDateString = oldDate.getFullYear() + '-' + String(oldDate.getMonth() + 1).padStart(2, '0') + '-' + String(oldDate.getDate()).padStart(2, '0');
     

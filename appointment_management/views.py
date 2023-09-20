@@ -266,7 +266,7 @@ def set_appointment(request):
 
             service = Service.objects.get(pk=service_id)
 
-            existing_appointment = Appointment.objects.filter(date=date, time=time, isActive=True).first()
+            existing_appointment = Appointment.objects.filter(date=date, time=time, isActive=True, status='pending').first()
 
             if existing_appointment:
                 existing_service = existing_appointment.purpose
@@ -766,7 +766,7 @@ def set_appointment_client(request):
             service_id = request.POST['purpose']
             service = Service.objects.get(pk=service_id)
 
-            existing_appointment = Appointment.objects.filter(date=date, time=time, isActive=True).first()
+            existing_appointment = Appointment.objects.filter(date=date, time=time, isActive=True, status='pending').first()
 
             if existing_appointment:
                 existing_service = existing_appointment.purpose

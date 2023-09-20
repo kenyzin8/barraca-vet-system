@@ -204,6 +204,7 @@ document.getElementById('yesRebookConfButton').onclick = function() {
                 showSuccess("Appointment #" + arg.event.id + " has been added to rebook list.");
                 showRebookList();
                 calendar.refetchEvents();
+                refreshCalendar();
                 // arg.event.remove();
                 // eventModal.hide();
                 // $('#rebookConfModal').modal('hide');

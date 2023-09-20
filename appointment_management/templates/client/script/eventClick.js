@@ -199,6 +199,7 @@ document.getElementById('yesRebookConfButton').onclick = function() {
                 eventModal.hide();
                 $('#rebookConfModal').modal('hide');
                 showSuccess("Appointment #" + arg.event.id + " has been added to rebook list.");
+                refreshCalendar();
             }
         },
         error: function(error) {

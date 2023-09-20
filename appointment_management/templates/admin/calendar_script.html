@@ -738,6 +738,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
             });
 
+            function refreshCalendar() {
+                calendar.next();
+                calendar.prev()
+            }
+
             $('#addAppointmentModal').on('hidden.bs.modal', function(e) {
                 $('#id_timeOfTheDay option[value="morning"]').show();
                 $('#id_timeOfTheDay option[value="afternoon"]').show();
@@ -1429,6 +1434,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             updateTimeOfTheDayCellRebook(dateString, formattedOldDate, timeOfDayInfo, timeOfTheDayElements);
                             sortEventsForDate(calendar, newEvent.start);
+                            refreshCalendar();
                         }
 
                         // var currentView = calendar.view;
@@ -1521,6 +1527,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             showSuccess(response.message + ".");
 
                             $('#addAppointmentModal').modal('hide');
+                            refreshCalendar();
                             // var currentView = calendar.view;
                             // localStorage.setItem('calendarDate', currentView.currentStart.toISOString());
                             // location.reload();

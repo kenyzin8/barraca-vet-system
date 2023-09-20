@@ -33,7 +33,7 @@ function updateNotifications()
 
         notificationsContainer.empty();
 
-        var header = '<h6 class="dropdown-header dropdown-notifications-header"><i class="me-2" data-feather="bell"></i>Alerts Center</h6>';
+        var header = '<h6 class="dropdown-header dropdown-notifications-header"><i class="me-2 text-dark" data-feather="bell"></i><span class="text-dark">Alerts Center</span></h6>';
         notificationsContainer.append(header);
 
         // console.log(data);
@@ -49,7 +49,7 @@ function updateNotifications()
             // console.log(link);
         
             var item = '<a class="dropdown-item dropdown-notifications-item" href="' + link + '">' +
-                '<div class="dropdown-notifications-item-icon bg-danger"><i data-feather="alert-circle"></i></div>' +
+                '<div class="dropdown-notifications-item-icon bg-dark"><i class="fas fa-triangle-exclamation fa-2x text-light"></i></div>' +
                 '<div class="dropdown-notifications-item-content">' +
                 '<div class="dropdown-notifications-item-content-details">' + timeAgoText + '</div>' +
                 '<div class="dropdown-notifications-item-content-text">' + notification.text + '</div>' +
@@ -58,7 +58,7 @@ function updateNotifications()
         });
         
 
-        var footer = '<a class="dropdown-item dropdown-notifications-footer" href="#!">View All Alerts</a>';
+        var footer = '<span style="cursor:default;" class="dropdown-item dropdown-notifications-footer">Visit Reorder List or Inventory</span>';
         notificationsContainer.append(footer);
 
         feather.replace();

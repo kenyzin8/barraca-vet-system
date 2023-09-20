@@ -16,6 +16,7 @@
         <script data-search-pseudo-elements defer src="{% static 'plugins/fontawesome/js/all.min.js' %}"></script>
         <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}"></script>
         <script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
+        
         {% block extrastyles %}{% endblock %}
 
         <style>
@@ -74,6 +75,18 @@
                 transform: scale(1.05);  
             }
             
+            .nav-fixed #layoutSidenav #layoutSidenav_nav .sidenav .sidenav-menu {
+                overflow-y: auto;
+                scrollbar-width: none; /* For Firefox */
+                -ms-overflow-style: none; /* For Internet Explorer and Edge */
+            }
+            
+            .nav-fixed #layoutSidenav #layoutSidenav_nav .sidenav .sidenav-menu::-webkit-scrollbar {
+                display: none; /* For Chrome, Safari and Opera */
+            }      
+            .dropdown-notifications .dropdown-menu .dropdown-notifications-header {
+                background-color: orange;
+            }     
         </style>
     </head>
     <body class="nav-fixed bg-light">

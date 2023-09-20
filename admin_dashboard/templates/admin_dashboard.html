@@ -7,6 +7,7 @@
 {% block title %} Dashboard | Barraca Veterinary Clinic {% endblock %}
 
 {% block extrastyles %}
+<script src="{% static 'plugins/sortable/sortable.js' %}"></script>
 <!-- 
 <style>
     *, *:before, *:after {
@@ -15,9 +16,10 @@
 </style> -->
 <style>
     .h-100 {
-    height: none;
+        height: none;
     }
 </style>
+
 {% endblock %}
 
 
@@ -41,66 +43,68 @@
 
 {% block content %}
     <!-- Example Colored Cards for Dashboard Demo-->
-    
-    <div class="row mt-5 animated--fade-in-up">
-        {% if request.user|has_permission:'billing_management.view_billing' %}
-        <div class="col-lg-6 col-xl-3 mb-4">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="me-3">
-                            <div class="text-white-75 small">Gross Revenue (Today)</div>
-                            <div class="text-lg fw-bold">₱{{ total_revenue|floatformat:2|intcomma }}</div>
+    <div id="sortable" class="mt-5">
+        <div class="row animated--fade-in-up mb-3 draggable-item" data-id-sortable="top-row" id="sortable-initial-top">   
+            {% if request.user|has_permission:'billing_management.view_billing' %}
+            <div class="col-lg-6 col-xl-3 draggable-item" data-id-sortable="1">
+                <div style="background:#393E46;" class="card border-start-lg border-start-red lift h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="me-3">
+                                <div class="text-white-75 small pe-none">Gross Revenue (Today)</div>
+                                <div class="text-lg text-white fw-bold pe-none">₱{{ total_revenue|floatformat:2|intcomma }}</div>
+                            </div>
+                            <i class="fas fa-dollar-sign fa-2x text-grey-200"></i>
                         </div>
-                        <i class="feather-xl text-white-50" data-feather="dollar-sign"></i>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="col-lg-6 col-xl-3 draggable-item" data-id-sortable="2">
+                <div style="background:#393E46;" class="card border-start-lg border-start-orange lift h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="me-3">
+                                <div class="text-white-75 small pe-none">Expected Clients (Today)</div>
+                                <div class="text-lg text-white fw-bold pe-none">{{ done_appointment_count }} / {{ appointment_count }}</div>
+                            </div>
+                            <i class="fas fa-users-viewfinder fa-2x text-grey-200"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-3 draggable-item" data-id-sortable="3">
+                <div style="background:#393E46;" class="card border-start-lg border-start-indigo lift h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="me-3">
+                                <div class="text-white-75 small pe-none">Total Clients</div>
+                                <div class="text-lg text-white fw-bold pe-none">{{ client_count }}</div>
+                            </div>
+                            <i class="fas fa-users-rays fa-2x text-grey-200"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-xl-3 draggable-item" data-id-sortable="4">
+                <div style="background:#393E46;" class="card border-start-lg border-start-pink lift h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="me-3">
+                                <div class="text-white-75 small pe-none">Total Pets</div>
+                                <div class="text-lg text-white fw-bold pe-none">{{ pet_count }}</div>
+                            </div>
+                            <i class="fas fa-dog fa-2x text-grey-200"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        {% endif %}
-        <div class="col-lg-6 col-xl-3 mb-4">
-            <div class="card bg-danger text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="me-3">
-                            <div class="text-white-75 small">Expected Clients (Today)</div>
-                            <div class="text-lg fw-bold">{{ done_appointment_count }} / {{ appointment_count }}</div>
-                        </div>
-                        <i class="feather-xl text-white-50" data-feather="user"></i>
-                    </div>
-                </div>
+        <div class="card card-header-actions draggable-item mb-3 border-start-lg border-start-yellow lift" data-id-sortable="center-row">
+            <div class="card-header">
+                Upcoming Appointments
+                <i style="color: #474747 !important;" class="fas fa-calendar-week fa-1x text-red-100"></i> 
             </div>
-        </div>
-        <div class="col-lg-6 col-xl-3 mb-4">
-            <div class="card bg-warning text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="me-3">
-                            <div class="text-white-75 small">Total Clients</div>
-                            <div class="text-lg fw-bold">{{ client_count }}</div>
-                        </div>
-                        <i class="feather-xl text-white-50" data-feather="user"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 col-xl-3 mb-4">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="me-3">
-                            <div class="text-white-75 small">Total Pets</div>
-                            <div class="text-lg fw-bold">{{ pet_count }}</div>
-                        </div>
-                        <i class="feather-xl text-white-50" data-feather="gitlab"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-        <!-- Example DataTable for Dashboard Demo-->
-        <div class="card mb-4">
-            <div class="card-header">Upcoming Appointments</div>
             <div class="card-body">
                 <table id="upcomingAppTable">
                     <thead>
@@ -128,30 +132,32 @@
                 </table>
             </div>
         </div>
-    {% if request.user|has_permission:'billing_management.view_billing' %}
-    <div class="row">
-        <div class="col-xl-6 mb-4">
-            <div class="card card-header-actions h-100">
-                <div class="card-header">
-                    Monthly Gross Revenue
-                </div>
-                <div class="card-body">
-                    <div class="chart-area"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
+        {% if request.user|has_permission:'billing_management.view_billing' %}
+        <div class="row mb-3 draggable-item" data-id-sortable="bottom-row" id="sortable-initial-bottom">
+            <div class="col-xl-6">
+                <div class="card card-header-actions h-100 draggable-item border-start-lg border-start-purple lift" data-id-sortable="6">
+                    <div class="card-header">
+                        Monthly Gross Revenue
+                        <i style="color: #474747 !important;" class="fas fa-money-bills fa-1x text-red-100"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area"><canvas id="myAreaChart" width="100%" height="30"></canvas></div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xl-6 mb-4">
-            <div class="card card-header-actions h-100">
-                <div class="card-header">
-                    Annual Gross Revenue
-                </div>
-                <div class="card-body">
-                    <div class="chart-bar"><canvas id="myBarChart" width="100%" height="30"></canvas></div>
+            <div class="col-xl-6">
+                <div class="card card-header-actions h-100 draggable-item border-start-lg border-start-teal lift" data-id-sortable="7">
+                    <div class="card-header">
+                        Annual Gross Revenue
+                        <i style="color: #474747 !important;" class="fas fa-sack-dollar fa-1x text-red-100"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-bar"><canvas id="myBarChart" width="100%" height="30"></canvas></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
     {{ monthly_revenue|json_script:"monthly-revenue-data" }}
     {{ yearly_revenue|json_script:"yearly-revenue-data" }}
     {% endif %}
@@ -249,5 +255,40 @@
         }
     });
 </script>
-
+<script>
+    function initSortable(containerId, storageKey) {
+        const container = document.getElementById(containerId);
+        const items = Array.from(container.getElementsByClassName('draggable-item'));
+    
+        const order = JSON.parse(localStorage.getItem(storageKey)) || [];
+        order.forEach(id => {
+            const item = items.find(item => item.dataset.idSortable == id); 
+            if (item) {
+                container.appendChild(item);
+            }
+        });
+    
+        new Sortable(container, {
+            animation: 150,
+            fallbackOnBody: true,
+            swapThreshold: 0.65,
+            store: {
+                get: function (sortable) {
+                    return order;
+                },
+                set: function (sortable) {
+                    const newOrder = sortable.toArray();
+                    localStorage.setItem(storageKey, JSON.stringify(newOrder));
+                }
+            },
+            dataIdAttr: 'data-id-sortable'
+        });
+    }
+    
+    document.addEventListener('DOMContentLoaded', (event) => {
+        initSortable('sortable-initial-top', 'sortableTopOrder');
+        initSortable('sortable-initial-bottom', 'sortableBottomOrder');
+        initSortable('sortable', 'sortableMainOrder');
+    });
+</script>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% load static %}
 
 <nav class="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white" id="sidenavAccordion">
-    <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle"><i data-feather="menu"></i></button>
+    <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle"><i class="fas fa-bars text-grey-200"></i></button>
     <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="{% url 'admin-vet' %}">Barraca Veterinary Clinic</a>
     <ul class="navbar-nav align-items-center ms-auto">
         <li class="nav-item no-caret d-none d-md-block me-3">
@@ -10,17 +10,17 @@
             </a>
         </li>
         <!-- Alerts Dropdown-->
-        <li class="nav-item dropdown no-caret d-none d-sm-block me-3 dropdown-notifications">
+        <li class="nav-item dropdown no-caret d-none d-sm-block me-3 dropdown-notifications ">
             <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownAlerts" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i data-feather="bell"></i>
+                <i class="fas fa-bell text-grey-200"></i>
                 <span class="indicator" style="font-size: 11px; margin-left: 5px; color: orange;">
                     <!-- NOTIF COUNTER HERE -->
                 </span>
             </a>
-            <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownAlerts">
-                <h6 class="dropdown-header dropdown-notifications-header">
+            <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up " aria-labelledby="navbarDropdownAlerts">
+                <h6 class="dropdown-header dropdown-notifications-header text-dark">
                     <i class="me-2" data-feather="bell"></i>
-                    Alerts Center
+                    <span class="text-dark">Alerts Center</span>
                 </h6>
                 <!-- ALERTS -->
                 <a class="dropdown-item dropdown-notifications-footer" href="#!">View All Alerts</a>

@@ -6,105 +6,94 @@
         <nav class="sidenav shadow-right sidenav-light">
             <div class="sidenav-menu">
                 <div class="nav accordion" id="accordionSidenav">
-                    <div class="sidenav-menu-heading d-sm-none">Account</div>
-                    <a class="nav-link d-sm-none" href="#!">
-                        <div class="nav-link-icon"><i data-feather="bell"></i></div>
-                        Alerts
-                        <span class="badge bg-warning-soft text-warning ms-auto">4 New!</span>
-                    </a>
-                    <a class="nav-link d-sm-none" href="#!">
-                        <div class="nav-link-icon"><i data-feather="mail"></i></div>
-                        Messages
-                        <span class="badge bg-success-soft text-success ms-auto">2 New!</span>
-                    </a>
-                    <a class="nav-link d-sm-none" href="{% url 'home' %}">
-                        <div class="nav-link-icon"><i data-feather="layout"></i></div>
-                        Visit Site
-                    </a>
                     {% with request.resolver_match.url_name as current_url_name %}
-                    <div class="sidenav-menu-heading ">Home</div>
-                    <a class=" nav-link {% if current_url_name == 'admin-vet' %}active{% endif %}" href="{% url 'admin-vet' %}">
-                        <div class="nav-link-icon"><i data-feather="activity"></i></div>
-                        Dashboard
-                    </a>
-                    {% if request.user|has_permission:'record_management.add_client' %}
-                    <a class=" nav-link {% if current_url_name == 'user-list-page' or current_url_name == 'update-user-page' or current_url_name == 'update-user-2fa-page' %}active{% endif %}" href="{% url 'user-list-page' %}">
-                        <div class="nav-link-icon"><i data-feather="users"></i></div>
-                        Manage Users
-                    </a>
-                    {% endif %}
-                    <!-- <a class="nav-link {% if current_url_name == 'sms-history' %}active{% endif %}" href="{% url 'sms-history' %}">
-                        <div class="nav-link-icon"><i data-feather="send"></i></div>
-                        SMS History
-                    </a> -->
-                    {% if request.user|has_permission:'record_management.add_client' or request.user|has_permission:'record_management.add_pet' %}
-                    <div class="sidenav-menu-heading ">Record</div>
-                    {% endif %}
-                    {% if request.user|has_permission:'record_management.add_client' %}
-                    <a class=" nav-link {% if current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
-                        <div class="nav-link-icon"><i data-feather="users"></i></div>
-                        Clients
-                    </a>
-                    {% endif %}
-                    {% if request.user|has_permission:'record_management.add_pet' %}
-                    <a class=" nav-link {% if current_url_name == 'admin-pet-list-page' or current_url_name == 'admin-view-pet-page' or current_url_name == 'admin-update-pet-page' %}active{% endif %}" href="{% url 'admin-pet-list-page' %}">
-                        <div class="nav-link-icon"><i data-feather="gitlab"></i></div>
-                        Pets
-                    </a>
-                    {% endif %}
-                    {% if request.user|has_permission:'record_management.add_treatment' %}
-                    <a class=" nav-link {% if current_url_name == 'admin-add-pet-health-card-treatment-page' or current_url_name == 'admin-update-pet-health-card-treatment-page' %}active{% endif %}" href="{% url 'admin-add-pet-health-card-treatment-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
-                        <div class="nav-link-icon"><i data-feather="credit-card"></i></div>
-                        Health Card
-                    </a>
-                    <a class="nav-link {% if current_url_name == 'admin-view-prescription-page' or current_url_name == 'admin-add-pet-medical-prescription-page' %}active{% endif %}" href="{% url 'admin-add-pet-medical-prescription-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
-                        <div class="nav-link-icon"><i data-feather="list"></i></div>
-                        Medical Prescription
-                    </a>
-                    <a class=" nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
-                        <div class="nav-link-icon"><i data-feather="heart"></i></div>
-                        Consultation
-                    </a>
-                    {% endif %}
-                    {% if request.user|has_permission:'appointment_management.add_appointment' %}
-                    <div class="sidenav-menu-heading ">Appointment</div>
-                    <a class=" nav-link {% if current_url_name == 'admin-calendar' or current_url_name == 'sms-history' %}active{% endif %}" href="{% url 'admin-calendar' %}">
-                        <div class="nav-link-icon"><i data-feather="calendar"></i></div>
-                        Calendar
-                    </a>
-                    {% endif %}
-                    <!-- <a class=" nav-link" href="#">
-                        <div class="nav-link-icon"><i data-feather="clock"></i></div>
-                        Appointment History
-                    </a> -->
-                    {% if request.user|has_permission:'billing_management.add_billing' %}
-                    <div class="sidenav-menu-heading ">Billing</div>
-                    <a class=" nav-link {% if current_url_name == 'billing-page' or current_url_name == 'billing-client-page' %}active{% endif %}" href="{% url 'billing-page' %}">
-                        <div class="nav-link-icon"><i data-feather="dollar-sign"></i></div>
-                        Billing & Payment
-                    </a>
-                    {% endif %}
-                    {% if request.user|has_permission:'billing_management.view_billing' %}
-                    <a class=" nav-link {% if current_url_name == 'view-bill-page' or current_url_name == 'sales-page' %}active{% endif %}" href="{% url 'sales-page' %}">
-                        <div class="nav-link-icon"><i data-feather="paperclip"></i></div>
-                        Sales
-                    </a>
-                    {% endif %}
-                    {% if request.user|has_permission:'inventory.add_product' %}
-                    <div class="sidenav-menu-heading ">Inventory & Services</div>
-                    <a class=" nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
-                        <div class="nav-link-icon"><i data-feather="box"></i></div>
-                        Inventory
-                    </a>
-                    <a class=" nav-link {% if current_url_name == 'service-list-page' or current_url_name == 'service-add-page' or current_url_name == 'service-update-page' %}active{% endif %}" href="{% url 'service-list-page' %}">
-                        <div class="nav-link-icon"><i data-feather="table"></i></div>
-                        Services
-                    </a>
-                    <a class=" nav-link {% if current_url_name == 'reorder-list-page' %}active{% endif %}" href="{% url 'reorder-list-page' %}">
-                        <div class="nav-link-icon"><i data-feather="list"></i></div>
-                        Reorder List
-                    </a>
-                    {% endif %}
+                    <div id="sortable-sidebar">
+                        <div class="home" draggable="true" data-section-sortable="home">
+                            <div class="sidenav-menu-heading ">Home</div>
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-vet' %}active{% endif %}" href="{% url 'admin-vet' %}">
+                                <div class="nav-link-icon"><i class="fas fa-chart-pie text-grey-200"></i></div>
+                                Dashboard
+                            </a>
+                            {% if request.user|has_permission:'record_management.add_client' %}
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'user-list-page' or current_url_name == 'update-user-page' or current_url_name == 'update-user-2fa-page' %}active{% endif %}" href="{% url 'user-list-page' %}">
+                                <div class="nav-link-icon"><i class="fas fa-user-gear text-grey-200"></i></div>
+                                Manage Users
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="record" draggable="true" data-section-sortable="record">
+                        {% if request.user|has_permission:'record_management.add_client' or request.user|has_permission:'record_management.add_pet' %}
+                        <div class="sidenav-menu-heading ">Record</div>
+                            {% endif %}
+                            {% if request.user|has_permission:'record_management.add_client' %}
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
+                                <div class="nav-link-icon"><i class="fas fa-user-group text-grey-200"></i></div>
+                                Clients
+                            </a>
+                            {% endif %}
+                            {% if request.user|has_permission:'record_management.add_pet' %}
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-pet-list-page' or current_url_name == 'admin-view-pet-page' or current_url_name == 'admin-update-pet-page' %}active{% endif %}" href="{% url 'admin-pet-list-page' %}">
+                                <div class="nav-link-icon"><i class="fas fa-dog text-grey-200"></i></div>
+                                Pets
+                            </a>
+                            {% endif %}
+                            {% if request.user|has_permission:'record_management.add_treatment' %}
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-add-pet-health-card-treatment-page' or current_url_name == 'admin-update-pet-health-card-treatment-page' %}active{% endif %}" href="{% url 'admin-add-pet-health-card-treatment-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                                <div class="nav-link-icon"><i class="fas fa-heart-pulse text-grey-200"></i></div>
+                                Health Card
+                            </a>
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-view-prescription-page' or current_url_name == 'admin-add-pet-medical-prescription-page' %}active{% endif %}" href="{% url 'admin-add-pet-medical-prescription-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                                <div class="nav-link-icon"><i class="fas fa-prescription text-grey-200"></i></div>
+                                Medical Prescription
+                            </a>
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                                <div class="nav-link-icon"><i class="fas fa-stethoscope text-grey-200"></i></div>
+                                Consultation
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="appointment" draggable="true" data-section-sortable="appointment">
+                            {% if request.user|has_permission:'appointment_management.add_appointment' %}
+                            <div class="sidenav-menu-heading ">Appointment</div>
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-calendar' or current_url_name == 'sms-history' %}active{% endif %}" href="{% url 'admin-calendar' %}">
+                                <div class="nav-link-icon"><i class="fas fa-calendar-days text-grey-200"></i></div>
+                                Calendar
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="billing" draggable="true" data-section-sortable="billing">
+                            {% if request.user|has_permission:'billing_management.add_billing' %}
+                            <div class="sidenav-menu-heading ">Billing</div>
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'billing-page' or current_url_name == 'billing-client-page' %}active{% endif %}" href="{% url 'billing-page' %}">
+                                <div class="nav-link-icon"><i class="fas fa-file-invoice-dollar text-grey-200"></i></div>
+                                Billing & Payment
+                            </a>
+                            {% endif %}
+                            {% if request.user|has_permission:'billing_management.view_billing' %}
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'view-bill-page' or current_url_name == 'sales-page' %}active{% endif %}" href="{% url 'sales-page' %}">
+                                <div class="nav-link-icon"><i class="fas fa-receipt text-grey-200"></i></div>
+                                Sales
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="inventory" draggable="true" data-section-sortable="inventory">
+                            {% if request.user|has_permission:'inventory.add_product' %}
+                            <div class="sidenav-menu-heading ">Inventory & Services</div>
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
+                                <div class="nav-link-icon"><i class="fas fa-cubes text-grey-200"></i></div>
+                                Inventory
+                            </a>
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'service-list-page' or current_url_name == 'service-add-page' or current_url_name == 'service-update-page' %}active{% endif %}" href="{% url 'service-list-page' %}">
+                                <div class="nav-link-icon"><i class="fas fa-syringe text-grey-200"></i></div>
+                                Services
+                            </a>
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'reorder-list-page' %}active{% endif %}" href="{% url 'reorder-list-page' %}">
+                                <div class="nav-link-icon"><i class="fas fa-cart-flatbed text-grey-200"></i></div>
+                                Reorder List
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
                     {% endwith %}
                     {% if request.user.is_superuser %}
                     <style>
@@ -126,7 +115,7 @@
                             } 
                         }
                     </style>
-                    <div class="card card-header-actions mt-5 mb-2 superadmin-card">
+                    <div class="card card-header-actions mt-5 mb-5 superadmin-card lift lift-sm">
                         <div class="card-body">
                             <span class="deeper-admin">Missing something?</span>
                             <br>
@@ -149,3 +138,4 @@
             </div>
         </nav>
     </div>
+        

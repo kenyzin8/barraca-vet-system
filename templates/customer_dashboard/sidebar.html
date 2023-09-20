@@ -4,7 +4,7 @@
         <nav class="sidenav shadow-right sidenav-light">
             <div class="sidenav-menu">
                 <div class="nav accordion" id="accordionSidenav">
-                    <div class="sidenav-menu-heading d-sm-none">Account</div>
+                    {% comment %} <div class="sidenav-menu-heading d-sm-none">Account</div>
                     <a class="nav-link d-sm-none" href="#!">
                         <div class="nav-link-icon"><i data-feather="bell"></i></div>
                         Alerts
@@ -18,15 +18,15 @@
                     <a class="nav-link d-sm-none" href="{% url 'home' %}">
                         <div class="nav-link-icon"><i data-feather="layout"></i></div>
                         Visit Site
-                    </a>
+                    </a> {% endcomment %}
                     {% with request.resolver_match.url_name as current_url_name %}
                     <div class="sidenav-menu-heading">Home</div>
                     <a class="nav-link {% if current_url_name == 'customer-dashboard' %}active{% endif %}" href="{% url 'customer-dashboard' %}">
-                        <div class="nav-link-icon"><i data-feather="activity"></i></div>
+                        <div class="nav-link-icon"><i class="fas fa-chart-pie text-grey-200"></i></div>
                         Dashboard
                     </a>
                     <a class="nav-link {% if current_url_name == 'pet-list-page' or current_url_name == 'register-pet-page' or current_url_name == 'view-pet-page' or current_url_name == 'update-pet-page' or current_url_name == 'delete-pet-page' or current_url_name == 'pet-success-page' or current_url_name == 'view-prescription-page' %} active {% endif %}" href="{% url 'pet-list-page' %}">
-                        <div class="nav-link-icon"><i data-feather="gitlab"></i></div>
+                        <div class="nav-link-icon"><i class="fas fa-cat text-grey-200"></i></div>
                         My Pets
                     </a>
                     <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
@@ -35,7 +35,7 @@
                         Pet Health Card
                     </a> -->
                     <a class="nav-link {% if current_url_name == 'client_calendar' %}active{% endif %}" href="{% url 'client_calendar' %}">
-                        <div class="nav-link-icon"><i data-feather="calendar"></i></div>
+                        <div class="nav-link-icon"><i class="fas fa-calendar-days text-grey-200"></i></div>
                         Appointments
                     </a>
                     <!-- <a class="nav-link" href="#">

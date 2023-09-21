@@ -32,6 +32,58 @@
     background: #121212;
   }
 
+  .second-part {
+    width: 100%;
+    height: 200px;
+    background: rgb(255, 255, 255);
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    position: relative;  
+    margin-top: 150px;
+    margin-bottom: 100px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; 
+  }
+
+  .dog-doogle-1 {
+      width: 10%;
+      position: absolute;  
+      bottom: -5.5%;           
+      right: -2%;            
+  }
+
+  .dog-doogle-2 {
+    width: 10%;
+    position: absolute;  
+    top: -50%;          
+    left: 0;         
+  }
+
+  .third-part {
+    width: 100%;
+    height: auto;
+    background: rgb(255, 255, 255);
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    position: relative;  
+    margin-top: 40px;
+    margin-bottom: 100px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  p {
+    margin-bottom: 0.5rem;
+  }
+
   @media (max-width: 767px) {
     .header-barraca {
       font-size: 4rem;
@@ -41,24 +93,34 @@
       font-size: 1.2rem;
       max-width: 300px;
     }
+    .third-part {
+      margin-top: 0px;
+      margin-bottom: 25px;
+    }
+    .dog-doogle-2
+    {
+      display: none;
+    }
+    .dog-doogle-1
+    {
+      display: none;
+    }
+    .second-part {
+      margin-top: 25px;
+      margin-bottom: 25px;
+      height: 100%;
+      padding: 10px;
+    }
+    .groom
+    {
+      margin-bottom: 10px;
+    }
   }
-
-  .parallax-image {
-    position: relative;
-    overflow: hidden;
-}
-.parallax-image img {
-    width: 100%;
-    position: absolute;
-    top: 0;
-}
-
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
-  <p>{{ message_balance }}</p>
   <div class="title-barraca">
     <h1 class="header-barraca fw-bold">
       Your pets,<br>
@@ -68,28 +130,46 @@
       at Barraca Veterinary Clinic, we connect with your pets for better health and wellness.
     </p>
     <br>
-    <a role="button" class="btn btn-dark shadow-sm rounded" href="{% if user.is_authenticated %}{% url 'client_calendar' %}{% else %}{% url 'register-user-page' %}{% endif %}" style="font-weight: bold;">Book for free &nbsp;<i class="fa-solid fa-arrow-right"></i></a> 
+    <a role="button" class="btn btn-dark shadow-sm rounded" href="{% if user.is_authenticated %}{% url 'client_calendar' %}{% else %}{% url 'register-user-page' %}{% endif %}" style="font-weight: bold;">
+      Book for free &nbsp;<i class="fa-solid fa-arrow-right"></i>
+    </a> 
   <div class="text-center">
     <div class="overflow-hidden">
       
-      <img src="{% static 'images/dogs-2.jpg' %}" class="img-fluid mb-4 mt-4" alt="Example image" style="width: 1000px;" loading="lazy">
-      <img src="{% static 'images/barraca.png' %}" class="img-fluid mt-4 parallax-image" data-speed="2" alt="Example image" style="width: 1000px;" loading="lazy">
+      <img src="{% static 'images/dogs-2.jpg' %}" class="img-fluid mb-4 mt-4 parallax-image" alt="Example image" style="width: 1000px;" loading="lazy">
     </div>
   </div>
+  <div class="third-part">
+    <h1 class="header-barraca fw-bold mt-4">
+      We offer services such as
+    </h1>
+    <div>
+      <p class="description-barraca" style="font-size:16px;color:#232323;text-decoration:none;">
+        Deworming, Vaccination, Grooming, and many more!
+      </p>
+    </div>
+    <div>
+      <img class="img-fluid groom" src="{% static 'images/groom.png' %}" alt="dog-doodle-4"/>
+    </div>
+  </div>
+  <img class="img-fluid cute" src="{% static 'images/cute.jpg' %}" width="80%"/>
+  <div class="second-part">
+    <img class="dog-doogle-1 img-fluid" src="{% static 'images/second-part-dog.png' %}" alt="dog-doodle-1"/>
+    <img class="dog-doogle-2 img-fluid" src="{% static 'images/second-part-dog-2.png' %}" alt="dog-doodle-2"/>
+    <h1 class="header-barraca fw-bold">
+      Visit our clinic at
+    </h1>
+    <div>
+      <a class="description-barraca address" style="font-size:14px;color:#018ee0;text-decoration:none;" href="https://maps.app.goo.gl/1MXttpqxzq4QwmKA7" target="_blank">
+        Door 5 & 6 SLB Building 431, Abad Santos Street, Koronadal City, Philippines <i class="fas fa-solid fa-arrow-right-long"></i>
+      </a>
+    </div>
+  </div>
+  <img class="ending-img img-fluid" src="{% static 'images/thank-you.png' %}" width="100%"/>
 </div>
+
 {% endblock %}
 
 {% block extrascript %}
-<script>
-  $(window).on("scroll", function() {
-      $('.parallax-image').each(function() {
-          var $element = $(this);
-          var speed = $element.data('speed'); // How fast/slow should the image move
 
-          var yPos = -($(window).scrollTop() / speed); 
-
-          $element.css({ transform: 'translateY(' + yPos + 'px)' });
-      });
-  });
-</script>
 {% endblock %}

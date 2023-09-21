@@ -42,6 +42,17 @@
       max-width: 300px;
     }
   }
+
+  .parallax-image {
+    position: relative;
+    overflow: hidden;
+}
+.parallax-image img {
+    width: 100%;
+    position: absolute;
+    top: 0;
+}
+
 </style>
 {% endblock %}
 
@@ -62,11 +73,23 @@
     <div class="overflow-hidden">
       
       <img src="{% static 'images/dogs-2.jpg' %}" class="img-fluid mb-4 mt-4" alt="Example image" style="width: 1000px;" loading="lazy">
+      <img src="{% static 'images/barraca.png' %}" class="img-fluid mt-4 parallax-image" data-speed="2" alt="Example image" style="width: 1000px;" loading="lazy">
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block extrascript %}
+<script>
+  $(window).on("scroll", function() {
+      $('.parallax-image').each(function() {
+          var $element = $(this);
+          var speed = $element.data('speed'); // How fast/slow should the image move
 
+          var yPos = -($(window).scrollTop() / speed); 
+
+          $element.css({ transform: 'translateY(' + yPos + 'px)' });
+      });
+  });
+</script>
 {% endblock %}

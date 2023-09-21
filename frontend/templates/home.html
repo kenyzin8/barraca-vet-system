@@ -121,53 +121,53 @@
 
 {% block content %}
 <div class="container">
-  <div class="title-barraca">
-    <h1 class="header-barraca fw-bold">
-      Your pets,<br>
-      deserve better.
-    </h1>
-    <p class="description-barraca">
-      at Barraca Veterinary Clinic, we connect with your pets for better health and wellness.
-    </p>
-    <br>
-    <a role="button" class="btn btn-dark shadow-sm rounded" href="{% if user.is_authenticated %}{% url 'client_calendar' %}{% else %}{% url 'register-user-page' %}{% endif %}" style="font-weight: bold;">
-      Book for free &nbsp;<i class="fa-solid fa-arrow-right"></i>
-    </a> 
-  <div class="text-center">
-    <div class="overflow-hidden">
-      
-      <img src="{% static 'images/dogs-2.jpg' %}" class="img-fluid mb-4 mt-4 parallax-image" alt="Example image" style="width: 1000px;" loading="lazy">
-    </div>
-  </div>
-  <div class="third-part">
-    <h1 class="header-barraca fw-bold mt-4">
-      We offer services such as
-    </h1>
-    <div>
-      <p class="description-barraca" style="font-size:16px;color:#232323;text-decoration:none;">
-        Deworming, Vaccination, Grooming, and many more!
-      </p>
-    </div>
-    <div>
-      <img class="img-fluid groom" src="{% static 'images/groom.png' %}" alt="dog-doodle-4"/>
-    </div>
-  </div>
-  <img class="img-fluid cute" src="{% static 'images/cute.jpg' %}" width="80%"/>
-  <div class="second-part">
-    <img class="dog-doogle-1 img-fluid" src="{% static 'images/second-part-dog.png' %}" alt="dog-doodle-1"/>
-    <img class="dog-doogle-2 img-fluid" src="{% static 'images/second-part-dog-2.png' %}" alt="dog-doodle-2"/>
-    <h1 class="header-barraca fw-bold">
-      Visit our clinic at
-    </h1>
-    <div>
-      <a class="description-barraca address" style="font-size:14px;color:#018ee0;text-decoration:none;" href="https://maps.app.goo.gl/1MXttpqxzq4QwmKA7" target="_blank">
-        Door 5 & 6 SLB Building 431, Abad Santos Street, Koronadal City, Philippines <i class="fas fa-solid fa-arrow-right-long"></i>
-      </a>
-    </div>
-  </div>
-  <img class="ending-img img-fluid" src="{% static 'images/thank-you.png' %}" width="100%"/>
-</div>
+    <div class="title-barraca">
+        <h1 class="header-barraca fw-bold">
+        Your pets,<br>
+        deserve better.
+        </h1>
+        <p class="description-barraca">
+            at Barraca Veterinary Clinic, we connect with your pets for better health and wellness.
+        </p>
+        <br>
+        <a role="button" class="btn btn-dark shadow-sm rounded" href="{% if user.is_authenticated %}{% url 'client_calendar' %}{% else %}{% url 'register-user-page' %}{% endif %}" style="font-weight: bold;">
+            Book Now &nbsp;<i class="fa-solid fa-arrow-right"></i>
+        </a> 
+        <div class="text-center">
+            <div class="overflow-hidden">
+                <img src="{% static 'images/dogs-2.jpg' %}" class="img-fluid mb-4 mt-4 parallax-image" alt="Example image" style="width: 1000px;" loading="lazy">
+            </div>
+        </div>
+        <div class="third-part">
+            <h1 class="header-barraca fw-bold mt-4">
+                We offer services such as
+            </h1>
+            <div>
+                <p class="description-barraca" style="font-size:16px;color:#232323;text-decoration:none;">
+                    Deworming, Vaccination, Grooming, and many more!
+                </p>
+            </div>
 
+            <div>
+                <img class="img-fluid groom" src="{% static 'images/groom.png' %}" alt="dog-doodle-4"/>
+            </div>
+        </div>
+        <img class="img-fluid cute" src="{% static 'images/cute.jpg' %}" width="80%"/>
+        <div class="second-part">
+            <img class="dog-doogle-1 img-fluid" src="{% static 'images/second-part-dog.png' %}" alt="dog-doodle-1"/>
+            <img class="dog-doogle-2 img-fluid" src="{% static 'images/second-part-dog-2.png' %}" alt="dog-doodle-2"/>
+            <h1 class="header-barraca fw-bold">
+                Visit our clinic at
+            </h1>
+            <div>
+                <a class="description-barraca address" style="font-size:14px;color:#018ee0;text-decoration:none;" href="https://maps.app.goo.gl/1MXttpqxzq4QwmKA7" target="_blank">
+                    Door 5 & 6 SLB Building 431, Abad Santos Street, Koronadal City, Philippines <i class="fas fa-solid fa-arrow-right-long"></i>
+                </a>
+            </div>
+        </div>
+        <img class="ending-img img-fluid" src="{% static 'images/thank-you.png' %}" width="100%"/>
+    </div>
+</div>
 {% endblock %}
 
 {% block extrascript %}

@@ -424,9 +424,9 @@
                 return response.json();
             }).then(function(data) {
                 if (data.result === 'success') {
-                location.href = '{% url "admin-pet-list-page" %}';
+                    location.href = '{% url "pet-list-page" %}';
                 } else {
-                console.log('Error: ' + data.message);
+                    console.log('Error: ' + data.message);
                 }
             });
             }

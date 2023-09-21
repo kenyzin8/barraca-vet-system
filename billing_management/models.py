@@ -25,6 +25,7 @@ class Billing(models.Model):
             total += service.price_at_time_of_purchase
         for billing_product in self.billing_products.all():
             total += billing_product.price_at_time_of_purchase * billing_product.quantity
+
         return total
 
     def get_billing_number(self):

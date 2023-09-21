@@ -222,7 +222,7 @@ def get_range_name(start_date_str, end_date_str, current_year):
 @login_required
 @staff_required
 def sales(request):
-    bills = Billing.objects.all().order_by('-id')
+    bills = Billing.objects.all().filter(isActive=True).order_by('-id')
 
     startDateStr = request.GET.get('startDate')
     endDateStr = request.GET.get('endDate')
@@ -254,6 +254,9 @@ def sales(request):
     billing_services_data = []
     billing_products_data = []
 
+    services_sub_total = 0
+    products_sub_total = 0
+
     for bill in bills.order_by('id'):
         _date = bill.date_created.strftime("%b %d, %Y %I:%M %p")
         for bs in bill.billing_services.all():
@@ -262,11 +265,13 @@ def sales(request):
                 'date_created': _date,
                 'service': bs.service.service_type,
                 'sold_under': bill.client.full_name,
-                'price': custom_format(bs.service.fee)
+                'price': custom_format(bs.price_at_time_of_purchase)
             })
+            
+            services_sub_total += bs.service.fee
 
         for bp in bill.billing_products.all():
-            total = bp.quantity * bp.product.price
+            total = bp.quantity * bp.price_at_time_of_purchase
             billing_products_data.append({
                 'id': bill.get_billing_number(),
                 'date_created': _date,
@@ -276,6 +281,8 @@ def sales(request):
                 'price': custom_format(bp.product.price),
                 'total_due': custom_format(total)
             })
+
+            products_sub_total += total
 
     _range = "Today (" + datetime.now().strftime("%B %d, %Y") + ")"
 
@@ -291,7 +298,9 @@ def sales(request):
         'total_services_count': total_services_count,
         'billing_services_data': billing_services_data,
         'billing_products_data': billing_products_data,
-        'range': _range
+        'range': _range,
+        'services_sub_total': custom_format(services_sub_total),
+        'products_sub_total': custom_format(products_sub_total)
         }
 
     return render(request, 'sales.html', context)

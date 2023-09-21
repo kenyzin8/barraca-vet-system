@@ -98,16 +98,27 @@
                                 <i data-feather="settings"></i>
                             </a>
                             {% endif %}
-                            {% if user.client.isBanned %}
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark unban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Unban User">
-                                <i data-feather="user-check"></i>
-                            </a>
-                            {% else %}
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark ban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Ban User">
-                                <i data-feather="slash"></i>
-                            </a>
+                        
+                            {% if not user.is_staff and not user.is_superuser %}
+                                {% if user.client.isBanned %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark unban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Unban User">
+                                    <i data-feather="user-check"></i>
+                                </a>
+                                {% else %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark ban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Ban User">
+                                    <i data-feather="slash"></i>
+                                </a>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark promote-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Promote to Secretary">
+                                    <i data-feather="chevrons-up"></i>
+                                </a>
+                                {% endif %}
+                            {% elif user.is_staff and not user.is_superuser %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark demote-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Demote Secretary">
+                                    <i data-feather="chevrons-down"></i>
+                                </a>
                             {% endif %}
                         </td>
+                        
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -124,7 +135,7 @@
                 <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-               Are you sure you want to unban this <span class="user-to-unban fw-600"></span>?
+               Are you sure you want to unban <span class="user-to-unban fw-600"></span>?
             </div>
             <div class="modal-footer">
                 <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
@@ -178,6 +189,41 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-dark successOKBtn" type="button" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmationDemoteModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationDemoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationDemoteModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to demote <span class="user-to-demote fw-600"></span>?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-demote-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmationPromoteModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="cconfirmationPromoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cconfirmationPromoteModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to promote <span class="user-to-promote fw-600"></span> to Secretary?<br><br>
+                <span class="small"><span class="fw-600">Note: </span> This user will gain access to admin page but with less power.</span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-promote-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
             </div>
         </div>
     </div>
@@ -313,7 +359,7 @@
             $("#confirmationUnbanModal").modal('show');
         });
 
-        $("#confirmationUnbanModal").on('click', function() {
+        $("#confirm-unban-button").on('click', function() {
             var url = "{% url 'unban-user-page' 0 %}".replace('0', selected_id);
             $.ajax({
                 url: url,
@@ -335,6 +381,79 @@
                 }
             });
         });
+
+        $(".promote-user-btn").on('click', function(event) {
+            event.preventDefault();
+            
+            var $row = $(this).closest('tr');  
+            var user_id = $row.find('.user-id').text();
+            var user_name = $row.find('.user-name').text();
+            selected_id = parseInt(user_id);
+            selected_name = user_name;
+            $(".user-to-promote").text(selected_name);
+            $("#confirmationPromoteModal").modal('show');
+        });
+
+        $("#confirm-promote-button").on('click', function(event){
+            event.preventDefault();
+            var url = "{% url 'promote-user-page' 0 %}".replace('0', selected_id);
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if(response.success){
+                        showSuccess(response.message);
+
+                        $(".successOKBtn").on('click', function() {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(error) {
+                    showError(error.responseJSON.message);
+                }
+            });
+        });
+
+        $(".demote-user-btn").on('click', function(event) {
+            event.preventDefault();
+            
+            var $row = $(this).closest('tr');  
+            var user_id = $row.find('.user-id').text();
+            var user_name = $row.find('.user-name').text();
+            selected_id = parseInt(user_id);
+            selected_name = user_name;
+            $(".user-to-demote").text(selected_name);
+            $("#confirmationDemoteModal").modal('show');
+        });
+
+        $("#confirm-demote-button").on('click', function(event){
+            event.preventDefault();
+            var url = "{% url 'demote-user-page' 0 %}".replace('0', selected_id);
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if(response.success){
+                        showSuccess(response.message);
+
+                        $(".successOKBtn").on('click', function() {
+                            location.reload();
+                        });
+                    }
+                },
+                error: function(error) {
+                    showError(error.responseJSON.message);
+                }
+            });
+        });
+
         //initialize tooltip
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {

@@ -21,7 +21,7 @@ import urllib.parse
 import requests
 import json
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 @login_required
 @staff_required
@@ -108,6 +108,41 @@ def unban_user(request, userID):
     except:
         return JsonResponse({'success': False, 'message': 'Something went wrong.'})
 
+@login_required
+@staff_required
+def promote_user(request, userID):
+    try:
+        with transaction.atomic():
+            secretary_group = Group.objects.get(name='Secretary')
+            if not secretary_group:
+                return JsonResponse({'success': False, 'message': 'Secretary group not found.'})
+
+            user = get_object_or_404(User, pk=userID)
+            user.is_staff = True
+            user.save()
+            secretary_group.user_set.add(user)
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': 'Something went wrong: {}'.format(e)})
+    return JsonResponse({'success': True, 'message': 'User promoted successfully.'})
+
+@login_required
+@staff_required
+def demote_user(request, userID):
+    try:
+        with transaction.atomic():
+            secretary_group = Group.objects.get(name='Secretary')
+            if not secretary_group:
+                return JsonResponse({'success': False, 'message': 'Secretary group not found.'})
+
+            user = get_object_or_404(User, pk=userID)
+            user.is_staff = False
+            user.save()
+            secretary_group.user_set.remove(user)
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': 'Something went wrong: {}'.format(e)})
+    return JsonResponse({'success': True, 'message': 'User demoted successfully.'})
 
 @login_required
 @staff_required

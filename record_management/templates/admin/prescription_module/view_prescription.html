@@ -146,58 +146,6 @@
     function printPrescription() 
     {
         var productsDataRaw = {{ prescription_data|safe }}
-        var signatureData = [];
-
-        signatureData.push({
-            signature: '‎',
-            total: '‎',
-        });
-
-
-        signatureData.push({
-            total: '‎',
-            signature: `<img src="{% static 'images/rx-logo-pet.png' %}" width="18%"/>`,
-        });
-
-
-        for (var i = 0; i < 3; i++) {
-            signatureData.push({
-                signature: '‎'
-            });
-        }
-
-        signatureData.push({
-            total: '‎',
-            signature: `
-            <div style="line-height:1.5;float:right; width:200px; text-align:center; margin-right:50px;">
-                <span style='font-size:12pt;font-weight:600;'>
-                    Yvette Mae Barraca, DVM
-                </span>
-                <br>
-                <span style='font-size:9pt;font-weight:600;'>
-                    LC. NO: 00000
-                </span>
-            </div>`,
-        });
-
-        signatureData.push({
-            signature: '‎',
-            total: '‎',
-        });
-
-        signatureData.push({
-            total: '‎', 
-            signature: `
-            <div style="line-height:1.5;float:right; width:200px; text-align:center; margin-right:50px;">
-                <span style='font-size:12pt;font-weight:600;'>
-                    ____________________
-                </span>
-                <br>
-                <span style='font-size:10pt;font-weight:600;'>
-                    Date Signed
-                </span>
-            </div>`,
-        });
 
         var clientName = document.getElementsByClassName("clientName").innerText;
         var billNo = document.getElementsByClassName("prescriptionNumber").innerText;
@@ -241,21 +189,9 @@
         </tr>
         `).join('');
 
-        var footerContent = signatureData.map(row => `
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>${row.signature}</td>
-            </tr>
-        `).join('');
-
         var completeHTML = `
             ${header}
+            <img style="margin-top:20px;" src="{% static 'images/rx-logo-pet.png' %}" width="10%"/>
             <table>
                 <thead class="first-thead">
                     <tr>
@@ -273,23 +209,23 @@
                     ${tableContent}
                 </tbody>
             </table>
-            <table>
-                <thead class="second-thead"> 
-                    <tr>
-                        <th class="table-header">‎</th>
-                        <th class="table-header">‎</th>
-                        <th class="table-header">‎</th>
-                        <th class="table-header">‎</th>
-                        <th class="table-header">‎</th>
-                        <th class="table-header">‎</th>
-                        <th class="table-header">‎</th>
-                        <th class="table-header">‎</th>
-                    </tr> 
-                </thead>
-                <tbody class="second-tbody">
-                    ${footerContent}
-                </tobdy>
-            </table>
+            <div style="width: 100%; display: flex; justify-content: space-between; margin-top:70px;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span style="font-size:9pt;font-weight:600;">‎</span>
+                    <span style='font-size:12pt;font-weight:600;'>‎</span>
+                    <span style="font-size:9pt;font-weight:600;">‎</span>
+                    <span style="font-size:9pt;font-weight:600;">‎</span>
+                    <span style='font-size:9pt;font-weight:600;'>‎</span>
+                    <span style='font-size:9pt;font-weight:600;'>‎</span>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span style='font-size:12pt;font-weight:600;'>Yvette Mae Barraca, DVM</span>
+                    <span style='font-size:9pt;font-weight:600;'>LC. NO: 00000</span>
+                    <span style="font-size:9pt;font-weight:600;">‎</span>
+                    <span style='font-size:9pt;font-weight:600;'>____________________________</span>
+                    <span style='font-size:9pt;font-weight:600;'>Date Signed</span>
+                </div>
+            </div>
         `;
 
         printJS({

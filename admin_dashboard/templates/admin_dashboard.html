@@ -34,6 +34,26 @@
     .card:hover .svg-inline--fa {
         animation: bounce 1s infinite;
     }
+
+    @media (max-width: 767.98px) {
+        .top-cards {
+            margin-bottom: 10px !important;
+        }
+
+        .top-cards:last-child {
+            margin-bottom: 0px !important;
+        }
+
+        .bottom-cards
+        {
+            margin-bottom: 10px !important;
+        }
+
+        .bottom-cards:last-child {
+            margin-bottom: 0px !important;
+        }
+    }
+
 </style>
 
 {% endblock %}
@@ -62,7 +82,7 @@
     <div id="sortable" class="mt-5">
         <div class="row animated--fade-in-up mb-3 draggable-item" data-id-sortable="top-row" id="sortable-initial-top">   
             {% if request.user|has_permission:'billing_management.view_billing' %}
-            <div class="col-lg-6 col-xl-3 draggable-item" data-id-sortable="1">
+            <div class="col-lg-6 col-xl-3 draggable-item top-cards" data-id-sortable="1">
                 <div style="background:#393E46;" class="card border-start-lg border-start-red lift h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -76,7 +96,7 @@
                 </div>
             </div>
             {% endif %}
-            <div class="col-lg-6 col-xl-3 draggable-item" data-id-sortable="2">
+            <div class="col-lg-6 col-xl-3 draggable-item top-cards" data-id-sortable="2">
                 <div style="background:#393E46;" class="card border-start-lg border-start-orange lift h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -89,7 +109,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 col-xl-3 draggable-item" data-id-sortable="3">
+            <div class="col-lg-6 col-xl-3 draggable-item top-cards" data-id-sortable="3">
                 <div style="background:#393E46;" class="card border-start-lg border-start-indigo lift h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -102,7 +122,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 col-xl-3 draggable-item" data-id-sortable="4">
+            <div class="col-lg-6 col-xl-3 draggable-item top-cards" data-id-sortable="4">
                 <div style="background:#393E46;" class="card border-start-lg border-start-pink lift h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -150,7 +170,7 @@
         </div>
         {% if request.user|has_permission:'billing_management.view_billing' %}
         <div class="row mb-3 draggable-item" data-id-sortable="bottom-row" id="sortable-initial-bottom">
-            <div class="col-xl-6">
+            <div class="col-xl-6 bottom-cards">
                 <div class="card card-header-actions h-100 draggable-item border-start-lg border-start-purple lift" data-id-sortable="6">
                     <div class="card-header">
                         Monthly Gross Revenue
@@ -161,7 +181,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-6">
+            <div class="col-xl-6 bottom-cards">
                 <div class="card card-header-actions h-100 draggable-item border-start-lg border-start-teal lift" data-id-sortable="7">
                     <div class="card-header">
                         Annual Gross Revenue
@@ -285,9 +305,12 @@
         });
     
         new Sortable(container, {
-            animation: 150,
+            animation: 250,
             fallbackOnBody: true,
             swapThreshold: 0.65,
+            fallbackTolerance: 3,
+            swap: true,
+            swapClass: 'highlight',
             store: {
                 get: function (sortable) {
                     return order;

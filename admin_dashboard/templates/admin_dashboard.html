@@ -325,9 +325,11 @@
     }
     
     document.addEventListener('DOMContentLoaded', (event) => {
-        initSortable('sortable-initial-top', 'sortableTopOrder');
-        initSortable('sortable-initial-bottom', 'sortableBottomOrder');
-        initSortable('sortable', 'sortableMainOrder');
+        if (window.innerWidth > 768) {
+            initSortable('sortable-initial-top', 'sortableTopOrder');
+            initSortable('sortable-initial-bottom', 'sortableBottomOrder');
+            initSortable('sortable', 'sortableMainOrder');
+        }
     });
 </script>
 {% endblock %}

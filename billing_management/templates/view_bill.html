@@ -272,21 +272,16 @@
                     ${tableContent}
                 </tbody>
             </table>
-            <div style="line-height:1.5;float:right; width:200px; text-align:center; margin-right:30px; margin-bottom:50px;">
-                <span style="font-weight:bold;text-align:right;">
-                    Total Amount: ₱${numberWithCommas(totalAmount.toFixed(2))}
-                </span>
-            </div>
             <div style="width: 100%; display: flex; justify-content: space-between;">
                 <div style="display: flex; flex-direction: column; align-items: center;">
-                    <span style="font-size:9pt;font-weight:600;">‎</span>
-                    <span style='font-size:12pt;font-weight:600;'>‎</span>
-                    <span style="font-size:9pt;font-weight:600;">‎</span>
-                    <span style="font-size:9pt;font-weight:600;">‎</span>
-                    <span style='font-size:9pt;font-weight:600;'>‎</span>
-                    <span style='font-size:9pt;font-weight:600;'>‎</span>
+
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center;">
+                    <span style='font-size:12pt;font-weight:700;'> Total Amount: ₱${numberWithCommas(totalAmount.toFixed(2))}</span>
+                    <span style="font-size:9pt;font-weight:600;">‎</span>
+                    <span style="font-size:9pt;font-weight:600;">‎</span>
+                    <span style="font-size:9pt;font-weight:600;">‎</span>
+                    <span style="font-size:9pt;font-weight:600;">‎</span>
                     <span style='font-size:9pt;font-weight:600;'>Prepared by</span>
                     <span style='font-size:12pt;font-weight:600;'>{{ request.user.client.full_name }}</span>
                     <span style="font-size:9pt;font-weight:600;">‎</span>

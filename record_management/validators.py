@@ -11,3 +11,7 @@ def validate_image_size(image):
     if file_size > limit_mb * 1024 * 1024:
         raise ValidationError("Max size of file is %s MB." % limit_mb,
                               params={'field_display': 'Picture'})
+
+def validate_weight(value):
+    if value < 1 or value > 150:
+        raise ValidationError('Weight should be between 1kg and 150kg.')

@@ -72,6 +72,20 @@
                     <button class="btn btn-dark lift lift-sm" type="submit">Update Pet</button>
                   </form>
                 </div>
+                <div class="errors">
+                {% for field in form %}
+                    {% if field.errors %}
+                        <div class="alert alert-danger ms-3 me-3" role="alert">
+                          <i class="fas fa-solid fa-triangle-exclamation fa-xl"></i> {{ field.errors|striptags }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                      <i class="fas fa-solid fa-triangle-exclamation fa-xl"></i> {{ error }}
+                    </div>
+                {% endfor %}
+              </div>
             </div>
         </div>
         <div class="col-xl-4">

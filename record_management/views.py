@@ -1101,6 +1101,12 @@ class SubmitConsultationView(APIView):
             noon = dt_time(12, 0, 0)
             evening = dt_time(18, 0, 0)
 
+            if weight < 1.0 or weight > 150.0:
+                return Response({'success': False, 'message': 'Invalid weight.'})
+
+            if temperature < 1.0 or temperature > 60.0:
+                return Response({'success': False, 'message': 'Invalid temperature.'})
+
             try:
                 with transaction.atomic():
                     
@@ -1658,6 +1664,12 @@ class SubmitHealthCardTreatment(APIView):
                     
                     deworm_instance = Service.objects.get(service_type="Deworming")
                     vaccine_instance = Service.objects.get(service_type="Vaccination")
+
+                    if weight < 1.0 or weight > 150.0:
+                        return Response({'success': False, 'message': 'Invalid weight.'})
+
+                    if temperature < 1.0 or temperature > 60.0:
+                        return Response({'success': False, 'message': 'Invalid temperature.'})
 
                     if appointment_purpose != deworm_instance.id and appointment_purpose != vaccine_instance.id:
                         return Response({'success': False, 'message': 'Invalid appointment purpose. Only deworming and vaccination are allowed.'})

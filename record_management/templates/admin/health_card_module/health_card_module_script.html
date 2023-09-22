@@ -643,10 +643,10 @@
         
         $("#inputCycle").on("change", function(){
             if($(this).val() !== "") {
-                $("#litepickerSingleDate, #inputNextAppointmentTimeOfTheDay").prop("disabled", true);
-                $("#litepickerSingleDate").val("");
+                $("#litepickerSingleDate, #inputNextAppointmentTime").prop("disabled", true);
+                $("#litepickerSingleDate, #inputNextAppointmentTime").val("");
             } else { 
-                $("#litepickerSingleDate, #inputNextAppointmentTimeOfTheDay").prop("disabled", false);
+                $("#litepickerSingleDate, #inputNextAppointmentTime").prop("disabled", false);
             }
         });
 

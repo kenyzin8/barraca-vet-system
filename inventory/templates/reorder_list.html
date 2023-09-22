@@ -33,7 +33,7 @@
                     <tr>
                         <td>{{ product.id }}</td>
                         <td>{{ product.product_name }}</td>
-                        <td>{{ product.quantity_on_stock|floatformat:2|intcomma }}</td>
+                        <td>{{ product.quantity_on_stock|floatformat:0|intcomma }}</td>
                         <td>{{ product.critical_level }}</td>
                         <td>₱ {{ product.price|intcomma }}</td>
                         <td>

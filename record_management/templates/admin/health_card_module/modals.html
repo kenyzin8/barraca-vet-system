@@ -1,3 +1,4 @@
+{% load humanize %}
 <div class="modal fade" id="addMedicineModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addMedicineModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
@@ -45,12 +46,12 @@
                                         <tr>
                                             <td><span class="product-id">{{ product.id }}</span></td>
                                             <td><span class="product-name">{{ product.product_name }}</span></td>
-                                            <td>{{ product.volume }}</td>
-                                            <td>{{ product.form }}</td>
+                                            <td>{{ product.volume|floatformat:0|intcomma }} {{ product.get_dosage_unit }}</td>
+                                            <td>{{ product.get_form_display }}</td>
                                             <td>{{ product.batch_number }}</td>
                                             <td>{{ product.manufacturer }}</td>
                                             <td>{{ product.expiration_date }}</td>
-                                            <td>{{ product.price }}</td>
+                                            <td>₱ {{ product.price|intcomma }}</td>
                                             <td>{{ product.product_description }}</td>
                                             <td>
                                                 <button class="btn btn-dark btn-sm add-product" data-product-id="{{ product.id }}">

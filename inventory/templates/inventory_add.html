@@ -33,18 +33,18 @@
                             {% csrf_token %}
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputProductName">Name</label>
+                                    <label class="small mb-1" for="inputProductName">Name <span class="text-red">*</span></label>
                                     {{ form.product_name }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputQuantity">Quantity</label>
+                                    <label class="small mb-1" for="inputQuantity">Quantity <span class="text-red">*</span></label>
                                     {{ form.quantity_on_stock }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputType">
-                                        Type
+                                        Type <span class="text-red">*</span>
                                         <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-type-list-page' %}"  data-bs-toggle="tooltip" data-bs-placement="top" title="View List of Types">
                                             <i data-feather="external-link"></i>
                                         </a>
@@ -52,48 +52,48 @@
                                     {{ form.type }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputVol">Volume (bottle size or per unit)</label>
+                                    <label class="small mb-1" for="inputVol">Volume (bottle size or per unit) <span class="text-red">*</span></label>
                                     {{ form.volume }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputForm">Form</label>
+                                    <label class="small mb-1" for="inputForm">Form <span class="text-red">*</span></label>
                                     {{ form.form }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputBatch">Batch Number</label>
+                                    <label class="small mb-1" for="inputBatch">Batch Number <span class="text-red">*</span></label>
                                     {{ form.batch_number }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputManu">Manufacturer</label>
+                                    <label class="small mb-1" for="inputManu">Manufacturer <span class="text-red">*</span></label>
                                     {{ form.manufacturer }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputManuDate">Manufacturing Date</label>
+                                    <label class="small mb-1" for="inputManuDate">Manufacturing Date <span class="text-red">*</span></label>
                                     {{ form.manufacturing_date }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputExp">Expiration Date</label>
+                                    <label class="small mb-1" for="inputExp">Expiration Date <span class="text-red">*</span></label>
                                     {{ form.expiration_date }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputCrit">Critical Level</label>
+                                    <label class="small mb-1" for="inputCrit">Critical Level <span class="text-red">*</span></label>
                                     {{ form.critical_level }}
                                 </div>
 
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputPrice">Product Description</label>
+                                    <label class="small mb-1" for="inputPrice">Product Description <span class="text-red">*</span></label>
                                     {{ form.product_description }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputPrice">Selling Price (₱)</label>
+                                    <label class="small mb-1" for="inputPrice">Selling Price (₱) <span class="text-red">*</span></label>
                                     {{ form.price }}
                                 </div>
                             </div>
@@ -117,5 +117,16 @@
 {% endblock %}
 
 {% block extrascripts %}
+<script>
+    const quantityInput = document.getElementById('quantity');
 
+    quantityInput.addEventListener('keydown', function(event) {
+        if (event.keyCode === 69 || event.keyCode === 101 || event.keyCode === 190 || event.keyCode === 110) {
+            event.preventDefault();
+        }
+    });
+    quantityInput.addEventListener('paste', function(event) {
+        event.preventDefault();
+    });
+</script>
 {% endblock %}

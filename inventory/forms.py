@@ -1,17 +1,18 @@
 from django import forms
 from .models import Product, ProductType
-from .validators import validate_manufacturing_and_expiry_date
+from .validators import validate_manufacturing_and_expiry_date, validate_quantity, validate_volume, validate_selling, validate_critical
 from django.core.exceptions import ValidationError
 
 class ProductForm(forms.ModelForm):
     product_name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control'}))
     quantity_on_stock = forms.DecimalField(
-        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control'}),
-        decimal_places=2, 
+        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control', 'min': 1}), 
+        validators=[validate_quantity],
     )
     volume = forms.DecimalField(
-        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control'}),
+        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control', 'min': 1}),
         decimal_places=2, 
+        validators=[validate_volume],
     )  
     form = forms.ChoiceField(choices=Product.PRODUCT_FORM_LIST, widget=forms.Select(attrs={'id': 'form', 'class': 'form-select'}))
     type = forms.ModelChoiceField(queryset=ProductType.objects.filter(active=True).order_by('-id'), widget=forms.Select(attrs={'id': 'type', 'class': 'form-select'}))
@@ -19,8 +20,8 @@ class ProductForm(forms.ModelForm):
     manufacturer = forms.CharField(widget=forms.TextInput(attrs={'id': 'manufacturer', 'class': 'form-control'}))
     manufacturing_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'manufacturing_date', 'class': 'form-control', 'type': 'date'}))
     expiration_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'expiration_date', 'class': 'form-control', 'type': 'date'}))
-    critical_level = forms.IntegerField(widget=forms.NumberInput(attrs={'id': 'critical_level', 'class': 'form-control'}))
-    price = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'price', 'class': 'form-control'}))
+    critical_level = forms.IntegerField(validators=[validate_critical], widget=forms.NumberInput(attrs={'id': 'critical_level', 'class': 'form-control', 'min': 1}))
+    price = forms.DecimalField(validators=[validate_selling], widget=forms.NumberInput(attrs={'id': 'price', 'class': 'form-control', 'min': 1}))
     product_description = forms.CharField(widget=forms.Textarea(attrs={'id': 'product_description', 'class': 'form-control'}))
 
     class Meta:

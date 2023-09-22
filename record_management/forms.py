@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Client, Pet
-from .validators import validate_phone_number, validate_image_size
+from .validators import validate_phone_number, validate_image_size, validate_weight
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
@@ -94,7 +94,7 @@ class PetRegistrationForm(forms.ModelForm):
     gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')],
                                 widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
     color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color', 'autocomplete': 'off'}))
-    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01', 'autocomplete': 'off'}))
+    weight = forms.DecimalField(validators=[validate_weight], widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01', 'autocomplete': 'off', 'min': 1, 'max': 150}))
     picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control', 'autocomplete': 'off'}), validators=[validate_image_size])
 
     class Meta:
@@ -109,7 +109,7 @@ class AdminPetRegistrationForm(forms.ModelForm):
     gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')],
                                 widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
     color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color'}))
-    weight = forms.DecimalField(widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01'}))
+    weight = forms.DecimalField(validators=[validate_weight], widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01', 'autocomplete': 'off', 'min': 1, 'max': 150}))
     picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control'}), validators=[validate_image_size])
     is_active = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'id': 'is_active', 'class': 'form-check-input'}))
 

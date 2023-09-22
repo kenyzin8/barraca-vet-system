@@ -103,6 +103,7 @@ def product_add(request):
 @login_required
 def product_update(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    product.quantity_on_stock = int(product.quantity_on_stock)
     if product.active is False:
         return redirect('product-list-page')
 

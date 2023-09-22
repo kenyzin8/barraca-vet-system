@@ -87,6 +87,16 @@ class Product(models.Model):
     def is_product_out_of_stock(self):
         return self.quantity_on_stock == 0
 
+    def get_dosage_unit(self, for_dosage=False):
+        liquid_forms = ['syrup', 'liquid', 'oral_solution', 'suspension', 'ear_drop', 'gel', 'cream', 'ointment', 'lotion', 'feed_additive', 'drop', 'spray']
+        
+        if self.form in liquid_forms:
+            return 'mL'
+        else:
+            if for_dosage and self.dosage != '1':
+                return self.form + 's'
+            return self.form
+
     def create_or_delete_notification(self, condition, notification_type, message):
         content_type = ContentType.objects.get_for_model(Product)
         if condition:

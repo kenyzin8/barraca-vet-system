@@ -15,7 +15,7 @@
             Users
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="print-table">
+            <table id="datatablesSimple" class="print-table" style="display: none;">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -308,6 +308,8 @@
                     dataTable.search('');
                 }
             });
+
+            datatablesSimple.style.display = "";
         }
 
         var selected_id = -1;

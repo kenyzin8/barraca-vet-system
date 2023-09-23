@@ -10,6 +10,7 @@
 window.addEventListener('DOMContentLoaded', event => {
     const datatablesSimple = document.getElementById('datatablesSimple');
     if (datatablesSimple) {
+        datatablesSimple.style.display = "";
         let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
             paging: true,
             perPageSelect: [5, 10, 25, 50],
@@ -85,7 +86,7 @@ window.addEventListener('DOMContentLoaded', event => {
             <a href="#" type="button" class="btn btn-dark btn-sm lift lift-sm" id="add-type-btn">Add Type</a>
         </div>
         <div class="card-body">
-            <table id="datatablesSimple">
+            <table id="datatablesSimple" style="display: none;">
                 <thead>
                     <tr>
                         <th>#</th>

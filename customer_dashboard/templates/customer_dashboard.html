@@ -108,7 +108,7 @@
     <div class="card mb-4">
         <div class="card-header">My Appointments</div>
         <div class="card-body">
-            <table id="datatablesSimple">
+            <table id="datatablesSimple" style="display: none;">
                 <thead>
                     <tr>
                         <th>Date</th>
@@ -154,6 +154,7 @@
 window.addEventListener('DOMContentLoaded', event => {
     const datatablesSimple = document.getElementById('datatablesSimple');
     if (datatablesSimple) {
+        datatablesSimple.style.display = "";
         let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
             paging: false,
             perPageSelect: [5, 10, 25, 50],

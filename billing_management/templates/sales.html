@@ -130,6 +130,7 @@ function initDataTables(tableId, maxPage) {
     var lastIndex = maxPage > 25 ? maxPage : 50;
 
     if (datatablesSimple) {
+        datatablesSimple.style.display = "";
         let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
         // DataTables options
         paging: true,
@@ -241,7 +242,7 @@ function initDataTables(tableId, maxPage) {
                     <!-- Wizard tab pane item 1-->
                     <div class="tab-pane py-xl-2 fade show active" id="wizard1" role="tabpanel" aria-labelledby="wizard1-tab">
                         <div class="row justify-content-center">
-                            <table id="datatablesSimple">
+                            <table id="datatablesSimple" style="display: none;">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -293,7 +294,7 @@ function initDataTables(tableId, maxPage) {
                                 </div>
                                 <div class="collapse show" id="collapseSales">
                                     <div class="card-body">
-                                        <table id="datatablesSimple-sales">
+                                        <table id="datatablesSimple-sales" style="display: none;">
                                             <thead>
                                                 <tr>
                                                     <th>Under Bill #</th>
@@ -339,7 +340,7 @@ function initDataTables(tableId, maxPage) {
                                 </div>
                                 <div class="collapse show" id="collapseServices">
                                     <div class="card-body">
-                                        <table id="datatablesSimple-services">
+                                        <table id="datatablesSimple-services" style="display: none;">
                                             <thead>
                                                 <tr>
                                                     <th>Under Bill #</th>

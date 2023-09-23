@@ -142,7 +142,7 @@
                 <i style="color: #474747 !important;" class="fas fa-calendar-week fa-1x text-red-100"></i> 
             </div>
             <div class="card-body">
-                <table id="upcomingAppTable">
+                <table id="upcomingAppTable" style="display: none;">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -233,6 +233,7 @@
         var lastIndex = max_page > 25 ? max_page : 50;
 
         if (datatablesSimple) {
+            datatablesSimple.style.display = "";
             let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
                 paging: true,
                 perPageSelect: [5, 10, 25, lastIndex],

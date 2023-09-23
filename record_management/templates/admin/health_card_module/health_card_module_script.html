@@ -100,12 +100,12 @@
             });
         });
 
-        const petTable = document.getElementById('petTable');
-        
+        var petTable = document.getElementById('petTable');
         
         var pets_max_page = {{ pets|length }};
         var petsLastIndex = pets_max_page > 25 ? pets_max_page : 50;
         if (petTable) {
+            petTable.style.display = "";
             let dataTable = new simpleDatatables.DataTable(petTable, {
                 paging: true,
                 perPageSelect: [5, 10, 25, petsLastIndex],

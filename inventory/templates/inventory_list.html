@@ -29,7 +29,7 @@
             </div>
         </div>
         <div class="card-body">
-            <table id="datatablesSimple">
+            <table id="datatablesSimple" style="display: none;">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -171,6 +171,7 @@
       var max_page = {{ products|length }}
       var lastIndex = max_page > 25 ? max_page : 50;
       if (datatablesSimple) {
+          datatablesSimple.style.display = "";
           let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
               paging: true,
               perPageSelect: [5, 10, 25, lastIndex],

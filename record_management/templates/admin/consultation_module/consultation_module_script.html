@@ -129,6 +129,7 @@
         const petTable = document.getElementById('petTable');
     
         if (petTable) {
+            petTable.style.display = "";
             let dataTable = new simpleDatatables.DataTable(petTable, {
                 paging: true,
                 perPageSelect: [5, 10, 25, 50],

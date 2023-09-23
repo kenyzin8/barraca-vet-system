@@ -145,6 +145,19 @@
 
 {% block extrascripts %}
 <script>
+    function hidePlaceholder(imgElement) {
+        const card = imgElement.closest('.card-custom');
+        const placeholder = card.querySelector('.loading-placeholder');
+        const btns = card.querySelectorAll('.custom-btn');
+        const petName = card.querySelector('.pet-name');
+        if (placeholder) {
+            placeholder.style.display = 'none';
+            btns.forEach(btn => {
+                btn.style.display = 'block';
+            });
+            petName.style.display = 'block';
+        }
+    }
     function showError(message) {
         $('#errorModal .modal-body').text(message);
         $('#errorModal').modal('show');
@@ -177,20 +190,6 @@
             showError("This pet does not have an appointment. Click set appointment to set an appointment for this pet.");
         }
     });
-
-    function hidePlaceholder(imgElement) {
-        const card = imgElement.closest('.card-custom');
-        const placeholder = card.querySelector('.loading-placeholder');
-        const btns = card.querySelectorAll('.custom-btn');
-        const petName = card.querySelector('.pet-name');
-        if (placeholder) {
-            placeholder.style.display = 'none';
-            btns.forEach(btn => {
-                btn.style.display = 'block';
-            });
-            petName.style.display = 'block';
-        }
-    }
 </script>
 
 {% endblock %}

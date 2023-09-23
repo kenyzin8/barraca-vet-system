@@ -735,7 +735,7 @@ def client_module(request):
             'total_pets': client.total_pets,
             'status': client.get_status()
         })
-    
+    clients_for_print = json.dumps(clients_for_print)
     context = {'clients': clients, 'clients_for_print': clients_for_print}
     return render(request, 'admin/client_module.html', context)
 
@@ -771,7 +771,7 @@ def pet_module(request):
         })
 
     #print(pet_data)
-
+    pet_data = json.dumps(pet_data)
     context = {'pets': pets, 'pet_data': pet_data}
     return render(request, 'admin/pet_module/pet_module.html', context)
 

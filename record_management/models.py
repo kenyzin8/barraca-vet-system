@@ -229,14 +229,13 @@ class PrescriptionMedicines(models.Model):
         self.quantity = int(self.quantity)
         self.medicine.volume = format_volume(self.medicine.volume)
         
-        # Determine if we should display the volume unit or not
-        if self.medicine.volume_unit == 'piece' and self.medicine.volume == '1':
+        if self.medicine.volume_unit == 'piece':
             prescription_details = f"{self.quantity} {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
+            prescription_details += f"Dosage: Administer {self.dosage} {self.get_dosage_unit()} to the pet {self.frequency}. "
         else:
-            prescription_details = f"{self.quantity} of {self.medicine.volume} {self.medicine.volume_unit} {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
-
-        prescription_details += f"Dosage: Administer {self.dosage} {self.get_dosage_unit()} to the pet {self.frequency}. "
-
+            prescription_details = f"{self.quantity} of {self.medicine.volume} {self.medicine.volume_unit} {self.medicine.product_name} ({self.strength} per {self.medicine.volume_unit}). "
+            prescription_details += f"Dosage: Administer {self.dosage} {self.medicine.volume_unit} to the pet {self.frequency}. "
+        
         prescription_details += f"For best results or safety, it's recommended to {self.remarks}."
 
         return prescription_details

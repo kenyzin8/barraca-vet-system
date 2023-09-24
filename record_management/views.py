@@ -1263,9 +1263,11 @@ def view_prescription(request, prescription_id):
     for medicine in prescription_medicines:
         if medicine.medicine.volume == 1 and medicine.medicine.volume_unit == "piece":
             volume_str = '-'
+            dosage_str = f'{medicine.dosage} {medicine.get_dosage_unit(True)}'
         else:
             volume_str = f'{int(medicine.medicine.volume)} {medicine.medicine.volume_unit}'
-        
+            dosage_str = f'{medicine.dosage} {medicine.medicine.volume_unit}'
+
         prescription_data.append({
             'id': medicine.medicine.id,
             'name': medicine.medicine.product_name,
@@ -1273,7 +1275,7 @@ def view_prescription(request, prescription_id):
             'form': medicine.medicine.get_form_display(),
             'quantity': int(medicine.quantity),
             'volume': volume_str,
-            'dosage': f'{medicine.dosage} {medicine.get_dosage_unit(True)}',
+            'dosage': dosage_str,
             'frequency': medicine.frequency,
             'remarks': medicine.remarks,
         })

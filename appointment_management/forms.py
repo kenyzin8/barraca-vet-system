@@ -20,7 +20,7 @@ class AppointmentForm(forms.ModelForm):
     )
     purpose = forms.ModelChoiceField(
         #filter only active services and only the name should be displayed
-        queryset=Service.objects.filter(active=True),
+        queryset=Service.objects.filter(active=True).exclude(service_type__icontains="doctor's fee"),
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Service'
     )
@@ -54,7 +54,7 @@ class AppointmentFormClient(forms.ModelForm):
     )
     purpose = forms.ModelChoiceField(
         # filter only active services and only the name should be displayed
-        queryset=Service.objects.filter(active=True),
+        queryset=Service.objects.filter(active=True).exclude(service_type__icontains="doctor's fee"),
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Service'
     )
@@ -80,7 +80,7 @@ class RebookAppointmentForm(forms.ModelForm):
     )
     purpose = forms.ModelChoiceField(
         #filter only active services and only the name should be displayed
-        queryset=Service.objects.filter(active=True),
+        queryset=Service.objects.filter(active=True).exclude(service_type__icontains="doctor's fee"),
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_purpose-rebook'}),
         label='Service'
     )
@@ -115,7 +115,7 @@ class RebookAppointmentFormClient(forms.ModelForm):
         label="Pet"
     )
     purpose = forms.ModelChoiceField(
-        queryset=Service.objects.filter(active=True),
+        queryset=Service.objects.filter(active=True).exclude(service_type__icontains="doctor's fee"),
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_purpose-rebook'}),
         label='Service'
     )

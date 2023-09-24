@@ -135,9 +135,9 @@
                             </div>
                         </div>
                         <br>
-                        <a href="{% url 'admin-update-pet-page' pet.id %}" class="btn btn-dark btn-sm lift-sm"><i data-feather="settings"></i>&nbsp;Update</a>
+                        <a href="{% url 'admin-update-pet-page' pet.id %}" class="btn btn-dark btn-sm lift lift-sm"><i data-feather="settings"></i>&nbsp;Update</a>
                         <!-- <a href="{% url 'delete-pet-page' pet.id %}" class="btn btn-dark">Delete</a> -->
-                        <a href="{% url 'admin-calendar' %}?pet_id={{ pet.id }}&owner_id={{ pet.client.id }}" class="btn btn-dark btn-sm lift-sm"><i data-feather="calendar"></i>&nbsp;Set Appointment</a>
+                        <a href="{% url 'admin-calendar' %}?pet_id={{ pet.id }}&owner_id={{ pet.client.id }}" class="btn btn-dark btn-sm lift lift-sm"><i data-feather="calendar"></i>&nbsp;Set Appointment</a>
                     </div>
                     
                     <!-- Wizard tab pane item 2-->
@@ -291,12 +291,12 @@
                             </div>
                         </div>
                         <div class="mb-4">
-                            <a href="{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm">
+                            <a href="{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm  lift lift-sm">
                                 <i data-feather="plus-circle"></i>
                                 &nbsp;
                                 Add Treatment
                             </a>
-                            <button class="btn btn-dark btn-sm mt-4 lift-sm" onclick="printHealthCard()">
+                            <button class="btn btn-dark btn-sm mt-4 lift lift-sm" onclick="printHealthCard()">
                                 <i data-feather="printer"></i>
                                 &nbsp;
                                 Print
@@ -446,8 +446,8 @@
                             </table>
                         </div>
                         <div class="mb-4">
-                            <a href="{% url 'admin-medical-record-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm"><i data-feather="plus-circle"></i>&nbsp;Add Treatment</a>
-                            <button class="btn btn-dark btn-sm mt-4 lift-sm" onclick="printMedicalRecord()">
+                            <a href="{% url 'admin-medical-record-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm lift lift-sm"><i data-feather="plus-circle"></i>&nbsp;Add Treatment</a>
+                            <button class="btn btn-dark btn-sm mt-4 lift lift-sm" onclick="printMedicalRecord()">
                                 <i data-feather="printer"></i>
                                 &nbsp;
                                 Print

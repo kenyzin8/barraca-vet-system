@@ -30,8 +30,8 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Medicine</th>
-                                            <th>Volume</th>
                                             <th>Form</th>
+                                            <th>Volume</th>
                                             <th>Batch Number</th>
                                             <th>Manufacturer</th>
                                             <th>Expiration Date</th>
@@ -46,8 +46,8 @@
                                         <tr>
                                             <td><span class="product-id">{{ product.id }}</span></td>
                                             <td><span class="product-name">{{ product.product_name }}</span></td>
-                                            <td>{{ product.volume|floatformat:0|intcomma }} {{ product.get_dosage_unit }}</td>
                                             <td>{{ product.get_form_display }}</td>
+                                            <td>{{ product.formatted_volume }} {{ product.volume_unit }}</td>
                                             <td>{{ product.batch_number }}</td>
                                             <td>{{ product.manufacturer }}</td>
                                             <td>{{ product.expiration_date }}</td>

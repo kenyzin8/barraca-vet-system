@@ -1,3 +1,6 @@
+$("#closeRebookConfirmationAppointmentModal").off("click");
+$("#closeIconRebookConfirmationAppointmentModal").off("click");
+
 let date = info.event.start;
 let dateString = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 let currentDate = new Date();

@@ -59,7 +59,7 @@
                             <span style="color: red;">(Out of Stock)</span>
                           {% endif %}</span>
                         </td>
-                        <td><span class="small">{{ product.volume }}</span></td>
+                        <td><span class="small">{{ product.formatted_volume }} {{ product.volume_unit }}</span></td>
                         <td><span class="small">{{ product.get_form_display }}</span></td>
                         <td><span class="small">{{ product.type.name }}</span></td>
                         <td><span class="small">{{ product.batch_number }}</span></td>

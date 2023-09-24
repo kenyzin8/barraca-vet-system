@@ -181,36 +181,39 @@
             }
         }
 
+        function updateButtonState(tabIndex) {
+            if (tabIndex === navLinks.length - 1) {
+                nextButtons.forEach(btn => {
+                    btn.classList.add('disabled');
+                    btn.setAttribute('disabled', true);
+                });
+            } else {
+                nextButtons.forEach(btn => {
+                    btn.classList.remove('disabled');
+                    btn.removeAttribute('disabled');
+                });
+            }
+        
+            if (tabIndex === 0) {
+                previousButtons.forEach(btn => {
+                    btn.classList.add('disabled');
+                    btn.setAttribute('disabled', true);
+                });
+            } else {
+                previousButtons.forEach(btn => {
+                    btn.classList.remove('disabled');
+                    btn.removeAttribute('disabled');
+                });
+            }
+        }
+
         function navigateTabs(direction) {
             const activeTab = document.querySelector('.nav-item.nav-link.active');
             const activeTabIndex = [...navLinks].indexOf(activeTab);
             const targetTabIndex = activeTabIndex + direction;
-    
+            
             activateTab(targetTabIndex);
-    
-            if (direction === 1 && targetTabIndex === navLinks.length - 1) {
-                nextButtons.forEach(btn => {
-                    btn.classList.add('disabled');
-                    btn.setAttribute('disabled', true);
-                });
-            } else {
-                nextButtons.forEach(btn => {
-                    btn.classList.remove('disabled');
-                    btn.removeAttribute('disabled');
-                });
-            }
-    
-            if (direction === -1 && targetTabIndex === 0) {
-                previousButtons.forEach(btn => {
-                    btn.classList.add('disabled');
-                    btn.setAttribute('disabled', true);
-                });
-            } else {
-                previousButtons.forEach(btn => {
-                    btn.classList.remove('disabled');
-                    btn.removeAttribute('disabled');
-                });
-            }
+            updateButtonState(targetTabIndex);
         }
     
         nextButtons.forEach(button => {
@@ -790,7 +793,18 @@
                 }
             });
         });
+        
+        $('#wizard1-tab').on('click', function(e) {
+            e.preventDefault();
+            activateTab(0);
+            updateButtonState(0);
+        });
 
+        $('#wizard2-tab').on('click', function(e) {
+            e.preventDefault();
+            activateTab(1);
+            updateButtonState(1);
+        });
     
         document.getElementById('wizard1-tab').addEventListener('shown.bs.tab', function (event) {
             localStorage.setItem('activeTab', 'wizard1');

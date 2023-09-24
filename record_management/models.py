@@ -189,6 +189,11 @@ class PetMedicalPrescription(models.Model):
     class Meta:
         verbose_name_plural = "Pet Medical Prescriptions"
 
+def format_volume(volume):
+    if volume % 1 == 0:
+        return str(int(volume))
+    return str(volume)
+
 class PrescriptionMedicines(models.Model):
     """
     PRESCRIPTION DETAILS
@@ -222,14 +227,20 @@ class PrescriptionMedicines(models.Model):
         self.remarks = self.remarks[0].lower() + self.remarks[1:]
         self.frequency = self.frequency[0].lower() + self.frequency[1:]
         self.quantity = int(self.quantity)
-        self.medicine.volume = int(self.medicine.volume)
-        prescription_details = f"{self.quantity} of {self.medicine.volume} {self.get_dosage_unit()} {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
+        self.medicine.volume = format_volume(self.medicine.volume)
+        
+        # Determine if we should display the volume unit or not
+        if self.medicine.volume_unit == 'piece' and self.medicine.volume == '1':
+            prescription_details = f"{self.quantity} {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
+        else:
+            prescription_details = f"{self.quantity} of {self.medicine.volume} {self.medicine.volume_unit} {self.medicine.product_name} ({self.strength} per {self.get_dosage_unit()}). "
 
         prescription_details += f"Dosage: Administer {self.dosage} {self.get_dosage_unit()} to the pet {self.frequency}. "
 
         prescription_details += f"For best results or safety, it's recommended to {self.remarks}."
 
         return prescription_details
+
 
     def get_dosage_unit(self, for_dosage=False):
         liquid_forms = ['syrup', 'liquid', 'oral_solution', 'suspension', 'ear_drop', 'gel', 'cream', 'ointment', 'lotion', 'feed_additive', 'drop', 'spray']

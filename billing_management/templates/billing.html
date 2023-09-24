@@ -322,7 +322,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                             <th><span class="small">Name</span></th>
                                             <th><span class="small">Manufacturer</span></th>
                                             <th><span class="small">Form</span></th>
-                                            <th><span class="small">Description</span></th>
+                                            <th><span class="small">Volume</span></th>
                                             <th><span class="small">Batch Number</span></th>
                                             <th><span class="small">Expiration Date</span></th>
                                             <th><span class="small">Stock Quantity</span></th>
@@ -354,7 +354,12 @@ window.addEventListener('DOMContentLoaded', event => {
                                                     {{ product.get_form_display }}
                                                 </span>
                                             </td>
-                                            {% if product.product_description|length > 25 %}
+                                            <td>
+                                                <span class="product-volume small">
+                                                    {{ product.formatted_volume }} {{ product.volume_unit }}
+                                                </span>
+                                            </td>
+                                            {% comment %} {% if product.product_description|length > 25 %}
                                             <td>
                                                 <span class="product-description small" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ product.product_description }}">
                                                     {{ product.product_description|truncatechars:25 }}
@@ -366,7 +371,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                                     {{ product.product_description }}
                                                 </span>
                                             </td>
-                                            {% endif %}
+                                            {% endif %} {% endcomment %}
                                             <td>
                                                 <span class="product-batch-number small">
                                                     {{ product.batch_number }}

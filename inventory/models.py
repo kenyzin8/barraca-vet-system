@@ -33,6 +33,7 @@ class ProductType(models.Model):
 class Product(models.Model):
 
     PRODUCT_FORM_LIST = (
+        ('', 'Select Form'),
         ('tablet', 'Tablet'),
         ('capsule', 'Capsule'),
         ('syrup', 'Syrup'),
@@ -58,9 +59,22 @@ class Product(models.Model):
         ('other', 'Other'),
     )
 
+    VOLUME_UNIT_CHOICES = (
+        ('', 'Select Unit'),
+        ('g', 'Gram (g)'),
+        ('kg', 'Kilogram (kg)'),
+        ('mL', 'Milliliter (mL)'),
+        ('L', 'Liter (L)'),
+        ('piece', 'Piece'),
+        ('box', 'Box'),
+        ('pack', 'Pack'),
+        ('set', 'Set'),
+    )
+
     product_name = models.CharField(max_length=255)
     quantity_on_stock = models.DecimalField(default=1.00, max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
     volume = models.DecimalField(default=1.00, max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
+    volume_unit = models.CharField(max_length=20, choices=VOLUME_UNIT_CHOICES, default='piece')
     form = models.CharField(max_length=20, choices=PRODUCT_FORM_LIST, default='other')
     type = models.ForeignKey(ProductType, on_delete=models.SET_NULL, null=True)
     batch_number = models.CharField(max_length=255, default="-")

@@ -25,7 +25,7 @@
             </ol>
         </nav>
         <div class="row">
-            <div class="col-xl-8">
+            <div class="col">
                 <div class="card mb-4">
                     <div class="card-header">Add Product</div>
                     <div class="card-body">
@@ -52,8 +52,11 @@
                                     {{ form.type }}
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputVol">Volume (bottle size or per unit) <span class="text-red">*</span></label>
-                                    {{ form.volume }}
+                                    <label class="small mb-1" for="inputVol">Volume (sold per unit) <span class="text-red">*</span></label>
+                                    <div class="input-group">
+                                        {{ form.volume }}
+                                        {{ form.volume_unit }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">

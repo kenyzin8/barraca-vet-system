@@ -1,10 +1,12 @@
 <script>
 function showError(message) {
+    $("#OKErrorModalButton").off("click");
     $('#errorModal .modal-body').text(message);
     $('#errorModal').modal('show');
 }
 
 function showSuccess(message) {
+    $("#OKSuccessModalButton").off("click");
     $('#successModal .modal-body').text(message);
     $('#successModal').modal('show');
 }

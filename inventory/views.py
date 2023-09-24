@@ -10,6 +10,11 @@ from django.db.models import F, Q
 from django.views.decorators.csrf import csrf_exempt
 from copy import deepcopy
 
+def format_volume(volume):
+    if volume % 1 == 0:
+        return str(int(volume))
+    return str(volume)
+
 @staff_required
 @login_required
 def product_list(request):
@@ -31,8 +36,13 @@ def product_list(request):
 
     products = Product.objects.filter(active=True).order_by('-id')
 
+    formatted_products = []
+    for product in products:
+        product.formatted_volume = format_volume(product.volume)
+        formatted_products.append(product)
+
     today = datetime.date.today()
-    context = {'products': products, 'today': today}
+    context = {'products': formatted_products, 'today': today}
     return render(request, 'inventory_list.html', context)
 
 @staff_required

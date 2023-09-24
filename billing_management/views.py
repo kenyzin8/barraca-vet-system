@@ -18,6 +18,11 @@ from uuid import uuid4
 import json
 from datetime import datetime, timedelta, time
 
+def format_volume(volume):
+    if volume % 1 == 0:
+        return str(int(volume))
+    return str(volume)
+
 @login_required
 @staff_required
 def bill(request):
@@ -33,9 +38,13 @@ def bill(request):
     clients = Client.objects.filter(user__is_active=True)
     clients_count = clients.count()
 
-    types = ProductType.objects.all()
-    product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0) for t in types}
+    types = ProductType.objects.all().filter(active=True)
+    product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0, active=True) for t in types}
     
+    for type_key, products in product_dict.items():
+        for product in products:
+            product.formatted_volume = format_volume(product.volume)
+
     last_bill = Billing.objects.aggregate(Max('id'))['id__max']
     next_bill_number = format_billing_number((last_bill + 1) if last_bill else 1)
 

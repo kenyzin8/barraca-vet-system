@@ -1,3 +1,6 @@
+$("#closeRebookConfirmationAppointmentModal").off("click");
+$("#closeIconRebookConfirmationAppointmentModal").off("click");
+
 let currentDate = new Date();
 currentDate.setHours(0, 0, 0, 0);
 

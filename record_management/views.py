@@ -1261,13 +1261,18 @@ def view_prescription(request, prescription_id):
 
     prescription_data = []
     for medicine in prescription_medicines:
+        if medicine.medicine.volume == 1 and medicine.medicine.volume_unit == "piece":
+            volume_str = '-'
+        else:
+            volume_str = f'{int(medicine.medicine.volume)} {medicine.medicine.volume_unit}'
+        
         prescription_data.append({
             'id': medicine.medicine.id,
             'name': medicine.medicine.product_name,
             'strength': medicine.strength,
             'form': medicine.medicine.get_form_display(),
             'quantity': int(medicine.quantity),
-            'volume': f'{int(medicine.medicine.volume)} {medicine.get_dosage_unit()}',
+            'volume': volume_str,
             'dosage': f'{medicine.dosage} {medicine.get_dosage_unit(True)}',
             'frequency': medicine.frequency,
             'remarks': medicine.remarks,
@@ -1282,6 +1287,7 @@ def view_prescription(request, prescription_id):
     }
     
     return render(request, 'admin/prescription_module/view_prescription.html', context)
+
 
 @login_required
 def view_client_prescription(request, prescription_id):
@@ -1407,6 +1413,11 @@ class SubmitPrescription(APIView):
                 return Response({'success': False, 'message': str(e)})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+def format_volume(volume):
+    if volume % 1 == 0:
+        return str(int(volume))
+    return str(volume)
+
 @staff_required
 @login_required
 def add_health_card_treatment(request):
@@ -1417,6 +1428,10 @@ def add_health_card_treatment(request):
     for t in types:
         products = Product.objects.filter(type=t, active=True)
         filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
+        
+        for product in filtered_products:
+            product.formatted_volume = format_volume(product.volume)
+        
         product_dict[t.name] = filtered_products
 
     formList = PrescriptionMedicines.MEDICINES_FORM_LIST

@@ -91,7 +91,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     <tr>
                         <th>#</th>
                         <th>Type</th>
-                        <th>Description</th>
+                        {% comment %} <th>Description</th> {% endcomment %}
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -100,7 +100,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     <tr>
                         <td><span class="type-id">{{ type.id }}</span></td>
                         <td><span class="type-name">{{ type.name }}</span></td>
-                        <td><span class="type-description">{{ type.product_type_description }}</span></td>
+                        {% comment %} <td><span class="type-description">{{ type.product_type_description }}</span></td> {% endcomment %}
                         <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-bs-target="#updateTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Update">
                                 <i data-feather="settings"></i>
@@ -152,10 +152,10 @@ window.addEventListener('DOMContentLoaded', event => {
                             <label for="typeName" class="form-label">Type Name <span class="text-red">*</span></label>
                             <input type="text" class="form-control" id="typeName" required>
                         </div>
-                        <div>
+                        {% comment %} <div>
                             <label for="typeDescription" class="form-label">Description <span class="text-red">*</span></label>
                             <input type="text" class="form-control" id="typeDescription" required>
-                        </div>
+                        </div> {% endcomment %}
                     </div>
                 </form>
             </div>
@@ -180,10 +180,10 @@ window.addEventListener('DOMContentLoaded', event => {
                             <label for="typeName" class="form-label">Type Name <span class="text-red">*</span></label>
                             <input type="text" class="form-control" id="updateTypeName" required>
                         </div>
-                        <div>
+                        {% comment %} <div>
                             <label for="typeDescription" class="form-label">Description <span class="text-red">*</span></label>
                             <input type="text" class="form-control" id="updateTypeDescription" required>
-                        </div>
+                        </div> {% endcomment %}
                     </div>
                 </form>
             </div>
@@ -243,37 +243,35 @@ window.addEventListener('DOMContentLoaded', event => {
             var typeId = row.querySelector('.type-id').textContent;
             typeId = parseInt(typeId);
             var typeName = row.querySelector('.type-name').textContent;
-            var typeDdescription = row.querySelector('.type-description').textContent;
+            //var typeDdescription = row.querySelector('.type-description').textContent;
 
             var typeNameElement = document.getElementById('updateTypeName');
-            var typeDescriptionElement = document.getElementById('updateTypeDescription');
+            //var typeDescriptionElement = document.getElementById('updateTypeDescription');
 
             typeNameElement.value = typeName;
-            typeDescriptionElement.value = typeDdescription;
+            //typeDescriptionElement.value = typeDdescription;
     
             var updateUrl = '{% url "update-type-page" 0 %}'.replace('0', typeId);
             var updateTypeSubmit = document.getElementById('updateTypeSubmit');
 
             updateTypeSubmit.onclick = function() {
-                console.log(updateTypeForm.elements);
                 var typeName = updateTypeForm.elements.updateTypeName.value;
-                var typeDescription = updateTypeForm.elements.updateTypeDescription.value;
+                //var typeDescription = updateTypeForm.elements.updateTypeDescription.value;
     
                 if (!typeName.trim()) {
                     updateTypeForm.elements.updateTypeName.focus();
                     return;
                 }
-                else if(!typeDescription.trim()) {
+                {% comment %} else if(!typeDescription.trim()) {
                     updateTypeForm.elements.updateTypeDescription.focus();
                     return;
-                }
+                } {% endcomment %}
     
                 $.ajax({
                     url: updateUrl,
                     method: 'POST',
                     data: {
                         'type_name': typeName,
-                        'type_description': typeDescription,
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
                     },
                     dataType: 'json',
@@ -302,23 +300,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addTypeSubmit.addEventListener('click', function() {
         var typeName = addTypeForm.elements.typeName.value;
-        var typeDescription = addTypeForm.elements.typeDescription.value;
+        //var typeDescription = addTypeForm.elements.typeDescription.value;
 
         if (!typeName.trim()) {
             addTypeForm.elements.typeName.focus();
             return;
         }
-        else if(!typeDescription.trim()) {
+        {% comment %} else if(!typeDescription.trim()) {
             addTypeForm.elements.typeDescription.focus();
             return;
-        }
+        } {% endcomment %}
 
         $.ajax({
             url: '{% url "add-type-page" %}',
             method: 'POST',
             data: {
                 'type_name': typeName,
-                'type_description': typeDescription,
                 'csrfmiddlewaretoken': '{{ csrf_token }}',
             },
             dataType: 'json',

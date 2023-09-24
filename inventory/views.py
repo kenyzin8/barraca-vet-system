@@ -58,8 +58,8 @@ def product_type_list(request):
 def add_type_page(request):   
     if request.method == 'POST':
         name = request.POST.get('type_name') 
-        description = request.POST.get('type_description')
-        ProductType.objects.create(name=name, product_type_description=description)
+        #description = request.POST.get('type_description')
+        ProductType.objects.create(name=name)
         return JsonResponse({'result': 'success'})
 
 @staff_required
@@ -69,9 +69,9 @@ def update_type_page(request, type_id):
         product_type = ProductType.objects.get(pk=type_id)
         if request.method == 'POST':
             name = request.POST.get('type_name') 
-            description = request.POST.get('type_description')
+            #description = request.POST.get('type_description')
             product_type.name = name
-            product_type.product_type_description = description
+            #product_type.product_type_description = description
             product_type.save()
             return JsonResponse({'result': 'success'})
         else:

@@ -147,11 +147,9 @@ def demote_user(request, userID):
 @login_required
 @staff_required
 def admin_dashboard(request):
-    # Get count of clients
-    clients = Client.objects.filter(user__is_staff=False, user__is_superuser=False)
+    clients = Client.objects.filter(user__is_active=True)
     client_count = clients.count()
-    # Get count of pets
-    pets = Pet.objects.filter(client__user__is_staff=False, client__user__is_superuser=False)
+    pets = Pet.objects.all()
     pet_count = pets.count()
 
     # Get total gross revenue for today

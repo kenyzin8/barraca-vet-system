@@ -116,7 +116,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-dark" type="submit" form="pet_registration_form">Add Pet</button>
+        <button class="btn btn-dark" type="submit" form="pet_registration_form" id="add-pet-button">Add Pet</button>
       </div>
     </div>
   </div>
@@ -143,12 +143,25 @@
 {% block extrascripts %}
 {% if form.picture.errors %}
 <script>
-  $(document).ready(function(){
+  $(document).ready(function() {
     $('#error-message').text("{{ form.picture.errors|striptags }}");
     $('#errorModal').modal('show');
+    
   });
 </script>
 {% endif %}
+<script>
+  $(document).ready(function() {
+    $('#pet_registration_form').on('submit', function(e) {
+      $('#add-pet-button').attr('disabled', true).html(`
+        Submitting Pet&nbsp;
+        <div class="spinner-border spinner-border-sm" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      `);
+    });
+  });
+</script>
 <script>
   $(document).ready(function(){
       $('#weight').on('keydown', function(e) {

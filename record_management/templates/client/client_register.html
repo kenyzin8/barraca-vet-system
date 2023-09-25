@@ -47,7 +47,7 @@
         </div>
       </div>
       <div class="container form-container">
-      <form action="" method="post">
+      <form action="" method="post" id="client-registration">
         {% csrf_token %}
         <div class="row">
           <!-- First column -->
@@ -266,8 +266,17 @@
                 if (this.value === 'Male' || this.value === 'Female') {
                     this.style.color = '#69707a';
                 } else {
-                    this.style.color = ''; // Reset to default color if selection is not 'Male' or 'Female'
+                    this.style.color = ''; 
                 }
+            });
+
+            $('#client-registration').on('submit', function(e) {
+              $('.main-button').attr('disabled', true).html(`
+                Get Started&nbsp;
+                <div class="spinner-border spinner-border-sm" role="status">
+                  <span class="sr-only"></span>
+                </div>
+              `);
             });
         });
       </script>

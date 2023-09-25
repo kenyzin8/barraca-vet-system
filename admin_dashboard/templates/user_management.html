@@ -1,6 +1,8 @@
 {% extends 'admin_dashboard/base.html' %}
 
 {% load static %}
+{% load humanize %}
+{% load templatetags %}
 
 {% block title %} Users | Barraca Veterinary Clinic {% endblock %}
 
@@ -94,30 +96,35 @@
                         </td>
                         <td>
                             {% if user.is_staff %}
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'update-user-page' user.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update User">
-                                <i data-feather="settings"></i>
-                            </a>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'update-user-page' user.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update User">
+                                    <i data-feather="settings"></i>
+                                </a>
                             {% endif %}
                         
                             {% if not user.is_staff and not user.is_superuser %}
                                 {% if user.client.isBanned %}
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark unban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Unban User">
-                                    <i data-feather="user-check"></i>
-                                </a>
+                                    <a class="btn btn-datatable btn-icon btn-transparent-dark unban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Unban User">
+                                        <i data-feather="user-check"></i>
+                                    </a>
                                 {% else %}
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark ban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Ban User">
-                                    <i data-feather="slash"></i>
-                                </a>
-                                <a class="btn btn-datatable btn-icon btn-transparent-dark promote-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Promote to Secretary">
-                                    <i data-feather="chevrons-up"></i>
-                                </a>
+                                    <a class="btn btn-datatable btn-icon btn-transparent-dark ban-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Ban User">
+                                        <i data-feather="slash"></i>
+                                    </a>
+                                    {% if request.user|has_permission:'auth.add_user' %}
+                                        <a class="btn btn-datatable btn-icon btn-transparent-dark promote-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Promote to Secretary">
+                                            <i data-feather="chevrons-up"></i>
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             {% elif user.is_staff and not user.is_superuser %}
+                                {% if request.user|has_permission:'auth.add_user' %}
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark demote-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Demote Secretary">
                                     <i data-feather="chevrons-down"></i>
                                 </a>
+                                {% endif %}
                             {% endif %}
                         </td>
+                        
                         
                     </tr>
                     {% endfor %}

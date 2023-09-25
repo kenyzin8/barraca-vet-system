@@ -18,7 +18,7 @@ class AdminDashboardConfig(AppConfig):
             "add_dateslot", "change_dateslot", "delete_dateslot", "view_dateslot",
             "add_doctorschedule", "change_doctorschedule", "delete_doctorschedule", "view_doctorschedule",
             "add_maximumappointment", "change_maximumappointment", "delete_maximumappointment", "view_maximumappointment",
-            "add_user", "view_user",
+            "view_user",
             "add_billing",
             "add_billingproduct", "view_billingproduct",
             "add_billingservice", "view_billingservice",

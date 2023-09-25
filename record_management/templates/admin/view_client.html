@@ -116,7 +116,9 @@
                     </div>
                 </div>
                 <br>
+                {% if client.user.is_staff %}
                 <a href="{% url 'update-user-page' client.user.id %}" class="btn btn-dark btn-sm lift lift-sm"><i data-feather="settings"></i>&nbsp;Update</a>
+                {% endif %}
                 <!-- <a href="#" class="btn btn-dark">Delete</a> -->
                 <a href="{% url 'billing-page' %}?to={{ client.id }}" class="btn btn-dark btn-sm lift lift-sm"><i data-feather="dollar-sign"></i>&nbsp;Bill</a>
             </div>

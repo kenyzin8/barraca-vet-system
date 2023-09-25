@@ -18,12 +18,14 @@
 
     function showSuccess(message)
     {
+        $("#OKSuccessModalButton").off("click");
         $('#successModal .modal-body-success-message').text(message);
         $('#successModal').modal('show');
     }
 
     function showError(message)
     {
+        $("#OKErrorModalButton").off("click");
         $('#errorModal .modal-body').text(message);
         $('#errorModal').modal('show');
     }
@@ -507,9 +509,9 @@
                 showError("Please upload the medicine sticker.");
                 return false;
             }
-            else if(appointment_date != undefined || appointment_date != "")
+            else if(appointment_date != null && appointment_date != "" )
             {
-                if(appointment_time == undefined || appointment_time == "")
+                if(appointment_time == null || appointment_time == "")
                 {
                     activateTab(2);
                     showError("Please enter the appointment time.");

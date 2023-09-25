@@ -450,7 +450,6 @@ window.addEventListener('DOMContentLoaded', event => {
                                         $("#inputNextAppointmentTime option[value='" + time + "']").hide();
                                     });
                                     var app_time = '{{ appointment.time }}'
-    
                                     $("#inputNextAppointmentTime option[value='" + app_time + "']").show();
                                 }
                             },
@@ -461,7 +460,11 @@ window.addEventListener('DOMContentLoaded', event => {
     
                         updateSelectOptions(formattedDateStr); 
                     }
-                    
+                    inputNextAppointmentTime.value = '';
+
+                    {% if appointment.time %}
+                        inputNextAppointmentTime.value = '{{ appointment.time }}';
+                    {% endif %} 
                 }
 
                 picker.on('selected', (date1) => {

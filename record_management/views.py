@@ -2182,18 +2182,18 @@ class UpdateConsultationView(APIView):
                             max_allowed_morning = max_appointment / 2
                             max_allowed_afternoon = max_appointment / 2
 
-                        if appointment_time_of_the_day == 'morning' and appointment_time_of_the_day != pet_treatment.appointment.timeOfTheDay:
-                            morning_appointment_count = appointments_for_date.filter(timeOfTheDay='morning').count()
-                            if morning_appointment_count >= max_allowed_morning:
-                                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available morning slots on the selected date.'})
-                        elif appointment_time_of_the_day == 'afternoon' and appointment_time_of_the_day != pet_treatment.appointment.timeOfTheDay:
-                            afternoon_appointment_count = appointments_for_date.filter(timeOfTheDay='afternoon').count()
-                            if afternoon_appointment_count >= max_allowed_afternoon:
-                                return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available afternoon slots on the selected date.'})
-
                         selected_purpose = Service.objects.get(pk=appointment_purpose)
                         
                         if pet_treatment.appointment:
+                            if appointment_time_of_the_day == 'morning' and appointment_time_of_the_day != pet_treatment.appointment.timeOfTheDay:
+                                morning_appointment_count = appointments_for_date.filter(timeOfTheDay='morning').count()
+                                if morning_appointment_count >= max_allowed_morning:
+                                    return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available morning slots on the selected date.'})
+                            elif appointment_time_of_the_day == 'afternoon' and appointment_time_of_the_day != pet_treatment.appointment.timeOfTheDay:
+                                afternoon_appointment_count = appointments_for_date.filter(timeOfTheDay='afternoon').count()
+                                if afternoon_appointment_count >= max_allowed_afternoon:
+                                    return JsonResponse({'success': False, 'appointment_error': True, 'message': 'No available afternoon slots on the selected date.'})
+                            
                             if pet_treatment.appointment.date != appointment_date or pet_treatment.appointment.time != appointment_time or pet_treatment.appointment.purpose != selected_purpose:
                                 appointment = pet_treatment.appointment
                                 appointment.pet = selected_pet
@@ -2424,13 +2424,21 @@ def submit_update_health_card(request):
                 product_selected = request.POST.get('productSelected')
                 pet_id = request.POST.get('selectedPetId')
                 appointment_date = request.POST.get('appointment_date')
-                if appointment_date != 'undefined':
-                    appointment_date = datetime.strptime(appointment_date, '%b %d, %Y').strftime('%Y-%m-%d')
                 appointment_time = request.POST.get('appointment_time')
 
-                if appointment_date != 'undefined' and appointment_time:
-                    appointment_time = datetime.strptime(appointment_time, '%H:%M:%S').time()
+                if appointment_date == '' or appointment_date == 'undefined':
+                    appointment_date = None
 
+                if appointment_time == '' or appointment_time == 'undefined':
+                    appointment_time = None
+
+                print(appointment_date)
+                print(appointment_time)
+                if appointment_date:
+                    appointment_date = datetime.strptime(appointment_date, '%b %d, %Y').strftime('%Y-%m-%d')
+                    if appointment_time:
+                        appointment_time = datetime.strptime(appointment_time, '%H:%M:%S').time()
+                
                 appointment_purpose = request.POST.get('appointment_purpose')
                 
                 temperature = request.POST.get('temperature')
@@ -2443,7 +2451,7 @@ def submit_update_health_card(request):
                 pet_treatment = PetTreatment.objects.get(pk=treatmentID)
                 appointment = pet_treatment.appointment
                 
-                if appointment_date != 'undefined':
+                if appointment_date:
                     service = Service.objects.get(pk=appointment_purpose)
                 
                 if isDeworm == 'true':
@@ -2460,7 +2468,7 @@ def submit_update_health_card(request):
                     lab_result_desc = "medicine_sticker"
                 
                 if appointment:
-                    if appointment_date != 'undefined':
+                    if appointment_date:
              
                         if noon <= appointment_time < evening:
                             appointment_time_of_the_day = 'afternoon'
@@ -2511,7 +2519,7 @@ def submit_update_health_card(request):
 
                             appointment.save()
                 else:
-                    if appointment_date != 'undefined':
+                    if appointment_date:
                         if noon <= appointment_time < evening:
                             appointment_time_of_the_day = 'afternoon'
                         else:

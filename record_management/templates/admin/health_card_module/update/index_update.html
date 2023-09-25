@@ -371,7 +371,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     const selectedDate = $('#litepickerSingleDate').val();
         
                     if (selectedServiceId && selectedDate) {
-    
+                        
                         let dateStr = selectedDate;
                         let dateObj = new Date(dateStr);
                         let formattedDateStr = dateObj.getFullYear() + '-' + 
@@ -392,8 +392,8 @@ window.addEventListener('DOMContentLoaded', event => {
                                     busyTimes.forEach(function(time) {
                                         $("#inputNextAppointmentTime option[value='" + time + "']").hide();
                                     });
+                                    
                                     var app_time = '{{ appointment.time }}'
-    
                                     $("#inputNextAppointmentTime option[value='" + app_time + "']").show();
                                 }
                             },
@@ -404,7 +404,12 @@ window.addEventListener('DOMContentLoaded', event => {
     
                         updateSelectOptions(formattedDateStr); 
                     }
-                    
+
+                    inputNextAppointmentTime.value = '';
+
+                    {% if appointment.time %}
+                        inputNextAppointmentTime.value = '{{ appointment.time }}';
+                    {% endif %}         
                 }
 
                 picker.on('selected', (date1) => {
@@ -478,11 +483,11 @@ window.addEventListener('DOMContentLoaded', event => {
                         if(stopper == 0)
                         {
                             updateBusyTimes();
+
                             $("#nextAppointmentPurpose").change(updateBusyTimes);
                             $("#dewormingRadio").change(updateBusyTimes);
                             $("#vaccinationRadio").change(updateBusyTimes);
                             stopper++;
-                            console.log(stopper);
                         }
                     });
 

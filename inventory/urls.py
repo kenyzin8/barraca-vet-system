@@ -11,8 +11,8 @@ urlpatterns = [
     path('admin/inventory/add/', permission_required('inventory.add_product', raise_exception=True)(views.product_add), name='product-add-page'),
     path('admin/inventory/update/<int:product_id>/', permission_required('inventory.add_product', raise_exception=True)(views.product_update), name='product-update-page'),
     path('admin/inventory/delete/<int:product_id>/', permission_required('inventory.add_product', raise_exception=True)(views.delete_product), name='delete-product-page'),
-    path('admin/inventory/check-quantity/<int:product_id>/', permission_required('inventory.add_product', raise_exception=True)(views.check_product_quantity), name='check-product-quantity-page'),
-    path('admin/inventory/check-expiry/<int:product_id>/', permission_required('inventory.add_product', raise_exception=True)(views.check_product_expiry), name='check-product-expiry-page'),
+    path('admin/inventory/check-quantity/<int:product_id>/', views.check_product_quantity, name='check-product-quantity-page'),
+    path('admin/inventory/check-expiry/<int:product_id>/', views.check_product_expiry, name='check-product-expiry-page'),
     path('admin/inventory/reorder-list/', permission_required('inventory.add_product', raise_exception=True)(views.reorder_list), name='reorder-list-page'),
     path('admin/inventory/check-product-info/', permission_required('inventory.add_product', raise_exception=True)(views.check_product_info), name='check-product-info-page'),
 ]

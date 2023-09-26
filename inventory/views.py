@@ -169,7 +169,6 @@ def product_update(request, product_id):
 
     return render(request, 'inventory_update.html', {'form': form, 'product': product})
 
-
 # @staff_required
 # @login_required
 # def product_update(request, product_id):

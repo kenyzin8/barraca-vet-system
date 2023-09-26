@@ -102,10 +102,11 @@ window.addEventListener('DOMContentLoaded', event => {
                         <td><span class="type-name">{{ type.name }}</span></td>
                         {% comment %} <td><span class="type-description">{{ type.product_type_description }}</span></td> {% endcomment %}
                         <td>
+                            {% if type.name != 'Medicines' %}
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-bs-target="#updateTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Update">
                                 <i data-feather="settings"></i>
                             </a>
-                            {% if type.name != 'Medicines' %}
+                            
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-bs-target="#deleteTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Delete">
                                 <i data-feather="trash-2"></i>
                             </a>
@@ -194,11 +195,56 @@ window.addEventListener('DOMContentLoaded', event => {
         </div>
     </div>
 </div>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Oh no!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKErrorModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
+
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="successModalLabel">Success!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKSuccessModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
 {% endblock %}
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script>
+    function showError(message) {
+        $("#OKErrorModalButton").off("click");
+        $('#errorModal .modal-body').text(message);
+        $('#errorModal').modal('show');
+    }
+    
+    function showSuccess(message) {
+        $("#OKSuccessModalButton").off("click");
+        $('#successModal .modal-body').text(message);
+        $('#successModal').modal('show');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       var deleteTypeModal = document.getElementById('deleteTypeModal');
       deleteTypeModal.addEventListener('show.bs.modal', function(event) {
@@ -224,13 +270,21 @@ window.addEventListener('DOMContentLoaded', event => {
                 dataType: 'json',
                 success: function(data) {
                     if (data.result === 'success') {
-                        location.href = '{% url "product-type-list-page" %}';
+                        $('#deleteTypeModal').modal('hide');
+                        showSuccess(data.message);
+                        setTimeout(function() {
+                            location.href = '{% url "product-type-list-page" %}';
+                        }, 1000);
                     } else {
-                        alert('Error: ' + data.message);
+                        $('#deleteTypeModal').modal('hide');
+                        showError(data.message);
+                        $('#OKErrorModalButton').on('click', function() {
+                            $('#deleteTypeModal').modal('show');
+                        });
                     }
                 },
                 error: function(xhr, textStatus, errorThrown) {
-                    alert('Error: ' + errorThrown);
+                    showError('Something went wrong. Please try again.');
                 }
             });
         }
@@ -276,10 +330,18 @@ window.addEventListener('DOMContentLoaded', event => {
                     },
                     dataType: 'json',
                     success: function(data) {
-                        if (data.result === 'success') {
-                            location.reload();
+                        if (data.success) {
+                            $('#updateTypeModal').modal('hide');
+                            showSuccess(data.message);
+                            setTimeout(function() {
+                                location.href = '{% url "product-type-list-page" %}';
+                            }, 1000);
                         } else {
-                            alert('Error: ' + data.message);
+                            $('#updateTypeModal').modal('hide');
+                            showError(data.message);
+                            $('#OKErrorModalButton').on('click', function() {
+                                $('#updateTypeModal').modal('show');
+                            });
                         }
                     }
                 });
@@ -320,10 +382,19 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             dataType: 'json',
             success: function(data) {
-                if (data.result === 'success') {
-                    location.reload();
+                if (data.success) {
+                    //location.reload();.
+                    $('#addTypeModal').modal('hide');
+                    showSuccess(data.message);
+                    setTimeout(function() {
+                        location.href = '{% url "product-type-list-page" %}';
+                    }, 1000);
                 } else {
-                    alert('Error: ' + data.message);
+                    $('#addTypeModal').modal('hide');
+                    showError(data.message);
+                    $('#OKErrorModalButton').on('click', function() {
+                        $('#addTypeModal').modal('show');
+                    });
                 }
             }
         });

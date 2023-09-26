@@ -58,9 +58,18 @@ def product_type_list(request):
 def add_type_page(request):   
     if request.method == 'POST':
         name = request.POST.get('type_name') 
-        #description = request.POST.get('type_description')
+        if name and name.strip().lower() == 'medicines':
+            return JsonResponse({'success': False, 'message': 'Cannot add a product type with name "Medicines".'})
+
+        all_types = ProductType.objects.all()
+
+        all_types_lowercase = [t.name.lower() for t in all_types]
+
+        if name.strip().lower() in all_types_lowercase:
+            return JsonResponse({'success': False, 'message': 'Product type with this name already exists.'})
+
         ProductType.objects.create(name=name)
-        return JsonResponse({'result': 'success'})
+        return JsonResponse({'success': True, 'message': 'Product type added successfully.'})
 
 @staff_required
 @login_required
@@ -69,15 +78,28 @@ def update_type_page(request, type_id):
         product_type = ProductType.objects.get(pk=type_id)
         if request.method == 'POST':
             name = request.POST.get('type_name') 
+            if name and name.strip().lower() == 'medicines':
+                return JsonResponse({'success': False, 'message': 'Cannot update a product type with name "Medicines".'})
+
+            if product_type.name == name:
+                return JsonResponse({'success': False, 'message': 'Product type name is the same.'})
+
+            all_types = ProductType.objects.all()
+
+            all_types_lowercase = [t.name.lower() for t in all_types]
+
+            if name.strip().lower() in all_types_lowercase:
+                return JsonResponse({'success': False, 'message': 'Product type with this name already exists.'})
+
             #description = request.POST.get('type_description')
             product_type.name = name
             #product_type.product_type_description = description
             product_type.save()
-            return JsonResponse({'result': 'success'})
+            return JsonResponse({'success': True})
         else:
-            return JsonResponse({'result': 'error', 'message': 'Invalid request method'})
+            return JsonResponse({'success': False, 'message': 'Invalid request method'})
     except ProductType.DoesNotExist:
-        return JsonResponse({'result': 'error', 'message': 'Product type does not exist'})
+        return JsonResponse({'success': False, 'message': 'Product type does not exist'})
 
 @staff_required
 @login_required
@@ -85,9 +107,13 @@ def update_type_page(request, type_id):
 def delete_type_page(request, type_id):
     try:
         product_type = ProductType.objects.get(pk=type_id)
+
+        if product_type.name.strip().lower() == 'medicines':
+            return JsonResponse({'success': False, 'message': 'Cannot delete a product type with name "Medicines".'})
+
         product_type.active = False
         product_type.save()
-        return JsonResponse({'result': 'success'})
+        return JsonResponse({'result': 'success', 'message': 'Product type deleted successfully.'})
     except ProductType.DoesNotExist:
         return JsonResponse({'result': 'error', 'message': 'Product type does not exist'})
 

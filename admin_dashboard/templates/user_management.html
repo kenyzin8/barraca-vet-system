@@ -80,18 +80,18 @@
                             
                         </td>
                         <td>
-                            {% if user.is_superuser %}
+                            {% comment %} {% if user.is_superuser %}
                                 <span class="badge bg-dark">Superuser</span>
                             {% elif user.is_staff %}
                                 <span class="badge bg-orange">Staff</span>
-                            {% endif %}
+                            {% endif %} {% endcomment %}
 
                             {% if not user.is_staff and not user.is_superuser %}
                                 <span class="badge bg-warning">Client</span>
                             {% endif %}
                         
                             {% for group in user.groups.all %}
-                                <span class="badge bg-primary">{{ group.name }}</span>
+                                <span class="badge bg-dark">{{ group.name }}</span>
                             {% endfor %}
                         </td>
                         <td>
@@ -256,19 +256,20 @@
 
         var max_page = {{ users|length }}
         var lastIndex = max_page > 25 ? max_page : 50;
+        var dataTable;
 
         if (datatablesSimple) {
-            let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+            dataTable = new simpleDatatables.DataTable(datatablesSimple, {
                 paging: true,
                 perPageSelect: [5, 10, 25, lastIndex],
-                perPage: 10,
+                perPage: 5,
                 fixedHeight: false,
                 sortable: true,
                 searchable: true,
                 hiddenHeader: false,
             });
-    
-            window.dataTable = dataTable;
+            dataTable.paging = false;
+            //window.dataTable = dataTable;
     
             dataTable.on('datatable.update', () => {
                 feather.replace();
@@ -281,7 +282,6 @@
     
             dataTable.on('datatable.page', function(page) {
                 feather.replace();
-                
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -315,12 +315,13 @@
             });
 
             datatablesSimple.style.display = "";
+            //dataTable.paging = true;
         }
-
+        
         var selected_id = -1;
         var selected_name = "";
       
-        $(".ban-user-btn").on('click', function(event) {
+        $("#datatablesSimple").on('click', '.ban-user-btn', function(event) {
             event.preventDefault();
             
             var $row = $(this).closest('tr');  
@@ -355,7 +356,7 @@
             });
         });
 
-        $(".unban-user-btn").on('click', function(event) {
+        $("#datatablesSimple").on('click', '.unban-user-btn', function(event) {
             event.preventDefault();
             var $row = $(this).closest('tr');  
             var user_id = $row.find('.user-id').text();
@@ -389,7 +390,7 @@
             });
         });
 
-        $(".promote-user-btn").on('click', function(event) {
+        $("#datatablesSimple").on('click', '.promote-user-btn', function(event) {
             event.preventDefault();
             
             var $row = $(this).closest('tr');  
@@ -425,7 +426,7 @@
             });
         });
 
-        $(".demote-user-btn").on('click', function(event) {
+        $("#datatablesSimple").on('click', '.demote-user-btn', function(event) {
             event.preventDefault();
             
             var $row = $(this).closest('tr');  

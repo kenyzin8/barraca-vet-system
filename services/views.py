@@ -67,7 +67,6 @@ def service_update(request, service_id):
                 stripped_lower_updated_service_type = updated_service.service_type.strip().lower()
                 
                 if Service.objects.exclude(id=service.id).filter(service_type__iexact=stripped_lower_updated_service_type, active=True).exists():
-                    print("Service already exists.")
                     form.add_error('service_type', 'Error: Service already exists.')
                     context = {
                         'form': form,

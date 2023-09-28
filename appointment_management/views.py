@@ -17,7 +17,7 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.core import serializers
 from django.db.models import Count
-
+from django.utils.timezone import timedelta
 from core.decorators import staff_required
 from .models import Appointment, DoctorSchedule, MaximumAppointment, DateSlot
 
@@ -714,16 +714,30 @@ def client_calendar(request):
         except Appointment.DoesNotExist:
             pass
 
-    today = datetime.now().date()
-    today_date_slots = DateSlot.objects.filter(date=today, isActive=True).first()
-    if today_date_slots is None:
-        slotsAvailableToday = 0
-    else:
-        today_appointments = Appointment.objects.filter(date=today, isActive=True)
+    # today = datetime.now().date()
+    # doctor_schedule = DoctorSchedule.objects.filter(date=today, isActive=True).first()
+    # today_date_slots = DateSlot.objects.filter(date=today, isActive=True).first()
+    # maximum_appointments = MaximumAppointment.load()
 
-        slots_taken = sum(appointment.slots_taken for appointment in today_appointments)
+    # today_appointments = Appointment.objects.filter(date=today, isActive=True, status='pending').count()
 
-        slotsAvailableToday = (today_date_slots.morning_slots + today_date_slots.afternoon_slots) - slots_taken
+    # if today_date_slots is None:
+    #     if doctor_schedule:
+    #         if doctor_schedule.timeOfTheDay == 'afternoon' and time_of_the_day == 'morning':
+    #             slotsAvailableToday = maximum_appointments.max_appointments // 2 - today_appointments
+    #         elif doctor_schedule.timeOfTheDay == 'whole_day':
+    #             slotsAvailableToday = 0
+    #     else:
+    #         slotsAvailableToday = maximum_appointments.max_appointments - today_appointments
+    # else:
+    #     if doctor_schedule and doctor_schedule.timeOfTheDay == 'afternoon':
+    #         slotsAvailableToday = today_date_slots.morning_slots - today_appointments
+    #     elif doctor_schedule and doctor_schedule.timeOfTheDay == 'morning':
+    #         slotsAvailableToday = today_date_slots.afternoon_slots - today_appointments
+    #     elif doctor_schedule and doctor_schedule.timeOfTheDay == 'whole_day':
+    #         slotsAvailableToday = 0
+    #     else:
+    #         slotsAvailableToday = (today_date_slots.morning_slots + today_date_slots.afternoon_slots) - today_appointments
 
     change_time_form = ChangeTimeForm()
 
@@ -733,7 +747,7 @@ def client_calendar(request):
         'rebook_appointments': rebook_appointments,
         'rebook_form': rebook_form,
         'appointment': appointment,
-        'slotsAvailableToday': slotsAvailableToday,
+        #'slotsAvailableToday': slotsAvailableToday,
         'change_time_form': change_time_form,
     }
 

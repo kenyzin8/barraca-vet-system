@@ -6,11 +6,11 @@ from django.core.exceptions import ValidationError
 class ProductForm(forms.ModelForm):
     product_name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control', 'placeholder': 'Product Name'}))
     quantity_on_stock = forms.DecimalField(
-        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control', 'min': 1, 'placeholder': 'Product Quantity'}), 
+        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control', 'min': 1, 'max': 10000,'placeholder': 'Product Quantity'}), 
         validators=[validate_quantity],
     )
     volume = forms.DecimalField(
-        widget=forms.NumberInput(attrs={'id': 'quantity', 'class': 'form-control', 'min': 1, 'placeholder': 'Product Volume'}),
+        widget=forms.NumberInput(attrs={'id': 'volume', 'class': 'form-control', 'min': 1, 'max': 10000, 'placeholder': 'Product Volume'}),
         decimal_places=2, 
         validators=[validate_volume],
     )  
@@ -35,8 +35,9 @@ class ProductForm(forms.ModelForm):
         expiration_date = cleaned_data.get('expiration_date')
         quantity_on_stock = cleaned_data.get('quantity_on_stock')
         critical_level = cleaned_data.get('critical_level')
+        quantity_on_stock = cleaned_data.get('quantity_on_stock')
 
-        price = self.cleaned_data.get('price')
+        price = cleaned_data.get('price')
         str_price = str(price)
         str_quantity_on_stock = str(quantity_on_stock)
 
@@ -49,8 +50,14 @@ class ProductForm(forms.ModelForm):
         if '.' in str_quantity_on_stock and len(str_quantity_on_stock.split('.')[1]) > 2:
             raise ValidationError('Quantity on stock can only have up to 2 decimal points.')
 
+        if price > 10000:
+            raise ValidationError('Price must not be greater than ₱10,000.00')
+
         if len(str_price.replace('.', '')) > 10:
             raise ValidationError('You can only input 8 digits for the price.')
 
         if critical_level > quantity_on_stock:
             raise ValidationError('Critical level must not be greater than quantity on stock.')
+
+        if quantity_on_stock > 10000:
+            raise ValidationError('Quantity on stock must not be greater than 10,000.')

@@ -75,6 +75,7 @@
                   </div>
                 </div>
                 <button class="btn btn-dark" type="button" id="addPetButton">Add Pet</button>
+                <a href="{% url 'pet-list-page' %}" class="ms-3" style="color: #121212; text-decoration: none;"><i class="fas fa-solid fa-angles-left"></i> Back</a>
                 <!-- <button class="btn btn-dark" type="submit">Add Pet</button> -->
               </form>
             </div>
@@ -87,7 +88,7 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="errorModalLabel" style="color: red;">Error</h5>
+              <h5 class="modal-title" id="errorModalLabel" style="color: #121212;">Error</h5>
               <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -150,6 +151,20 @@
   });
 </script>
 {% endif %}
+{% if form.errors %}
+<script>
+  $(document).ready(function() {
+    let errorMessage = "";
+
+    {% for field, errors in form.errors.items %}
+      errorMessage += "{{ errors.0|striptags }}<br>";
+    {% endfor %}
+    
+    $('#error-message').html(errorMessage);
+    $('#errorModal').modal('show');
+  });
+</script>
+{% endif %}
 <script>
   $(document).ready(function() {
     $('#pet_registration_form').on('submit', function(e) {
@@ -159,6 +174,26 @@
           <span class="sr-only">Loading...</span>
         </div>
       `);
+    });
+
+    const regex = /[^a-zA-Z\s]/g;
+    const leadingSpaceRegex = /^\s+/;
+
+    $("#name, #species, #breed, #color").on("input", function() {
+        let value = $(this).val();
+        value = value.replace(regex, "");
+        value = value.replace(leadingSpaceRegex, "");
+        $(this).val(value);
+    });
+
+    $("#name, #species, #breed, #color").on("input", function() {
+        let value = $(this).val();   
+
+        if (value.length > 0) {
+            value = value.charAt(0).toUpperCase() + value.slice(1);
+        }
+
+        $(this).val(value);
     });
   });
 </script>
@@ -185,9 +220,9 @@
     const gender = document.getElementById("gender").value;
     const color = document.getElementById("color").value;
     const weight = document.getElementById("weight").value;
-    const picture = document.getElementById("picture").value;
+    // const picture = document.getElementById("picture").value;
 
-    if (!name || !birthday || !species || !breed || !gender || !color || !weight || !picture) {
+    if (!name || !birthday || !species || !breed || !gender || !color || !weight) {
       const modal = new bootstrap.Modal(document.getElementById("addPetMissingFields"));
       modal.show();
     } else {

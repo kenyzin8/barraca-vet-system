@@ -127,22 +127,22 @@
 
         
         const petTable = document.getElementById('petTable');
-    
+        var petDataTable = null;
         if (petTable) {
             petTable.style.display = "";
-            let dataTable = new simpleDatatables.DataTable(petTable, {
-                paging: true,
+            petDataTable = new simpleDatatables.DataTable(petTable, {
+                paging: false,
                 perPageSelect: [5, 10, 25, 50],
                 perPage: 10,
-                fixedHeight: true,
+                fixedHeight: false,
                 sortable: true,
                 searchable: true,
                 hiddenHeader: false,
             });
     
-            window.dataTable = dataTable;
+            window['petTable'] = petDataTable;
     
-            dataTable.on('datatable.update', () => {
+            petDataTable.on('datatable.update', () => {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -152,7 +152,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.page', function(page) {
+            petDataTable.on('datatable.page', function(page) {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -162,7 +162,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.search', function(query, matched) {
+            petDataTable.on('datatable.search', function(query, matched) {
                 feather.replace();
     
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -175,7 +175,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.sort', function(column, direction) {
+            petDataTable.on('datatable.sort', function(column, direction) {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -189,7 +189,7 @@
             
             searchInput.addEventListener('search', function(e) {
                 if (e.target.value == '') {
-                    dataTable.search('');
+                    petDataTable.search('');
                     setupSelectButtons();
                 }
             });
@@ -269,6 +269,7 @@
             function selectPetById() {
                 if (selectedPetId) {
                     deselectAllPets();
+
                     selectPetButtons.forEach(button => {
                         const row = button.closest('tr');
                         if (row.cells[0].textContent.trim() === selectedPetId) {
@@ -287,6 +288,7 @@
                                 div.querySelector('.selected-pet-link').setAttribute('href', selectedPetLink);
                                 div.style.display = 'flex'; 
                             });
+                            
                         }
                     });
                 }
@@ -320,10 +322,15 @@
         }
     
         setupSelectButtons();
-        
+
+        petDataTable.options.paging = true;
+        petDataTable.refresh();
+
         if(selectedPetId != null){
             parameter.delete('pet_id');
             history.pushState({}, null, location.pathname);
+            $('.datatable-input').val(selectedPetName);
+            petDataTable.search(selectedPetName);
         }
 
         var productInputValues = {};
@@ -1118,5 +1125,68 @@
             let rows = prescriptionSummaryDataTable.rows;
             $("#inputNextAppointmentTime").off("change");
         });
+
+        const temperatureInput = document.getElementById('inputTemperature');
+        const weightInput = document.getElementById('inputTreatmentWeight');
+
+        function preventInvalidInput(event) {
+            const invalidKeyCodes = [69, 101, 189, 187]; 
+            
+            if (invalidKeyCodes.includes(event.keyCode)) {
+                event.preventDefault();
+            }
+        }
+
+        function enforceTwoDecimalPlaces(event) {
+            const value = event.target.value;
+            if (value.includes('.')) {
+                const decimalPortion = value.split('.')[1];
+                if (decimalPortion.length > 2) {
+                    event.target.value = parseFloat(value).toFixed(2);
+                }
+            }
+        }
+
+        function enforceMaxDigits(event) {
+            const value = event.target.value;
+            if (value.length > 6) {
+                event.target.value = value.slice(0, 6);  
+            }
+        }
+
+        function preventPaste(event) {
+            event.preventDefault();
+        }
+
+        [temperatureInput, weightInput].forEach(input => {
+            input.addEventListener('keydown', preventInvalidInput);
+            input.addEventListener('paste', preventPaste);
+            input.addEventListener('input', enforceTwoDecimalPlaces);
+            input.addEventListener('input', enforceMaxDigits);
+        });
     });
-    </script>
+</script>
+<script>
+    $(document).ready(function() {
+
+        const regex = /[^a-zA-Z\s\-:'"]/g;
+        const leadingSpaceRegex = /^\s+/;
+        
+        $("#inputSymptoms, #inputDiagnosis, #inputLabResults, #inputTreatment").on("input", function() {
+            let value = $(this).val();
+            value = value.replace(regex, "");
+            value = value.replace(leadingSpaceRegex, "");
+            $(this).val(value);
+        });
+
+        $("#inputSymptoms, #inputDiagnosis, #inputLabResults, #inputTreatment").on("input", function() {
+            let value = $(this).val();   
+
+            if (value.length > 0) {
+                value = value.charAt(0).toUpperCase() + value.slice(1);
+            }
+
+            $(this).val(value);
+        });
+    });
+</script>

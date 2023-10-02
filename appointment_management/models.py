@@ -107,7 +107,7 @@ class Appointment(models.Model):
     def remindClient(self, reminder_type):
         phone_number = self.client.contact_number
         formatted_time = self.time.strftime('%I:%M %p')
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time}. Thank you!'
+        message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(
@@ -127,7 +127,7 @@ class Appointment(models.Model):
     def remindClientCancel(self, reason):
         phone_number = self.client.contact_number
         formatted_time = self.time.strftime('%I:%M %p')
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time} has been cancelled. Due to {reason}. Thank you!'
+        message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time} has been cancelled. Due to {reason}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(
@@ -140,7 +140,7 @@ class Appointment(models.Model):
         phone_number = self.client.contact_number
         formatted_time = self.time.strftime('%I:%M %p')
         formatted_new_time = newTime.strftime('%I:%M %p')
-        message = f'Hi {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time} has been rebooked to {newDate} {formatted_new_time}. Thank you!'
+        message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time} has been rebooked to {newDate} {formatted_new_time}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(

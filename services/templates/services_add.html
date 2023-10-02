@@ -58,6 +58,7 @@
                             </div>
                             
                             <button class="btn btn-dark lift lift-sm" type="submit">Add Service</button>
+                            <a href="{% url 'service-list-page' %}" class="ms-3" style="color: #121212; text-decoration: none;"><i class="fas fa-solid fa-angles-left"></i> Back</a>
                         </form>
                     </div>
                 </div>
@@ -78,5 +79,61 @@
 {% endblock %}
 
 {% block extrascripts %}
+<script>
+    const priceInput = document.getElementById('id_fee');
 
+    function preventInvalidInput(event) {
+        const invalidKeyCodes = [69, 101, 189, 187]; 
+        
+        if (event.target !== priceInput) {
+            invalidKeyCodes.push(190, 110); 
+        }
+
+        if (invalidKeyCodes.includes(event.keyCode)) {
+            event.preventDefault();
+        }
+    }
+
+    function preventPaste(event) {
+        event.preventDefault();
+    }
+
+    function enforceTwoDecimalPlaces(event) {
+        const value = event.target.value;
+        if (value.includes('.')) {
+            const decimalPortion = value.split('.')[1];
+            if (decimalPortion.length > 2) {
+                event.target.value = parseFloat(value).toFixed(2);
+            }
+        }
+    }
+
+    priceInput.addEventListener('keydown', preventInvalidInput);
+    priceInput.addEventListener('paste', preventPaste);
+    priceInput.addEventListener('input', enforceTwoDecimalPlaces);
+
+
+    $(document).ready(function() {
+
+        const regex = /[^a-zA-Z\s\-:'"]/g;
+        const leadingSpaceRegex = /^\s+/;
+        
+        $("#id_service_type").on("input", function() {
+            let value = $(this).val();
+            value = value.replace(regex, "");
+            value = value.replace(leadingSpaceRegex, "");
+            $(this).val(value);
+        });
+
+        $("#id_service_type").on("input", function() {
+            let value = $(this).val();   
+
+            if (value.length > 0) {
+                value = value.charAt(0).toUpperCase() + value.slice(1);
+            }
+
+            $(this).val(value);
+        });
+    });
+</script>
 {% endblock %}

@@ -37,22 +37,23 @@
         }
 
         const petTable = document.getElementById('petTable');
-    
+        var petDataTable;
+
         if (petTable) {
             petTable.style.display = "";
-            let dataTable = new simpleDatatables.DataTable(petTable, {
+            petDataTable = new simpleDatatables.DataTable(petTable, {
                 paging: true,
                 perPageSelect: [5, 10, 25, 50],
                 perPage: 10,
-                fixedHeight: true,
+                fixedHeight: false,
                 sortable: true,
                 searchable: true,
                 hiddenHeader: false,
             });
     
-            window.dataTable = dataTable;
+            window.dataTable = petDataTable;
     
-            dataTable.on('datatable.update', () => {
+            petDataTable.on('datatable.update', () => {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -62,7 +63,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.page', function(page) {
+            petDataTable.on('datatable.page', function(page) {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -72,7 +73,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.search', function(query, matched) {
+            petDataTable.on('datatable.search', function(query, matched) {
                 feather.replace();
     
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -85,7 +86,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.sort', function(column, direction) {
+            petDataTable.on('datatable.sort', function(column, direction) {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -99,7 +100,7 @@
             
             searchInput.addEventListener('search', function(e) {
                 if (e.target.value == '') {
-                    dataTable.search('');
+                    petDataTable.search('');
                     setupSelectButtons();
                 }
             });
@@ -231,9 +232,14 @@
     
         setupSelectButtons();
 
+        petDataTable.options.paging = true;
+        petDataTable.refresh();
+
         if(selectedPetId != null){
             parameter.delete('pet_id');
             history.pushState({}, null, location.pathname);
+            $('.datatable-input').val(selectedPetName);
+            petDataTable.search(selectedPetName);
         }
         
         var productInputValues = {};

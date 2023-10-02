@@ -78,13 +78,12 @@ body {
   color: #363d47;
   margin: 0 auto;
   transition: transform 0.3s ease-in-out;
+  font-weight: 700;
 }
 
 .forgot-pass:hover {
   transform: scale(1.2);
   text-decoration: none; 
-  font-weight: 500; 
-  color: white !important;
 }
 
 .create-acc {
@@ -92,13 +91,12 @@ body {
   margin: 0 auto;
   margin-bottom: 10vh;
   transition: transform 0.3s ease-in-out;
+  font-weight: 700;
 }
 
 .create-acc:hover {
   transform: scale(1.2);
   text-decoration: none; 
-  font-weight: 500; 
-  color: white !important;
 }
 
 .footer-barraca {

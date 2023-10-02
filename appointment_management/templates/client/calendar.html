@@ -82,7 +82,7 @@
                         <div id='external-events-list'>
                             {% if rebook_appointments %}
                             {% for appointment in rebook_appointments %}
-                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }}" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.timeOfTheDay }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
+                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }}" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.time|date:'h:i A' }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
                                     <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.pet.name }}</div>
                                 </div>
                             {% endfor %}

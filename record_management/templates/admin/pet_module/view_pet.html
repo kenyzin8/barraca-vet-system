@@ -131,7 +131,12 @@
 
                             </div>
                             <div class="col-md-6">
+                                {% if pet.picture %}
                                 <img src="{{ pet.picture.url }}" alt="{{ pet.name }}" class="img-fluid" style="border-radius: 10px;">
+                                {% else %}
+                                <img class="img-fluid" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}" style="border-radius: 10px;">
+                                {% endif %}
+                                
                             </div>
                         </div>
                         <br>
@@ -205,7 +210,7 @@
                                                             <i data-feather="edit"></i>
                                                         </a> 
                                                         <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark btn-delete-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Hide">
-                                                            <i data-feather="trash-2"></i>
+                                                            <i data-feather="archive"></i>
                                                         </a> 
                                                     </td>
                                                 </tr>
@@ -278,7 +283,7 @@
                                                             <i data-feather="edit"></i>
                                                         </a> 
                                                         <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark btn-delete-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Hide">
-                                                            <i data-feather="trash-2"></i>
+                                                            <i data-feather="archive"></i>
                                                         </a> 
                                                     </td>
                                                 </tr>
@@ -361,7 +366,7 @@
                                                     <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                         <i data-feather="edit"></i>
                                                     </a> 
-                                                    <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark btn-enable-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Enable">
+                                                    <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark btn-enable-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Retrieve">
                                                         <i data-feather="corner-right-up"></i>
                                                     </a> 
                                                 </td>
@@ -436,7 +441,7 @@
                                                 <i data-feather="edit"></i>
                                             </a> 
                                             <a href="#" class="btn btn-datatable btn-icon btn-transparent-dark btn-delete-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Hide">
-                                                <i data-feather="trash-2"></i>
+                                                <i data-feather="archive"></i>
                                             </a> 
                                         </td>
                                     </tr>

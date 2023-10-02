@@ -89,7 +89,12 @@
         {% for pet_appointment in pets_appointments %}
         <div class="col-lg-6 col-xl-3 mb-4" style="cursor: default;">
             <div class="card card-custom-height card-darken-image">
+                {% if pet.picture %}
                 <img class="card-img " src="{{ pet_appointment.pet.picture.url }}" alt="{{ pet_appointment.pet.name }}">
+                {% else %}
+                <img class="card-img" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}">
+                {% endif %}
+                
                 <div class="card-img-overlay">
                     <h5 class="card-title text-white">{{ pet_appointment.pet.name }}</h5>
                     <p class="card-text text-white">{{ pet_appointment.pet.breed }}<br><br>

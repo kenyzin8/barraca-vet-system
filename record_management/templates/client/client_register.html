@@ -11,7 +11,9 @@
 
         <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}" />
         <link href="{% static 'plugins/sb-admin/css/styles.css' %}" rel="stylesheet" />
+        <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
         <link rel="stylesheet" href="{% static 'css/register.css' %}">
+        <script data-search-pseudo-elements defer src="{% static 'plugins/fontawesome/js/all.min.js' %}"></script>
         <script src="{% static 'plugins/jQuery/jquery-3.6.4.min.js' %}"></script>
         <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}"></script>
         <style>
@@ -23,6 +25,18 @@
             -moz-background-size: cover !important;
             -o-background-size: cover !important;
             background-size: cover !important;
+          }
+
+          .password-wrapper {
+              position: relative;
+          }
+
+          .password-toggle {
+              position: absolute;
+              right: 10px;
+              top: 50%;
+              transform: translateY(-50%);
+              cursor: pointer;
           }
         </style>
     </head>
@@ -38,7 +52,6 @@
         </center>
       </header>
       <div class="container">
-        <p>{{ message_balance }}</p>
         <div class="title-barraca">
           <h1 class="header-barraca">
             Sign up
@@ -87,10 +100,18 @@
               {{ form.username }}
             </div>
             <div class="mb-3">
-              {{ form.password1 }}
+              <div class="password-wrapper">
+                {{ form.password1 }}
+                <i class="fa fa-eye password-toggle"></i>
+              </div>
+              
             </div>
             <div class="mb-3">
-              {{ form.password2 }}
+              <div class="password-wrapper">
+                {{ form.password2 }}
+                <i class="fa fa-eye password-toggle"></i>
+              </div>
+              
             </div>
           </div>
         </div>
@@ -148,7 +169,9 @@
           <button type="submit" class="btn btn-primary rounded main-button">Get Started</button>
         </div>
         <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
-          <a class="small create-acc link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'login-page' %}">Login Instead</a>
+          <a class="small link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover create-acc" href="{% url 'login-page' %}">
+            Login Instead
+          </a>
         </div>
       </form>
       </div>
@@ -232,8 +255,53 @@
           </div>
         </div>
       </div>
-      <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
       <script src="{% static 'plugins/sb-admin/js/scripts.js' %}"></script>
+
+      <script>
+      $(document).ready(function() {
+        $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+        $('[data-bs-toggle="tooltip"]').tooltip({html: true});
+
+          $(document).on('click', '.password-toggle', function() {
+              var svgIcon = $(this);
+              var inputField = $($(this).prev());
+              
+              if (svgIcon.attr('data-icon') === 'eye') {
+                  svgIcon.attr('data-icon', 'eye-slash');
+                  if (inputField.attr('type') === 'password') {
+                      inputField.attr('type', 'text');
+                  }
+              } else {
+                  svgIcon.attr('data-icon', 'eye');
+                  if (inputField.attr('type') === 'text') {
+                      inputField.attr('type', 'password');
+                  }
+              }
+          });
+
+          const regex = /[^a-zA-Z\s]/g;
+          const leadingSpaceRegex = /^\s+/;
+
+          $("#id_first_name, #id_last_name").on("input", function() {
+              let value = $(this).val();   
+              value = value.replace(regex, "");
+              value = value.replace(leadingSpaceRegex, "");
+              
+              $(this).val(value);
+          });
+
+          $("#id_street, #id_first_name, #id_last_name").on("input", function() {
+              let value = $(this).val();   
+
+              if (value.length > 0) {
+                  value = value.charAt(0).toUpperCase() + value.slice(1);
+              }
+
+              $(this).val(value);
+          });
+      });
+      </script>
       <script>
         window.addEventListener('load', function () {
           document.querySelector('input').blur();

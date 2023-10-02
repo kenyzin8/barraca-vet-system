@@ -88,7 +88,11 @@
                                     <div class="loading-placeholder">
                                         <div class="wave"></div>
                                     </div>
+                                    {% if pet.picture %}
                                     <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" onload="hidePlaceholder(this)"/>
+                                    {% else %}
+                                    <img class="avatar-img img-fluid" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}" onload="hidePlaceholder(this)">
+                                    {% endif %}
                                 </div>
                                 {{ pet.name }}
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet Details">
@@ -116,18 +120,20 @@
                         </td>
                         {% if request.user|has_permission:'record_management.add_treatment' %}
                         <td>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Encode Health Card">
+                            {% if pet.is_active %}
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Health Card">
                                 <i data-feather="credit-card"></i>
                             </a>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-add-pet-medical-prescription-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Medical Prescription">
                                 <i data-feather="list"></i>
                             </a>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-medical-record-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Encode Medical Record">
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-medical-record-page' %}?pet_id={{ pet.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Medical Record">
                                 <i data-feather="heart"></i>
                             </a>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-calendar' %}?pet_id={{ pet.id }}&owner_id={{ pet.client.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Set Appointment">
                                 <i data-feather="calendar"></i>
                             </a>
+                            {% endif %}
                         </td>
                         {% endif %}
                     </tr>

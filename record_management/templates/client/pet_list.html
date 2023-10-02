@@ -109,7 +109,11 @@
             <div class="loading-placeholder">
                 <div class="wave"></div>
             </div>
+            {% if pet.picture %}
             <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}" onload="hidePlaceholder(this)">
+            {% else %}
+            <img class="card-img-top" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}" onload="hidePlaceholder(this)">
+            {% endif %}
             <div class="card-body">
                 <center><h5 class="card-title mt-3 mb-4 pet-name" style="display: none;">{{ pet.name }}</h5></center>
                 <a href="{% url 'view-pet-page' pet.id %}" class="btn btn-dark custom-btn lift lift-sm" style="display: none;">View Pet</a>

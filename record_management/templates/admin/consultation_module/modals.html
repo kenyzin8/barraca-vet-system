@@ -82,7 +82,7 @@
                                                 <span class="product-id-dosage" style="display:none;">
                                                     {{ product.id }}
                                                 </span>
-                                                <input type="number" class="form-control product-dosage" placeholder="Ex: 1" required>
+                                                <input type="number" class="form-control product-dosage" placeholder="Ex: 1" onkeydown="return preventDecimal(event);" oninput="removeDecimal(this);" required>
                                             </td>
                                             <td>
                                                 <span class="product-id-frequency" style="display:none;">

@@ -77,7 +77,7 @@
                         <div id='external-events-list'>
                             {% if rebook_appointments %}
                             {% for appointment in rebook_appointments %}
-                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }}" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.timeOfTheDay }}" data-daySMS-sent="{{ appointment.daily_reminder_sent }}" data-weekSMS-sent="{{ appointment.weekly_reminder_sent }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
+                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }}" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.time|date:'h:i A' }}" data-daySMS-sent="{{ appointment.daily_reminder_sent }}" data-weekSMS-sent="{{ appointment.weekly_reminder_sent }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
                                     <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.client.full_name }}</div>
                                 </div>
                             {% endfor %}

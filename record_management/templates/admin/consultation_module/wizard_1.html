@@ -32,11 +32,15 @@
                 <tbody>
                     {% for pet in pets %}
                     <tr>
-                        <td>{{ pet.id }}</td>
+                        <td data-status="0">{{ pet.id }}</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="avatar me-2">
+                                    {% if pet.picture %}
                                     <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" loading="lazy"/>
+                                    {% else %}
+                                    <img class="avatar-img img-fluid" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}">
+                                    {% endif %}
                                 </div>
                                 <span class="pet-name">{{ pet.name }}</span>
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet Details">

@@ -5,6 +5,7 @@ import datetime
 from django.contrib.auth.models import User as AuthUser, Group as AuthGroup
 from django.apps import apps
 #from core.models import Province, Barangay, Municipality
+from django.templatetags.static import static
 
 class User(AuthUser):
     class Meta:
@@ -33,6 +34,12 @@ class Client(models.Model):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def get_gender_honorific(self):
+        if self.gender == 'Male':
+            return 'Mr.'
+        else:
+            return 'Ms./Mrs.'
 
     def get_image(self):
         male_img = 'plugins/sb-admin/assets/img/illustrations/profiles/profile-5.png'
@@ -71,7 +78,7 @@ class Pet(models.Model):
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female')])
     color = models.CharField(max_length=50)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
-    picture = models.ImageField(upload_to='public/images/')
+    picture = models.ImageField(upload_to='public/images/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     
     original_weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)

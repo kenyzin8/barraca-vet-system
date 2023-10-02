@@ -527,6 +527,12 @@ $(document).ready(function() {
     $(document).on('click', '.remove-service', function(e) 
     {
         e.preventDefault();
+
+        var tooltipInstance = bootstrap.Tooltip.getInstance($(this)[0]);
+        if (tooltipInstance) {
+            tooltipInstance.hide();
+        }
+
         var serviceId = $(this).find('.service-id-remove-button').text();
         selectedServiceIds.delete(serviceId);
         var serviceFee = $(this).parents('tr').find('.service-fee').text();
@@ -546,6 +552,11 @@ $(document).ready(function() {
     $(document).on('click', '.remove-product', function(e) 
     {
         e.preventDefault();
+
+        var tooltipInstance = bootstrap.Tooltip.getInstance($(this)[0]);
+        if (tooltipInstance) {
+            tooltipInstance.hide();
+        }
 
         var productId = $(this).find('.product-id-remove-button').text();
         selectedProductIds.delete(productId);

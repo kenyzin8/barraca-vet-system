@@ -20,9 +20,16 @@ for (let i = 0; i < disabledDays.length; i++) {
     }
 }
 
+let timeOfDay = arg.event.extendedProps.time;
+let [hours, minutes] = timeOfDay.split(":");
+let _date = new Date(1970, 0, 1, hours, minutes); 
+
+timeOfDay = _date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+
 const timeDetails = dateIsDisabled
-    ? `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay}`
-    : `<strong>Time of the Day:</strong> ${arg.event.extendedProps.timeOfTheDay} <a id="${arg.event.id}" class="btn btn-datatable btn-icon btn-transparent-dark btn-change-time" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit time of the day"><i data-feather="edit"></i></a>`;
+    ? `<strong>Time:</strong> ${timeOfDay}`
+    : `<strong>Time:</strong> ${timeOfDay} <a id="${arg.event.id}" class="btn btn-datatable btn-icon btn-transparent-dark btn-change-time" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit time of the day"><i data-feather="edit"></i></a>`;
 
 const details = [
     `<strong>Pet:</strong> ${arg.event.extendedProps.pet}`,

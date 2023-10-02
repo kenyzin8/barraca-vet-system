@@ -91,7 +91,7 @@ function showAppointmentDetails(appointmentId) {
 
     const details = [
         `<strong>Pet:</strong> ${pet}`,
-        `<strong>Time of the Day:</strong> ${timeOfDay}`,
+        `<strong>Time:</strong> ${timeOfDay}`,
         `<strong>Purpose:</strong> ${purpose}`
     ].join('<br>');
 
@@ -159,14 +159,17 @@ function _showAppointmentDetails(event) {
     let client = event.extendedProps.client;
     let pet = event.extendedProps.pet;
     let purpose = event.extendedProps.purpose;
-    let timeOfDay = event.extendedProps.timeOfTheDay;
+    let timeOfDay = event.extendedProps.time;
 
-    timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
+    let [hours, minutes] = timeOfDay.split(":");
+    let _date = new Date(1970, 0, 1, hours, minutes); 
+
+    timeOfDay = _date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
     const details = [
         `<strong>Client:</strong> ${client}`,
         `<strong>Pet:</strong> ${pet}`,
-        `<strong>Time of the Day:</strong> ${timeOfDay}`,
+        `<strong>Time:</strong> ${timeOfDay}`,
         `<strong>Purpose:</strong> ${purpose}`
     ].join('<br>');
 

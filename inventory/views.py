@@ -163,7 +163,9 @@ def product_update(request, product_id):
                     product.changes_log = [changes]
                 product.save()
 
-            return redirect('product-update-page', product_id=product.id)
+            return redirect('product-list-page')
+
+            # return redirect('product-update-page', product_id=product.id)
     else:
         form = ProductForm(instance=product)
 

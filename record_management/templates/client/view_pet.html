@@ -132,7 +132,11 @@
                                 <!-- <p>Owner: {{ pet.client }}</p> -->
                             </div>
                             <div class="col-md-6">
+                                {% if pet.picture %}
                                 <img src="{{ pet.picture.url }}" alt="{{ pet.name }}" class="img-fluid" style="border-radius: 10px;">
+                                {% else %}
+                                <img class="img-fluid" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}" style="border-radius: 10px;">
+                                {% endif %}
                             </div>
                             <div>
                                 <br>
@@ -161,7 +165,7 @@
                                                     <th>#</th>
                                                     <th>Visit Date</th>
                                                     <th>Next Deworming</th>
-                                                    <th>Weight</th>
+                                                    <th>Weight (kg)</th>
                                                     <th>Treatment</th>
                                                     <th>Veterenarian</th>
                                                     <th>Medicine</th>
@@ -225,7 +229,7 @@
                                                     <th>#</th>
                                                     <th>Visit Date</th>
                                                     <th>Next Vaccination</th>
-                                                    <th>Weight</th>
+                                                    <th>Weight (kg)</th>
                                                     <th>Treatment</th>
                                                     <th>Veterenarian</th>
                                                     <th>Medicine</th>
@@ -290,8 +294,8 @@
                                         <th>#</th>
                                         <th><span class="small">Visit Date</span></th>
                                         <th><span class="small">Symptomps</span></th>
-                                        <th><span class="small">Temperature</span></th>
-                                        <th><span class="small">Weight</span></th>
+                                        <th><span class="small">Temperature (°C)</span></th>
+                                        <th><span class="small">Weight (kg)</span></th>
                                         <th><span class="small">Diagnosis</span></th>
                                         <th><span class="small">Treatment</span></th>
                                         <th><span class="small">Lab Results</span></th>

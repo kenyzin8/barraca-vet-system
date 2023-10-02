@@ -1,14 +1,13 @@
 from django import forms
 from .models import Service
 from django.core.exceptions import ValidationError
-from inventory.validators import validate_selling
 
 class ServiceForm(forms.ModelForm):
-    service_type = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'list': 'service-type-list'}))
-    fee = forms.DecimalField(widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1}), validators=[validate_selling])
+    service_type = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'list': 'service-type-list', 'placeholder': 'Service name'}))
+    fee = forms.DecimalField(widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'placeholder': 'Service fee'}))
     # selection Field
     job_for = forms.ChoiceField(choices=Service.VET_CLINIC_POSITION_CHOICES, widget=forms.Select(attrs={'class': 'form-select'}))
-    service_description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}))
+    service_description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Service description'}))
     #remarks = forms.ChoiceField(choices=Service.REMARKS_TYPES, widget=forms.Select(attrs={'class': 'form-select'}))
 
     class Meta:

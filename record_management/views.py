@@ -1105,7 +1105,7 @@ class SubmitConsultationView(APIView):
                 return Response({'success': False, 'message': 'Invalid weight.'})
 
             if temperature < 1.0 or temperature > 60.0:
-                return Response({'success': False, 'message': 'Invalid temperature.'})
+                return Response({'success': False, 'message': 'Invalid temperature. Must be between 1.0 °C and 60.0 °C.'})
 
             try:
                 with transaction.atomic():
@@ -1686,7 +1686,7 @@ class SubmitHealthCardTreatment(APIView):
                         return Response({'success': False, 'message': 'Invalid weight.'})
 
                     if temperature < 1.0 or temperature > 60.0:
-                        return Response({'success': False, 'message': 'Invalid temperature.'})
+                        return Response({'success': False, 'message': 'Invalid temperature. Must be between 1.0 °C and 60.0 °C.'})
 
                     if appointment_purpose != deworm_instance.id and appointment_purpose != vaccine_instance.id:
                         return Response({'success': False, 'message': 'Invalid appointment purpose. Only deworming and vaccination are allowed.'})
@@ -2332,7 +2332,7 @@ def delete_treatment(request, treatmentID):
                 pet_treatment = PetTreatment.objects.get(pk=treatmentID)
                 pet_treatment.isActive = False
                 pet_treatment.save()
-                return JsonResponse({'success': True, 'message': 'Treatment deleted successfully.'})
+                return JsonResponse({'success': True, 'message': 'Treatment hidden successfully.'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
     else:
@@ -2347,7 +2347,7 @@ def enable_treatment(request, treatmentID):
                 pet_treatment = PetTreatment.objects.get(pk=treatmentID)
                 pet_treatment.isActive = True
                 pet_treatment.save()
-                return JsonResponse({'success': True, 'message': 'Treatment enabled successfully.'})
+                return JsonResponse({'success': True, 'message': 'Treatment retrieved successfully.'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
     else:

@@ -103,24 +103,25 @@
         });
 
         var petTable = document.getElementById('petTable');
+        var petDataTable;
         
         var pets_max_page = {{ pets|length }};
         var petsLastIndex = pets_max_page > 25 ? pets_max_page : 50;
         if (petTable) {
             petTable.style.display = "";
-            let dataTable = new simpleDatatables.DataTable(petTable, {
-                paging: true,
+            petDataTable = new simpleDatatables.DataTable(petTable, {
+                paging: false,
                 perPageSelect: [5, 10, 25, petsLastIndex],
                 perPage: 10,
-                fixedHeight: true,
+                fixedHeight: false,
                 sortable: true,
                 searchable: true,
                 hiddenHeader: false,
             });
     
-            window.dataTable = dataTable;
+            window.dataTable = petDataTable;
     
-            dataTable.on('datatable.update', () => {
+            petDataTable.on('datatable.update', () => {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -130,7 +131,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.page', function(page) {
+            petDataTable.on('datatable.page', function(page) {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -140,7 +141,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.search', function(query, matched) {
+            petDataTable.on('datatable.search', function(query, matched) {
                 feather.replace();
     
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -153,7 +154,7 @@
                 setupSelectButtons();
             });
     
-            dataTable.on('datatable.sort', function(column, direction) {
+            petDataTable.on('datatable.sort', function(column, direction) {
                 feather.replace();
                 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -167,7 +168,7 @@
             
             searchInput.addEventListener('search', function(e) {
                 if (e.target.value == '') {
-                    dataTable.search('');
+                    petDataTable.search('');
                     setupSelectButtons();
                 }
             });
@@ -321,9 +322,14 @@
     
         setupSelectButtons();
 
+        petDataTable.options.paging = true;
+        petDataTable.refresh();
+
         if(selectedPetId != null){
             parameter.delete('pet_id');
             history.pushState({}, null, location.pathname);
+            $('.datatable-input').val(selectedPetName);
+            petDataTable.search(selectedPetName);
         }
         
         $('#addMedicineModal').on('show.bs.modal', function (event) 
@@ -573,7 +579,7 @@
             else if(inputRepeat != "" && inputCycle == "")
             {
                 activateTab(1);
-                showError("You have added a reapat, but forgot to select a cycle.");
+                showError("You have added a repeat, but forgot to select a cycle.");
                 return false;
             }
             else if(inputRepeat != "" && datePicker != "")
@@ -815,5 +821,55 @@
         document.getElementById('wizard2-tab').addEventListener('shown.bs.tab', function (event) {
             $("#inputNextAppointmentTime").off("change");
         });
+
+        const temperatureInput = document.getElementById('inputTemperature');
+        const weightInput = document.getElementById('inputTreatmentWeight');
+        const repeatInput = document.getElementById('inputRepeat');
+
+        function preventInvalidInput(event) {
+            const invalidKeyCodes = [69, 101, 189, 187]; 
+            
+            if (event.target === repeatInput) {
+                invalidKeyCodes.push(190, 110); 
+            }
+
+            if (invalidKeyCodes.includes(event.keyCode)) {
+                event.preventDefault();
+            }
+        }
+
+        function enforceTwoDecimalPlaces(event) {
+            const value = event.target.value;
+            if (value.includes('.')) {
+                const decimalPortion = value.split('.')[1];
+                if (decimalPortion.length > 2) {
+                    event.target.value = parseFloat(value).toFixed(2);
+                }
+            }
+        }
+
+        function enforceMaxDigits(event) {
+            const value = event.target.value;
+            if (value.length > 6) {
+                event.target.value = value.slice(0, 6);  
+            }
+
+            if (event.target === repeatInput) {
+                if (value.length > 2) {
+                    event.target.value = value.slice(0, 2);  
+                }
+            }
+        }
+
+        function preventPaste(event) {
+            event.preventDefault();
+        }
+
+        [temperatureInput, weightInput, repeatInput].forEach(input => {
+            input.addEventListener('keydown', preventInvalidInput);
+            input.addEventListener('paste', preventPaste);
+            input.addEventListener('input', enforceTwoDecimalPlaces);
+            input.addEventListener('input', enforceMaxDigits);
+        });
     });
-    </script>
+</script>

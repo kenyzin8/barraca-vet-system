@@ -76,7 +76,9 @@ def service_update(request, service_id):
                 
                 updated_service.save()
 
-                return redirect('service-update-page', service_id=service.id)
+                return redirect('service-list-page')
+
+                # return redirect('service-update-page', service_id=service.id)
             except ValueError as e:
                 form.add_error('service_type', str(e))
     else:

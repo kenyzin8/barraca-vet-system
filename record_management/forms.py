@@ -1,7 +1,16 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Client, Pet
-from .validators import validate_phone_number, validate_image_size, validate_weight
+from .validators import (
+    validate_phone_number, 
+    validate_image_size, 
+    validate_weight, 
+    validate_contains_special_character, 
+    validate_contains_digit, 
+    validate_contains_uppercase,
+    validate_first_name,
+    validate_last_name
+)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
@@ -18,12 +27,25 @@ class UserRegistrationForm(UserCreationForm):
                                 'title': 'This will be your username for logging in.',
                                 'autocomplete': 'off'
                                 }))
+
     password1 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={
-                                'class' : 'form-control rounded-left wider-input',
-                                'placeholder' : 'Password',
-                                'data-bs-toggle': 'tooltip',
-                                'data-bs-placement': 'right',
-                                'title': 'This will be your password for logging in.'}))
+        'class': 'form-control rounded-left wider-input',
+        'placeholder': 'Password',
+        'data-bs-toggle': 'tooltip',
+        'data-bs-placement': 'right',
+        'data-html': 'true',
+        'title': ('<div class="text-start mt-2"><div class="text-center">Password Requirements</div><br>'
+                '<ul>'
+                '<li class="small me-2">At least 8 characters long.</li>'
+                '<li class="small me-2">Must not be too common.</li>'
+                '<li class="small me-2">Must not be too similar to the username.</li>'
+                '<li class="small me-2">Contains both uppercase and lowercase characters.</li>'
+                '<li class="small me-2">Contains at least one numerical digit.</li>'
+                '<li class="small me-2">Contains at least one special character (e.g., @, #, $, etc.).</li>'
+                '</ul></div>')
+    }), validators=[validate_contains_special_character, validate_contains_digit, validate_contains_uppercase])
+
+
     password2 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={
                                 'class' : 'form-control rounded-left wider-input',
                                 'placeholder' : 'Confirm Password',
@@ -31,8 +53,8 @@ class UserRegistrationForm(UserCreationForm):
                                 'data-bs-placement': 'right',
                                 'title': 'This will be your password for logging in.'}))
     email = forms.CharField(required=True, widget=forms.EmailInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Email', 'autocomplete': 'off'}))
-    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name', 'autocomplete': 'off'}))
-    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name','autocomplete': 'off'}))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name', 'autocomplete': 'off'}), validators=[validate_first_name])
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name','autocomplete': 'off'}), validators=[validate_last_name])
     gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')], widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
     street = forms.CharField(
         required=True, 
@@ -95,7 +117,7 @@ class PetRegistrationForm(forms.ModelForm):
                                 widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
     color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color', 'autocomplete': 'off'}))
     weight = forms.DecimalField(validators=[validate_weight], widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01', 'autocomplete': 'off', 'min': 1, 'max': 150}))
-    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control', 'autocomplete': 'off'}), validators=[validate_image_size])
+    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control', 'autocomplete': 'off'}), required=False, validators=[validate_image_size])
 
     class Meta:
         model = Pet
@@ -110,7 +132,7 @@ class AdminPetRegistrationForm(forms.ModelForm):
                                 widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
     color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color'}))
     weight = forms.DecimalField(validators=[validate_weight], widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01', 'autocomplete': 'off', 'min': 1, 'max': 150}))
-    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control'}), validators=[validate_image_size])
+    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control'}), required=False, validators=[validate_image_size])
     is_active = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'id': 'is_active', 'class': 'form-check-input'}))
 
     class Meta:

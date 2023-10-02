@@ -1102,7 +1102,7 @@ class SubmitConsultationView(APIView):
             evening = dt_time(18, 0, 0)
 
             if weight < 1.0 or weight > 150.0:
-                return Response({'success': False, 'message': 'Invalid weight.'})
+                return Response({'success': False, 'message': 'Invalid weight. Must be between 1.0 kg and 150.0 kg.'})
 
             if temperature < 1.0 or temperature > 60.0:
                 return Response({'success': False, 'message': 'Invalid temperature. Must be between 1.0 °C and 60.0 °C.'})
@@ -1683,7 +1683,7 @@ class SubmitHealthCardTreatment(APIView):
                     vaccine_instance = Service.objects.get(service_type="Vaccination")
 
                     if weight < 1.0 or weight > 150.0:
-                        return Response({'success': False, 'message': 'Invalid weight.'})
+                        return Response({'success': False, 'message': 'Invalid weight. Must be between 1.0 kg and 150.0 kg.'})
 
                     if temperature < 1.0 or temperature > 60.0:
                         return Response({'success': False, 'message': 'Invalid temperature. Must be between 1.0 °C and 60.0 °C.'})
@@ -2110,6 +2110,13 @@ class UpdateConsultationView(APIView):
             symptoms = serializer.validated_data.get('symptoms')
             temperature = serializer.validated_data.get('temperature')
             weight = serializer.validated_data.get('weight')
+            
+            if weight < 1.0 or weight > 150.0:
+                return Response({'success': False, 'message': 'Invalid weight. Must be between 1.0 kg and 150.0 kg.'})
+
+            if temperature < 1.0 or temperature > 60.0:
+                return Response({'success': False, 'message': 'Invalid temperature. Must be between 1.0 °C and 60.0 °C.'})
+            
             diagnosis = serializer.validated_data.get('diagnosis')
             treatment = serializer.validated_data.get('treatment')
             
@@ -2119,6 +2126,7 @@ class UpdateConsultationView(APIView):
             
             noon = dt_time(12, 0, 0)
             evening = dt_time(18, 0, 0)
+
 
             try:
                 with transaction.atomic():
@@ -2432,8 +2440,6 @@ def submit_update_health_card(request):
                 if appointment_time == '' or appointment_time == 'undefined':
                     appointment_time = None
 
-                print(appointment_date)
-                print(appointment_time)
                 if appointment_date:
                     appointment_date = datetime.strptime(appointment_date, '%b %d, %Y').strftime('%Y-%m-%d')
                     if appointment_time:
@@ -2447,6 +2453,12 @@ def submit_update_health_card(request):
                 isDeworm = request.POST.get('isDeworming')
                 isVaccine = request.POST.get('isVaccination')
                 medicine_sticker = request.FILES.get('medicine_sticker')
+
+                if float(weight) < 1.0 or float(weight) > 150.0:
+                    return JsonResponse({'success': False, 'message': 'Invalid weight. Must be between 1.0 kg and 150.0 kg.'})
+
+                if float(temperature) < 1.0 or float(temperature) > 60.0:
+                    return JsonResponse({'success': False, 'message': 'Invalid temperature. Must be between 1.0 °C and 60.0 °C.'})
 
                 pet_treatment = PetTreatment.objects.get(pk=treatmentID)
                 appointment = pet_treatment.appointment

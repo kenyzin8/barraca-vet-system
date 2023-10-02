@@ -77,11 +77,11 @@ class Pet(models.Model):
     breed = models.CharField(max_length=50)
     gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female')])
     color = models.CharField(max_length=50)
-    weight = models.DecimalField(max_digits=5, decimal_places=2)
+    weight = models.DecimalField(max_digits=10, decimal_places=2)
     picture = models.ImageField(upload_to='public/images/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     
-    original_weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    original_weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.species})"
@@ -116,8 +116,8 @@ class PetTreatment(models.Model):
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE)
     treatment_date = models.DateTimeField(auto_now=True)
     symptoms = models.CharField(max_length=100, null=True, blank=True)
-    treatment_weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    treatment_weight = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    temperature = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     diagnosis = models.CharField(max_length=100, null=True, blank=True)
     treatment = models.CharField(max_length=100, null=True, blank=True)
     appointment = models.OneToOneField('appointment_management.Appointment', on_delete=models.CASCADE, null=True, blank=True)

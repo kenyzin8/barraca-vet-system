@@ -10,7 +10,12 @@
                 <div class="selected-pet-info">
                     <span class="small">Selected Pet: </span>
                     <div class="avatar">
-                        <img class="avatar-img img-fluid selected-pet-image" src="{{ pet_treatment.pet.picture.url }}" loading="lazy"/>
+                        {% if pet.picture %}
+                        <img class="avatar-img img-fluid selected-pet-image" src="{{ pet_treatment.pet.picture.url }}" alt="{{ pet.name }} loading="lazy"/>
+                        {% else %}
+                        <img class="avatar-img img-fluid selected-pet-image" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet_treatment.pet.name }}">
+                        {% endif %}
+                        
                     </div>
                     <span class="pet-name selected-pet-name small">{{ pet_treatment.pet.name }}</span>
                     <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="{% url 'admin-view-pet-page' pet_treatment.pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">

@@ -1,5 +1,7 @@
 {% extends 'admin_dashboard/base.html' %}
 
+{% load static %}
+
 {% block title %} Client - {{ client.full_name }} | Barraca Veterinary Clinic {% endblock %}
 
 <a href="{% url 'pet-list-page' %}">Back</a>
@@ -137,7 +139,11 @@
                     {% if pets %}
                         {% for pet in pets %}
                         <div class="card card-custom">
+                            {% if pet.picture %}
                             <img class="card-img-top" src="{{ pet.picture.url }}" alt="{{ pet.name }}" loading="lazy">
+                            {% else %}
+                            <img class="card-img-top" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}" loading="lazy">
+                            {% endif %}
                             <div class="card-body">
                                 <center>
                                     <div class=" mt-3 mb-4">

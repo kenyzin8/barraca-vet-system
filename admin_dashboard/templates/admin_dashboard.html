@@ -173,7 +173,7 @@
                             <td>{{ appointment.client.full_name }}</td>
                             <td>{{ appointment.date|date:"F j" }}</td>
                             <td>{{ appointment.client.contact_number }}</td>
-                            <td><div class="badge bg-warning text-white rounded-pill">{{ appointment.purpose.service_type }}</div></td>
+                            <td><div class="badge bg-dark text-white rounded-pill">{{ appointment.purpose.service_type }}</div></td>
                             <td>
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-calendar' %}" data-bs-toggle="tooltip" data-bs-placement="top" title="View in Calendar"><i data-feather="external-link"></i></a>
                             </td>

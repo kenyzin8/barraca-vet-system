@@ -63,18 +63,21 @@ $(document).ready(function() {
 
     function refreshServiceRows()
     {
-        $('.add-service').each(function() {
+        $('.add-service, .remove-service-from-modal').each(function() {
             var serviceId = $(this).closest('tr').find('.service-id').text();
-            var row = $(this).closest('tr');
+            //var row = $(this).closest('tr');
             if (selectedServiceIds.has(serviceId)) {
                 // row.remove(); 
-                $(this).prop('disabled', true); 
-                row.find('.add-text').text("Added");
+                // $(this).prop('disabled', true); 
+                // row.find('.add-text').text("Added");
+                $(this).removeClass('add-service').addClass('remove-service-from-modal');
+                $(this).find('.add-text').text("Remove");
             } 
             else
             {
-                $(this).prop('disabled', false); 
-                row.find('.add-text').text("Add");
+                $(this).removeClass('remove-service-from-modal').addClass('add-service');
+                // $(this).prop('disabled', false); 
+                $(this).find('.add-text').text("Add");
             }
         });
 
@@ -82,7 +85,6 @@ $(document).ready(function() {
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
-        
     }
 
     $('#addServiceModal').on('show.bs.modal', function (event) 
@@ -134,18 +136,24 @@ $(document).ready(function() {
 
     function refreshProductRows()
     {
-        $('.add-product').each(function() {
+        $('.add-product, .remove-product-from-modal').each(function() {
             var productId = $(this).closest('tr').find('.product-id').text();
             
             var row = $(this).closest('tr');
+
             if (selectedProductIds.has(productId)) {
-                $(this).prop('disabled', true); 
-                row.find('.add-text').text("Added");
+                // $(this).prop('disabled', true); 
+                // row.find('.add-text').text("Added");
+                $(this).removeClass('add-product').addClass('remove-product-from-modal');
+                $(this).find('.add-text').text("Remove");
             } 
             else
             {
-                $(this).prop('disabled', false); 
-                row.find('.add-text').text("Add");
+                // $(this).prop('disabled', false); 
+                // row.find('.add-text').text("Add");
+                $(this).removeClass('remove-product-from-modal').addClass('add-product');
+                // $(this).prop('disabled', false); 
+                $(this).find('.add-text').text("Add");
             }
         });
 
@@ -317,7 +325,9 @@ $(document).ready(function() {
 
     function addService(serviceId, row, button) {
         if (selectedServiceIds.has(serviceId)) {
-            button.prop('disabled', true);
+            // button.prop('disabled', true);
+            button.removeClass('add-service').addClass('remove-service-from-modal');
+            button.find('.add-text').text("Remove");
             return;
         }
         
@@ -327,8 +337,11 @@ $(document).ready(function() {
 
         selectedServiceIds.add(serviceId);
         
-        button.prop('disabled', true);
-        button.find('.add-text').text("Added");
+        // button.prop('disabled', true);
+        // button.find('.add-text').text("Added");
+
+        button.removeClass('add-service').addClass('remove-service-from-modal');
+        button.find('.add-text').text("Remove");
 
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
@@ -366,7 +379,9 @@ $(document).ready(function() {
         var $this = button;
 
         if (selectedProductIds.has(productId)) {
-            $this.prop('disabled', true);
+            // $this.prop('disabled', true);
+            $this.removeClass('add-product').addClass('remove-product-from-modal');
+            $this.find('.add-text').text("Remove");
             return;
         }
 
@@ -402,8 +417,8 @@ $(document).ready(function() {
             activeAjaxRequests--;
             if (activeAjaxRequests === 0) { 
                 var $this = $('.add-product[data-active-ajax="true"]');
-                // $this.prop('disabled', false);
-                // $this.find('.add-text').text("Add");
+                $this.prop('disabled', false);
+                $this.find('.add-text').text("Add");
                 $this.find('.add-product-ajax-loading').addClass('d-none');
                 $this.removeAttr('data-active-ajax'); 
             }
@@ -437,16 +452,20 @@ $(document).ready(function() {
                             if(parseFloat(stockQuantity) == 0) {
                                 $('#errorModal .modal-body').text("The product is out of stock.");
                                 $('#errorModal').modal('show');
+
                                 $this.prop('disabled', false);
                                 $this.find('.add-text').text("Add");
+
                                 return;
                             }
                             else if(parseFloat(quantity) > stockQuantity) {
                                 $('#errorModal .modal-body').text("The entered quantity is greater than the stock quantity.");
                                 $('#errorModal').modal('show');
                                 //quantityInput.focus();
+
                                 $this.prop('disabled', false);
                                 $this.find('.add-text').text("Add");
+
                                 return;
                             }
                             else if(parseFloat(quantity) <= 0)
@@ -462,8 +481,13 @@ $(document).ready(function() {
 
                         selectedProductIds.add(productId);
 
-                        $this.prop('disabled', true);
-                        $this.find('.add-text').text("Added");
+                        // $this.prop('disabled', true);
+                        // $this.find('.add-text').text("Added");
+                        
+                        $this.removeClass('add-product').addClass('remove-product-from-modal');
+                        $this.find('.add-text').text("Remove");
+                        $this.find('.add-product-ajax-loading').addClass('d-none');
+                        $this.prop('disabled', false);
                         
                         productPrice = productPrice.replace("₱", "").trim();
                         productPrice = productPrice.replace(/,/g, "").trim();
@@ -534,19 +558,55 @@ $(document).ready(function() {
         }
 
         var serviceId = $(this).find('.service-id-remove-button').text();
+        
         selectedServiceIds.delete(serviceId);
         var serviceFee = $(this).parents('tr').find('.service-fee').text();
+        
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
         
         total -= parseFloat(serviceFee.replace("₱", "").trim());
         
+        $(this).removeClass('remove-service-from-modal').addClass('add-service');
+        $(this).find('.add-text').text("Add");
+
         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
         $('.add-service[data-service-id="' + serviceId + '"]').prop('disabled', false);
         $('.add-service[data-service-id="' + serviceId + '"]').text("Add");
 
         $(this).closest('tr').remove();
+    });
+
+    $(document).on('click', '.remove-service-from-modal', function(e) 
+    {
+        e.preventDefault();
+
+        var tooltipInstance = bootstrap.Tooltip.getInstance($(this)[0]);
+        if (tooltipInstance) {
+            tooltipInstance.hide();
+        }
+
+        var serviceId = $(this).closest('tr').find('.service-id').text();
+
+        selectedServiceIds.delete(serviceId);
+        var serviceFee = $(this).parents('tr').find('.service-fee').text();
+        
+        serviceFee = serviceFee.replace("₱", "").trim();
+        serviceFee = serviceFee.replace(/,/g, "").trim();
+        
+        total -= parseFloat(serviceFee.replace("₱", "").trim());
+        
+        $(this).removeClass('remove-service-from-modal').addClass('add-service');
+        $(this).find('.add-text').text("Add");
+
+        $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+        $('.add-service[data-service-id="' + serviceId + '"]').prop('disabled', false);
+        $('.add-service[data-service-id="' + serviceId + '"]').text("Add");
+
+        var removeServiceRow = $('tr.selected-service[data-service-id="' + serviceId + '"]');
+        removeServiceRow.remove();
     });
 
     $(document).on('click', '.remove-product', function(e) 
@@ -574,6 +634,37 @@ $(document).ready(function() {
         addProductButton.prop('disabled', false);
 
         $(this).closest('tr').remove();
+    });
+
+    $(document).on('click', '.remove-product-from-modal', function(e) 
+    {
+        e.preventDefault();
+
+        var tooltipInstance = bootstrap.Tooltip.getInstance($(this)[0]);
+        if (tooltipInstance) {
+            tooltipInstance.hide();
+        }
+
+        var productId = $(this).closest('tr').find('.product-id').text();
+        selectedProductIds.delete(productId);
+        var productPrice = $(document).find(`tr.selected-product[data-product-id="${productId}"] .product-price`).text();
+        productPrice = productPrice.replace("₱", "").trim();
+        productPrice = productPrice.replace(/,/g, "").trim();
+
+        total -= parseFloat(productPrice.replace("₱", "").trim());
+
+        $(this).removeClass('remove-product-from-modal').addClass('add-product');
+        $(this).find('.add-text').text("Add");
+
+        $('.total-amount').text('₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+        $('.add-product[data-product-id="' + productId + '"]').prop('disabled', false);
+        var addProductButton = $('.add-product[data-product-id="' + productId + '"]');
+        addProductButton.html('<span class="spinner-border spinner-border-sm add-product-ajax-loading d-none" role="status" aria-hidden="true"></span><span class="add-text">Add</span>');
+        addProductButton.prop('disabled', false);
+
+        var removeProductRow = $('tr.selected-product[data-product-id="' + productId + '"]');
+        removeProductRow.remove();
     });
 
     $('#paid-button').on('click', function() 

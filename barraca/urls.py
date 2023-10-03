@@ -17,6 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+admin.site.site_header = 'Barraca Veterinray Clinic'                    
+admin.site.index_title = 'Admin Control Panel'                 
+admin.site.site_title = 'Barraca Veterinray Clinic' 
+
 urlpatterns = [
     path('detailed-admin/', admin.site.urls, name='admin-page'),
     path('', include('record_management.urls')),

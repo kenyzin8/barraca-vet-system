@@ -111,9 +111,11 @@
                                         <i data-feather="slash"></i>
                                     </a>
                                     {% if request.user|has_permission:'auth.add_user' %}
+                                        {% if user.is_active %}
                                         <a class="btn btn-datatable btn-icon btn-transparent-dark promote-user-btn" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Promote to Secretary">
                                             <i data-feather="chevrons-up"></i>
                                         </a>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
                             {% elif user.is_staff and not user.is_superuser %}
@@ -262,7 +264,7 @@
             dataTable = new simpleDatatables.DataTable(datatablesSimple, {
                 paging: true,
                 perPageSelect: [5, 10, 25, lastIndex],
-                perPage: 5,
+                perPage: 10,
                 fixedHeight: false,
                 sortable: true,
                 searchable: true,

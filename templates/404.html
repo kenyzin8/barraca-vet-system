@@ -23,11 +23,10 @@
                                 <div class="text-center mt-4">
                                     <img class="img-fluid p-4 mt-5" src="{% static 'images/404-error-with-a-cute-animal.svg' %}" alt="" />
                                     <p class="lead">This requested URL was not found on this server.</p>
-                                    <a class="text-arrow-icon" href="#" onclick="goBack();">
+                                    <a class="text-arrow-icon" href="{{ request.META.HTTP_REFERER|default:'/' }}">
                                         <i class="ms-0 me-1" data-feather="arrow-left"></i>
                                         Return
                                     </a>
-
                                 </div>
                             </div>
                         </div>
@@ -114,14 +113,5 @@
           </div>
         <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
         <script src="{% static 'plugins/sb-admin/js/scripts.js' %}"></script>
-        <script>
-            function goBack() {
-                if (document.referrer) {
-                    window.history.back();
-                } else {
-                    window.location.href = "/";
-                }
-            }
-        </script>
     </body>
 </html>

@@ -160,7 +160,7 @@ def admin_dashboard(request):
         total_revenue += bill.get_total()
 
     in_30_days = today + timedelta(days=30)
-    upcoming_appointments = Appointment.objects.filter(date__range=[today, in_30_days], isActive=True, status='pending')
+    upcoming_appointments = Appointment.objects.filter(date__range=[today, in_30_days], isActive=True, status='pending').order_by('date')
 
     today_appointments = Appointment.objects.filter(date__year=today.year, date__month=today.month, date__day=today.day, isActive=True)
     appointment_count = today_appointments.count()

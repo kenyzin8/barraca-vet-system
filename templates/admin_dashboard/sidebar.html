@@ -6,6 +6,11 @@
         <nav class="sidenav shadow-right sidenav-light">
             <div class="sidenav-menu">
                 <div class="nav accordion" id="accordionSidenav">
+                    <div class="sidenav-menu-heading d-sm-none"><i class="fa-solid fa-bone"></i></div>
+                    <a class="nav-link d-sm-none" href="{% url 'home' %}">
+                        <div class="nav-link-icon"><i data-feather="layout"></i></div>
+                        Visit Site
+                    </a>
                     {% with request.resolver_match.url_name as current_url_name %}
                     <div id="sortable-sidebar">
                         <div class="home" draggable="true" data-section-sortable="home">

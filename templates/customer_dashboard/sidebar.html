@@ -14,11 +14,12 @@
                         <div class="nav-link-icon"><i data-feather="mail"></i></div>
                         Messages
                         <span class="badge bg-success-soft text-success ms-auto">2 New!</span>
-                    </a>
+                    </a> {% endcomment %}
+                    <div class="sidenav-menu-heading d-sm-none"><i class="fa-solid fa-bone"></i></div>
                     <a class="nav-link d-sm-none" href="{% url 'home' %}">
                         <div class="nav-link-icon"><i data-feather="layout"></i></div>
                         Visit Site
-                    </a> {% endcomment %}
+                    </a>
                     {% with request.resolver_match.url_name as current_url_name %}
                     <div class="sidenav-menu-heading">Home</div>
                     <a class="nav-link {% if current_url_name == 'customer-dashboard' %}active{% endif %}" href="{% url 'customer-dashboard' %}">

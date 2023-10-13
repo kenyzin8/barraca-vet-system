@@ -46,7 +46,7 @@
                         </td>
                         <td><span class="small">{{ sms.sms_type|capfirst  }}</span></td>
                         <td><span class="small">{{ sms.text }}</span></td>
-                        <td><span class="small">{{ sms.date_created }}</span></td>
+                        <td><span class="small">{{ sms.date_created|date:"F j, Y, g:i A" }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>

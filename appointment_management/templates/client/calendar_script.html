@@ -666,23 +666,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             $('#addAppointmentModal').on('hidden.bs.modal', function(e) {
-                $('#id_timeOfTheDay option[value="morning"]').show();
-                $('#id_timeOfTheDay option[value="afternoon"]').show();
-                $('#id_timeOfTheDay').val('morning');
+                // $('#id_timeOfTheDay option[value="morning"]').show();
+                // $('#id_timeOfTheDay option[value="afternoon"]').show();
+                // $('#id_timeOfTheDay').val('morning');
                 $("#id_purpose").off("change");
             });
 
             $('#rebookConfirmAppointmentModal').on('hidden.bs.modal', function(e) {
-                $('#id_timeOfTheDay-rebook option[value="morning"]').show();
-                $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
-                $('#id_timeOfTheDay-rebook').val('morning');
+                // $('#id_timeOfTheDay-rebook option[value="morning"]').show();
+                // $('#id_timeOfTheDay-rebook option[value="afternoon"]').show();
+                // $('#id_timeOfTheDay-rebook').val('morning');
                 $("#id_purpose-rebook").off("change");
             });
 
             $('#enableDayModal').on('hidden.bs.modal', function(e) {
-                $('#id_timeOfTheDay option[value="morning"]').show();
-                $('#id_timeOfTheDay option[value="afternoon"]').show();
-                $('#id_timeOfTheDay').val('morning');
+                // $('#id_timeOfTheDay option[value="morning"]').show();
+                // $('#id_timeOfTheDay option[value="afternoon"]').show();
+                // $('#id_timeOfTheDay').val('morning');
             });
 
             function createRebookEvent(event) {
@@ -769,12 +769,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
+            const hidePastTimes = function(selectedDate, option) {
+                const now = new Date();
+                const today = now.toISOString().split('T')[0];
+                
+                if (selectedDate === today) {
+                    const currentMinute = now.getMinutes();
+                    now.setMinutes(currentMinute + 60); 
+                    
+                    const newHour = now.getHours();
+                    const newMinute = now.getMinutes();
+                    const currentTime = (newHour < 10 ? '0' : '') + newHour + ':' + 
+                                        (newMinute < 10 ? '0' : '') + newMinute + ':00';
+                    
+                    option.each(function() {
+                        let time = $(this).val();
+                        if (time < currentTime) {
+                            $(this).hide();
+                        }
+                    });
+                }
+            };
+
             $('#addAppointmentModal').on('shown.bs.modal', function () {
                 const updateBusyTimes = function() {
                     const selectedServiceId = $("#id_purpose").val();
                     const selectedDate = $("#selectedDate").val();
 
                     $('#id_time option').show();
+
                     $.ajax({
                         type: 'GET',
                         url: '{% url "check_if_full" %}',
@@ -797,6 +820,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                     }
                                 });
                             } 
+
+                            hidePastTimes(selectedDate, $('#id_time option'));
                         },
                         error: function(error) {
                             showError(error.responseJSON.message);
@@ -845,6 +870,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                                     var firstAvailableTime = $('#id_time option:visible:first').val();
                                     $('#id_time').val(firstAvailableTime);
+
+                                    hidePastTimes(selectedDate, $('#id_time option'));
                                 }
                             },
                             error: function(error) {
@@ -903,6 +930,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                     
                                     var firstAvailableTime = $('#id_time-rebook option:visible').not(":first").first().val();
                                     $('#id_time-rebook').val(firstAvailableTime);
+
+                                    hidePastTimes(selectedDate, $('#id_time-rebook option'));
                                 }
                             },
                             error: function(error) {

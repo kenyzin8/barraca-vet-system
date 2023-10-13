@@ -60,7 +60,15 @@ class DoctorSchedule(models.Model):
             appointments = Appointment.objects.filter(date=self.date, timeOfTheDay=self.timeOfTheDay, isActive=True, status='pending')
 
         for appointment in appointments:
-            send_sms(appointment.client.contact_number, f'Hello {appointment.client.full_name}, your appointment on {self.date} {appointment.timeOfTheDay} has been cancelled due to {self.reason}. Please rebook your appointment on our webiste or contact the clinic to do it for you. Thank you!')
+            message = f'Hello {appointment.client.full_name}, your appointment on {self.date} {appointment.timeOfTheDay} has been cancelled due to {self.reason}. Please rebook your appointment on our webiste or contact the clinic to do it for you. Thank you!'
+            
+            SMSLogs.objects.create(
+                text = message,
+                client = appointment.client,
+                sms_type = 'cancel'
+            )
+            
+            send_sms(appointment.client.contact_number, message)
 
     class Meta:
         verbose_name = "Doctor Schedule"

@@ -39,12 +39,12 @@ if (window.innerWidth <= 576) {
         } else {
             if (disabledDay.timeOfTheDay === 'morning') {
                 $('.availability').text("Afternoon");
-                $('#id_timeOfTheDay option[value="morning"]').hide();
-                $('#id_timeOfTheDay').val('afternoon');
+                // $('#id_timeOfTheDay option[value="morning"]').hide();
+                // $('#id_timeOfTheDay').val('afternoon');
             } else if (disabledDay.timeOfTheDay === 'afternoon') {
                 $('.availability').text("Morning");
-                $('#id_timeOfTheDay option[value="afternoon"]').hide();
-                $('#id_timeOfTheDay').val('morning');
+                // $('#id_timeOfTheDay option[value="afternoon"]').hide();
+                // $('#id_timeOfTheDay').val('morning');
             }
             $('#enable-day-choice').removeAttr('hidden');
             $('#disable-day-choice').attr('hidden', true);

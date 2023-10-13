@@ -77,13 +77,13 @@ if (disabledDay) {
     } else {
         if (disabledDay.timeOfTheDay === 'morning') {
             $('.availability').text("Afternoon");
-            $('#id_timeOfTheDay option[value="morning"]').hide();
-            $('#id_timeOfTheDay').val('afternoon');
+            // $('#id_timeOfTheDay option[value="morning"]').hide();
+            // $('#id_timeOfTheDay').val('afternoon');
             $('.morning-slots').text(0 + " / " + morningSlots);
         } else if (disabledDay.timeOfTheDay === 'afternoon') {
             $('.availability').text("Morning");
-            $('#id_timeOfTheDay option[value="afternoon"]').hide();
-            $('#id_timeOfTheDay').val('morning');
+            // $('#id_timeOfTheDay option[value="afternoon"]').hide();
+            // $('#id_timeOfTheDay').val('morning');
             $('.afternoon-slots').text(0 + " / " + afternoonSlots);
         }
         $('#enable-day-choice').removeAttr('hidden');

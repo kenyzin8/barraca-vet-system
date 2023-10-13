@@ -59,8 +59,9 @@
                             </span>
                             {% endif %}
                         </td>
-                        <td>{{ user.date_joined }}</td>
-                        <td>{{ user.last_login }}</td>
+                        <td>{{ user.date_joined|date:"F j, Y, g:i A" }}</td>
+                        <td>{{ user.last_login|date:"F j, Y, g:i A" }}</td>
+                                             
                         <td>
                             {% if user.is_active %}
                             <span class="badge bg-success">

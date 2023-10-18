@@ -117,8 +117,18 @@ def login_view(request):
         username = request.POST.get('username', '') 
         password = request.POST.get('password', '')
 
-        client_ip = get_client_ip(request)
-        attempts_key = f'attempts_{client_ip}'
+        # client_ip = get_client_ip(request)
+        # attempts_key = f'attempts_{client_ip}'
+        # attempts = cache.get(attempts_key, 0)
+        # print(client_ip)
+
+        session_key = request.session.session_key
+
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
+
+        attempts_key = f'attempts_{session_key}'
         attempts = cache.get(attempts_key, 0)
 
         if attempts >= 2:
@@ -126,10 +136,12 @@ def login_view(request):
             return render(request, 'client/login.html', {'form': form})
 
         if form.is_valid():
+            cache.set(attempts_key, 0, 2 * 60)
             user = form.get_user()
 
             if user.client.isBanned:
                 messages.error(request, 'Your account is banned. Please contact the administrator.')
+                cache.set(attempts_key, 0, 2 * 60)
                 return redirect('login-page')
 
             if not user.is_active:
@@ -165,7 +177,7 @@ def login_view(request):
 
             return redirect('otp_view')
         else:
-            cache.set(attempts_key, attempts + 1, 2 * 60)  
+            cache.set(attempts_key, attempts + 1, 2 * 60)
     else:
         form = LoginForm()
     return render(request, 'client/login.html', {'form': form})

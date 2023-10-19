@@ -15,6 +15,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from core.models import Region, Province, Municipality, Barangay
+from datetime import datetime, timedelta
 
 User = get_user_model()
 
@@ -109,8 +110,25 @@ class UserRegistrationForm(UserCreationForm):
         fields = UserCreationForm.Meta.fields + ('email',)
 
 class PetRegistrationForm(forms.ModelForm):
+
+    today = datetime.today()
+    twenty_years_ago = today - timedelta(days=50*365.25)
+
     name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control', 'placeholder': 'Enter pet name', 'autocomplete': 'off'}))
-    birthday = forms.DateField(widget=forms.DateInput(attrs={'id': 'birthday', 'class': 'form-control', 'type': 'date', 'autocomplete': 'off'}))
+    
+    birthday = forms.DateField(
+        widget=forms.DateInput(
+            attrs={
+                'id': 'birthday',
+                'class': 'form-control',
+                'type': 'date',
+                'autocomplete': 'off',
+                'min': twenty_years_ago.strftime('%Y-%m-%d'),
+                'max': today.strftime('%Y-%m-%d')
+            }
+        )
+    )
+
     species = forms.CharField(widget=forms.TextInput(attrs={'id': 'species', 'class': 'form-control', 'placeholder': 'Enter species', 'autocomplete': 'off'}))
     breed = forms.CharField(widget=forms.TextInput(attrs={'id': 'breed', 'class': 'form-control', 'placeholder': 'Enter breed', 'autocomplete': 'off'}))
     gender = forms.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female')],

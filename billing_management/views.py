@@ -15,8 +15,10 @@ from django.db import transaction
 from django.contrib.auth.models import User
 from django.db import transaction
 from uuid import uuid4
+
 import json
-from datetime import datetime, timedelta, time
+
+from datetime import datetime, timedelta, time, date
 
 def format_volume(volume):
     if volume % 1 == 0:
@@ -39,8 +41,9 @@ def bill(request):
     clients_count = clients.count()
 
     types = ProductType.objects.all().filter(active=True)
-    product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0, active=True) for t in types}
-    
+    # product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0, active=True) for t in types}
+    product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0, active=True, expiration_date__gt=date.today()) for t in types}
+
     for type_key, products in product_dict.items():
         for product in products:
             product.formatted_volume = format_volume(product.volume)
@@ -70,14 +73,37 @@ def bill(request):
 
     if selected_medicines:
         context.update({'selected_medicines': selected_medicines})
-        del request.session['selected_medicines']
+        #del request.session['selected_medicines']
 
     if selected_service != -1:
         context.update({'selected_service': selected_service})
-        del request.session['selected_service']
+        #del request.session['selected_service']
+
+    if 'selected_pet_owner_id' in request.session:
+        context.update({'selected_pet_owner_id': request.session.get('selected_pet_owner_id')})
+        selected_pet_owner_id_name = Client.objects.get(id=request.session.get('selected_pet_owner_id')).full_name
+        context.update({'selected_pet_owner_id_name': selected_pet_owner_id_name})
+        #del request.session['selected_pet_owner_id']
 
     return render(request, 'billing.html', context)
 
+@staff_required
+@login_required
+def cancel_bill(request):
+    try:
+        if 'selected_medicines' in request.session:
+            del request.session['selected_medicines']
+
+        if 'selected_service' in request.session:
+            del request.session['selected_service']
+
+        if 'selected_pet_owner_id' in request.session:
+            del request.session['selected_pet_owner_id']
+
+        return JsonResponse({'status': 'success'}, status=200)
+    except KeyError:
+        return JsonResponse({'status': 'error'}, status=400)
+    
 # @staff_required
 # @login_required
 # def bill_client(request):
@@ -164,6 +190,15 @@ def post_bill(request):
 
         bill.services.set(services)
         bill.products.set(products)
+
+        if 'selected_medicines' in request.session:
+            del request.session['selected_medicines']
+
+        if 'selected_service' in request.session:
+            del request.session['selected_service']
+
+        if 'selected_pet_owner_id' in request.session:
+            del request.session['selected_pet_owner_id']
 
         return JsonResponse({'status': 'success'}, status=200)
 

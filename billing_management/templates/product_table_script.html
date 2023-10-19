@@ -14,7 +14,15 @@ $(document).ready(function() {
     var findClientButton = $('.find-client-button');
     var selectedServiceIds = new Set();
     var selectedProductIds = new Set();
-
+    
+    {% if selected_pet_owner_id %}
+    var selectedClientId = {{ selected_pet_owner_id }};
+    var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?to=' + selectedClientId;
+    window.history.pushState({path: newUrl}, '', newUrl);
+    {% else %}
+    var selectedClientId = null;
+    {% endif %}
+    
     let dataTable_products;
     let dataTable_services;
     let dataTable_clients;
@@ -33,8 +41,11 @@ $(document).ready(function() {
         });
         $('.remove-client').show();
 
-        var cleanUrl = window.location.href.split("?")[0];
-        window.history.replaceState({}, document.title, cleanUrl);
+        var params = new URLSearchParams(window.location.search);
+        var selectedClientId = params.get('to'); 
+
+        // var cleanUrl = window.location.href.split("?")[0];
+        // window.history.replaceState({}, document.title, cleanUrl);
     }
 
     $('#addClientModal').on('show.bs.modal', function (event)
@@ -300,23 +311,32 @@ $(document).ready(function() {
         $('.selected-client-input').data('client-id', clientId);
 
         $('.selected-client-input').prop('disabled', true);
+
+        selectedClientId = clientId;
+
         $('.remove-client').show();
         // $('#addServiceBtn').show(); 
 
         $('#addClientModal').modal('hide');
+
+        var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?to=' + clientId;
+        window.history.pushState({path: newUrl}, '', newUrl);
     });
 
     $(document).on('click', '.remove-client', function(e) 
     {
         e.preventDefault();
+        e.stopPropagation();
 
-        // Clear the input, enable it, hide the anchor tag, and remove selected-client class
-        $('.selected-client-input').val('');
-        $('.selected-client-input').prop('disabled', false);
-        $('.selected-client-input').removeClass('selected-client');
-        $('.selected-client-input').removeData('client-id');
+        let $input = $('.selected-client-input');
+
+        $input.val('')
+            .prop('disabled', false)
+            .removeClass('selected-client')
+            .removeAttr('data-client-id');
         $('.remove-client').hide();
-        // $('#addServiceBtn').hide(); // Hide the "Add Service" button
+
+        selectedClientId = null;
 
         var url = window.location.href;
         var newUrl = url.split('?')[0];
@@ -669,7 +689,8 @@ $(document).ready(function() {
 
     $('#paid-button').on('click', function() 
     {
-        var clientId = $('.selected-client-input').data('client-id');
+        // var clientId = $('.selected-client-input').data('client-id');
+        var clientId = selectedClientId;
         var clientName = $('.selected-client-input').val().trim();
         var serviceIds = [];
         var productIds = [];
@@ -717,7 +738,9 @@ $(document).ready(function() {
 
     $('#confirm-paid-button').on('click', function() 
     {
-        var clientId = $('.selected-client-input').data('client-id');
+        // var clientId = $('.selected-client-input').data('client-id');
+        var clientId = selectedClientId;
+        console.log(clientId)
         if (clientId === '') {
             clientId = undefined;
         }

@@ -1256,6 +1256,8 @@ class SubmitConsultationView(APIView):
 
                     pet_owner_id = selected_pet.client.id
 
+                    request.session['selected_pet_owner_id'] = pet_owner_id
+
                     return Response({'success': True, 'message': 'Consultation submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})
@@ -1962,6 +1964,8 @@ class SubmitHealthCardTreatment(APIView):
                     request.session['selected_service'] = checkup_service.id
 
                     pet_owner_id = pet.client.id
+
+                    request.session['selected_pet_owner_id'] = pet_owner_id
                     
                     return Response({'success': True, 'message': 'Health card treatment submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:

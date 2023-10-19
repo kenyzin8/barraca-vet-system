@@ -35,6 +35,10 @@ class Client(models.Model):
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
+    def has_pet(self):
+        pets = Pet.objects.filter(client=self)
+        return len(pets) > 0
+
     def get_gender_honorific(self):
         if self.gender == 'Male':
             return 'Mr.'

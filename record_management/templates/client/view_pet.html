@@ -123,7 +123,8 @@
                                 <p>Weight: {{ pet.weight }} kg</p>
                                 {% if appointment.pet == pet %}
                                 <p>
-                                    Appointment: {{ appointment.date }} {{ appointment.timeOfTheDay }} for {{ appointment.purpose }} 
+                                    Appointment: {{ appointment.date|date:"F j, Y" }} {{ appointment.time|time:"g:i A" }} for {{ appointment.purpose }}
+
                                     <a class="btn btn-datatable btn-icon btn-transparent-dark view-appointment" href="{% url 'client_calendar' %}?appointment_id={{appointment.id}}" data-pet-id="{{ pet.id }}" data-appointment-id="{{ appointment.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="View Appointment" style="margin-bottom: 4px;">
                                         <i data-feather="external-link"></i>
                                     </a>

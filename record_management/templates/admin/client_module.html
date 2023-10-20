@@ -33,20 +33,22 @@
                     {% for client in clients %}
                     <tr>
                         <td>{{ client.id }}</td>
-                        <td >
-                            <div class="d-flex align-items-center">
-                                <div class="avatar me-2">
-                                    <img class="avatar-img img-fluid" src="{% static client.get_image %}" />
+                        <td>
+                            <div class="d-flex align-items-center justify-content-between">  
+                                <div class="d-flex align-items-center">  
+                                    <div class="avatar me-2">
+                                        <img class="avatar-img img-fluid" src="{% static client.get_image %}" />
+                                    </div>
+                                    {{ client.full_name }}
+                                    {% if request.user.is_authenticated and client.user.id == request.user.id %}
+                                    (You)
+                                    {% endif %}
                                 </div>
-                                {{ client.full_name }}
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client Details" style="margin-bottom: 4px;">
                                     <i data-feather="external-link"></i>
                                 </a>
-                                <!-- {% if request.user.is_authenticated and client.user.id == request.user.id %}
-                                (You)
-                                {% endif %} -->
                             </div>
-                        </td>
+                        </td>                        
                         <td>{{ client.gender }}</td>
                         <td>{{ client.get_address }}</td>
                         <td>{{ client.contact_number }}</td>

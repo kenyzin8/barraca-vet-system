@@ -83,34 +83,42 @@
                     <tr>
                         <td>{{ pet.id }}</td>
                         <td>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar me-2">
-                                    <div class="loading-placeholder">
-                                        <div class="wave"></div>
+                            <div class="d-flex align-items-center justify-content-between">  <!-- Add justify-content-between -->
+                                <div class="d-flex align-items-center">  <!-- Wrap the avatar and name in a new flex container -->
+                                    <div class="avatar me-2">
+                                        <div class="loading-placeholder">
+                                            <div class="wave"></div>
+                                        </div>
+                                        {% if pet.picture %}
+                                        <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" onload="hidePlaceholder(this)"/>
+                                        {% else %}
+                                        <img class="avatar-img img-fluid" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}" onload="hidePlaceholder(this)">
+                                        {% endif %}
                                     </div>
-                                    {% if pet.picture %}
-                                    <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" onload="hidePlaceholder(this)"/>
-                                    {% else %}
-                                    <img class="avatar-img img-fluid" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}" onload="hidePlaceholder(this)">
-                                    {% endif %}
+                                    {{ pet.name }}
                                 </div>
-                                {{ pet.name }}
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet Details">
                                     <i data-feather="external-link"></i>
                                 </a>
                             </div>
                         </td>
+                        
                         <td>{{ pet.species }}</td>
                         <td>{{ pet.birthday }}</td>
-                        <td >
-                            {{ pet.client.full_name }}
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' pet.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Owner Details">
-                                <i data-feather="external-link"></i>
-                            </a>
-                            {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}
-                            (You)
-                            {% endif %}
+                        <td>
+                            <div class="d-flex align-items-center justify-content-between">  <!-- Add justify-content-between -->
+                                <div>  <!-- Wrap the name and (You) text in a div -->
+                                    {{ pet.client.full_name }}
+                                    {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}
+                                    (You)
+                                    {% endif %}
+                                </div>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' pet.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Owner Details">
+                                    <i data-feather="external-link"></i>
+                                </a>
+                            </div>
                         </td>
+                        
                         <td>
                             {% if pet.is_active %}
                                 <span class="badge bg-success">Active</span>

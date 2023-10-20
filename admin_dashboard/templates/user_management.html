@@ -36,19 +36,22 @@
                     <tr>
                         <td><span class="user-id">{{ user.id }}</span></td>
                         <td>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar me-2">
-                                    <img class="avatar-img img-fluid" src="{% static user.client.get_image %}" />
+                            <div class="d-flex align-items-center justify-content-between">  <!-- Add justify-content-between -->
+                                <div class="d-flex align-items-center">  <!-- Wrap the avatar, name, and (You) text in a new flex container -->
+                                    <div class="avatar me-2">
+                                        <img class="avatar-img img-fluid" src="{% static user.client.get_image %}" />
+                                    </div>
+                                    {{ user.client.full_name }}
+                                    {% if request.user.is_authenticated and client.user.id == request.user.id %}
+                                    (You)
+                                    {% endif %}
                                 </div>
-                                {{ user.client.full_name }}
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' user.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client" style="margin-bottom: 4px;">
                                     <i data-feather="external-link"></i>
                                 </a>
-                                <!-- {% if request.user.is_authenticated and client.user.id == request.user.id %}
-                                (You)
-                                {% endif %} -->
                             </div>
                         </td>
+                        
                         <td><span class="user-name">{{ user.username }}</span></td>
                         <td>
                             {% if user.email %}

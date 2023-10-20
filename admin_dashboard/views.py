@@ -227,4 +227,14 @@ def sms_history(request):
     sms_logs = SMSLogs.objects.all().order_by('-id')
     #return render(request, "sms_history.html", {"sms_data": sms_data, "message": message, "sms_logs": sms_logs})
 
-    return render(request, "sms_history.html", {"sms_logs": sms_logs})
+    modified_sms_logs = [
+        {
+            'text': sms_log.text,
+            'client': sms_log.client,
+            'date_created': sms_log.date_created,
+            'sms_type': 'Day' if sms_log.sms_type == 'daily' else sms_log.sms_type.replace('ly', ''),
+        }
+        for sms_log in sms_logs
+    ]
+
+    return render(request, "sms_history.html", {"sms_logs": modified_sms_logs})

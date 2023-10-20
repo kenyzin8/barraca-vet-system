@@ -21,6 +21,8 @@ from django.utils.timezone import timedelta
 from core.decorators import staff_required
 from .models import Appointment, DoctorSchedule, MaximumAppointment, DateSlot
 
+from record_management.models import PetTreatment
+
 from .forms import *
 
 import json
@@ -174,7 +176,7 @@ def enable_day(request):
 @staff_required
 def calendar(request):
     clients_list = Client.objects.all().order_by('id')
-    rebook_appointments = Appointment.objects.filter(status='rebook')
+    rebook_appointments = Appointment.objects.filter(status='rebook', pet__is_active=True)
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         data = {'clients': []}
@@ -422,6 +424,10 @@ def cancel_appointment(request):
             appointment = Appointment.objects.get(id=appointment_id)
             if appointment.status == 'cancelled':
                 return JsonResponse({"status": "error", "message": "This appointment is already cancelled, please refresh the page."}, status=400)
+            
+            if PetTreatment.objects.filter(appointment_id=appointment_id, hasMultipleCycles=True).exists():
+                return JsonResponse({"status": "error", "message": "This appointment is bound to a next pet treatment cycle and cannot be cancelled. Consider rebooking."}, status=400)
+
             appointment.isActive = False
             appointment.status = 'cancelled'
             appointment.remindClientCancel(reason)
@@ -442,6 +448,7 @@ def add_to_rebook_list(request):
             appointment = Appointment.objects.get(id=appointment_id)
             if appointment.status == 'rebook':
                 return JsonResponse({"status": "error", "message": "This appointment is already marked for rebooking, please refresh the page."}, status=400)
+                      
             appointment.status = "rebook"
             #appointment.date = None
             #appointment.isActive = False
@@ -702,7 +709,7 @@ def client_calendar(request):
         #form.fields['pet'].widget.attrs['disabled'] = True
     else:
         form = AppointmentFormClient(request.POST or None, request=request)
-    rebook_appointments = Appointment.objects.filter(status='rebook', client=client)
+    rebook_appointments = Appointment.objects.filter(status='rebook', client=client, pet__is_active=True)
 
     rebook_form = RebookAppointmentFormClient(request.POST or None, request=request)
 

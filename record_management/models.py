@@ -137,7 +137,7 @@ class PetTreatment(models.Model):
 
     hasMultipleCycles = models.BooleanField(default=False)
     appointment_cycles = models.JSONField(blank=True, null=True)  
-    cycles_remaining = models.PositiveIntegerField(default=0)  
+    cycles_remaining = models.PositiveIntegerField(default=0)  #DEPRECIATED
 
     def __str__(self):
         return f"{self.pet.name} - {self.treatment}"

@@ -644,45 +644,10 @@ def delete_pet(request, pet_id):
         appointments = Appointment.objects.filter(pet=pet)
         if appointments:
             for appointment in appointments:
-                appointment.status = 'cancelled'
-                appointment.isActive = False
-                appointment.save()
-
-        last_treatment_deworm = PetTreatment.objects.filter(
-            Q(pet_id=pet_id) & 
-            Q(isHealthCard=True) &
-            Q(hasMultipleCycles=True) &
-            Q(isDeworm=True)
-        ).last()   
-
-        last_treatment_vaccine = PetTreatment.objects.filter(
-            Q(pet_id=pet_id) &
-            Q(isHealthCard=True) &
-            Q(hasMultipleCycles=True) &
-            Q(isVaccine=True)
-        ).last()
-
-        if last_treatment_deworm and last_treatment_deworm.cycles_remaining > 0:
-            updated_cycles = []
-            for cycle in last_treatment_deworm.appointment_cycles:
-                if cycle['status'] == 'pending':
-                    cycle['status'] = 'done'  
-                updated_cycles.append(cycle)
-
-            last_treatment_deworm.appointment_cycles = updated_cycles  
-            last_treatment_deworm.cycles_remaining = 0  
-            last_treatment_deworm.save()  
-
-        if last_treatment_vaccine and last_treatment_vaccine.cycles_remaining > 0:
-            updated_cycles = []
-            for cycle in last_treatment_vaccine.appointment_cycles:
-                if cycle['status'] == 'pending':
-                    cycle['status'] = 'done'  
-                updated_cycles.append(cycle)
-
-            last_treatment_vaccine.appointment_cycles = updated_cycles  
-            last_treatment_vaccine.cycles_remaining = 0  
-            last_treatment_vaccine.save()
+                if appointment.status == 'pending':
+                    appointment.status = 'rebook'
+                    appointment.isActive = True
+                    appointment.save()
 
         return JsonResponse({'result': 'success'})
     else:
@@ -958,45 +923,10 @@ def admin_update_pet(request, pet_id):
                 appointments = Appointment.objects.filter(pet=pet)
                 if appointments:
                     for appointment in appointments:
-                        appointment.status = 'cancelled'
-                        appointment.isActive = False
-                        appointment.save()    
-
-                last_treatment_deworm = PetTreatment.objects.filter(
-                    Q(pet_id=pet_id) & 
-                    Q(isHealthCard=True) &
-                    Q(hasMultipleCycles=True) &
-                    Q(isDeworm=True)
-                ).last()   
-
-                last_treatment_vaccine = PetTreatment.objects.filter(
-                    Q(pet_id=pet_id) &
-                    Q(isHealthCard=True) &
-                    Q(hasMultipleCycles=True) &
-                    Q(isVaccine=True)
-                ).last()
-
-                if last_treatment_deworm and last_treatment_deworm.cycles_remaining > 0:
-                    updated_cycles = []
-                    for cycle in last_treatment_deworm.appointment_cycles:
-                        if cycle['status'] == 'pending':
-                            cycle['status'] = 'done'  
-                        updated_cycles.append(cycle)
-
-                    last_treatment_deworm.appointment_cycles = updated_cycles  
-                    last_treatment_deworm.cycles_remaining = 0  
-                    last_treatment_deworm.save()  
-
-                if last_treatment_vaccine and last_treatment_vaccine.cycles_remaining > 0:
-                    updated_cycles = []
-                    for cycle in last_treatment_vaccine.appointment_cycles:
-                        if cycle['status'] == 'pending':
-                            cycle['status'] = 'done'  
-                        updated_cycles.append(cycle)
-
-                    last_treatment_vaccine.appointment_cycles = updated_cycles  
-                    last_treatment_vaccine.cycles_remaining = 0  
-                    last_treatment_vaccine.save()
+                        if appointment.status == 'pending':
+                            appointment.status = 'rebook'
+                            appointment.isActive = True
+                            appointment.save()
 
             form.save()
             return redirect('admin-view-pet-page', pet_id=pet.id)
@@ -1798,6 +1728,9 @@ class SubmitHealthCardTreatment(APIView):
                     if appointment_cycle and appointment_date:
                         return Response({'success': False, 'message': 'You can only select either appointment cycle or appointment date.'})
 
+                    if appointment_cycle_repeat > 10:
+                        return Response({'success': False, 'message': 'Appointment cycle repeat cannot be greater than 10.'})
+
                     pet = Pet.objects.get(pk=selected_pet_id)
                     
                     service = Service.objects.get(pk=appointment_purpose)
@@ -1810,25 +1743,29 @@ class SubmitHealthCardTreatment(APIView):
                         (Q(isDeworm=True) | Q(isVaccine=True))
                     ).last()
 
-                    previous_treatments = PetTreatment.objects.filter(
-                        Q(pet_id=selected_pet_id) & 
-                        Q(isHealthCard=True) &
-                        Q(hasMultipleCycles=True) &
-                        Q(treatment=treatment) & 
-                        (Q(isDeworm=True) | Q(isVaccine=True))
-                    )
+                    # previous_treatments = PetTreatment.objects.filter(
+                    #     Q(pet_id=selected_pet_id) & 
+                    #     Q(isHealthCard=True) &
+                    #     Q(hasMultipleCycles=True) &
+                    #     Q(treatment=treatment) & 
+                    #     (Q(isDeworm=True) | Q(isVaccine=True))
+                    # )
 
                     try:
-                        all_done = all(cycle['status'] == 'done' for cycle in last_treatment.appointment_cycles)
+                        appointment_ids = [cycle['appointment_id'] for cycle in last_treatment.appointment_cycles]
+                        all_done = Appointment.objects.filter(
+                            Q(status='done') | Q(status='cancelled'),
+                            id__in=appointment_ids
+                        ).count() == len(appointment_ids)
                     except:
                         all_done = True
 
-                    if previous_treatments.exists():
-                        last_cycle_remaining = previous_treatments.last().cycles_remaining
-                        if last_cycle_remaining > 0:  
-                            last_cycle_remaining -= 1
-                    else:
-                        last_cycle_remaining = 0
+                    # if previous_treatments.exists():
+                    #     last_cycle_remaining = previous_treatments.last().cycles_remaining
+                    #     if last_cycle_remaining > 0:  
+                    #         last_cycle_remaining -= 1
+                    # else:
+                    #     last_cycle_remaining = 0
 
                     if appointment_cycle:
                         if not all_done:
@@ -1870,26 +1807,23 @@ class SubmitHealthCardTreatment(APIView):
                         isHealthCard=True,
                     )
 
-                    if previous_treatments.exists():
-                        cycles_remaining = last_cycle_remaining if last_cycle_remaining > 0 else appointment_cycle_repeat
-                        pet_treatment.cycles_remaining = cycles_remaining
-                    else:
-                        pet_treatment.cycles_remaining = appointment_cycle_repeat
+                    # if previous_treatments.exists():
+                    #     cycles_remaining = last_cycle_remaining if last_cycle_remaining > 0 else appointment_cycle_repeat
+                    #     pet_treatment.cycles_remaining = cycles_remaining
+                    # else:
+                    #     pet_treatment.cycles_remaining = appointment_cycle_repeat
 
                     pet_treatment.save()
 
                     if not all_done:
-                        # for cycle in last_treatment.appointment_cycles:
-                        #     if datetime.strptime(cycle['date'], "%Y-%m-%d").date() < datetime.today().date():
-                        #         cycle['status'] = 'done'
-
-                        future_appointments = [x for x in last_treatment.appointment_cycles if x['status'] == 'pending']
+                        future_appointments = [
+                            x for x in last_treatment.appointment_cycles
+                            if Appointment.objects.get(id=x['appointment_id']).status in ['pending',]
+                        ]
 
                         if future_appointments:
-                            future_appointments[0]['status'] = 'done'
-                            
-                            if len(future_appointments) > 1:
-                                next_appointment = future_appointments[1] 
+                            if len(future_appointments) >= 1:
+                                next_appointment = future_appointments[0]
                                 next_appointment_id = next_appointment['appointment_id']
 
                                 appointment = Appointment.objects.get(id=next_appointment_id)
@@ -1933,7 +1867,7 @@ class SubmitHealthCardTreatment(APIView):
                                 appointments.append({
                                     #'date': new_appointment.date.strftime("%Y-%m-%d"),
                                     'appointment_id': new_appointment.id,
-                                    'status': 'pending'
+                                    #'status': 'pending'
                                 })
                                 appointment_date += delta
 
@@ -2068,27 +2002,31 @@ def get_treatment_cycle_status(request, petID):
         for treatment in treatments:
             appointment_cycles = treatment.appointment_cycles
             if appointment_cycles:
+                updated_cycles = []
                 for cycle in appointment_cycles:
                     appointment = Appointment.objects.get(id=cycle['appointment_id'])
-                    cycle['date'] = appointment.date.strftime('%Y-%m-%d')
-                    cycle['time'] = appointment.time.strftime('%I:%M %p')
+                    if appointment.status != 'cancelled':
+                        cycle['date'] = appointment.date.strftime('%Y-%m-%d')
+                        cycle['time'] = appointment.time.strftime('%I:%M %p')
+                        cycle['status'] = appointment.status
+                        updated_cycles.append(cycle)
 
-                done_cycles = [cycle for cycle in appointment_cycles if cycle['status'] == 'done']
+                done_cycles = [cycle for cycle in updated_cycles if cycle['status'] == 'done' or cycle['status'] == 'cancelled' or cycle['status'] == 'rebook']
 
                 all_inactive = all(
                     not Appointment.objects.filter(id=cycle['appointment_id'], isActive=True).exists() 
                     for cycle in done_cycles
                 )
 
-                cycle_status = len(done_cycles) == len(appointment_cycles) and all_inactive
-                #print(cycle_status)
+                cycle_status = len(done_cycles) == len(updated_cycles) and all_inactive
 
-                return JsonResponse({'success': True, 'appointment_cycles': appointment_cycles, 'cycle_status': cycle_status})
+                return JsonResponse({'success': True, 'appointment_cycles': updated_cycles, 'cycle_status': cycle_status})
 
         return JsonResponse({'success': False, 'message': 'No pet treatment with relevant cycles found.'})
 
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
+
 
 @login_required
 def get_laboratory_results_data(request, treatmentID):

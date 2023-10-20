@@ -229,6 +229,7 @@ def sms_history(request):
 
     modified_sms_logs = [
         {
+            'id': sms_log.id,
             'text': sms_log.text,
             'client': sms_log.client,
             'date_created': sms_log.date_created,

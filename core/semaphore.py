@@ -75,7 +75,10 @@ def send_sms(to_phone_number, message):
         ('number', to_phone_number)
     )
 
-    url = 'https://semaphore.co/api/v4/messages?' + urllib.parse.urlencode(params)
+    #url = 'https://semaphore.co/api/v4/messages?' + urllib.parse.urlencode(params)
+    #url = 'https://api.semaphore.co/api/v4/priority?' + urllib.parse.urlencode(params)
+
+    url = os.getenv("SEMAPHORE_MESSAGE_URL") + urllib.parse.urlencode(params)
 
     response = requests.post(url)
 

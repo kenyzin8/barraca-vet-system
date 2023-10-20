@@ -648,23 +648,41 @@ def delete_pet(request, pet_id):
                 appointment.isActive = False
                 appointment.save()
 
-        last_treatment = PetTreatment.objects.filter(
+        last_treatment_deworm = PetTreatment.objects.filter(
             Q(pet_id=pet_id) & 
             Q(isHealthCard=True) &
             Q(hasMultipleCycles=True) &
-            (Q(isDeworm=True) | Q(isVaccine=True))
+            Q(isDeworm=True)
         ).last()   
 
-        if last_treatment and last_treatment.cycles_remaining > 0:
+        last_treatment_vaccine = PetTreatment.objects.filter(
+            Q(pet_id=pet_id) &
+            Q(isHealthCard=True) &
+            Q(hasMultipleCycles=True) &
+            Q(isVaccine=True)
+        ).last()
+
+        if last_treatment_deworm and last_treatment_deworm.cycles_remaining > 0:
             updated_cycles = []
-            for cycle in last_treatment.appointment_cycles:
+            for cycle in last_treatment_deworm.appointment_cycles:
                 if cycle['status'] == 'pending':
                     cycle['status'] = 'done'  
                 updated_cycles.append(cycle)
 
-            last_treatment.appointment_cycles = updated_cycles  
-            last_treatment.cycles_remaining = 0  
-            last_treatment.save()   
+            last_treatment_deworm.appointment_cycles = updated_cycles  
+            last_treatment_deworm.cycles_remaining = 0  
+            last_treatment_deworm.save()  
+
+        if last_treatment_vaccine and last_treatment_vaccine.cycles_remaining > 0:
+            updated_cycles = []
+            for cycle in last_treatment_vaccine.appointment_cycles:
+                if cycle['status'] == 'pending':
+                    cycle['status'] = 'done'  
+                updated_cycles.append(cycle)
+
+            last_treatment_vaccine.appointment_cycles = updated_cycles  
+            last_treatment_vaccine.cycles_remaining = 0  
+            last_treatment_vaccine.save()
 
         return JsonResponse({'result': 'success'})
     else:
@@ -944,23 +962,41 @@ def admin_update_pet(request, pet_id):
                         appointment.isActive = False
                         appointment.save()    
 
-                last_treatment = PetTreatment.objects.filter(
+                last_treatment_deworm = PetTreatment.objects.filter(
                     Q(pet_id=pet_id) & 
                     Q(isHealthCard=True) &
                     Q(hasMultipleCycles=True) &
-                    (Q(isDeworm=True) | Q(isVaccine=True))
+                    Q(isDeworm=True)
                 ).last()   
 
-                if last_treatment and last_treatment.cycles_remaining > 0:
+                last_treatment_vaccine = PetTreatment.objects.filter(
+                    Q(pet_id=pet_id) &
+                    Q(isHealthCard=True) &
+                    Q(hasMultipleCycles=True) &
+                    Q(isVaccine=True)
+                ).last()
+
+                if last_treatment_deworm and last_treatment_deworm.cycles_remaining > 0:
                     updated_cycles = []
-                    for cycle in last_treatment.appointment_cycles:
+                    for cycle in last_treatment_deworm.appointment_cycles:
                         if cycle['status'] == 'pending':
                             cycle['status'] = 'done'  
                         updated_cycles.append(cycle)
 
-                    last_treatment.appointment_cycles = updated_cycles  
-                    last_treatment.cycles_remaining = 0  
-                    last_treatment.save()  
+                    last_treatment_deworm.appointment_cycles = updated_cycles  
+                    last_treatment_deworm.cycles_remaining = 0  
+                    last_treatment_deworm.save()  
+
+                if last_treatment_vaccine and last_treatment_vaccine.cycles_remaining > 0:
+                    updated_cycles = []
+                    for cycle in last_treatment_vaccine.appointment_cycles:
+                        if cycle['status'] == 'pending':
+                            cycle['status'] = 'done'  
+                        updated_cycles.append(cycle)
+
+                    last_treatment_vaccine.appointment_cycles = updated_cycles  
+                    last_treatment_vaccine.cycles_remaining = 0  
+                    last_treatment_vaccine.save()
 
             form.save()
             return redirect('admin-view-pet-page', pet_id=pet.id)

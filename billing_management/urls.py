@@ -7,6 +7,7 @@ urlpatterns = [
     # path('admin/bill/client/', views.bill_client, name='billing-client-page'),
     path('admin/bill/cancel/', permission_required('billing_management.add_billing', raise_exception=True)(views.cancel_bill), name='cancel-bill'),
     path('admin/bill/post/', permission_required('billing_management.add_billing', raise_exception=True)(views.post_bill), name='post-bill'),
-    path('admin/sales/<int:bill_id>/', permission_required('billing_management.view_billing', raise_exception=True)(views.view_bill), name='view-bill-page'),
+    #path('admin/sales/<int:bill_id>/', permission_required('billing_management.view_billing', raise_exception=True)(views.view_bill), name='view-bill-page'),
+    path('admin/sales/<int:bill_id>/', views.view_bill, name='view-bill-page'),
     path('admin/sales/', permission_required('billing_management.view_billing', raise_exception=True)(views.sales), name='sales-page'),
 ]

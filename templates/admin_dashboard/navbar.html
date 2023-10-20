@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load templatetags %}
 <nav class="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white" id="sidenavAccordion">
     <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle"><i class="fas fa-bars text-grey-200"></i></button>
     <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="{% url 'admin-vet' %}">Barraca Veterinary Clinic</a>
@@ -10,6 +10,7 @@
             </a>
         </li>
         <!-- Alerts Dropdown-->
+        {% if request.user|has_permission:'inventory.add_product' %}
         <li class="nav-item dropdown no-caret d-none d-sm-block me-3 dropdown-notifications ">
             <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownAlerts" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-bell text-grey-200"></i>
@@ -26,6 +27,7 @@
                 <a class="dropdown-item dropdown-notifications-footer" href="#!">View All Alerts</a>
             </div>
         </li>
+        {% endif %}
         <!-- Messages Dropdown
         <li class="nav-item dropdown no-caret d-none d-sm-block me-3 dropdown-notifications">
             <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownMessages" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

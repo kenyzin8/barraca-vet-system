@@ -648,6 +648,24 @@ def delete_pet(request, pet_id):
                 appointment.isActive = False
                 appointment.save()
 
+        last_treatment = PetTreatment.objects.filter(
+            Q(pet_id=pet_id) & 
+            Q(isHealthCard=True) &
+            Q(hasMultipleCycles=True) &
+            (Q(isDeworm=True) | Q(isVaccine=True))
+        ).last()   
+
+        if last_treatment and last_treatment.cycles_remaining > 0:
+            updated_cycles = []
+            for cycle in last_treatment.appointment_cycles:
+                if cycle['status'] == 'pending':
+                    cycle['status'] = 'done'  
+                updated_cycles.append(cycle)
+
+            last_treatment.appointment_cycles = updated_cycles  
+            last_treatment.cycles_remaining = 0  
+            last_treatment.save()   
+
         return JsonResponse({'result': 'success'})
     else:
         return JsonResponse({'result': 'error', 'message': 'Invalid request method'})
@@ -914,7 +932,36 @@ def admin_update_pet(request, pet_id):
 
     if request.method == 'POST':
         form = AdminPetRegistrationForm(request.POST, request.FILES, instance=pet)
+        
         if form.is_valid():
+            is_active = form.cleaned_data.get('is_active')
+
+            if not is_active:
+                appointments = Appointment.objects.filter(pet=pet)
+                if appointments:
+                    for appointment in appointments:
+                        appointment.status = 'cancelled'
+                        appointment.isActive = False
+                        appointment.save()    
+
+                last_treatment = PetTreatment.objects.filter(
+                    Q(pet_id=pet_id) & 
+                    Q(isHealthCard=True) &
+                    Q(hasMultipleCycles=True) &
+                    (Q(isDeworm=True) | Q(isVaccine=True))
+                ).last()   
+
+                if last_treatment and last_treatment.cycles_remaining > 0:
+                    updated_cycles = []
+                    for cycle in last_treatment.appointment_cycles:
+                        if cycle['status'] == 'pending':
+                            cycle['status'] = 'done'  
+                        updated_cycles.append(cycle)
+
+                    last_treatment.appointment_cycles = updated_cycles  
+                    last_treatment.cycles_remaining = 0  
+                    last_treatment.save()  
+
             form.save()
             return redirect('admin-view-pet-page', pet_id=pet.id)
     else:
@@ -922,6 +969,7 @@ def admin_update_pet(request, pet_id):
     
     context = {'form': form, 'pet': pet}
     return render(request, 'admin/pet_module/update_pet.html', context)
+
 
 @staff_required
 @login_required
@@ -1997,6 +2045,7 @@ def get_treatment_cycle_status(request, petID):
                 )
 
                 cycle_status = len(done_cycles) == len(appointment_cycles) and all_inactive
+                #print(cycle_status)
 
                 return JsonResponse({'success': True, 'appointment_cycles': appointment_cycles, 'cycle_status': cycle_status})
 

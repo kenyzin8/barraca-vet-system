@@ -136,7 +136,7 @@ function initDataTables(tableId, maxPage) {
         paging: true,
         perPageSelect: [5, 10, 25, lastIndex],
         perPage: 10,
-        fixedHeight: true,
+        fixedHeight: false,
         sortable: true,
         searchable: true,
         hiddenHeader: false
@@ -255,25 +255,32 @@ function initDataTables(tableId, maxPage) {
                                     {% for bill in bills %}
                                     <tr>
                                         <td>
-                                            <span class="billing-number">
-                                                {{ bill.get_billing_number }}
-                                            </span>
-                                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
-                                                <i data-feather="external-link"></i>
-                                            </a>
+                                            <div class="d-flex align-items-center justify-content-between">  <!-- Add justify-content-between -->
+                                                <span class="billing-number">
+                                                    {{ bill.get_billing_number }}
+                                                </span>
+                                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
+                                                    <i data-feather="external-link"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                         <td>
-                                            {{ bill.client.full_name }}
-                                            {% if bill.client.user.is_active %}
-                                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' bill.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
-                                                <i data-feather="external-link"></i>
-                                            </a>
-                                            {% endif %}
-                                            <!-- {% if request.user.is_authenticated and bill.client.user.id == request.user.id %}
-                                            (You)
-                                            {% endif %} -->
+                                            <div class="d-flex align-items-center justify-content-between">  <!-- Add justify-content-between -->
+                                                <div>  <!-- Wrap the name and (You) text in a div -->
+                                                    {{ bill.client.full_name }}
+                                                    {% if request.user.is_authenticated and bill.client.user.id == request.user.id %}
+                                                    (You)
+                                                    {% endif %}
+                                                </div>
+                                                {% if bill.client.user.is_active %}
+                                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' bill.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
+                                                    <i data-feather="external-link"></i>
+                                                </a>
+                                                {% endif %}
+                                            </div>
                                         </td>
-                                        <td>₱ {{ bill.get_total|floatformat:2|intcomma }}</td>
+                                        
+                                        <td>₱{{ bill.get_total|floatformat:2|intcomma }}</td>
                                         <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
                                     </tr>
                                     {% endfor %}
@@ -309,17 +316,21 @@ function initDataTables(tableId, maxPage) {
                                                 {% for billing_product in bill.billing_products.all %}
                                                 <tr>
                                                     <td>
-                                                        {{ bill.get_billing_number }}
-                                                        <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
-                                                            <i data-feather="external-link"></i>
-                                                        </a>
+                                                        <div class="d-flex align-items-center justify-content-between">  
+                                                            <span class="billing-number">
+                                                                {{ bill.get_billing_number }}
+                                                            </span>
+                                                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
+                                                                <i data-feather="external-link"></i>
+                                                            </a>
+                                                        </div>
                                                     </td>
                                                     <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
                                                     <td>{{ billing_product.product.product_name }}</td>
-                                                    <td>{{ billing_product.quantity|floatformat:2 }}</td>
+                                                    <td>{{ billing_product.quantity|floatformat:0|intcomma }}</td>
                                                     <td class="calc" data-price="{{ billing_product.product.price }}" data-quantity="{{ billing_product.quantity }}">
-                                                        {{ billing_product.product.price|floatformat:2 }} x {{ billing_product.quantity|floatformat:3 }} = 
-                                                        ₱ <span class="total-price">0.00</span>
+                                                        {{ billing_product.price_at_time_of_purchase|floatformat:2|intcomma }} x {{ billing_product.quantity|floatformat:0|intcomma }} = 
+                                                        ₱<span class="total-price">0.00</span>
                                                     </td>                                            
                                                 </tr>
                                                 {% endfor %}
@@ -354,14 +365,18 @@ function initDataTables(tableId, maxPage) {
                                                 {% for billing_service in bill.billing_services.all %}
                                                 <tr>
                                                     <td>
-                                                        {{ bill.get_billing_number }}
-                                                        <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
-                                                            <i data-feather="external-link"></i>
-                                                        </a>
+                                                        <div class="d-flex align-items-center justify-content-between"> 
+                                                            <span class="billing-number">
+                                                                {{ bill.get_billing_number }}
+                                                            </span>
+                                                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'view-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Bill">
+                                                                <i data-feather="external-link"></i>
+                                                            </a>
+                                                        </div>
                                                     </td>
                                                     <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
                                                     <td>{{ billing_service.service.service_type }}</td>
-                                                    <td>₱ {{ billing_service.service.fee }}</td>                                           
+                                                    <td>₱{{ billing_service.price_at_time_of_purchase|intcomma }}</td>                                           
                                                 </tr>
                                                 {% endfor %}
                                                 {% endfor %}
@@ -497,6 +512,10 @@ function initDataTables(tableId, maxPage) {
 </script>
 <script src="{% static 'plugins/print-js/print.min.js' %}"></script>
 <script>
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     window.onload = function() {
         var calcs = document.getElementsByClassName('calc');
         for(var i=0; i<calcs.length; i++) {
@@ -504,13 +523,9 @@ function initDataTables(tableId, maxPage) {
             var quantity = parseFloat(calcs[i].dataset.quantity);
             var totalPrice = price * quantity;
     
-            calcs[i].getElementsByClassName('total-price')[0].textContent = totalPrice.toFixed(2);
+            calcs[i].getElementsByClassName('total-price')[0].textContent = numberWithCommas(totalPrice.toFixed(2));
         }
     };
-
-    function numberWithCommas(x) {
-        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    }
 
     function showError(message)
     {

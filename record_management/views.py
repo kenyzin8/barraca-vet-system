@@ -522,7 +522,7 @@ def view_pet(request, pet_id):
             'weight': str(treatment.treatment_weight),
             'treatment': treatment.treatment,
             'temp': str(treatment.temperature),
-            'medicine': medicine,
+            'medicine': medicine if hasattr(treatment, 'petmedicalprescription') else "",
             'sticker': lab_result_image,
         })
 
@@ -543,7 +543,7 @@ def view_pet(request, pet_id):
             'weight': str(treatment.treatment_weight),
             'treatment': treatment.treatment,
             'temp': str(treatment.temperature),
-            'medicine': medicine,
+            'medicine': medicine if hasattr(treatment, 'petmedicalprescription') else "",
             'sticker': lab_result_image,
         })
 
@@ -831,7 +831,7 @@ def admin_view_pet(request, pet_id):
             'weight': str(treatment.treatment_weight),
             'treatment': treatment.treatment,
             'temp': str(treatment.temperature),
-            'medicine': medicine,
+            'medicine': medicine if hasattr(treatment, 'petmedicalprescription') else "",
             'sticker': lab_result_image,
         })
 
@@ -852,7 +852,7 @@ def admin_view_pet(request, pet_id):
             'weight': str(treatment.treatment_weight),
             'treatment': treatment.treatment,
             'temp': str(treatment.temperature),
-            'medicine': medicine,
+            'medicine': medicine if hasattr(treatment, 'petmedicalprescription') else "",
             'sticker': lab_result_image,
         })
 

@@ -24,8 +24,8 @@ def contact(request):
     return render(request, 'contact.html')
 
 def pricing(request):
-    services = Service.objects.all()
-    products = Product.objects.all()
+    services = Service.objects.filter(active=True)
+    products = Product.objects.filter(active=True)
 
     modified_services = []
 

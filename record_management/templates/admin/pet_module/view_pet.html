@@ -196,7 +196,7 @@
                                                     {% endfor %}
                                                     </td>
                                                     <td>
-                                                        {% if treatment.get_lab_result_image_for_health_card %}
+                                                        {% if treatment.get_lab_result_image_for_health_card != 'None' %}
                                                         <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
                                                             <i data-feather="image"></i>
                                                         </a>
@@ -269,7 +269,7 @@
                                                     {% endfor %}
                                                     </td>
                                                     <td>
-                                                        {% if treatment.get_lab_result_image_for_health_card %}
+                                                        {% if treatment.get_lab_result_image_for_health_card != 'None' %}
                                                         <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
                                                             <i data-feather="image"></i>
                                                         </a>

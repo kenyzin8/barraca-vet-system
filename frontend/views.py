@@ -30,15 +30,16 @@ def pricing(request):
     modified_services = []
 
     for service in services:
-        if service.fee != 0:
+        if service.fee > 0:
             modified_services.append(service)
 
     modified_products = []
 
     for product in products:
-        if not product.is_product_expired and not product.is_product_out_of_stock:
-            modified_products.append(product)
-            
+        if product.price > 0:
+            if not product.is_product_expired and not product.is_product_out_of_stock:
+                modified_products.append(product)
+
     context = {'services': modified_services, 'products': products}
 
     return render(request, 'pricing.html', context)

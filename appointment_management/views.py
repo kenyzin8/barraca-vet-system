@@ -268,7 +268,7 @@ def set_appointment(request):
 
             service = Service.objects.get(pk=service_id)
 
-            existing_appointment = Appointment.objects.filter(date=date, time=time, isActive=True, status='pending').first()
+            existing_appointment = Appointment.objects.filter(date=date, time=time, isActive=True, status='pending', pet__is_active=True).first()
 
             if existing_appointment:
                 existing_service = existing_appointment.purpose
@@ -284,7 +284,7 @@ def set_appointment(request):
             
             if date_slot:
                 if time_of_day == 'morning':
-                    morning_slots_remaining = date_slot.morning_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning').count()
+                    morning_slots_remaining = date_slot.morning_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning', pet__is_active=True).count()
                     
                     if morning_slots_remaining != 1:
                         morning_slots_remaining -= 1
@@ -292,7 +292,7 @@ def set_appointment(request):
                     if morning_slots_remaining <= 0:
                         return JsonResponse({'status': 'error', 'message': 'No more slots available for morning on this date.'}, status=400)
                 elif time_of_day == 'afternoon':
-                    afternoon_slots_remaining = date_slot.afternoon_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
+                    afternoon_slots_remaining = date_slot.afternoon_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon', pet__is_active=True).count()
                     if afternoon_slots_remaining != 1:
                         afternoon_slots_remaining -= 1
                     
@@ -300,7 +300,7 @@ def set_appointment(request):
                         return JsonResponse({'status': 'error', 'message': 'No more slots available for afternoon on this date.'}, status=400)
             elif not date_slot:
                 if time_of_day == 'morning':
-                    morning_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning').count()
+                    morning_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning', pet__is_active=True).count()
                     
                     if morning_slots_remaining != 1:
                         morning_slots_remaining -= 1
@@ -308,7 +308,7 @@ def set_appointment(request):
                     if morning_slots_remaining <= 0:
                         return JsonResponse({'status': 'error', 'message': 'No more slots available for morning on this date.'}, status=400)
                 elif time_of_day == 'afternoon':
-                    afternoon_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
+                    afternoon_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon', pet__is_active=True).count()
                     if afternoon_slots_remaining != 1:
                         afternoon_slots_remaining -= 1
 
@@ -318,7 +318,7 @@ def set_appointment(request):
                 if doctor_schedule:
                     if doctor_schedule.timeOfTheDay == 'afternoon' and time_of_day == 'morning':
                         
-                        morning_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning').count()
+                        morning_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning', pet__is_active=True).count()
 
                         if morning_slots_remaining != 1:
                             morning_slots_remaining -= 1
@@ -328,7 +328,7 @@ def set_appointment(request):
 
                     elif doctor_schedule.timeOfTheDay == 'morning' and time_of_day == 'afternoon':
                         
-                        afternoon_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
+                        afternoon_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon', pet__is_active=True).count()
                         
                         if afternoon_slots_remaining != 1:
                             afternoon_slots_remaining -= 1
@@ -336,7 +336,7 @@ def set_appointment(request):
                         if afternoon_slots_remaining <= 0:
                             return JsonResponse({'status': 'error', 'message': 'No more slots available for afternoon on this date.'}, status=400)
 
-            if Appointment.objects.filter(date=date, isActive=True, status='pending').count() >= maximum_appointments.max_appointments:
+            if Appointment.objects.filter(date=date, isActive=True, status='pending', pet__is_active=True).count() >= maximum_appointments.max_appointments:
                     return JsonResponse({'status': 'error', 'message': 'No more slots available for this date.'}, status=400)
 
             appointment = Appointment(client_id=client_id, pet_id=pet_id, timeOfTheDay=time_of_day, 
@@ -497,14 +497,14 @@ def rebook_appointment(request):
 
             if date_slot:
                 if time_of_the_day == 'morning':
-                    morning_slots_remaining = date_slot.morning_slots - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='morning').count()
+                    morning_slots_remaining = date_slot.morning_slots - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='morning', pet__is_active=True).count()
                     if morning_slots_remaining != 1:
                         morning_slots_remaining -= 1
 
                     if morning_slots_remaining <= 0:
                         return JsonResponse({'status': 'error', 'message': 'No more morning slots available for this date.'}, status=400)
                 elif time_of_the_day == 'afternoon':
-                    afternoon_slots_remaining = date_slot.afternoon_slots - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
+                    afternoon_slots_remaining = date_slot.afternoon_slots - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='afternoon', pet__is_active=True).count()
                     if afternoon_slots_remaining != 1:
                         afternoon_slots_remaining -= 1
 
@@ -512,7 +512,7 @@ def rebook_appointment(request):
                         return JsonResponse({'status': 'error', 'message': 'No more afternoon slots available for this date.'}, status=400)
             elif not date_slot:
                 if time_of_the_day == 'morning':
-                    morning_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='morning').count()
+                    morning_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='morning', pet__is_active=True).count()
                     
                     if morning_slots_remaining != 1:
                         morning_slots_remaining -= 1
@@ -520,7 +520,7 @@ def rebook_appointment(request):
                     if morning_slots_remaining <= 0:
                         return JsonResponse({'status': 'error', 'message': 'No more slots available for morning on this date.'}, status=400)
                 elif time_of_the_day == 'afternoon':
-                    afternoon_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
+                    afternoon_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='afternoon', pet__is_active=True).count()
                     if afternoon_slots_remaining != 1:
                         afternoon_slots_remaining -= 1
 
@@ -530,7 +530,7 @@ def rebook_appointment(request):
                 if doctor_schedule:
                     if doctor_schedule.timeOfTheDay == 'afternoon' and time_of_the_day == 'morning':
                         
-                        morning_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='morning').count()
+                        morning_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='morning', pet__is_active=True).count()
 
                         if morning_slots_remaining != 1:
                             morning_slots_remaining -= 1
@@ -540,7 +540,7 @@ def rebook_appointment(request):
 
                     elif doctor_schedule.timeOfTheDay == 'morning' and time_of_the_day == 'afternoon':
                         
-                        afternoon_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
+                        afternoon_slots_remaining = (maximum_appointments.max_appointments // 2) - Appointment.objects.filter(date=new_date, isActive=True, status='pending', timeOfTheDay='afternoon', pet__is_active=True).count()
                         
                         if afternoon_slots_remaining != 1:
                             afternoon_slots_remaining -= 1
@@ -548,7 +548,7 @@ def rebook_appointment(request):
                         if afternoon_slots_remaining <= 0:
                             return JsonResponse({'status': 'error', 'message': 'No more slots available for afternoon on this date.'}, status=400)
 
-            if Appointment.objects.filter(date=new_date, isActive=True, status='pending').count() >= maximum_appointments.max_appointments:
+            if Appointment.objects.filter(date=new_date, isActive=True, status='pending', pet__is_active=True).count() >= maximum_appointments.max_appointments:
                     return JsonResponse({'status': 'error', 'message': 'No more slots available for this date.'}, status=400)
 
             appointment.date = new_date
@@ -586,7 +586,7 @@ def check_if_full(request):
         selected_date_str = request.GET.get('selected_date')
         try:
             selected_date = datetime.strptime(selected_date_str.split('T')[0], "%Y-%m-%d").date()  
-            num_appointments = Appointment.objects.filter(date=selected_date, status='pending', isActive=True).count()
+            num_appointments = Appointment.objects.filter(date=selected_date, status='pending', isActive=True, pet__is_active=True).count()
             max_slots = MaximumAppointment.load().max_appointments
             date_slot = DateSlot.objects.filter(date=selected_date).first()
             max_morning_slots = date_slot.morning_slots if date_slot else (max_slots / 2)
@@ -787,7 +787,7 @@ def set_appointment_client(request):
             service_id = request.POST['purpose']
             service = Service.objects.get(pk=service_id)
 
-            existing_appointment = Appointment.objects.filter(date=date, time=time, isActive=True, status='pending').first()
+            existing_appointment = Appointment.objects.filter(date=date, time=time, isActive=True, status='pending', pet__is_active=True).first()
 
             if existing_appointment:
                 existing_service = existing_appointment.purpose
@@ -802,7 +802,7 @@ def set_appointment_client(request):
 
             if date_slot:
                 if time_of_day == 'morning':
-                    morning_slots_remaining = date_slot.morning_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning').count()
+                    morning_slots_remaining = date_slot.morning_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning', pet__is_active=True).count()
                     
                     #print(morning_slots_remaining)
 
@@ -812,7 +812,7 @@ def set_appointment_client(request):
                     if morning_slots_remaining <= 0:
                         return JsonResponse({'status': 'error', 'message': 'No more slots available for morning on this date.'}, status=400)
                 elif time_of_day == 'afternoon':
-                    afternoon_slots_remaining = date_slot.afternoon_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
+                    afternoon_slots_remaining = date_slot.afternoon_slots - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon', pet__is_active=True).count()
                     if afternoon_slots_remaining != 1:
                         afternoon_slots_remaining -= 1
                     
@@ -824,7 +824,7 @@ def set_appointment_client(request):
                 if doctor_schedule:
                     if doctor_schedule.timeOfTheDay == 'afternoon' and time_of_day == 'morning':
                         
-                        morning_slots_remaining = maximum_appointments.max_appointments // 2 - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning').count()
+                        morning_slots_remaining = maximum_appointments.max_appointments // 2 - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning', pet__is_active=True).count()
 
                         if morning_slots_remaining != 1:
                             morning_slots_remaining -= 1
@@ -834,7 +834,7 @@ def set_appointment_client(request):
 
                     elif doctor_schedule.timeOfTheDay == 'morning' and time_of_day == 'afternoon':
                         
-                        afternoon_slots_remaining = maximum_appointments.max_appointments // 2 - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
+                        afternoon_slots_remaining = maximum_appointments.max_appointments // 2 - Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon', pet__is_active=True).count()
                         
                         if afternoon_slots_remaining != 1:
                             afternoon_slots_remaining -= 1
@@ -842,10 +842,10 @@ def set_appointment_client(request):
                         if afternoon_slots_remaining <= 0:
                             return JsonResponse({'status': 'error', 'message': 'No more slots available for afternoon on this date.'}, status=400)
 
-                if Appointment.objects.filter(date=date, isActive=True, status='pending').count() >= maximum_appointments.max_appointments:
+                if Appointment.objects.filter(date=date, isActive=True, status='pending', pet__is_active=True).count() >= maximum_appointments.max_appointments:
                     return JsonResponse({'status': 'error', 'message': 'No more slots available for this date.'}, status=400)
 
-            existing_appointment = Appointment.objects.filter(pet_id=pet_id, status__in=["pending", "rebook"], isActive=True).first()
+            existing_appointment = Appointment.objects.filter(pet_id=pet_id, status__in=["pending", "rebook"], isActive=True, pet__is_active=True).first()
             if existing_appointment:
                 return JsonResponse({'status': 'error', 'message': 'This pet already has an appointment, please refresh the page.'}, status=400)
 

@@ -641,13 +641,13 @@ def delete_pet(request, pet_id):
         pet.is_active = False
         pet.save()
 
-        appointments = Appointment.objects.filter(pet=pet)
-        if appointments:
-            for appointment in appointments:
-                if appointment.status == 'pending':
-                    appointment.status = 'rebook'
-                    appointment.isActive = True
-                    appointment.save()
+        # appointments = Appointment.objects.filter(pet=pet)
+        # if appointments:
+        #     for appointment in appointments:
+        #         if appointment.status == 'pending':
+        #             appointment.status = 'rebook'
+        #             appointment.isActive = True
+        #             appointment.save()
 
         return JsonResponse({'result': 'success'})
     else:
@@ -919,14 +919,43 @@ def admin_update_pet(request, pet_id):
         if form.is_valid():
             is_active = form.cleaned_data.get('is_active')
 
-            if not is_active:
+            if is_active:
                 appointments = Appointment.objects.filter(pet=pet)
                 if appointments:
                     for appointment in appointments:
-                        if appointment.status == 'pending':
-                            appointment.status = 'rebook'
-                            appointment.isActive = True
-                            appointment.save()
+                        all_appointments_morning = Appointment.objects.filter(isActive=True, status='pending', date=appointment.date, timeOfTheDay='morning', pet__is_active=True).count()
+                        all_appointments_afternoon = Appointment.objects.filter(isActive=True, status='pending', date=appointment.date, timeOfTheDay='afternoon', pet__is_active=True).count()
+
+                        date_slot = DateSlot.objects.filter(date=appointment.date).first()
+                        
+                        if date_slot:
+                            day_full = all_appointments_morning >= date_slot.morning_slots and all_appointments_afternoon >= date_slot.afternoon_slots
+                            time_slot_full = (appointment.timeOfTheDay == 'morning' and all_appointments_morning >= date_slot.morning_slots) or \
+                                            (appointment.timeOfTheDay == 'afternoon' and all_appointments_afternoon >= date_slot.afternoon_slots)
+                            
+                            if day_full or time_slot_full:
+                                appointment.status = 'rebook'
+                                appointment.isActive = True
+                                appointment.save()
+                        else:
+                            max_appointment = MaximumAppointment.objects.first().max_appointments // 2
+                            day_full = all_appointments_morning >= max_appointment and all_appointments_afternoon >= max_appointment
+                            time_slot_full = (appointment.timeOfTheDay == 'morning' and all_appointments_morning >= max_appointment) or \
+                                            (appointment.timeOfTheDay == 'afternoon' and all_appointments_afternoon >= max_appointment)
+                            
+                            if day_full or time_slot_full:
+                                appointment.status = 'rebook'
+                                appointment.isActive = True
+                                appointment.save()
+
+            # if not is_active:
+            #     appointments = Appointment.objects.filter(pet=pet)
+            #     if appointments:
+            #         for appointment in appointments:
+            #             if appointment.status == 'pending':
+            #                 appointment.status = 'rebook'
+            #                 appointment.isActive = True
+            #                 appointment.save()
 
             form.save()
             return redirect('admin-view-pet-page', pet_id=pet.id)
@@ -935,7 +964,6 @@ def admin_update_pet(request, pet_id):
     
     context = {'form': form, 'pet': pet}
     return render(request, 'admin/pet_module/update_pet.html', context)
-
 
 @staff_required
 @login_required

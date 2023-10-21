@@ -511,8 +511,9 @@ def view_pet(request, pet_id):
 
         _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
 
-        prescription = treatment.petmedicalprescription
-        medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
+        if hasattr(treatment, 'petmedicalprescription'):
+            prescription = treatment.petmedicalprescription
+            medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
 
         deworming_data.append({
             'id': treatment.id,
@@ -531,9 +532,10 @@ def view_pet(request, pet_id):
 
         _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
 
-        prescription = treatment.petmedicalprescription
-        medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
-
+        if hasattr(treatment, 'petmedicalprescription'):
+            prescription = treatment.petmedicalprescription
+            medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
+        
         vaccination_data.append({
             'id': treatment.id,
             'visit_date': _date,
@@ -818,8 +820,9 @@ def admin_view_pet(request, pet_id):
 
         _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
 
-        prescription = treatment.petmedicalprescription
-        medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
+        if hasattr(treatment, 'petmedicalprescription'):
+            prescription = treatment.petmedicalprescription
+            medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
 
         deworming_data.append({
             'id': treatment.id,
@@ -838,8 +841,9 @@ def admin_view_pet(request, pet_id):
 
         _date = treatment.treatment_date.strftime('%B %d, %Y %I:%M %p')
 
-        prescription = treatment.petmedicalprescription
-        medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
+        if hasattr(treatment, 'petmedicalprescription'):
+            prescription = treatment.petmedicalprescription
+            medicine = prescription.prescriptionmedicines_set.first().medicine.product_name if prescription else ""
 
         vaccination_data.append({
             'id': treatment.id,
@@ -1154,6 +1158,10 @@ class SubmitConsultationView(APIView):
 
             noon = dt_time(12, 0, 0)
             evening = dt_time(18, 0, 0)
+
+            if is_deworm or is_vaccine:
+                if not products_selected:
+                    return Response({'success': False, 'message': 'You must select at least one medicine.'})
 
             if weight < 1.0 or weight > 150.0:
                 return Response({'success': False, 'message': 'Invalid weight. Must be between 1.0 kg and 150.0 kg.'})

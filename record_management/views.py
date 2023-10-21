@@ -1760,7 +1760,7 @@ class SubmitHealthCardTreatment(APIView):
                         return Response({'success': False, 'message': 'Appointment cycle repeat cannot be greater than 10.'})
 
                     pet = Pet.objects.get(pk=selected_pet_id)
-                    
+
                     service = Service.objects.get(pk=appointment_purpose)
 
                     last_treatment = PetTreatment.objects.filter(
@@ -1781,6 +1781,15 @@ class SubmitHealthCardTreatment(APIView):
 
                     try:
                         appointment_ids = [cycle['appointment_id'] for cycle in last_treatment.appointment_cycles]
+
+                        rebook_exists = Appointment.objects.filter(
+                            Q(status='rebook'),
+                            id__in=appointment_ids
+                        ).exists()
+
+                        if rebook_exists:
+                            return Response({'success': False, 'message': "You cannot submit a new treatment if there's a pending rebook appointment in this treatment cycle. Please rebook the appointment first."})
+
                         all_done = Appointment.objects.filter(
                             Q(status='done') | Q(status='cancelled'),
                             id__in=appointment_ids

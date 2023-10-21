@@ -1,0 +1,219 @@
+{% extends 'frontend/base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block title %} Pricing - Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+  .header-barraca
+  {
+    font-size: 5rem;
+  }
+  .title-barraca
+  {
+    text-align: center;
+    margin-bottom: 20px;
+    cursor: default;
+  }
+
+  .description-barraca
+  {
+    font-size: 1.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    /* margin: 0 auto; ALTERNATIVE */ 
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  .btn-dark
+  {
+    background: #121212;
+  }
+
+  .second-part {
+    width: 100%;
+    height: 200px;
+    background: rgb(255, 255, 255);
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    position: relative;  
+    margin-top: 150px;
+    margin-bottom: 100px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; 
+  }
+
+  .dog-doogle-1 {
+      width: 10%;
+      position: absolute;  
+      bottom: -5.5%;           
+      right: -2%;            
+  }
+
+  .dog-doogle-2 {
+    width: 10%;
+    position: absolute;  
+    top: -50%;          
+    left: 0;         
+  }
+
+  .third-part {
+    width: 100%;
+    height: auto;
+    background: rgb(255, 255, 255);
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    position: relative;  
+    margin-top: 40px;
+    margin-bottom: 100px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  p {
+    margin-bottom: 0.5rem;
+  }
+
+  .about-barraca {
+    width: 50%; 
+    margin: 0 auto; 
+    font-weight: 600; 
+    line-height: 2; 
+    margin-bottom: 50px !important;
+  }
+
+    .table > :not(caption) > * > * {
+        width: 50%;
+    }
+
+  @media (max-width: 767px) {
+    .header-barraca {
+      font-size: 4rem;
+    }
+
+    .description-barraca {
+      font-size: 1.2rem;
+      max-width: 300px;
+    }
+    .third-part {
+      margin-top: 0px;
+      margin-bottom: 25px;
+    }
+    .dog-doogle-2
+    {
+      display: none;
+    }
+    .dog-doogle-1
+    {
+      display: none;
+    }
+    .second-part {
+      margin-top: 25px;
+      margin-bottom: 25px;
+      height: 100%;
+      padding: 10px;
+    }
+    .groom
+    {
+      margin-bottom: 10px;
+    }
+
+    .about-barraca {
+        width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-xl px-4">
+    <div class="title-barraca">
+        <h1 class="header-barraca fw-bold">
+        Pricing<br>
+        </h1>
+        <p class="description-barraca">
+            Barraca Veterinary Clinic
+        </p>
+        <br>
+        <a role="button" class="btn btn-dark shadow-sm rounded mb-3" href="#services" style="font-weight: bold;">Services</a>
+        <a role="button" class="btn btn-dark shadow-sm rounded mb-3" href="#products" style="font-weight: bold;">Products</a><br>
+        <a role="button" class="btn btn-dark shadow-sm rounded mb-3" href="{% if user.is_authenticated %}{% url 'client_calendar' %}{% else %}{% url 'register-user-page' %}{% endif %}" style="font-weight: bold;">
+            Book Now &nbsp;<i class="fa-solid fa-arrow-right"></i>
+        </a> 
+    </div>
+    <!-- Pricing table example-->
+    <div class="card rounded-lg overflow-hidden mb-5" id="services">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr class="bg-dark text-white">
+                            <th class="py-4" scope="col">&nbsp;Service</th>
+                            <th class="py-4" scope="col">&nbsp;Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for service in services %}
+                        <tr>
+                            <th class="p-3" scope="row">{{ service.service_type }}</th>
+                            <td class="p-3 w-25" style="min-width: 12.5rem">
+                                <div class="text-dark mb-2">
+                                    <span class="h1">₱{{ service.fee|intcomma }}</span>
+                                    <span class="small text-muted fw-normal">/ pet</span>
+                                </div>
+                                <p class="small">{{ service.service_description }}</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card rounded-lg overflow-hidden mb-5" id="products">
+      <div class="card-body p-0">
+          <div class="table-responsive">
+              <table class="table mb-0">
+                  <thead>
+                      <tr class="bg-dark text-white">
+                          <th class="py-4" scope="col">&nbsp;Product</th>
+                          <th class="py-4" scope="col">&nbsp;Price</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for product in products %}
+                      <tr>
+                          <th class="p-3" scope="row">{{ product.product_name }}</th>
+                          <td class="p-3 w-25" style="min-width: 12.5rem">
+                              <div class="text-dark mb-2">
+                                  <span class="h1">₱{{ product.price|intcomma }}</span>
+                              </div>
+                              <p class="small">{{ product.product_description }}</p>
+                          </td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      </div>
+  </div>
+    <img class="ending-img img-fluid" src="{% static 'images/thank-you.png' %}" width="100%"/>
+</div>
+
+{% endblock %}
+
+{% block extrascript %}
+
+{% endblock %}

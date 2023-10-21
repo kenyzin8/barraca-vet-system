@@ -10,9 +10,38 @@ from functools import wraps
 import requests
 import time
 
+from services.models import Service
+from inventory.models import Product
+
 # @cache_page(60)
 def home(request):
     return render(request, 'home.html')
+
+def about(request):
+    return render(request, 'about.html')
+
+def contact(request):
+    return render(request, 'contact.html')
+
+def pricing(request):
+    services = Service.objects.all()
+    products = Product.objects.all()
+
+    modified_services = []
+
+    for service in services:
+        if service.fee != 0:
+            modified_services.append(service)
+
+    modified_products = []
+
+    for product in products:
+        if not product.is_product_expired and not product.is_product_out_of_stock:
+            modified_products.append(product)
+            
+    context = {'services': modified_services, 'products': products}
+
+    return render(request, 'pricing.html', context)
 
 # def timer(duration):
 #     def decorator(func):

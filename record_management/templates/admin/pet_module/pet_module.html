@@ -53,7 +53,16 @@
         }
     }
 </style>
-
+<script>
+    function hidePlaceholder(imgElement) {
+        
+        const card = imgElement.closest('.avatar');
+        const placeholder = card.querySelector('.loading-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}
 
 {% block content %}
@@ -163,14 +172,5 @@
 <script src="{% static 'plugins/print-js/print.min.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script src="{% static 'js/record/pet_module/pet_module.js' %}"></script>
-<script>
-    function hidePlaceholder(imgElement) {
-        
-        const card = imgElement.closest('.avatar');
-        const placeholder = card.querySelector('.loading-placeholder');
-        if (placeholder) {
-            placeholder.style.display = 'none';
-        }
-    }
-</script>
+
 {% endblock %}

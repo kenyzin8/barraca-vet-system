@@ -1,0 +1,167 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block title %} About - Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+  .header-barraca
+  {
+    font-size: 5rem;
+  }
+  .title-barraca
+  {
+    text-align: center;
+    margin-bottom: 20px;
+    cursor: default;
+  }
+
+  .description-barraca
+  {
+    font-size: 1.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    /* margin: 0 auto; ALTERNATIVE */ 
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  .btn-dark
+  {
+    background: #121212;
+  }
+
+  .second-part {
+    width: 100%;
+    height: 200px;
+    background: rgb(255, 255, 255);
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    position: relative;  
+    margin-top: 150px;
+    margin-bottom: 100px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; 
+  }
+
+  .dog-doogle-1 {
+      width: 10%;
+      position: absolute;  
+      bottom: -5.5%;           
+      right: -2%;            
+  }
+
+  .dog-doogle-2 {
+    width: 10%;
+    position: absolute;  
+    top: -50%;          
+    left: 0;         
+  }
+
+  .third-part {
+    width: 100%;
+    height: auto;
+    background: rgb(255, 255, 255);
+    border-radius: 10px;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.1);
+    position: relative;  
+    margin-top: 40px;
+    margin-bottom: 100px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  p {
+    margin-bottom: 0.5rem;
+  }
+
+  .about-barraca {
+    width: 50%; 
+    margin: 0 auto; 
+    font-weight: 600; 
+    line-height: 2; 
+    margin-bottom: 50px !important;
+  }
+
+  @media (max-width: 767px) {
+    .header-barraca {
+      font-size: 4rem;
+    }
+
+    .description-barraca {
+      font-size: 1.2rem;
+      max-width: 300px;
+    }
+    .third-part {
+      margin-top: 0px;
+      margin-bottom: 25px;
+    }
+    .dog-doogle-2
+    {
+      display: none;
+    }
+    .dog-doogle-1
+    {
+      display: none;
+    }
+    .second-part {
+      margin-top: 25px;
+      margin-bottom: 25px;
+      height: 100%;
+      padding: 10px;
+    }
+    .groom
+    {
+      margin-bottom: 10px;
+    }
+
+    .about-barraca {
+        width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="title-barraca">
+        <h1 class="header-barraca fw-bold">
+        About<br>
+        </h1>
+        <p class="description-barraca">
+            Barraca Veterinary Clinic
+        </p>
+        <br>
+        <div class="about-barraca">
+            Barraca Veterinary Clinic is a beacon of hope for pet owners, serving as a one-stop solution for their beloved pets' healthcare needs. Nestled in the city's heart, the clinic started as a small yet dedicated establishment that catered to 9-13 clients daily. Its commitment to superior care and expert services quickly gained traction, garnering a vast clientele. Now, with an impressive 1,200 clients and counting, the clinic boasts a new, state-of-the-art facility that caters to 20-30 clients daily.
+        </div>
+        
+        <div class="second-part">
+            <img class="dog-doogle-1 img-fluid" src="{% static 'images/second-part-dog.png' %}" alt="dog-doodle-1"/>
+            <img class="dog-doogle-2 img-fluid" src="{% static 'images/second-part-dog-2.png' %}" alt="dog-doodle-2"/>
+            <h1 class="header-barraca fw-bold">
+                Visit our clinic at
+            </h1>
+            <div>
+                <a class="description-barraca address" style="font-size:14px;color:#018ee0;text-decoration:none;" href="https://maps.app.goo.gl/1MXttpqxzq4QwmKA7" target="_blank">
+                    Door 5 & 6 SLB Building 431, Abad Santos Street, Koronadal City, Philippines <i class="fas fa-solid fa-arrow-right-long"></i>
+                </a>
+            </div>
+        </div>
+        <img class="ending-img img-fluid" src="{% static 'images/thank-you.png' %}" width="100%"/>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascript %}
+
+{% endblock %}

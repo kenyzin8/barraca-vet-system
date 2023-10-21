@@ -2087,9 +2087,9 @@ def get_laboratory_results_data(request, treatmentID):
             lab_results_data.append({
                 'id': lab_result.id,
                 'name': lab_result.result_name,
-                'image': lab_result.result_image.url if lab_result.result_image else None
+                'image': lab_result.result_image.url if lab_result.result_image.url != '/media/None' else False
             })
-        
+            
         return JsonResponse({'success': True, 'lab_results_data': lab_results_data})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})

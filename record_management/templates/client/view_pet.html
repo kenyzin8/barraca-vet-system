@@ -198,7 +198,7 @@
                                                     {% endfor %}
                                                     </td>
                                                     <td>
-                                                        {% if treatment.get_lab_result_image_for_health_card %}
+                                                        {% if treatment.get_lab_result_image_for_health_card != 'None' %}
                                                         <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
                                                             <i data-feather="image"></i>
                                                         </a>
@@ -262,7 +262,7 @@
                                                     {% endfor %}
                                                     </td>
                                                     <td>
-                                                        {% if treatment.get_lab_result_image_for_health_card %}
+                                                        {% if treatment.get_lab_result_image_for_health_card != 'None' %}
                                                         <a href="{{ treatment.get_lab_result_image_for_health_card.url }}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Image">
                                                             <i data-feather="image"></i>
                                                         </a>
@@ -653,8 +653,8 @@
         $(document).on('click', '.selectable-image', function() {
             var newImageSrc = $(this).attr('data-full-image');
             var imageName = $(this).attr('alt');
-        
-            if (!newImageSrc || newImageSrc === '/media/None') {
+            
+            if (!newImageSrc) {
                 newImageSrc = '{% static "images/no-image-placeholder.png" %}';
             }
         
@@ -680,11 +680,11 @@
                         var imageListContent = '';
 
                         labResults.forEach(function(result) {
-    
-                            if (result.image && result.image !== '/media/None') {
+                            
+                            if(result.image) {
                                 imageListContent += `<img src="${result.image}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" style="width: 80px; height: auto; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
                             } else {
-                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" style="width: 80px; height: 80px; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="{% static 'images/no-image-placeholder.png' %}" style="width: 80px; height: 80px; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
                             } 
                         });
                         
@@ -697,7 +697,7 @@
                         
 
                         var firstResult = labResults[0];
-                        if (firstResult.image && firstResult.image !== '/media/None') {
+                        if (firstResult.image) {
                             $('#mainImage').attr('src', firstResult.image);
                             $('.selectable-image').first().addClass('selected');
                             $('#resultName').text(firstResult.name);

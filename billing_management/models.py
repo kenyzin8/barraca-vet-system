@@ -49,7 +49,7 @@ class BillingProduct(models.Model):
     price_at_time_of_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        print(self.pk)
+        #print(self.pk)
         if not self.pk:
             self.price_at_time_of_purchase = self.product.price
         super().save(*args, **kwargs)
@@ -70,7 +70,7 @@ class BillingService(models.Model):
     price_at_time_of_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
-        print(self.pk)
+        #print(self.pk)
         if not self.pk:
             self.price_at_time_of_purchase = self.service.fee
         super().save(*args, **kwargs)

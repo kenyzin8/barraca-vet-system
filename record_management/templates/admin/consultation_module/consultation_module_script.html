@@ -83,6 +83,7 @@
 
         let selectedPetName;
         let selectedPetId;
+        let selectedPetOwner;
         let selectedProductIds = new Set();
         let productsSelected = new Map();
 
@@ -279,6 +280,7 @@
                             textSpan.style.fontWeight = '600';
 
                             selectedPetName = row.querySelector('.pet-name').textContent.trim();
+                            selectedPetOwner = row.querySelector('.pet-owner').textContent.trim();
                             const selectedPetImage = row.querySelector('.avatar-img').getAttribute('src');
                             const selectedPetLink = row.querySelector('.btn-to-pet').getAttribute('href');
                             const selectedPetInfoDivs = document.querySelectorAll('.selected-pet-info');
@@ -330,7 +332,13 @@
             parameter.delete('pet_id');
             history.pushState({}, null, location.pathname);
             $('.datatable-input').val(selectedPetName);
-            petDataTable.search(selectedPetName);
+            var queries = [
+                { term: selectedPetId.toString(), columns: [0] },
+                { term: selectedPetName.toString(), columns: [1] },
+                { term: selectedPetOwner.toString(), columns: [4] }
+            ];
+
+            petDataTable.multiSearch(queries);
         }
 
         var productInputValues = {};

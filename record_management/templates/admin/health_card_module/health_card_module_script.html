@@ -33,6 +33,7 @@
     window.addEventListener('DOMContentLoaded', event => {
 
         let selectedPetName;
+        let selectedPetOwner;
         let selectedPetId;
         let selectedProductID = -1;
         let selectedProductName = "";
@@ -150,9 +151,16 @@
                 })
 
                 //console.log(selectedPetId)
+                console.log(query);
+                console.log(matched);
 
                 setupSelectButtons();
             });
+
+            // petDataTable.on('datatable.multisearch', function(query, matched) {
+            //     console.log(query);
+            //     console.log(matched);
+            // });
     
             petDataTable.on('datatable.sort', function(column, direction) {
                 feather.replace();
@@ -257,6 +265,7 @@
                             textSpan.style.fontWeight = '600';
 
                             selectedPetName = row.querySelector('.pet-name').textContent.trim();
+                            selectedPetOwner = row.querySelector('.pet-owner').textContent.trim();
                             const selectedPetImage = row.querySelector('.avatar-img').getAttribute('src');
                             const selectedPetLink = row.querySelector('.btn-to-pet').getAttribute('href');
 
@@ -325,11 +334,22 @@
         petDataTable.options.paging = true;
         petDataTable.refresh();
 
-        if(selectedPetId != null){
+        if (selectedPetId != null) {
             parameter.delete('pet_id');
             history.pushState({}, null, location.pathname);
+            // selectedPetName
+            // console.log(selectedPetOwner);
+            // console.log(selectedPetName);
+            // console.log(selectedPetId);
+
             $('.datatable-input').val(selectedPetName);
-            petDataTable.search(selectedPetName);
+            var queries = [
+                { term: selectedPetId.toString(), columns: [0] },
+                { term: selectedPetName.toString(), columns: [1] },
+                { term: selectedPetOwner.toString(), columns: [4] }
+            ];
+
+            petDataTable.multiSearch(queries);
         }
         
         $('#addMedicineModal').on('show.bs.modal', function (event) 

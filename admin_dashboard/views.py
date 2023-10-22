@@ -22,6 +22,7 @@ import requests
 import json
 
 from django.contrib.auth.models import User, Group
+from core.models import Province, Municipality, Barangay
 
 @login_required
 @staff_required
@@ -33,6 +34,11 @@ def update_user(request, userID):
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=user)
         client_form = ClientUpdateForm(request.POST, instance=client)
+        
+        if 'province' in request.POST:
+            client_form.fields['city'].queryset = Municipality.objects.filter(province_id=request.POST['province'])
+        if 'city' in request.POST:
+            client_form.fields['barangay'].queryset = Barangay.objects.filter(municipality_id=request.POST['city'])
 
         if user_form.is_valid() and client_form.is_valid():
             user_form.save()
@@ -41,13 +47,24 @@ def update_user(request, userID):
     else:
         user_form = UserUpdateForm(instance=user)
         client_form = ClientUpdateForm(instance=client)
-    
+
+    province = Province.objects.filter(name=client.province).first()
+    municipality = Municipality.objects.filter(name=client.city, province=province).first()
+    barangay = Barangay.objects.filter(name=client.barangay, municipality=municipality).first()
+
+    address_dict = {
+        'province': province.id if province else None,
+        'municipality': municipality.id if municipality else None,
+        'barangay': barangay.id if barangay else None,
+    }
+
     context = {
         'user_form': user_form,
         'client_form': client_form,
         'user_id': userID,
         'user': user,
-        'client': client
+        'client': client,
+        'address': address_dict,
     }
 
     return render(request, 'update_user.html', context)

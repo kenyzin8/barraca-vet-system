@@ -61,6 +61,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import ConsultationSerializer, TemporaryLabResultImageSerializer, PrescriptionSerializer, HealthCardSerializer, UpdateConsultationSerializer
 
+from core.models import Province, Municipality, Barangay
 
 OTP_EXPIRATION_MINUTE = settings.OTP_EXPIRATION_MINUTES
 #-------------------------------------------------------------------------------------------------------------

@@ -6,6 +6,12 @@ var ClientModule = {
     print_image: JSON.parse(document.getElementById('CM_print_image').textContent)
 };
 
+function showError(message) {
+    $("#OKErrorModalButton").off("click");
+    $('#errorModal .modal-body').text(message);
+    $('#errorModal').modal('show');
+}
+
 window.addEventListener('DOMContentLoaded', event => {
     const datatablesSimple = document.getElementById('datatablesSimple');
     
@@ -106,6 +112,11 @@ function getFormattedDate(date)
 
 function printTable(tableID) 
 {
+    if(ClientModule.dataRaw.length <= 0) {
+        showError("There are no clients to print.");
+        return;
+    }
+
     var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
     var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 0px solid #232323; ${font}`;
     var css_gridStyle = `text-align: center; padding: 0px;border: 0px solid #232323; ${font};`;

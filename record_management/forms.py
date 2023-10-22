@@ -191,12 +191,55 @@ class ClientUpdateForm(forms.ModelForm):
     first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name'}))
     last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name'}))
     gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')],widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
-    street = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Street'}))
-    barangay = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Barangay'}))
-    city = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'City'}))
-    province = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Province'}))
-    #contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Contact Number', 'disabled': 'true'}))
+    # street = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Street'}))
+    # barangay = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Barangay'}))
+    # city = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'City'}))
+    # province = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Province'}))
+    street = forms.CharField(
+        required=True, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control wider-input', 
+            'placeholder': 'Street', 
+            'autocomplete': 'off'
+        })
+    )
 
+    province = forms.ModelChoiceField(
+        required=True,
+        queryset=Province.objects.all().order_by('name'),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        empty_label="Select Province",
+    )
+    city = forms.ModelChoiceField(
+        required=True,
+        queryset=Municipality.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        empty_label="Select City/Municipality",
+    )
+    barangay = forms.ModelChoiceField(
+        required=True,
+        queryset=Barangay.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        empty_label="Select Barangay",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if 'data' in kwargs:
+            if 'province' in kwargs['data']:
+                province_id = kwargs['data']['province']
+                self.fields['city'].queryset = Municipality.objects.filter(province_id=province_id)
+
+            if 'city' in kwargs['data']:
+                city_id = kwargs['data']['city']
+                self.fields['barangay'].queryset = Barangay.objects.filter(municipality_id=city_id)
+
+        instance = kwargs.get('instance')
+        if instance:
+            self.fields['city'].queryset = Municipality.objects.filter(name=instance.city, province__name=instance.province)
+            self.fields['barangay'].queryset = Barangay.objects.filter(name=instance.barangay, municipality__name=instance.city)
+            
     class Meta:
         model = Client
         fields = ('first_name', 'last_name', 'gender', 'street', 'barangay', 'city', 'province', 'two_auth_enabled',)
@@ -210,7 +253,7 @@ class PasswordResetStep2(forms.Form):
 
 class AdminChangePasswordForm(PasswordChangeForm):
     old_password = forms.CharField(label="Old Password", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter current password'}))
-    new_password1 = forms.CharField(label="New Password", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter new password'}))
+    new_password1 = forms.CharField(label="New Password", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Enter new password'}), validators=[validate_contains_special_character, validate_contains_digit, validate_contains_uppercase])
     new_password2 = forms.CharField(label="Confirm New Password", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm new password'}))
 
 class TwoFactorAuthenticationForm(forms.Form):

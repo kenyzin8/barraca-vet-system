@@ -115,8 +115,8 @@
                         <td>{{ pet.species }}</td>
                         <td>{{ pet.birthday }}</td>
                         <td>
-                            <div class="d-flex align-items-center justify-content-between">  <!-- Add justify-content-between -->
-                                <div>  <!-- Wrap the name and (You) text in a div -->
+                            <div class="d-flex align-items-center justify-content-between"> 
+                                <div> 
                                     {{ pet.client.full_name }}
                                     {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}
                                     (You)
@@ -160,6 +160,22 @@
         </div>
     </div>
 </main>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Oh no!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKErrorModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
 {% static 'images/barraca.png' as static_image %}
 {{ pets|length|json_script:"CM_max_page" }}
 {{ pet_data|json_script:"CM_dataRaw" }}

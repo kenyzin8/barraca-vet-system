@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load humanize %}
+{% load templatetags %}
 
 {% block title %} Pet - {{ pet.name }} | Barraca Veterinary Clinic {% endblock %}
 
@@ -168,7 +169,9 @@
                                                     <th>Veterenarian</th>
                                                     <th>Medicine</th>
                                                     <th>Medicine Sticker</th>
+                                                    {% if request.user|has_permission:'record_management.add_pethealthcard' %}
                                                     <th>Actions</th>
+                                                    {% endif %}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -205,6 +208,7 @@
                                                             <i data-feather="x-square"></i>
                                                         {% endif %}
                                                     </td>
+                                                    {% if request.user|has_permission:'record_management.add_pethealthcard' %}
                                                     <td>
                                                         <a href="{% url 'admin-update-pet-health-card-treatment-page' treatment.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                             <i data-feather="edit"></i>
@@ -213,6 +217,7 @@
                                                             <i data-feather="archive"></i>
                                                         </a> 
                                                     </td>
+                                                    {% endif %}
                                                 </tr>
                                                 {% endif %}
                                                 {% endfor %}
@@ -241,7 +246,9 @@
                                                     <th>Veterenarian</th>
                                                     <th>Medicine</th>
                                                     <th>Medicine Sticker</th>
+                                                    {% if request.user|has_permission:'record_management.add_pethealthcard' %}
                                                     <th>Actions</th>
+                                                    {% endif %}
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -278,6 +285,7 @@
                                                             <i data-feather="x-square"></i>
                                                         {% endif %}
                                                     </td>
+                                                    {% if request.user|has_permission:'record_management.add_pethealthcard' %}
                                                     <td>
                                                         <a href="{% url 'admin-update-pet-health-card-treatment-page' treatment.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                             <i data-feather="edit"></i>
@@ -286,6 +294,7 @@
                                                             <i data-feather="archive"></i>
                                                         </a> 
                                                     </td>
+                                                    {% endif %}
                                                 </tr>
                                                 {% endif %}
                                                 {% endfor %}
@@ -296,11 +305,13 @@
                             </div>
                         </div>
                         <div class="mb-4">
+                            {% if request.user|has_permission:'record_management.add_pethealthcard' %}
                             <a href="{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm  lift lift-sm">
                                 <i data-feather="plus-circle"></i>
                                 &nbsp;
                                 Add Treatment
                             </a>
+                            {% endif %}
                             <button class="btn btn-dark btn-sm mt-4 lift lift-sm" onclick="printHealthCard()">
                                 <i data-feather="printer"></i>
                                 &nbsp;
@@ -326,7 +337,9 @@
                                                 <th>Veterenarian</th>
                                                 <th>Medicine</th>
                                                 <th>Medicine Sticker</th>
+                                                {% if request.user|has_permission:'record_management.add_pethealthcard' %}
                                                 <th>Actions</th>
+                                                {% endif %}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -362,6 +375,7 @@
                                                         <i data-feather="x-square"></i>
                                                     {% endif %}
                                                 </td>
+                                                {% if request.user|has_permission:'record_management.add_pethealthcard' %}
                                                 <td>
                                                     <a href="#" target="_blank" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                         <i data-feather="edit"></i>
@@ -370,6 +384,7 @@
                                                         <i data-feather="corner-right-up"></i>
                                                     </a> 
                                                 </td>
+                                                {% endif %}
                                             </tr>
                                             {% endfor %}
                                         </tbody>
@@ -394,7 +409,9 @@
                                         <th><span class="small">Lab Results</span></th>
                                         <th><span class="small">Prescription</span></th>
                                         <th><span class="small">Next Appointment</span></th>
+                                        {% if request.user|has_permission:'record_management.add_petmedicalrecord' %}
                                         <th><span class="small">Actions</span></th>
+                                        {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -436,6 +453,7 @@
                                                 <i data-feather="x-square"></i>
                                             {% endif %}
                                         </td>
+                                        {% if request.user|has_permission:'record_management.add_petmedicalrecord' %}
                                         <td>
                                             <a href="{% url 'admin-update-consultation-page' treatment.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                 <i data-feather="edit"></i>
@@ -444,6 +462,7 @@
                                                 <i data-feather="archive"></i>
                                             </a> 
                                         </td>
+                                        {% endif %}
                                     </tr>
                                     {% endif %}
                                     {% endfor %}
@@ -451,7 +470,12 @@
                             </table>
                         </div>
                         <div class="mb-4">
-                            <a href="{% url 'admin-medical-record-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm lift lift-sm"><i data-feather="plus-circle"></i>&nbsp;Add Treatment</a>
+                            {% if request.user|has_permission:'record_management.add_petmedicalrecord' %}
+                            <a href="{% url 'admin-medical-record-page' %}?pet_id={{ pet.id }}" class="btn btn-dark mt-4 btn-sm lift lift-sm">
+                                <i data-feather="plus-circle"></i>
+                                &nbsp;Add Treatment
+                            </a>
+                            {% endif %}
                             <button class="btn btn-dark btn-sm mt-4 lift lift-sm" onclick="printMedicalRecord()">
                                 <i data-feather="printer"></i>
                                 &nbsp;
@@ -479,7 +503,9 @@
                                                 <th><span class="small">Lab Results</span></th>
                                                 <th><span class="small">Prescription</span></th>
                                                 <th><span class="small">Next Appointment</span></th>
+                                                {% if request.user|has_permission:'record_management.add_petmedicalrecord' %}
                                                 <th><span class="small">Actions</span></th>
+                                                {% endif %}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -520,6 +546,7 @@
                                                         <i data-feather="x-square"></i>
                                                     {% endif %}
                                                 </td>
+                                                {% if request.user|has_permission:'record_management.add_petmedicalrecord' %}
                                                 <td>
                                                     <a href="{% url 'admin-update-consultation-page' treatment.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                         <i data-feather="edit"></i>
@@ -528,6 +555,7 @@
                                                         <i data-feather="corner-right-up"></i>
                                                     </a> 
                                                 </td>
+                                                {% endif %}
                                             </tr>
                                             {% endfor %}
                                         </tbody>
@@ -574,6 +602,11 @@
     function printMedicalRecord()
     {
         var medicalRecordDataRaw = {{ medical_record_data|safe }}
+
+        if(medicalRecordDataRaw.length <= 0){
+            showError('There are no medical records to print.');
+            return;
+        }
 
         var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
         var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 0px solid #232323; ${font}`;
@@ -697,6 +730,11 @@
     {
         var dewormingDataRaw = {{ deworming_data|safe }};
         var vaccinationDataRaw = {{ vaccination_data|safe }};
+
+        if(dewormingDataRaw.length <= 0 && vaccinationDataRaw.length <= 0){
+            showError('There are no deworming and vaccination records to print.');
+            return;
+        }
 
         var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
         var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 0px solid #232323; ${font}`;

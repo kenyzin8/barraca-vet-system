@@ -64,22 +64,22 @@
                             </div>
                             <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Street</label>
-                                    {{ client_form.street }}
+                                    <label class="small mb-1" for="inputLocation">Province</label>
+                                    {{ client_form.province }}
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Barangay</label>
-                                    {{ client_form.barangay }}
-                                </div>
-                            </div>
-                            <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputLocation">City</label>
                                     {{ client_form.city }}
                                 </div>
+                            </div>
+                            <div class="row gx-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="small mb-1" for="inputLocation">Province</label>
-                                    {{ client_form.province }}
+                                    <label class="small mb-1" for="inputLocation">Barangay</label>
+                                    {{ client_form.barangay }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="inputLocation">Street</label>
+                                    {{ client_form.street }}
                                 </div>
                             </div>
                             <!-- <div class="row gx-3 mb-3">
@@ -92,7 +92,7 @@
                                     {{ client_form.address }}
                                 </div>
                             </div> -->
-                            <button class="btn btn-dark float-end" type="submit">Save changes</button>
+                            <button class="btn btn-dark float-end btn-submit-changes" type="submit" disabled>Save changes</button>
                             
                         </form>
                     </div>
@@ -105,6 +105,47 @@
 {% endblock %}
 
 {% block extrascripts %}
+<script>
+
+const provinceDropdown = document.getElementById('id_province');
+const cityDropdown = document.getElementById('id_city');
+const barangayDropdown = document.getElementById('id_barangay');
+provinceDropdown.addEventListener('change', function() {
+    const provinceId = this.value;
+
+    fetch(`/get_municipalities/?province_id=${provinceId}`)
+    .then(response => response.json())
+    .then(data => {
+        cityDropdown.innerHTML = '<option value="">Select City/Municipality</option>';
+        data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.name;
+            cityDropdown.append(option);
+        });
+    });
+});
+
+cityDropdown.addEventListener('change', function() {
+    const municipalityId = this.value;
+
+    // Fetch the barangays for the selected municipality
+    fetch(`/get_barangays/?municipality_id=${municipalityId}`)
+    .then(response => response.json())
+    .then(data => {
+        barangayDropdown.innerHTML = '<option value="">Select Barangay</option>';
+        data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.name;
+            barangayDropdown.append(option);
+        });
+        setTimeout(() => {
+            $('.btn-submit-changes').prop('disabled', false);
+        }, 1000);
+    });
+});
+</script>
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
         const genderSelect = document.getElementById('gender');
@@ -129,9 +170,51 @@
             if (this.value === 'Male' || this.value === 'Female') {
                 this.style.color = '#69707a';
             } else {
-                this.style.color = ''; // Reset to default color if selection is not 'Male' or 'Female'
+                this.style.color = ''; 
             }
         });
+
+        const regex = /[^a-zA-Z\s]/g;
+        const leadingSpaceRegex = /^\s+/;
+
+        $("#id_first_name, #id_last_name").on("input", function() {
+            let value = $(this).val();   
+            value = value.replace(regex, "");
+            value = value.replace(leadingSpaceRegex, "");
+            
+            $(this).val(value);
+        });
+
+        $("#id_street, #id_first_name, #id_last_name").on("input", function() {
+            let value = $(this).val();   
+
+            if (value.length > 0) {
+                value = value.charAt(0).toUpperCase() + value.slice(1);
+            }
+
+            $(this).val(value);
+        });
+
+        const address = {{ address|safe }};
+
+        if (address.province) {
+            document.querySelector('#id_province').value = address.province;
+            document.querySelector('#id_province').dispatchEvent(new Event('change'));
+        }
+
+        if (address.municipality) {
+            setTimeout(() => {
+                document.querySelector('#id_city').value = address.municipality;
+                document.querySelector('#id_city').dispatchEvent(new Event('change'));
+            }, 500);
+        }
+
+        if (address.barangay) {
+            setTimeout(() => {
+                document.querySelector('#id_barangay').value = address.barangay;
+            }, 1000); 
+        }
     });
-  </script>
+</script>
+
 {% endblock %}

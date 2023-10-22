@@ -1128,7 +1128,7 @@
             $('.treatment').text($('#inputTreatment').val() || "None");
 
             let appointmentDate = $('#litepickerSingleDate').val();
-            let appointmentTimeText = $('#inputNextAppointmentTimeOfTheDay option:selected').text();
+            let appointmentTimeText = $('#inputNextAppointmentTime option:selected').text();
             $('.next-appointment').text((appointmentDate && appointmentTimeText) ? (appointmentDate + ' - ' + appointmentTimeText) : "None");   
             let rows = prescriptionSummaryDataTable.rows;
             $("#inputNextAppointmentTime").off("change");

@@ -35,15 +35,17 @@
                     <tr>
                         <td>{{ pet.id }}</td>
                         <td>
-                            <div class="d-flex align-items-center">
-                                <div class="avatar me-2">
-                                    {% if pet.picture %}
-                                    <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" loading="lazy"/>
-                                    {% else %}
-                                    <img class="avatar-img img-fluid" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}">
-                                    {% endif %}
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar me-2">
+                                        {% if pet.picture %}
+                                        <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" loading="lazy"/>
+                                        {% else %}
+                                        <img class="avatar-img img-fluid" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}">
+                                        {% endif %}
+                                    </div>
+                                    <span class="pet-name">{{ pet.name }}</span>
                                 </div>
-                                <span class="pet-name">{{ pet.name }}</span>
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet" href="{% url 'admin-view-pet-page' pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet Details">
                                     <i data-feather="external-link"></i>
                                 </a>
@@ -52,13 +54,17 @@
                         <td>{{ pet.species }}</td>
                         <td>{{ pet.age }}</td>
                         <td >
-                            <span class="pet-owner">{{ pet.client.full_name }}</span>
-                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' pet.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client Details">
-                                <i data-feather="external-link"></i>
-                            </a>
-                            {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}
-                            (You)
-                            {% endif %}
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="pet-owner">{{ pet.client.full_name }}</span>
+                                    {% if request.user.is_authenticated and pet.client.user.id == request.user.id %}
+                                    (You)
+                                    {% endif %}
+                                </div>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' pet.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client Details">
+                                    <i data-feather="external-link"></i>
+                                </a>
+                            </div>
                         </td>
                         <td>
                             <button class="btn btn-transparent-dark select-pet-button">

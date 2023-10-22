@@ -6,6 +6,12 @@ var PetModule = {
     print_image: JSON.parse(document.getElementById('CM_print_image').textContent)
 };
 
+function showError(message) {
+    $("#OKErrorModalButton").off("click");
+    $('#errorModal .modal-body').text(message);
+    $('#errorModal').modal('show');
+}
+
 window.addEventListener('DOMContentLoaded', event => {
     const datatablesSimple = document.getElementById('datatablesSimple');
     
@@ -107,6 +113,11 @@ function getFormattedDate(date)
 
 function printTable()
 {
+    if(PetModule.dataRaw.length <= 0){
+        showError("There are no pets to print.");
+        return;
+    }
+
     var dataRaw = PetModule.dataRaw;
 
     var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"

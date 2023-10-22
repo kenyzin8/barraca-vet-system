@@ -89,7 +89,7 @@
         {% for pet_appointment in pets_appointments %}
         <div class="col-lg-6 col-xl-3 mb-4" style="cursor: default;">
             <div class="card card-custom-height card-darken-image">
-                {% if pet.picture %}
+                {% if pet_appointment.pet.picture %}
                 <img class="card-img " src="{{ pet_appointment.pet.picture.url }}" alt="{{ pet_appointment.pet.name }}">
                 {% else %}
                 <img class="card-img" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet.name }}">
@@ -160,13 +160,18 @@ window.addEventListener('DOMContentLoaded', event => {
     const datatablesSimple = document.getElementById('datatablesSimple');
     if (datatablesSimple) {
         datatablesSimple.style.display = "";
+
+        var appointment_length = {{ my_appointment|length }};
+        console.log(appointment_length);
+        var maxIndex = appointment_length > 25 ? appointment_length : 50;
+
         let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
-            paging: false,
-            perPageSelect: [5, 10, 25, 50],
+            paging: true,
+            perPageSelect: [5, 10, 25, maxIndex],
             perPage: 10,
             fixedHeight: true,
             sortable: true,
-            searchable: false,
+            searchable: true,
             hiddenHeader: false,
         });
 

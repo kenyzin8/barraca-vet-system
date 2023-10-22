@@ -246,19 +246,34 @@ def client_profile_view(request):
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=user)
         client_form = ClientUpdateForm(request.POST, instance=client)
+        
+        if 'province' in request.POST:
+            client_form.fields['city'].queryset = Municipality.objects.filter(province_id=request.POST['province'])
+        if 'city' in request.POST:
+            client_form.fields['barangay'].queryset = Barangay.objects.filter(municipality_id=request.POST['city'])
 
         if user_form.is_valid() and client_form.is_valid():
             user_form.save()
             client_form.save()
             return redirect('client-account-settings-page')
-        # else:
-        #     print(user_form.errors) 
-        #     print(client_form.errors)
+        else:
+            print(user_form.errors) 
+            print(client_form.errors)
     else:
         user_form = UserUpdateForm(instance=user)
         client_form = ClientUpdateForm(instance=client)
 
-    context = {'user_form': user_form, 'client_form': client_form}
+    province = Province.objects.filter(name=client.province).first()
+    municipality = Municipality.objects.filter(name=client.city, province=province).first()
+    barangay = Barangay.objects.filter(name=client.barangay, municipality=municipality).first()
+
+    address_dict = {
+        'province': province.id if province else None,
+        'municipality': municipality.id if municipality else None,
+        'barangay': barangay.id if barangay else None,
+    }
+
+    context = {'user_form': user_form, 'client_form': client_form, 'address': address_dict}
 
     return render(request, 'client/client_account_settings.html', context)
 
@@ -683,6 +698,11 @@ def admin_profile_view(request):
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=user)
         client_form = ClientUpdateForm(request.POST, instance=client)
+        
+        if 'province' in request.POST:
+            client_form.fields['city'].queryset = Municipality.objects.filter(province_id=request.POST['province'])
+        if 'city' in request.POST:
+            client_form.fields['barangay'].queryset = Barangay.objects.filter(municipality_id=request.POST['city'])
 
         if user_form.is_valid() and client_form.is_valid():
             user_form.save()
@@ -692,7 +712,17 @@ def admin_profile_view(request):
         user_form = UserUpdateForm(instance=user)
         client_form = ClientUpdateForm(instance=client)
 
-    context = {'user_form': user_form, 'client_form': client_form}
+    province = Province.objects.filter(name=client.province).first()
+    municipality = Municipality.objects.filter(name=client.city).first()
+    barangay = Barangay.objects.filter(name=client.barangay).first()
+
+    address_dict = {
+        'province': province.id if province else None,
+        'municipality': municipality.id if municipality else None,
+        'barangay': barangay.id if barangay else None,
+    }
+
+    context = {'user_form': user_form, 'client_form': client_form, 'address': address_dict}
 
     return render(request, 'admin/admin_account_settings.html', context)
 
@@ -2152,6 +2182,8 @@ def update_medical_record(request, treatmentID):
         appointment.time = str(appointment.time)
     time_choices = Appointment.time_choices
 
+    pet = pet_treatment.pet
+
     context = {
         'pets': pets, 
         'product_dict': product_dict, 
@@ -2169,7 +2201,8 @@ def update_medical_record(request, treatmentID):
         'product_ids': product_ids,
         'products_map': products_map,
         'appointment': appointment,
-        'time_choices': time_choices
+        'time_choices': time_choices,
+        'pet': pet
     }
     return render(request, 'admin/consultation_module/update/update.html', context)
 
@@ -2480,9 +2513,13 @@ def update_health_card_record(request, treatmentID):
 
     lab_results = PetTreatment.objects.get(pk=treatmentID).lab_results.first()
     appointment = pet_treatment.appointment
+
     if appointment:
         appointment.time = str(appointment.time)
     time_choices = Appointment.time_choices
+
+    pet = pet_treatment.pet
+
     context = {
         'product_dict': product_dict, 
         'formList': formList,
@@ -2497,7 +2534,8 @@ def update_health_card_record(request, treatmentID):
         'prescription_medicines': prescription_medicines,
         'lab_results': lab_results,
         'appointment': appointment,
-        'time_choices': time_choices
+        'time_choices': time_choices,
+        'pet': pet
     }
 
     return render(request, 'admin/health_card_module/update/index_update.html', context)

@@ -562,8 +562,8 @@ function initDataTables(tableId, maxPage) {
         var billProductDataRaw = {{ billing_products_data|safe }};
         var billSericeDataRaw = {{ billing_services_data|safe }};
         
-        if(billProductDataRaw.length == 0 && billSericeDataRaw.length == 0) {
-            showError('No sales to print.');
+        if(billProductDataRaw.length <= 0 && billSericeDataRaw.length <= 0) {
+            showError('There are no sales to print.');
             return;
         }
 

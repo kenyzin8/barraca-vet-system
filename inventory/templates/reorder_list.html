@@ -48,12 +48,34 @@
         </div>
     </div>
 </main>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Oh no!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKErrorModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
 {% endblock %}
 
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script src="{% static 'plugins/print-js/print.min.js' %}"></script>
 <script>
+    function showError(message) {
+        $("#OKErrorModalButton").off("click");
+        $('#errorModal .modal-body').text(message);
+        $('#errorModal').modal('show');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const datatablesSimple = document.getElementById('datatablesSimple');
 
@@ -147,6 +169,11 @@
     function printTable(tableID) 
     {
         var dataRaw = {{ reorder_data|safe }}
+
+        if(dataRaw.length <= 0) {
+            showError("There are no products to print.");
+            return;
+        }
 
         var font = "font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;"
         var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 0px solid #232323; ${font}`;

@@ -113,12 +113,34 @@
         <button id="printButton" class="btn btn-dark btn-sm lift lift-sm" style="margin-left:10px;" onclick="printPrescription()">Print</button>
     </div>
 </div>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Oh no!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKErrorModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
 {% endblock %}
 
 {% block extrascripts %}
 <script src="{% static 'js/billing/view_bill.js' %}"></script>
 <script src="{% static 'plugins/print-js/print.min.js' %}"></script>
 <script>
+    function showError(message) {
+        $("#OKErrorModalButton").off("click");
+        $('#errorModal .modal-body').text(message);
+        $('#errorModal').modal('show');
+    }
+
     function getFormattedDate(date)
     {
         var months = ["January", "February", "March", "April", "May", "June",
@@ -146,6 +168,12 @@
     function printPrescription() 
     {
         var productsDataRaw = {{ prescription_data|safe }}
+
+        if(productsDataRaw.length <= 0)
+        {
+            showError("There are no medicines to print.");
+            return;
+        }
 
         var clientName = document.getElementsByClassName("clientName").innerText;
         var billNo = document.getElementsByClassName("prescriptionNumber").innerText;

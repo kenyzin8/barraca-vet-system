@@ -44,11 +44,28 @@
                     <div class="row gx-3 mb-3">
                       <div class="col-md-6">
                           <label class="small mb-1" for="inputFirstName">Specie</label>
-                          {{ form.species }}
+                          <div class="input-group">
+                            {{ form.species }}
+                            <select class="form-select" aria-label="Specie select" id="select-specie">
+                              <option value="">Select specie</option>
+                              <option value="dog">Dog</option>
+                              <option value="cat">Cat</option>
+                              <option value="hamster">Hamster</option>
+                              <option value="bird">Bird</option>
+                              <option value="guinea-pig">Guinea Pig</option>
+                              <option value="reptile">Reptile</option>
+                              <option value="fish">Fish</option>
+                            </select>
+                          </div>
                       </div>
                       <div class="col-md-6">
                           <label class="small mb-1" for="inputLastName">Breed</label>
-                          {{ form.breed }}
+                          <div class="input-group">
+                            {{ form.breed }}
+                            <select class="form-select" aria-label="Specie breed" id="select-breed">
+                              <option value="" selected>Select breed</option>
+                            </select>
+                          </div>
                       </div>
                     </div>
                     <div class="row gx-3 mb-3">
@@ -58,7 +75,26 @@
                       </div>
                       <div class="col-md-6">
                           <label class="small mb-1" for="inputLastName">Color</label>
-                          {{ form.color }}
+                          <div class="input-group">
+                            {{ form.color }}
+                            <select class="form-select" aria-label="Animal color" id="select-color">
+                              <option value="" selected>Select color</option>
+                              <option value="black">Black</option>
+                              <option value="white">White</option>
+                              <option value="brown">Brown</option>
+                              <option value="gray">Gray</option>
+                              <option value="golden">Golden</option>
+                              <option value="yellow">Yellow</option>
+                              <option value="blue">Blue</option>
+                              <option value="red">Red</option>
+                              <option value="orange">Orange</option>
+                              <option value="cream">Cream</option>
+                              <option value="tan">Tan</option>
+                              <option value="green">Green</option>
+                              <option value="pink">Pink</option>
+                              <option value="purple">Purple</option>
+                          </select>
+                          </div>
                       </div>
                     </div>
                     <div class="row gx-3 mb-3">
@@ -108,4 +144,70 @@
       </div>
 </div>
 
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+  $(document).ready(function(){
+    $('#select-color').on('change', function() {
+      let value = $(this).val();
+      let text = $(this).find('option:selected').text();
+      $('#color').val(value !== "" ? text : '');
+    });
+
+    $('#select-specie').on('change', function() {
+      let value = $(this).val();
+      let text = $(this).find('option:selected').text();
+      $('#species').val(value !== "" ? text : '');
+
+      let breedDropdown = $('#select-breed');
+
+      breedDropdown.empty();
+      breedDropdown.append('<option value="" selected>Select breed</option>');
+
+      if (value === 'dog') {
+        let dogBreeds = ['Aspin', 'Dachshund', 'Labrador Retriever', 'Golden Retriever', 'German Shepherd', 'Poodle', 'Bulldog', 'Shih-Tzu', 'Pug', 'Pomeranian', 'Beagle', 'Chihuahua', 'Chow Chow', 'German Shepherd', 'Poodle'];
+        dogBreeds.forEach(function(breed) {
+          breedDropdown.append('<option value="' + breed.toLowerCase() + '">' + breed + '</option>');
+        });
+      } else if (value === 'cat') {
+        let catBreeds = ['Persian', 'Siamese', 'Maine Coon', 'Ragdoll', 'Bengal', 'British Shorthair', 'Sphynx', 'Abyssinian', 'Scottish Fold', 'Burmese', 'Russian Blue', 'Filipino Shorthair', 'Puspin (Pusang Pinoy)', 'Balinese'];
+        catBreeds.forEach(function(breed) {
+          breedDropdown.append('<option value="' + breed.toLowerCase() + '">' + breed + '</option>');
+        });
+      } else if (value === 'bird') {
+        let birdBreeds = ['Parrot', 'Canary', 'Cockatiel', 'Budgerigar', 'Lovebird', 'Cockatoo', 'Finch', 'African Grey', 'Conure', 'Macaw'];
+        birdBreeds.forEach(function(breed) {
+          breedDropdown.append('<option value="' + breed.toLowerCase() + '">' + breed + '</option>');
+        });
+      } else if (value === 'hamster') {
+        let hamsterBreeds = ['Syrian Hamster', 'Dwarf Hamster', 'Roborovski Hamster', 'Chinese Hamster', 'Russian Hamster'];
+        hamsterBreeds.forEach(function(breed) {
+          breedDropdown.append('<option value="' + breed.toLowerCase() + '">' + breed + '</option>');
+        });
+      } else if (value === 'guinea-pig') {
+        let guineaPigBreeds = ['American Guinea Pig', 'Peruvian Guinea Pig', 'Abyssinian Guinea Pig', 'Teddy Guinea Pig', 'Skinny Guinea Pig'];
+        guineaPigBreeds.forEach(function(breed) {
+          breedDropdown.append('<option value="' + breed.toLowerCase() + '">' + breed + '</option>');
+        });
+      } else if (value === 'reptile') {
+        let reptileBreeds = ['Ball Python', 'Bearded Dragon', 'Leopard Gecko', 'Iguana', 'Corn Snake', 'Red-Eared Slider Turtle', 'Chameleon', 'Tortoise', 'Boa Constrictor'];
+        reptileBreeds.forEach(function(breed) {
+          breedDropdown.append('<option value="' + breed.toLowerCase() + '">' + breed + '</option>');
+        });
+      } else if (value === 'fish') {
+        let fishBreeds = ['Goldfish', 'Betta Fish', 'Guppy', 'Tetra', 'Angelfish', 'Discus', 'Cichlid', 'Koi', 'Molly', 'Platy', 'Swordtail'];
+        fishBreeds.forEach(function(breed) {
+          breedDropdown.append('<option value="' + breed.toLowerCase() + '">' + breed + '</option>');
+        });
+      }
+    });
+
+    $('#select-breed').on('change', function() {
+        let value = $(this).val();
+        let text = $(this).find('option:selected').text();
+        $('#breed').val(value !== "" ? text : '');
+    });
+  });
+</script>
 {% endblock %}

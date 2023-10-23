@@ -248,7 +248,7 @@ class PasswordResetStep1(forms.Form):
     username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Username'}))
 
 class PasswordResetStep2(forms.Form):
-    new_password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control wider-input', 'placeholder': 'New Password'}))
+    new_password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control wider-input', 'placeholder': 'New Password'}), validators=[validate_contains_special_character, validate_contains_digit, validate_contains_uppercase])
     confirm_new_password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Confirm New Password'}))
 
 class AdminChangePasswordForm(PasswordChangeForm):

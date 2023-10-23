@@ -24,7 +24,7 @@
             </div>
             <form method="POST" enctype="multipart/form-data" id="medical-record-form">
                 {% csrf_token %}
-                {% if pet_treatment.cycles_remaining == 0 %}
+                {% if not pet_treatment.hasMultipleCycles %}
                 <div class="mb-3">
                     <label class="small mb-1" for="inputTreatment">Treatment <span class="text-red">*</span></label>
                     <div class="input-group">
@@ -94,7 +94,7 @@
                 </div> -->
                 <hr class="my-4" />
                 <div class="manage-appointment-container">
-                    {% if pet_treatment.cycles_remaining == 0 %}
+                    {% if not pet_treatment.hasMultipleCycles %}
                     <label class="small mb-1 fw-700" for="inputNextAppointment">Manage Appointment</label>
                     <div class="row gx-3">
                         <div class="mb-3 col-md-6">

@@ -24,11 +24,12 @@ import json
 from django.contrib.auth.models import User, Group
 from core.models import Province, Municipality, Barangay
 
+from django.contrib.sessions.models import Session
+
 @login_required
 @staff_required
 def update_user(request, userID):
     user = get_object_or_404(User, pk=userID)
-    
     client = get_object_or_404(Client, user=user)
     
     if request.method == 'POST':
@@ -102,12 +103,21 @@ def ban_user(request, userID):
         with transaction.atomic():
             user = get_object_or_404(User, pk=userID)
             client = get_object_or_404(Client, user=user)
+
             user.is_active = False
             client.isBanned = True
             user.save()
             client.save()
+
+            all_sessions  = Session.objects.filter(expire_date__gte=datetime.now())
+            for session in all_sessions:
+                session_data = session.get_decoded()
+                if session_data.get('_auth_user_id'):
+                    if int(session_data.get('_auth_user_id')) == int(user.id):
+                        session.delete()
+
             return JsonResponse({'success': True, 'message': 'User banned.'})
-    except:
+    except Exception as e:
         return JsonResponse({'success': False, 'message': 'Something went wrong.'})
 
 @login_required

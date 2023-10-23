@@ -101,6 +101,7 @@ def forgot_password(request):
         form = PasswordResetStep1()
     return render(request, 'client/forgot_password.html', {'form': form})
 
+# ! DEPRECATED
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -108,6 +109,7 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+# ! DEPRECATED
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -444,11 +446,9 @@ def forgot_password_step_3(request):
 
             messages.success(request, 'Password changed successfully. Please login with your new password.')
             return redirect('login-page')
-
-        else:
-            messages.error(request, 'Please fill out the form correctly.')
-            return render(request, 'client/forgot_password_step3.html', {'form': form})
-
+        # else:
+        #     messages.error(request, form.errors)
+        #     return render(request, 'client/forgot_password_step3.html', {'form': form})
     else:
         form = PasswordResetStep2()
 
@@ -508,6 +508,10 @@ def register_pet(request):
 @login_required
 def view_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
+
+    if not pet.is_active:
+        return redirect('pet-list-page')
+
     appointment = Appointment.objects.filter(pet=pet, client=request.user.client, isActive=True).order_by('-id').first()
 
     if pet.client != request.user.client:
@@ -617,6 +621,9 @@ def view_pet(request, pet_id):
 def update_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
 
+    if not pet.is_active:
+        return redirect('pet-list-page')
+
     if pet.client != request.user.client:
         return redirect('pet-list-page')
 
@@ -651,6 +658,9 @@ def update_pet(request, pet_id):
 def delete_pet(request, pet_id):
     pet = get_object_or_404(Pet, id=pet_id)
     
+    if not pet.is_active:
+        return redirect('pet-list-page')
+
     if pet.client != request.user.client:
         return redirect('pet-list-page')
 

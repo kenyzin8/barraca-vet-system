@@ -53,6 +53,7 @@ def service_add(request):
 @staff_required
 @login_required
 def service_update(request, service_id):
+    service_types = Service.SERVICE_TYPES  
     service = get_object_or_404(Service, id=service_id)
     if service.active is False:
         return redirect('service-list-page')

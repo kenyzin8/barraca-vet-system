@@ -61,7 +61,7 @@ def add_type_page(request):
         if name and name.strip().lower() == 'medicines':
             return JsonResponse({'success': False, 'message': 'Cannot add a product type with name "Medicines".'})
 
-        all_types = ProductType.objects.all()
+        all_types = ProductType.objects.filter(active=True)
 
         all_types_lowercase = [t.name.lower() for t in all_types]
 

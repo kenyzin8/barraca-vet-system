@@ -79,7 +79,7 @@
                             <span style="color: red;">(Critical)</span>
                           {% endif %}</span>
                         </td>
-                        <td><span class="small">₱ {{ product.price|intcomma }}</span></td>
+                        <td><span class="small">₱{{ product.price|intcomma }}</span></td>
                         {% if product.product_description|length > 10 %}
                             <td>
                                 <span class="small" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ product.product_description }}">

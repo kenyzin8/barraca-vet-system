@@ -84,7 +84,7 @@ def update_type_page(request, type_id):
             if product_type.name == name:
                 return JsonResponse({'success': False, 'message': 'Product type name is the same.'})
 
-            all_types = ProductType.objects.exclude(pk=type_id)
+            all_types = ProductType.objects.exclude(pk=type_id).filter(active=True)
 
             all_types_lowercase = [t.name.lower() for t in all_types]
 

@@ -180,12 +180,11 @@
                                                 <tr>
                                                     <td><span class="treatment-id">{{ treatment.id }}</span></td>
                                                     <td>
-                                                        <!-- convert date to Dec 25, 2023 12:00 AM format -->
                                                         {{ treatment.treatment_date|date:"M d, Y" }} {{ treatment.treatment_date|time:"g:i A" }}
                                                     </td>
                                                     <td>
                                                         {% if treatment.appointment %}
-                                                            {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.get_timeOfTheDay_display }}
+                                                            {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.time|time:"g:i A" }}
                                                         {% else %}
                                                             <i data-feather="x-square"></i>
                                                         {% endif %}
@@ -262,7 +261,7 @@
                                                     </td>
                                                     <td>
                                                         {% if treatment.appointment %}
-                                                            {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.get_timeOfTheDay_display }}
+                                                            {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.time|time:"g:i A" }}
                                                         {% else %}
                                                             <i data-feather="x-square"></i>
                                                         {% endif %}
@@ -352,7 +351,7 @@
                                                 </td>
                                                 <td>
                                                     {% if treatment.appointment %}
-                                                        {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.get_timeOfTheDay_display }}
+                                                        {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.time|time:"g:i A" }}
                                                     {% else %}
                                                         <i data-feather="x-square"></i>
                                                     {% endif %}
@@ -438,7 +437,7 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if treatment.petmedicalprescription %}
+                                            {% if treatment.petmedicalprescription and treatment.petmedicalprescription.isActive %}
                                                 <a href="{% url 'admin-view-prescription-page' treatment.petmedicalprescription.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Prescription">
                                                     <i data-feather="list"></i>
                                                 </a>
@@ -448,7 +447,7 @@
                                         </td>
                                         <td>
                                             {% if treatment.appointment %}
-                                                {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.get_timeOfTheDay_display }}
+                                                {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.time|time:"g:i A" }}
                                             {% else %}
                                                 <i data-feather="x-square"></i>
                                             {% endif %}
@@ -541,7 +540,7 @@
                                                 </td>
                                                 <td>
                                                     {% if treatment.appointment %}
-                                                        {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.get_timeOfTheDay_display }}
+                                                        {{ treatment.appointment.date|date:"M d, Y" }} - {{ treatment.appointment.time|time:"g:i A" }}
                                                     {% else %}
                                                         <i data-feather="x-square"></i>
                                                     {% endif %}
@@ -551,7 +550,7 @@
                                                     <a href="{% url 'admin-update-consultation-page' treatment.id %}" class="btn btn-datatable btn-icon btn-transparent-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                         <i data-feather="edit"></i>
                                                     </a> 
-                                                    <a href="#" class="btn btn-datatable btn-icon btn-transparent-dark btn-enable-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Enable">
+                                                    <a href="#" class="btn btn-datatable btn-icon btn-transparent-dark btn-enable-treatment" data-bs-toggle="tooltip" data-bs-placement="top" title="Retrieve">
                                                         <i data-feather="corner-right-up"></i>
                                                     </a> 
                                                 </td>

@@ -36,7 +36,7 @@
         let selectedPetId = {{ pet_treatment.pet.id }};
         let selectedProductID = {% if prescription_medicines%}{{ prescription_medicines.medicine.id }}{% else %}-1{% endif %};
         let selectedProductName = {% if prescription_medicines%}'{{ prescription_medicines.medicine.product_name }}'{% else %}""{% endif %};
-        let hasCycles = {% if pet_treatment.cycles_remaining != 0 %}true{% else %}false{% endif %};
+        let hasCycles = {% if pet_treatment.hasMultipleCycles %}true{% else %}false{% endif %};
         let hasSticker = {% if lab_results %}true{% else %}false{% endif %};
         let radioStates = {};
         

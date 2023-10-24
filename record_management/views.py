@@ -134,10 +134,6 @@ def login_view(request):
         attempts_key = f'attempts_{session_key}'
         attempts = cache.get(attempts_key, 0)
 
-        if attempts >= 2:
-            messages.error(request, 'Too many attempts. Please try again after 2 minutes.')
-            return render(request, 'client/login.html', {'form': form})
-
         if form.is_valid():
             cache.set(attempts_key, 0, 2 * 60)
             user = form.get_user()
@@ -180,6 +176,9 @@ def login_view(request):
 
             return redirect('otp_view')
         else:
+            if attempts >= 2:
+                messages.error(request, 'Too many attempts. Please try again after 2 minutes.')
+                return render(request, 'client/login.html', {'form': form})
             cache.set(attempts_key, attempts + 1, 2 * 60)
     else:
         form = LoginForm()
@@ -1358,8 +1357,15 @@ class SubmitConsultationView(APIView):
 @login_required
 def view_prescription(request, prescription_id):
     prescription = get_object_or_404(PetMedicalPrescription, id=prescription_id)
-    
+
     pet = prescription.pet
+
+    if not prescription.isActive:
+        if pet.is_active:
+            return redirect('admin-view-pet-page', pet_id=pet.id)
+        else:
+            return redirect('admin-pet-list-page')
+
     client = pet.client
 
     prescription_medicines = PrescriptionMedicines.objects.filter(prescription=prescription)
@@ -2169,7 +2175,7 @@ def update_medical_record(request, treatmentID):
     if len(laboratory_results) == 1:
         one_laboratory_results = laboratory_results.first()
 
-    prescription_medicines = PrescriptionMedicines.objects.filter(prescription__pet_treatment=pet_treatment)
+    prescription_medicines = PrescriptionMedicines.objects.filter(prescription__pet_treatment=pet_treatment, prescription__isActive=True)
 
     product_ids = set(prescription_medicines.values_list('medicine_id', flat=True))
 
@@ -2254,7 +2260,6 @@ class UpdateConsultationView(APIView):
             
             noon = dt_time(12, 0, 0)
             evening = dt_time(18, 0, 0)
-
 
             try:
                 with transaction.atomic():
@@ -2408,7 +2413,7 @@ class UpdateConsultationView(APIView):
                     if weight:
                         selected_pet.weight = weight
                         selected_pet.save()
-
+                    
                     if products_selected:
                         pet_medical_prescription, created = PetMedicalPrescription.objects.get_or_create(
                             pet_id=selected_pet.id,
@@ -2447,8 +2452,12 @@ class UpdateConsultationView(APIView):
                             })
 
                         request.session['selected_medicines'] = medicines_for_session
+                    else:
+                        pet_medical_prescription = PetMedicalPrescription.objects.filter(pet_treatment=pet_treatment).first()
+                        if pet_medical_prescription:
+                            pet_medical_prescription.isActive = False
+                            pet_medical_prescription.save()
 
-                    
                     checkup_service = Service.objects.get(service_type="Doctor's Fee") #MAKE THIS DYNAMIC AT POLISHING
                     request.session['selected_service'] = checkup_service.id
 

@@ -241,6 +241,8 @@ def reorder_list(request):
             'name': product.product_name,
             'type': product.type.name,
             'form': product.get_form_display(),
+            'volume': f'{format_volume(product.volume)}{product.volume_unit}',
+            'manufacturer': product.manufacturer,
             'description': product.product_description,
             'quantity': int(product.quantity_on_stock),
             'critical_level': product.critical_level,

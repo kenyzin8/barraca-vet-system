@@ -76,6 +76,10 @@
         $('#errorModal').modal('show');
     }
 
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const datatablesSimple = document.getElementById('datatablesSimple');
 
@@ -201,11 +205,13 @@
         <tr>
             <td>${c.id}</td>
             <td>${c.name}</td>
+            <td>${c.manufacturer}</td>
             <td>${c.type}</td>
             <td>${c.form}</td>
+            <td>${c.volume}</td>
             <td>${c.quantity}</td>
             <td>${c.critical_level}</td>
-            <td>₱ ${c.price}</td>
+            <td>₱${numberWithCommas(c.price)}</td>
         </tr>
         `).join('');
 
@@ -216,8 +222,10 @@
                     <tr>
                         <th class="table-header">ID</th>
                         <th class="table-header">Product Name</th>
+                        <th class="table-header">Manufacturer</th>
                         <th class="table-header">Type</th>
                         <th class="table-header">Form</th>
+                        <th class="table-header">Volume</th>
                         <th class="table-header">Quantity Left</th>
                         <th class="table-header">Critical Level</th>
                         <th class="table-header">Price</th>

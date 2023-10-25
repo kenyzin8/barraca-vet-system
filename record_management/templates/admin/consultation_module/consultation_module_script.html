@@ -32,6 +32,13 @@
                         progressBarInner.style.width = percentComplete + '%';
                         progressBarInner.setAttribute('aria-valuenow', percentComplete);
                         progressBarInner.textContent = percentComplete + '%';
+
+                        if (percentComplete === 100) {
+                            progressBarInner.classList.remove('progress-bar-striped');
+                            progressBarInner.classList.remove('progress-bar-animated');
+                            progressBarInner.classList.remove('bg-warning');
+                            progressBarInner.classList.add('bg-success');
+                        }
                     }
                 }, false);
                 return xhr;
@@ -48,6 +55,9 @@
                 progressBarInner.style.width = 0 + '%';
                 progressBarInner.setAttribute('aria-valuenow', 0);
                 progressBarInner.textContent = 0 + '%';
+
+                progressBarInner.classList.remove('bg-warning', 'bg-success');
+                progressBarInner.classList.add('bg-danger');
             }
         });
     }

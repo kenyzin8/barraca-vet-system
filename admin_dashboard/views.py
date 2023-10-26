@@ -32,6 +32,9 @@ def update_user(request, userID):
     user = get_object_or_404(User, pk=userID)
     client = get_object_or_404(Client, user=user)
     
+    if not user.is_staff:
+        return redirect('user-list-page')
+
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=user)
         client_form = ClientUpdateForm(request.POST, instance=client)
@@ -76,6 +79,9 @@ def update_2fa(request, userID):
     user = get_object_or_404(User, pk=userID)
     client = get_object_or_404(Client, user=user)
 
+    if not user.is_staff:
+        return redirect('user-list-page')
+
     if request.method == 'POST':
         two_factor_form = AdminTwoFactorAuthenticationForm(request.POST)
         
@@ -103,6 +109,9 @@ def ban_user(request, userID):
         with transaction.atomic():
             user = get_object_or_404(User, pk=userID)
             client = get_object_or_404(Client, user=user)
+
+            if user.is_staff:
+                return JsonResponse({'success': False, 'message': 'Cannot ban staff.'})
 
             user.is_active = False
             client.isBanned = True

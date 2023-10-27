@@ -92,7 +92,7 @@
                                 <div class="nav-link-icon"><i class="fas fa-syringe text-grey-200"></i></div>
                                 Services
                             </a>
-                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'reorder-list-page' %}active{% endif %}" href="{% url 'reorder-list-page' %}">
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link mb-3 {% if current_url_name == 'reorder-list-page' %}active{% endif %}" href="{% url 'reorder-list-page' %}">
                                 <div class="nav-link-icon"><i class="fas fa-cart-flatbed text-grey-200"></i></div>
                                 Reorder List
                             </a>
@@ -120,7 +120,7 @@
                             } 
                         }
                     </style>
-                    <div class="card card-header-actions mt-5 mb-5 superadmin-card lift lift-sm">
+                    <!-- <div class="card card-header-actions mt-5 mb-5 superadmin-card lift lift-sm">
                         <div class="card-body">
                             <span class="deeper-admin">Missing something?</span>
                             <br>
@@ -128,7 +128,7 @@
                                 <a role="button" class="btn btn-sm btn-dark mt-3" href="{% url 'admin:index' %}" style="margin:0 auto;" target="_blank" rel="noopener noreferrer">Superadmin Page</a>
                             </center>
                         </div>
-                    </div>
+                    </div> -->
                     {% endif %}
                 </div>
             </div>

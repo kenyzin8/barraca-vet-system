@@ -29,6 +29,7 @@ $(document).ready(function() {
 
     var selectedMedicines = {% if selected_medicines %}{{ selected_medicines|safe }}{% else %}[]{%endif%};
     var selectedService = {% if selected_service %}{{ selected_service|safe }}{% else %}null{%endif%};
+    var selectedServices = {% if selected_services %}{{ selected_services|safe }}{% else %}[]{%endif%};
 
     if(clientInput.val().trim() != '') 
     {
@@ -44,8 +45,8 @@ $(document).ready(function() {
         var params = new URLSearchParams(window.location.search);
         var selectedClientId = params.get('to'); 
 
-        // var cleanUrl = window.location.href.split("?")[0];
-        // window.history.replaceState({}, document.title, cleanUrl);
+        var cleanUrl = window.location.href.split("?")[0];
+        window.history.replaceState({}, document.title, cleanUrl);
     }
 
     $('#addClientModal').on('show.bs.modal', function (event)
@@ -72,6 +73,9 @@ $(document).ready(function() {
         });
     });
 
+    var serviceQuantities = {};
+    var productQuantities = {};
+
     function refreshServiceRows()
     {
         $('.add-service, .remove-service-from-modal').each(function() {
@@ -89,6 +93,12 @@ $(document).ready(function() {
                 $(this).removeClass('remove-service-from-modal').addClass('add-service');
                 // $(this).prop('disabled', false); 
                 $(this).find('.add-text').text("Add");
+            }
+            if (serviceId in serviceQuantities) {
+                $(this).closest('tr').find('.service-quantity').val(serviceQuantities[serviceId]);
+            }
+            else{
+                $(this).closest('tr').find('.service-quantity').val(1);
             }
         });
 
@@ -165,6 +175,13 @@ $(document).ready(function() {
                 $(this).removeClass('remove-product-from-modal').addClass('add-product');
                 // $(this).prop('disabled', false); 
                 $(this).find('.add-text').text("Add");
+            }
+
+            if (productId in productQuantities) {
+                $(this).closest('tr').find('.product-quantity').val(productQuantities[productId]);
+            }
+            else{
+                $(this).closest('tr').find('.product-quantity').val(1);
             }
         });
 
@@ -343,14 +360,16 @@ $(document).ready(function() {
         window.history.pushState({}, null, newUrl);
     });
 
-    function addService(serviceId, row, button) {
+    function addService(serviceId, quantity, row, button) {
         if (selectedServiceIds.has(serviceId)) {
             // button.prop('disabled', true);
             button.removeClass('add-service').addClass('remove-service-from-modal');
             button.find('.add-text').text("Remove");
             return;
         }
-        
+
+        serviceQuantities[serviceId] = quantity;
+
         var serviceName = row.find('.service-type').text();
         var serviceFee = row.find('.service-fee').text();
         var serviceRemarks = row.find('.service-remarks').text();
@@ -366,13 +385,13 @@ $(document).ready(function() {
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
 
-        total += parseFloat(serviceFee);
-
+        total += parseFloat(serviceFee) * parseFloat(quantity);
+        console.log(total, serviceFee, quantity)
         var newRow = `
-            <tr class="selected-service" data-service-id="${serviceId}">
+            <tr class="selected-service" data-service-id="${serviceId}" data-service-quantity="${quantity}">
                 <td>
                     <div class="fw-bold">
-                        ${serviceName}
+                        ${serviceName} (₱ ${serviceFee} x <span class="service-quantity">${quantity}</span>)
                         <a class="btn btn-datatable btn-icon btn-transparent-dark remove-service" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove">
                             <span class="service-id-remove-button" style="display: none;">${serviceId}</span>
                             <i data-feather="delete"></i>
@@ -382,7 +401,7 @@ $(document).ready(function() {
                 </td>
                 <td class="text-end fw-bold"><!-- empty for spacing --></td>
                 <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                <td class="text-end fw-bold service-fee">₱ ${parseFloat(serviceFee).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td class="text-end fw-bold service-price">₱ ${parseFloat((parseFloat(serviceFee) * parseFloat(quantity))).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             </tr>
         `;
 
@@ -555,7 +574,9 @@ $(document).ready(function() {
         var serviceId = $(this).closest('tr').find('.service-id').text();
         //var serviceId = $(this)[0].getAttribute('data-service-id');
         var row = $(this).closest('tr');
-        addService(serviceId, row, $(this));
+        var quantityInput = row.find('.service-quantity');
+        var quantity = quantityInput.val();
+        addService(serviceId, quantity, row, $(this));
         refreshServiceRows();
     });
     
@@ -578,9 +599,9 @@ $(document).ready(function() {
         }
 
         var serviceId = $(this).find('.service-id-remove-button').text();
-        
+        delete serviceQuantities[serviceId];
         selectedServiceIds.delete(serviceId);
-        var serviceFee = $(this).parents('tr').find('.service-fee').text();
+        var serviceFee = $(this).parents('tr').find('.service-price').text();
         
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
@@ -608,10 +629,10 @@ $(document).ready(function() {
         }
 
         var serviceId = $(this).closest('tr').find('.service-id').text();
-
+        delete serviceQuantities[serviceId];
         selectedServiceIds.delete(serviceId);
-        var serviceFee = $(this).parents('tr').find('.service-fee').text();
-        
+        var serviceFee = $(document).find(`tr.selected-service[data-service-id="${serviceId}"] .service-price`).text();
+
         serviceFee = serviceFee.replace("₱", "").trim();
         serviceFee = serviceFee.replace(/,/g, "").trim();
         
@@ -639,6 +660,7 @@ $(document).ready(function() {
         }
 
         var productId = $(this).find('.product-id-remove-button').text();
+        delete productQuantities[productId];
         selectedProductIds.delete(productId);
         var productPrice = $(this).parents('tr').find('.product-price').text();
         productPrice = productPrice.replace("₱", "").trim();
@@ -666,6 +688,7 @@ $(document).ready(function() {
         }
 
         var productId = $(this).closest('tr').find('.product-id').text();
+        delete productQuantities[productId];
         selectedProductIds.delete(productId);
         var productPrice = $(document).find(`tr.selected-product[data-product-id="${productId}"] .product-price`).text();
         productPrice = productPrice.replace("₱", "").trim();
@@ -740,7 +763,7 @@ $(document).ready(function() {
     {
         // var clientId = $('.selected-client-input').data('client-id');
         var clientId = selectedClientId;
-        console.log(clientId)
+        
         if (clientId === '') {
             clientId = undefined;
         }
@@ -750,7 +773,12 @@ $(document).ready(function() {
         var quantities = [];
 
         $('.selected-service').each(function() {
-            serviceIds.push($(this).data('service-id'));
+            serviceIds.push(
+                {
+                    id: $(this).data('service-id'),
+                    quantity: $(this).data('service-quantity')
+                }
+            );
         });
 
         $('.selected-product').each(function() {
@@ -767,6 +795,7 @@ $(document).ready(function() {
             'service_ids': serviceIds,
             'product_ids': productIds,
             'quantities': quantities,
+            {% if bill_to_process %}'bill_to_process': {{ bill_to_process }},{% endif %}
         };
 
         if (clientId !== undefined) {
@@ -794,9 +823,10 @@ $(document).ready(function() {
         });
     });
 
-    $('#success-add-billing').on('click', function() {
+    $('#success-add-billing, .btn-close-success').on('click', function() {
         window.location.href = "/admin/bill/";
     });
+    
 
     $('#fullscreen-spinner').addClass('d-none');
 
@@ -828,9 +858,69 @@ $(document).ready(function() {
         }
     }
 
+    if(selectedServices && selectedServices.length > 0){
+        for (var i = 1; i <= {{ product_dict.items|length }}; i++) {
+            if (window["dataTable_" + i]) {
+                window["dataTable_" + i].options.paging = false;
+                window["dataTable_" + i].refresh(); 
+            }
+        }
+        for (var i = 0; i < selectedServices.length; i++) {
+            var service = selectedServices[i];
+            var serviceId = service.id;
+            var quantity = service.details.quantity;
+            
+            var row = $(`.add-service[data-service-id="${serviceId}"]`).closest('tr');
+            
+            row.find('.service-quantity').val(quantity);
+            
+            $(`.add-service[data-service-id="${serviceId}"]`).click();
+        }
+        for (var i = 1; i <= {{ product_dict.items|length }}; i++) {
+            if (window["dataTable_" + i]) {
+                window["dataTable_" + i].options.paging = true;
+                window["dataTable_" + i].refresh(); 
+            }
+        }
+    }
+
     if (selectedService) {
         $(`.add-service[data-service-id="${selectedService}"]`).click();
-    }
+    }  
+
+    $('#cancel-button').on('click', function() {
+        $.ajax({
+            url: "{% url 'cancel-bill' %}",
+            type: "POST",
+            data: {
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+            },
+            success: function(response) {
+                window.location.href = "{% url 'billing-page' %}";
+            },
+            error: function(response) {
+                console.log(response);
+            }
+        });
+    });
+
+    $('.btn-process-bill').on('click', function() {
+        var billId = $(this).closest('tr').find('.billing-number').text();
+        $.ajax({
+            url: "{% url 'process-unpaid-bill' %}",
+            type: "POST",
+            data: {
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                bill_id: billId
+            },
+            success: function(response) {
+                window.location.href = "{% url 'billing-page' %}";
+            },
+            error: function(response) {
+                console.log(response);
+            }
+        });
+    });
 });
 
 </script>

@@ -24,16 +24,24 @@ $(document).ready(function() {
     // $('.billing-number').text(formattedBillId);
 
     $('tr').each(function() {
-        var price = parseFloat($(this).find('.product-price').text().replace('₱ ', '').replace(',', ''));
-        var quantity = parseFloat($(this).find('.product-quantity').text());
-        var totalPrice = price * quantity;
-        if(totalPrice || price || quantity)
-        {
-            $(this).find('.product-price-multiplied').text('₱ ' + totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        var product_price = parseFloat($(this).find('.product-price').text().replace('₱ ', '').replace(',', ''));
+        var product_quantity = parseFloat($(this).find('.product-quantity').text());
+        var product_totalPrice = product_price * product_quantity;
+        if(product_totalPrice || product_price || product_quantity){
+            $(this).find('.product-price-multiplied').text('₱ ' + product_totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
         }
-        else
-        {
+        else{
             $(this).find('.product-price-multiplied').text('₱ 0');
+        }
+
+        var service_fee = parseFloat($(this).find('.service-price').text().replace('₱ ', '').replace(',', ''));
+        var service_quantity = parseFloat($(this).find('.service-quantity').text());
+        var service_totalPrice = service_fee * service_quantity;
+        if(service_totalPrice || service_fee || service_quantity){
+            $(this).find('.service-price-multiplied').text('₱ ' + service_totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        }
+        else{
+            $(this).find('.service-price-multiplied').text('₱ 0');
         }
     });
 });

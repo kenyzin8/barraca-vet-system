@@ -18,11 +18,12 @@ class Billing(models.Model):
     products = models.ManyToManyField(Product, through='BillingProduct')
     date_created = models.DateTimeField(auto_now_add=True)
     isActive = models.BooleanField(default=True)
+    isPaid = models.BooleanField(default=False)
     
     def get_total(self):
         total = 0
         for service in self.billing_services.all():
-            total += service.price_at_time_of_purchase
+            total += service.price_at_time_of_purchase * service.quantity
         for billing_product in self.billing_products.all():
             total += billing_product.price_at_time_of_purchase * billing_product.quantity
 
@@ -66,7 +67,7 @@ class BillingService(models.Model):
     """
     billing = models.ForeignKey(Billing, on_delete=models.CASCADE, related_name='billing_services')
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
-
+    quantity = models.IntegerField(default=1, validators=[MinValueValidator(1)])
     price_at_time_of_purchase = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):

@@ -60,6 +60,11 @@ def bill(request):
     if 'selected_service' in request.session:
         selected_service = request.session.get('selected_service', -1)
 
+    if 'selected_services' in request.session:
+        selected_services = request.session.get('selected_services', [])
+
+    pending_payments_bills = Billing.objects.filter(isActive=True, isPaid=False).order_by('-id')
+
     context = {
         'client': client,
         'clients_count': clients_count,
@@ -68,7 +73,8 @@ def bill(request):
         'services': services,
         'services_count': services.count(),
         'clients': clients,
-        'next_bill_number': next_bill_number
+        'next_bill_number': next_bill_number,
+        'pending_payments_bills': pending_payments_bills
     }
 
     if selected_medicines:
@@ -78,6 +84,24 @@ def bill(request):
     if selected_service != -1:
         context.update({'selected_service': selected_service})
         #del request.session['selected_service']
+
+    if 'selected_services' in request.session:
+        selected_services = request.session.get('selected_services', [])
+        for selected_service in selected_services:
+            service_id = selected_service['id']
+            service = Service.objects.filter(id=service_id)
+            services = services | service
+
+        context.update({'selected_services': selected_services})
+    
+    context['services'] = services
+    bill_to_process = None
+    if 'bill_to_process' in request.session:
+        bill_to_process = request.session.get('bill_to_process')
+        context.update({'bill_to_process': bill_to_process})
+        #del request.session['bill_to_process']
+
+    context.update({'bill_number_to_view': bill_to_process.strip() if bill_to_process else next_bill_number})
 
     if 'selected_pet_owner_id' in request.session:
         context.update({'selected_pet_owner_id': request.session.get('selected_pet_owner_id')})
@@ -97,13 +121,54 @@ def cancel_bill(request):
         if 'selected_service' in request.session:
             del request.session['selected_service']
 
+        if 'selected_services' in request.session:
+            del request.session['selected_services']
+
         if 'selected_pet_owner_id' in request.session:
             del request.session['selected_pet_owner_id']
+
+        if 'bill_to_process' in request.session:
+            del request.session['bill_to_process']
 
         return JsonResponse({'status': 'success'}, status=200)
     except KeyError:
         return JsonResponse({'status': 'error'}, status=400)
     
+@staff_required
+@login_required
+def process_unpaid_bill(request):
+
+    if request.method == 'POST':
+        bill_id = request.POST.get('bill_id')
+        bill = get_object_or_404(Billing, pk=bill_id)
+        
+        medicines = []
+        services = []
+        for b in bill.billing_products.all():
+            medicines.append({
+                'id': b.product.id,
+                'details': {
+                    'quantity': int(b.quantity),
+                }
+            })
+        
+        for b in bill.billing_services.all():
+            services.append({
+                'id': b.service.id,
+                'details':{
+                    'quantity': int(b.quantity),
+                }
+            })
+        
+        request.session['selected_medicines'] = medicines
+        request.session['selected_services'] = services
+        request.session['selected_pet_owner_id'] = bill.client.id
+        request.session['bill_to_process'] = bill.get_billing_number()
+
+        return JsonResponse({'status': 'success'}, status=200)
+    else:
+        return JsonResponse({'status': 'error'}, status=400)
+
 # @staff_required
 # @login_required
 # def bill_client(request):
@@ -135,72 +200,72 @@ def post_bill(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Only POST method is allowed.'}, status=405)
 
-    if not request.body:
-        return JsonResponse({'status': 'error', 'message': 'Empty request body.'}, status=400)
-
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON.'}, status=400)
 
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        client_id = data.get('client_id', None)
-        full_name = data.get('full_name', "Walk-in Customer")
-        service_ids = data.get('service_ids', [])
-        product_ids_and_quantities = data.get('product_ids', [])
+    client_id = data.get('client_id')
+    full_name = data.get('full_name', "Walk-in Customer")
+    bill_to_process = data.get('bill_to_process')
 
-        if client_id is None:
-            with transaction.atomic():
-                username = "walkin_" + str(uuid4())
-                user = User(username=username, is_active=False)
-                user.save()
+    if client_id is not None:
+        client = get_object_or_404(Client, pk=client_id)
+    else:
+        username = "walkin_" + str(uuid4())
+        user = User.objects.create(username=username, is_active=False)
+        client = Client.objects.create(user=user, first_name=full_name, last_name="(walk-in)", gender="None",
+                                       street="N/A", barangay="N/A", city="N/A", province="N/A", contact_number="N/A")
 
-                client = Client(
-                    user=user, 
-                    first_name=full_name, 
-                    last_name="(walk-in)", 
-                    gender = "None",
-                    street = "N/A",
-                    barangay = "N/A",
-                    city = "N/A",
-                    province = "N/A",
-                    contact_number="N/A"
-                    )
-                client.save()
-        else:
-            client = Client.objects.get(pk=client_id)
+    if bill_to_process:
+        bill = get_object_or_404(Billing, pk=bill_to_process)
+    else:
+        bill = Billing.objects.create(client=client, isActive=True, isPaid=False)
 
-        services = Service.objects.filter(id__in=service_ids)
-        products = [Product.objects.get(id=pq['id']) for pq in product_ids_and_quantities]
-
-        bill = Billing(client=client, date_created=timezone.now())
-        bill.save()
-
-        for pq in product_ids_and_quantities:
-            product = Product.objects.get(id=pq['id'])
-            billing_product = BillingProduct(billing=bill, product=product, quantity=pq['quantity'])
+    product_ids_and_quantities = data.get('product_ids', [])
+    current_products = {bp.product.id: bp for bp in BillingProduct.objects.filter(billing=bill)}
+    for pq in product_ids_and_quantities:
+        product = get_object_or_404(Product, pk=pq['id'])
+        quantity = pq.get('quantity', 1)
+        if product.id in current_products:
+            billing_product = current_products.pop(product.id)
+            billing_product.quantity = quantity
             billing_product.save()
-            product.quantity_on_stock -= Decimal(pq['quantity'])
-            product.save()
+        else:
+            BillingProduct.objects.create(billing=bill, product=product, quantity=quantity)
+        product.quantity_on_stock -= Decimal(quantity)
+        product.save()
 
-        for service in services:
-            billing_service = BillingService(billing=bill, service=service)
+    # Remove products not in the incoming data
+    for product_id, billing_product in current_products.items():
+        billing_product.delete()
+
+    service_ids_and_quantities = data.get('service_ids', [])
+    current_services = {bs.service.id: bs for bs in BillingService.objects.filter(billing=bill)}
+    for sq in service_ids_and_quantities:
+        service = get_object_or_404(Service, pk=sq['id'])
+        quantity = sq.get('quantity', 1)
+        if service.id in current_services:
+            billing_service = current_services.pop(service.id)
+            billing_service.quantity = quantity
             billing_service.save()
+        else:
+            BillingService.objects.create(billing=bill, service=service, quantity=quantity)
 
-        bill.services.set(services)
-        bill.products.set(products)
+    # Remove services not in the incoming data
+    for service_id, billing_service in current_services.items():
+        billing_service.delete()
 
-        if 'selected_medicines' in request.session:
-            del request.session['selected_medicines']
+    bill.isActive = True
+    bill.isPaid = True
+    bill.date_created = timezone.now()
+    bill.save()
 
-        if 'selected_service' in request.session:
-            del request.session['selected_service']
+    for key in ['selected_medicines', 'selected_service', 'selected_services', 'selected_pet_owner_id', 'bill_to_process']:
+        request.session.pop(key, None)
 
-        if 'selected_pet_owner_id' in request.session:
-            del request.session['selected_pet_owner_id']
+    return JsonResponse({'status': 'success'}, status=200)
 
-        return JsonResponse({'status': 'success'}, status=200)
 
 @login_required
 @staff_required
@@ -229,6 +294,34 @@ def view_bill(request, bill_id):
 
     context = {'bill': bill, 'bill_data': bill_data}
     return render(request, 'view_bill.html', context)
+
+@login_required
+@staff_required
+def view_unpaid_bill(request, bill_id):
+    bill = get_object_or_404(Billing, pk=bill_id)
+    
+    bill_data = []
+
+    for b in bill.billing_products.all():
+        bill_data.append({
+            'type': 'Product',
+            'particulars': b.product.product_name,
+            'qty': str(b.quantity),
+            'amount': str(b.product.price), 
+            'amount_total': str(b.quantity * b.product.price)  
+        })
+
+    for b in bill.billing_services.all():
+        bill_data.append({
+            'type': 'Service',
+            'particulars': b.service.service_type,
+            'qty': '1', 
+            'amount': str(b.service.fee),
+            'amount_total': str(b.service.fee)
+        })
+
+    context = {'bill': bill, 'bill_data': bill_data}
+    return render(request, 'view_unpaid_bill.html', context)
 
 def custom_format(number):
     if number == int(number):
@@ -266,7 +359,7 @@ def get_range_name(start_date_str, end_date_str, current_year):
 @login_required
 @staff_required
 def sales(request):
-    bills = Billing.objects.all().filter(isActive=True).order_by('-id')
+    bills = Billing.objects.all().filter(isActive=True, isPaid=True).order_by('-id')
 
     startDateStr = request.GET.get('startDate')
     endDateStr = request.GET.get('endDate')

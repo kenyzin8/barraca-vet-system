@@ -164,8 +164,10 @@ class DateSlotForm(forms.ModelForm):
         super(DateSlotForm, self).__init__(*args, **kwargs)
         max_appointments = MaximumAppointment.load().max_appointments  
         
-        self.fields['morning_slots'].widget.attrs['max'] = max_appointments // 2
-        self.fields['afternoon_slots'].widget.attrs['max'] = max_appointments // 2
+        # self.fields['morning_slots'].widget.attrs['max'] = max_appointments // 2
+        # self.fields['afternoon_slots'].widget.attrs['max'] = max_appointments // 2
+        self.fields['morning_slots'].widget.attrs['max'] = 100
+        self.fields['afternoon_slots'].widget.attrs['max'] = 100
 
 class ChangeTimeForm(forms.ModelForm):
     class Meta:

@@ -95,14 +95,14 @@
                     <tr>
                         <td>
                             <div class="fw-bold">
-                                {{ service.service.service_type }}
+                                {{ service.service.service_type }} (₱ <span class="service-price">{{ service.price_at_time_of_purchase|intcomma }}</span> x <span class="service-quantity">{{ service.quantity|floatformat:0 }})</span>
                             </div>
                             <div class="small text-muted d-none d-md-block">{{ service.service.service_description }}</div>
                         </td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
                         <td class="text-end fw-bold"><!-- empty for spacing --></td>
-                        <td class="text-end fw-bold service-price">
-                            ₱ {{ service.price_at_time_of_purchase|intcomma }}
+                        <td class="text-end fw-bold service-price-multiplied">
+                            <!-- here -->
                         </td>
                     </tr>
                     {% endfor %}

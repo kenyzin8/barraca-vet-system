@@ -35,6 +35,8 @@ from .models import (
     TreatmentCycle
 )
 
+from billing_management.models import Billing, BillingProduct, BillingService
+
 from django.contrib.auth import login, logout
 from core.semaphore import send_sms, send_otp_sms
 from core.decorators import staff_required
@@ -1311,6 +1313,8 @@ class SubmitConsultationView(APIView):
                         selected_pet.weight = weight
                         selected_pet.save()
 
+                    medicines_for_session = []
+
                     if products_selected:
                         pet_medical_prescription = PetMedicalPrescription.objects.create(
                             pet_id=selected_pet.id,
@@ -1318,8 +1322,6 @@ class SubmitConsultationView(APIView):
                             pet_treatment=pet_treatment,
                             isActive=True
                         )
-
-                        medicines_for_session = []
 
                         for product_id, product_details in products_selected:
                             PrescriptionMedicines.objects.create(
@@ -1338,14 +1340,38 @@ class SubmitConsultationView(APIView):
                                 'details': product_details
                             })
                         
-
-                        request.session['selected_medicines'] = medicines_for_session
-                    
                     checkup_service = Service.objects.get(service_type="Doctor's Fee") #MAKE THIS DYNAMIC AT POLISHING
+
+                    billing = Billing.objects.filter(client=selected_pet.client, isPaid=False, isActive=True).first()
+
+                    if billing is None:
+                        billing = Billing.objects.create(client=selected_pet.client, isActive=True, isPaid=False)
+                    
+                    billing_service = BillingService.objects.filter(billing=billing, service=checkup_service).first()
+                    
+                    if billing_service:
+                        billing_service.quantity += 1
+                        billing_service.save()
+                    else:
+                        BillingService.objects.create(billing=billing, service=checkup_service, quantity=1)
+
+                    if products_selected:
+                        for medicine in medicines_for_session:
+                            product = Product.objects.get(id=medicine['id'])
+                            quantity = int(medicine['details'].get('quantity', 1)) 
+                            billing_product = BillingProduct.objects.filter(billing=billing, product=product).first()
+                            
+                            if billing_product:
+                                billing_product.quantity += quantity
+                                billing_product.save()
+                            else:
+                                BillingProduct.objects.create(billing=billing, product=product, quantity=quantity)
+
+
+                    if products_selected:
+                        request.session['selected_medicines'] = medicines_for_session
                     request.session['selected_service'] = checkup_service.id
-
                     pet_owner_id = selected_pet.client.id
-
                     request.session['selected_pet_owner_id'] = pet_owner_id
 
                     return Response({'success': True, 'message': 'Consultation submitted successfully.', 'pet_owner_id': pet_owner_id})
@@ -1515,9 +1541,34 @@ class SubmitPrescription(APIView):
                             })
 
                         checkup_service = Service.objects.get(service_type="Doctor's Fee")
+                        
+                        billing = Billing.objects.filter(client=selected_pet.client, isPaid=False, isActive=True).first()
+                        
+                        if billing is None:
+                            billing = Billing.objects.create(client=selected_pet.client, isActive=True, isPaid=False)
+                        
+                        billing_service = BillingService.objects.filter(billing=billing, service=checkup_service).first()
+                        
+                        if billing_service:
+                            billing_service.quantity += 1
+                            billing_service.save()
+                        else:
+                            BillingService.objects.create(billing=billing, service=checkup_service, quantity=1)
+                        
+                        for medicine in medicines_for_session:
+                            product = Product.objects.get(id=medicine['id'])
+                            quantity = int(medicine['details'].get('quantity', 1)) 
+                            billing_product = BillingProduct.objects.filter(billing=billing, product=product).first()
+                            
+                            if billing_product:
+                                billing_product.quantity += quantity
+                                billing_product.save()
+                            else:
+                                BillingProduct.objects.create(billing=billing, product=product, quantity=quantity)
 
                         request.session['selected_medicines'] = medicines_for_session
                         request.session['selected_service'] = checkup_service.id
+                        request.session['selected_pet_owner_id'] = pet_owner_id
                         
                         return Response({'success': True, "message": "Prescription has been added.", 'prescription_id': pet_medical_prescription.id, 'pet_owner_id': pet_owner_id}, status=status.HTTP_201_CREATED)
                     else:
@@ -2063,20 +2114,38 @@ class SubmitHealthCardTreatment(APIView):
                         }
                     })
 
-                    if isDeworm:
-                        checkup_service = Service.objects.get(service_type="Deworming")
-                    elif isVaccine:
-                        checkup_service = Service.objects.get(service_type="Vaccination")
+                    service_type = "Deworming" if isDeworm else "Vaccination" if isVaccine else "Doctor's Fee"
+                    checkup_service = Service.objects.get(service_type=service_type)
+
+                    billing = Billing.objects.filter(client=pet.client, isPaid=False, isActive=True).first()
+
+                    if billing is None:
+                        billing = Billing.objects.create(client=pet.client, isActive=True, isPaid=False)
+
+                    billing_service = BillingService.objects.filter(billing=billing, service=checkup_service).first()
+
+                    if billing_service:
+                        billing_service.quantity += 1
+                        billing_service.save()
                     else:
-                        checkup_service = Service.objects.get(service_type="Doctor's Fee")
+                        BillingService.objects.create(billing=billing, service=checkup_service, quantity=1)
+
+                    for medicine in medicines_for_session:
+                        product = Product.objects.get(id=medicine['id'])
+                        quantity = int(medicine['details'].get('quantity', 1)) 
+                        billing_product = BillingProduct.objects.filter(billing=billing, product=product).first()
+                        
+                        if billing_product:
+                            billing_product.quantity += quantity
+                            billing_product.save()
+                        else:
+                            BillingProduct.objects.create(billing=billing, product=product, quantity=quantity)
 
                     request.session['selected_medicines'] = medicines_for_session
                     request.session['selected_service'] = checkup_service.id
-
                     pet_owner_id = pet.client.id
-
                     request.session['selected_pet_owner_id'] = pet_owner_id
-                    
+
                     return Response({'success': True, 'message': 'Health card treatment submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:
                 return Response({'success': False, 'message': str(e)})

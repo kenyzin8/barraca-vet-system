@@ -79,14 +79,80 @@ window.addEventListener('DOMContentLoaded', event => {
 
         tooltips.push(tooltip);
     }
-    
 });
 
 </script>
 {% endblock %}
 
 {% block content %}
-<div class="card invoice mt-5 mb-5 animated--fade-in">
+{% if pending_payments_bills %}
+<div class="card card-collapsable mt-5">
+    <a class="card-header collapsed" href="#collapsePendingPaymentCard" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapsePendingPaymentCard">
+        Pending Payments ({{ pending_payments_bills|length }})
+        <div class="card-collapsable-arrow">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </a>
+    <div class="collapse" id="collapsePendingPaymentCard">
+        <div class="card-body">
+            <table id="datatablesSimple">
+                <thead>
+                    <tr>
+                        <th>Bill</th>
+                        <th>Client</th>
+                        <th>Bill Amount</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in pending_payments_bills %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center justify-content-between">  
+                                <span class="billing-number">
+                                    {{ bill.id }}
+                                </span>
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'unpaid-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Unpaid Bill">
+                                    <i data-feather="external-link"></i>
+                                </a>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center justify-content-between">  <!-- Add justify-content-between -->
+                                <div>  <!-- Wrap the name and (You) text in a div -->
+                                    {{ bill.client.full_name }}
+                                    {% if request.user.is_authenticated and bill.client.user.id == request.user.id %}
+                                    (You)
+                                    {% endif %}
+                                </div>
+                                {% if bill.client.user.is_active %}
+                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-client-page' bill.client.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Client">
+                                    <i data-feather="external-link"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                        
+                        <td>₱{{ bill.get_total|floatformat:2|intcomma }}</td>
+                        <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
+                        <td>
+                            <a href="#" class="btn btn-dark btn-sm btn-process-bill" data-bs-toggle="tooltip" data-bs-placement="top" title="Process Bill">
+                                <i class="fa-solid fa-check"></i>&nbsp;Process Bill
+                            </a>
+                            <a href="#" class="btn btn-dark btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel Bill">
+                                <i class="fa-solid fa-xmark"></i>&nbsp;Cancel Bill
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="card invoice {% if pending_payments_bills %}mt-3{% else %}mt-5{% endif %} mb-5 animated--fade-in">
     <div class="card-header p-4 p-md-5 border-bottom-0 bg-dark text-white-50">
         <div class="row justify-content-between align-items-center">
             <div class="col-12 col-lg-auto mb-5 mb-lg-0 text-center text-lg-start">
@@ -100,7 +166,7 @@ window.addEventListener('DOMContentLoaded', event => {
             <div class="col-12 col-lg-auto text-center text-lg-end">
                 <!-- Invoice details-->
                 <div class="h3 text-white">Billing Statement</div>
-                Bill No. <span class="billing-number">{{ next_bill_number }}</span>
+                Bill No. <span class="billing-number">{{ bill_number_to_view }}</span>
                 <br />
                 <span class="current-date">{% now "F j, Y" %}</span>
             </div>
@@ -242,6 +308,7 @@ window.addEventListener('DOMContentLoaded', event => {
                                 <th>Service</th>
                                 <th>Fee</th>
                                 <th>Description</th>
+                                <th>Quantity</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -272,6 +339,9 @@ window.addEventListener('DOMContentLoaded', event => {
                                     </span>
                                 </td>
                                 {% endif %}
+                                <td>
+                                    <input type="number" class="form-control service-quantity small" min="1" value="1" step="1" style="width: 80px;" onkeydown="return preventDecimal(event);" oninput="removeDecimal(this);">
+                                </td>
                                 <td>
                                     <button class="btn btn-dark add-service btn-sm" data-service-id="{{ service.id }}">
                                         <span class="add-text">Add</span>
@@ -442,10 +512,10 @@ window.addEventListener('DOMContentLoaded', event => {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addBillSuccessLabel">Success</h5>
-                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button class="btn-close btn-close-success" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Billing <span class="billing-number-modal">{{ next_bill_number }}</span> has been submitted. Click <a href="{% url 'view-bill-page' next_bill_number %}">here</a> to view.
+                Billing <span class="billing-number-modal">{{ bill_number_to_view }}</span> has been submitted. Click <a href="{% url 'view-bill-page' bill_number_to_view %}">here</a> to view.
             </div>
             <div class="modal-footer">
                 <button id="success-add-billing" class="btn btn-dark" type="button" data-bs-dismiss="modal">OK</button>
@@ -494,20 +564,74 @@ window.addEventListener('DOMContentLoaded', event => {
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script>
-    $('#cancel-button').on('click', function() {
-        $.ajax({
-            url: "{% url 'cancel-bill' %}",
-            type: "POST",
-            data: {
-                csrfmiddlewaretoken: "{{ csrf_token }}",
-            },
-            success: function(response) {
-                window.location.href = "{% url 'billing-page' %}";
-            },
-            error: function(response) {
-                console.log(response);
+function initDataTables(tableId, maxPage) {
+    const datatablesSimple = document.getElementById(tableId);
+    
+    var lastIndex = maxPage > 25 ? maxPage : 50;
+
+    if (datatablesSimple) {
+        datatablesSimple.style.display = "";
+        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+        // DataTables options
+        paging: true,
+        perPageSelect: [5, 10, 25, lastIndex],
+        perPage: 10,
+        fixedHeight: false,
+        sortable: true,
+        searchable: true,
+        hiddenHeader: false
+        });
+
+        dataTable.on('datatable.update', () => {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.page', function(page) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.search', function(query, matched) {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        dataTable.on('datatable.sort', function(column, direction) {
+            feather.replace();
+            
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        var searchInput = document.querySelector('.datatable-input');
+        
+        searchInput.addEventListener('search', function(e) {
+            if (e.target.value == '') {
+                dataTable.search('');
             }
         });
-    });
+        
+        return true;
+    }
+
+    return false;
+} 
+
+initDataTables('datatablesSimple', {{ pending_payments_bills|length }});
 </script>
 {% endblock %}

@@ -855,6 +855,7 @@ def set_appointment_client(request):
                     return JsonResponse({'status': 'error', 'message': 'No more slots available for this date.'}, status=400)
 
             existing_appointment = Appointment.objects.filter(pet_id=pet_id, status__in=["pending", "rebook"], isActive=True, pet__is_active=True).first()
+            
             if existing_appointment:
                 return JsonResponse({'status': 'error', 'message': 'This pet already has an appointment, please refresh the page.'}, status=400)
 

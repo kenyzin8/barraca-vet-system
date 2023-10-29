@@ -135,7 +135,19 @@ class PetRegistrationForm(forms.ModelForm):
                                 widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}))
     color = forms.CharField(widget=forms.TextInput(attrs={'id': 'color', 'class': 'form-control', 'placeholder': 'Enter color', 'autocomplete': 'off'}))
     weight = forms.DecimalField(validators=[validate_weight], widget=forms.NumberInput(attrs={'id': 'weight', 'class': 'form-control', 'placeholder': 'Enter weight', 'step': '0.01', 'autocomplete': 'off', 'min': 1, 'max': 150}))
-    picture = forms.ImageField(widget=forms.ClearableFileInput(attrs={'id': 'picture', 'class': 'form-control', 'autocomplete': 'off'}), required=False, validators=[validate_image_size])
+    picture = forms.ImageField(
+        widget=forms.ClearableFileInput(
+            attrs={
+                'id': 'picture',
+                'class': 'form-control',
+                'autocomplete': 'off',
+                'accept': 'image/*',  # Accept images of any type
+                'capture': 'camera'  # Open the camera interface on mobile devices
+            }
+        ),
+        required=False,
+        validators=[validate_image_size]
+    )
 
     class Meta:
         model = Pet

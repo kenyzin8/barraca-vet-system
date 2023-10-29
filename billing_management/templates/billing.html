@@ -88,7 +88,7 @@ window.addEventListener('DOMContentLoaded', event => {
 {% if pending_payments_bills %}
 <div class="card card-collapsable mt-5">
     <a class="card-header collapsed" href="#collapsePendingPaymentCard" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="collapsePendingPaymentCard">
-        Pending Payments ({{ pending_payments_bills|length }})
+        <div><i class="fa-solid fa-money-check-dollar"></i> Pending Payments ({{ pending_payments_bills|length }})</div>
         <div class="card-collapsable-arrow">
             <i class="fas fa-chevron-down"></i>
         </div>
@@ -101,7 +101,7 @@ window.addEventListener('DOMContentLoaded', event => {
                         <th>Bill</th>
                         <th>Client</th>
                         <th>Bill Amount</th>
-                        <th>Date</th>
+                        <!-- <th>Date</th> -->
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -135,13 +135,13 @@ window.addEventListener('DOMContentLoaded', event => {
                         </td>
                         
                         <td>₱{{ bill.get_total|floatformat:2|intcomma }}</td>
-                        <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
+                        <!-- <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td> -->
                         <td>
-                            <a href="#" class="btn btn-dark btn-sm btn-process-bill" data-bs-toggle="tooltip" data-bs-placement="top" title="Process Bill">
-                                <i class="fa-solid fa-check"></i>&nbsp;Process Bill
+                            <a href="#" class="btn btn-dark btn-sm btn-process-bill me-2 fw-500" data-bs-toggle="tooltip" data-bs-placement="top" title="Process Bill">
+                                <i class="fa-solid fa-check"></i>&nbsp;<span>Process Bill</span>
                             </a>
-                            <a href="#" class="btn btn-dark btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel Bill">
-                                <i class="fa-solid fa-xmark"></i>&nbsp;Cancel Bill
+                            <a href="#" class="btn btn-dark btn-sm fw-500 btn-cancel-unpaid-bill" data-bs-toggle="tooltip" data-bs-placement="top" title="Cancel Bill">
+                                <i class="fa-solid fa-xmark"></i>&nbsp;<span>Cancel Bill</span>
                             </a>
                         </td>
                     </tr>
@@ -515,7 +515,8 @@ window.addEventListener('DOMContentLoaded', event => {
                 <button class="btn-close btn-close-success" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Billing <span class="billing-number-modal">{{ bill_number_to_view }}</span> has been submitted. Click <a href="{% url 'view-bill-page' bill_number_to_view %}">here</a> to view.
+                Billing <span class="billing-number-modal">{{ bill_number_to_view }}</span> has been marked as <span class="text-success fw-700">PAID</span>.<br><br>
+                Click <a href="{% url 'view-bill-page' bill_number_to_view %}">here</a> to view.
             </div>
             <div class="modal-footer">
                 <button id="success-add-billing" class="btn btn-dark" type="button" data-bs-dismiss="modal">OK</button>
@@ -524,7 +525,7 @@ window.addEventListener('DOMContentLoaded', event => {
     </div>
 </div>
 
-<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmationModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -542,7 +543,25 @@ window.addEventListener('DOMContentLoaded', event => {
     </div>
 </div>
 
-<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+<div class="modal fade" id="confirmationCancelUnpaidBillModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationCancelUnpaidBillModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationCancelUnpaidBillModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to cancel this unpaid bill?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-cancel-unpaid-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="errorModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">

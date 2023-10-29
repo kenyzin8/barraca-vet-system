@@ -639,13 +639,13 @@
 
                         if(stockQuantity != null) {
                             if(parseFloat(stockQuantity) == 0) {
-                                showError("The product is out of stock.");
+                                showError(`${data.message}`);
                                 $this.prop('disabled', false);
                                 $this.find('.add-text').text("Add");
                                 return;
                             }
                             else if(parseFloat(quantity) > stockQuantity) {
-                                showError(`You only have ${stockQuantity} of this product in stock.`);
+                                showError(`${data.message}`);
                                 quantityInput.focus();
                                 $this.prop('disabled', false);
                                 $this.find('.add-text').text("Add");
@@ -954,7 +954,8 @@
 
                         $(document).on('click', '.successOKBtn', function(e)
                         {
-                            window.location.href = '/admin/bill/?to=' + ownerID;
+                            // window.location.href = '/admin/bill/?to=' + ownerID;
+                            window.location.href = '/admin/bill/';
                         });
                     }
                     else

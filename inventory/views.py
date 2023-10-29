@@ -1,5 +1,6 @@
 import datetime
 
+from django.db.models import Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from core.decorators import staff_required
 from django.contrib.auth.decorators import login_required
@@ -9,6 +10,8 @@ from django.http import JsonResponse
 from django.db.models import F, Q
 from django.views.decorators.csrf import csrf_exempt
 from copy import deepcopy
+
+from billing_management.models import BillingProduct, Billing
 
 def format_volume(volume):
     if volume % 1 == 0:
@@ -255,8 +258,33 @@ def reorder_list(request):
 @staff_required
 @login_required
 def check_product_quantity(request, product_id):
-    product = Product.objects.get(pk=product_id)
-    return JsonResponse({'quantity': float(product.quantity_on_stock)})
+    bill_to_process = request.GET.get('bill_to_process')
+    product = get_object_or_404(Product, pk=product_id)
+    
+    bill = get_object_or_404(Billing, pk=bill_to_process) if bill_to_process else None
+
+    reserved_quantity = 0
+    
+    reserved_quantity = BillingProduct.objects.filter(
+        product=product,
+        billing__isPaid=False,
+        billing__isActive=True
+    ).aggregate(reserved=Sum('quantity'))['reserved'] or 0
+
+    available_quantity = product.quantity_on_stock - reserved_quantity
+
+    if bill:
+        reserved_quantity -= bill.billing_products.filter(product=product).aggregate(reserved=Sum('quantity'))['reserved'] or 0
+        available_quantity += bill.billing_products.filter(product=product).aggregate(reserved=Sum('quantity'))['reserved'] or 0
+
+    if available_quantity > 0:
+        message = f'There are {int(reserved_quantity)} units of {product.product_name} reserved for unpaid bills. You can proceed with a quantity up to {int(available_quantity)}.'
+    elif reserved_quantity > 0:
+        message = f'There are {int(reserved_quantity)} units of {product.product_name} reserved for unpaid bills.'
+    else:
+        message = 'The product is out of stock.'
+
+    return JsonResponse({'quantity': float(available_quantity), 'message': message})
 
 @staff_required
 @login_required

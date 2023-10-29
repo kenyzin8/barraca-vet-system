@@ -158,14 +158,100 @@
                         <td class="text-end pb-0" colspan="3"><!-- empty for spacing --></td>
                         <td class="text-end pb-0 h5 mb-0 fw-700" style="padding-top: 20px;">Total Amount: <span class="total-amount">₱ {{ bill.get_total }}</span></td>
                     </tr>
+                    <tr>
+                        <td class="text-end pb-0" colspan="3"><!-- empty for spacing --></td>
+                        <td class="text-end pb-0 billing-buttons" style="padding-top: 20px;">
+                            <a href="#" id="cancel-button" type="button" class="btn btn-danger lift lift-sm mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Cancel bill">Cancel</a>
+                            <a href="#" id="paid-button" type="button" class="btn btn-success lift lift-sm mb-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Mark as paid">Paid</a>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
         <!-- <button class="btn btn-dark btn-sm lift lift-sm" style="margin-left:10px;" onclick="printBill()">Print</button> -->
     </div>
 </div>
+<div class="modal fade" id="confirmationModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to mark this unpaid bill as <span class="text-success fw-700">PAID</span>?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-paid-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmationCancelUnpaidBillModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationCancelUnpaidBillModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationCancelUnpaidBillModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to cancel this unpaid bill?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-cancel-unpaid-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extrascripts %}
-<script src="{% static 'js/billing/view_bill.js' %}"></script>
+<script src="{% static 'js/billing/view_unpaid_bill.js' %}"></script>
+<script>
+    $(document).ready(function() {
+        $('#cancel-button').on('click', function(e) {
+            e.preventDefault();
+            $('#confirmationCancelUnpaidBillModal').modal('show');
+        });
+
+        $('#confirm-cancel-unpaid-button').on('click', function() {
+            $.ajax({
+                url: "{% url 'cancel-unpaid-bill' %}",
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    bill_id: '{{ bill.id }}',
+                },
+                success: function(response) {
+                    if(response.status == "success")
+                        window.location.href = "{% url 'sales-page' %}";
+                }
+            });
+        });
+
+        $('#paid-button').on('click', function(e) {
+            e.preventDefault();
+            $('#confirmationModal').modal('show');
+        });
+
+        $('#confirm-paid-button').on('click', function() {
+            $.ajax({
+                url: "{% url 'post-unpaid-bill' %}",
+                method: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    bill_id: '{{ bill.id }}',
+                },
+                success: function(response) {
+                    if(response.status == "success")
+                        window.location.href = "{% url 'view-bill-page' bill.id %}";
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
+<!-- post-unpaid-bill -->

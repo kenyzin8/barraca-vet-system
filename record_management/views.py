@@ -1368,11 +1368,11 @@ class SubmitConsultationView(APIView):
                                 BillingProduct.objects.create(billing=billing, product=product, quantity=quantity)
 
 
-                    if products_selected:
-                        request.session['selected_medicines'] = medicines_for_session
-                    request.session['selected_service'] = checkup_service.id
+                    #if products_selected:
+                    #    request.session['selected_medicines'] = medicines_for_session
+                    #request.session['selected_service'] = checkup_service.id
                     pet_owner_id = selected_pet.client.id
-                    request.session['selected_pet_owner_id'] = pet_owner_id
+                    #request.session['selected_pet_owner_id'] = pet_owner_id
 
                     return Response({'success': True, 'message': 'Consultation submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:
@@ -1566,9 +1566,9 @@ class SubmitPrescription(APIView):
                             else:
                                 BillingProduct.objects.create(billing=billing, product=product, quantity=quantity)
 
-                        request.session['selected_medicines'] = medicines_for_session
-                        request.session['selected_service'] = checkup_service.id
-                        request.session['selected_pet_owner_id'] = pet_owner_id
+                        #request.session['selected_medicines'] = medicines_for_session
+                        #request.session['selected_service'] = checkup_service.id
+                        #request.session['selected_pet_owner_id'] = pet_owner_id
                         
                         return Response({'success': True, "message": "Prescription has been added.", 'prescription_id': pet_medical_prescription.id, 'pet_owner_id': pet_owner_id}, status=status.HTTP_201_CREATED)
                     else:
@@ -2141,10 +2141,10 @@ class SubmitHealthCardTreatment(APIView):
                         else:
                             BillingProduct.objects.create(billing=billing, product=product, quantity=quantity)
 
-                    request.session['selected_medicines'] = medicines_for_session
-                    request.session['selected_service'] = checkup_service.id
+                    #request.session['selected_medicines'] = medicines_for_session
+                    #request.session['selected_service'] = checkup_service.id
                     pet_owner_id = pet.client.id
-                    request.session['selected_pet_owner_id'] = pet_owner_id
+                    #request.session['selected_pet_owner_id'] = pet_owner_id
 
                     return Response({'success': True, 'message': 'Health card treatment submitted successfully.', 'pet_owner_id': pet_owner_id})
             except Exception as e:

@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from core.decorators import staff_required
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -79,11 +79,11 @@ def bill(request):
 
     if selected_medicines:
         context.update({'selected_medicines': selected_medicines})
-        #del request.session['selected_medicines']
+        del request.session['selected_medicines']
 
     if selected_service != -1:
         context.update({'selected_service': selected_service})
-        #del request.session['selected_service']
+        del request.session['selected_service']
 
     if 'selected_services' in request.session:
         selected_services = request.session.get('selected_services', [])
@@ -93,13 +93,15 @@ def bill(request):
             services = services | service
 
         context.update({'selected_services': selected_services})
+
+        del request.session['selected_services']
     
     context['services'] = services
     bill_to_process = None
     if 'bill_to_process' in request.session:
         bill_to_process = request.session.get('bill_to_process')
         context.update({'bill_to_process': bill_to_process})
-        #del request.session['bill_to_process']
+        del request.session['bill_to_process']
 
     context.update({'bill_number_to_view': bill_to_process.strip() if bill_to_process else next_bill_number})
 
@@ -107,7 +109,7 @@ def bill(request):
         context.update({'selected_pet_owner_id': request.session.get('selected_pet_owner_id')})
         selected_pet_owner_id_name = Client.objects.get(id=request.session.get('selected_pet_owner_id')).full_name
         context.update({'selected_pet_owner_id_name': selected_pet_owner_id_name})
-        #del request.session['selected_pet_owner_id']
+        del request.session['selected_pet_owner_id']
 
     return render(request, 'billing.html', context)
 
@@ -137,7 +139,6 @@ def cancel_bill(request):
 @staff_required
 @login_required
 def process_unpaid_bill(request):
-
     if request.method == 'POST':
         bill_id = request.POST.get('bill_id')
         bill = get_object_or_404(Billing, pk=bill_id)
@@ -164,6 +165,35 @@ def process_unpaid_bill(request):
         request.session['selected_services'] = services
         request.session['selected_pet_owner_id'] = bill.client.id
         request.session['bill_to_process'] = bill.get_billing_number()
+
+        return JsonResponse({'status': 'success'}, status=200)
+    else:
+        return JsonResponse({'status': 'error'}, status=400)
+
+@staff_required
+@login_required
+def mark_unpaid_bill_as_paid(request):
+    if request.method == 'POST':
+        bill_id = request.POST.get('bill_id')
+        bill = get_object_or_404(Billing, pk=bill_id)
+        
+        bill.isPaid = True
+        bill.date_created = timezone.now()
+        bill.save()
+
+        return JsonResponse({'status': 'success'}, status=200)
+    else:
+        return JsonResponse({'status': 'error'}, status=400)
+
+@staff_required
+@login_required
+def cancel_unpaid_bill(request):
+    if request.method == 'POST':
+        bill_id = request.POST.get('bill_id')
+        bill = get_object_or_404(Billing, pk=bill_id)
+        
+        bill.isActive = False
+        bill.save()
 
         return JsonResponse({'status': 'success'}, status=200)
     else:
@@ -272,6 +302,9 @@ def post_bill(request):
 def view_bill(request, bill_id):
     bill = get_object_or_404(Billing, pk=bill_id)
     
+    if not bill.isPaid:
+        return redirect('unpaid-bill-page', bill_id=bill_id)
+
     bill_data = []
 
     for b in bill.billing_products.all():
@@ -287,9 +320,9 @@ def view_bill(request, bill_id):
         bill_data.append({
             'type': 'Service',
             'particulars': b.service.service_type,
-            'qty': '1', 
+            'qty': str(b.quantity), 
             'amount': str(b.service.fee),
-            'amount_total': str(b.service.fee)
+            'amount_total': str(b.service.fee * b.quantity)
         })
 
     context = {'bill': bill, 'bill_data': bill_data}
@@ -299,6 +332,12 @@ def view_bill(request, bill_id):
 @staff_required
 def view_unpaid_bill(request, bill_id):
     bill = get_object_or_404(Billing, pk=bill_id)
+    
+    if bill.isPaid:
+        return redirect('view-bill-page', bill_id=bill_id)
+
+    if not bill.isActive:
+        return redirect('sales-page')
     
     bill_data = []
 
@@ -315,9 +354,9 @@ def view_unpaid_bill(request, bill_id):
         bill_data.append({
             'type': 'Service',
             'particulars': b.service.service_type,
-            'qty': '1', 
+            'qty': str(b.quantity), 
             'amount': str(b.service.fee),
-            'amount_total': str(b.service.fee)
+            'amount_total': str(b.service.fee * b.quantity)
         })
 
     context = {'bill': bill, 'bill_data': bill_data}
@@ -397,15 +436,18 @@ def sales(request):
     for bill in bills.order_by('id'):
         _date = bill.date_created.strftime("%b %d, %Y %I:%M %p")
         for bs in bill.billing_services.all():
+            total = bs.quantity * bs.service.fee
             billing_services_data.append({
                 'id': bill.get_billing_number(),
                 'date_created': _date,
                 'service': bs.service.service_type,
+                'quantity': int(bs.quantity),
                 'sold_under': bill.client.full_name,
-                'price': custom_format(bs.price_at_time_of_purchase)
+                'price': custom_format(bs.price_at_time_of_purchase),
+                'total_due': custom_format(total)
             })
             
-            services_sub_total += bs.service.fee
+            services_sub_total += total
 
         for bp in bill.billing_products.all():
             total = bp.quantity * bp.price_at_time_of_purchase

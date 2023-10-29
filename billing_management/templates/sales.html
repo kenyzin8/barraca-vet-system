@@ -597,6 +597,8 @@ function initDataTables(tableId, maxPage) {
             <td>${c.date_created}</td>
             <td>${c.service}</td>
             <td>₱${numberWithCommas(c.price)}</td>
+            <td>${numberWithCommas(c.quantity)}</td>
+            <td>₱${numberWithCommas(c.total_due)}</td>
         </tr>
         `).join('');
 
@@ -607,7 +609,7 @@ function initDataTables(tableId, maxPage) {
             <td>${c.sold_under}</td>
             <td>${c.date_created}</td>
             <td>${c.product}</td>
-            <td>₱${c.price}</td>
+            <td>₱${numberWithCommas(c.price)}</td>
             <td>${numberWithCommas(c.quantity)}</td>
             <td>₱${numberWithCommas(c.total_due)}</td>
         </tr>
@@ -626,6 +628,8 @@ function initDataTables(tableId, maxPage) {
                         <th class="table-header">Date Purchased</th>
                         <th class="table-header">Service</th>
                         <th class="table-header">Price</th>
+                        <th class="table-header">Quantity</th>
+                        <th class="table-header">Total Due</th>
                     </tr>
                 </thead>
                 <tbody class="first-tbody">

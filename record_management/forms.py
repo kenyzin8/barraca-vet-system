@@ -141,13 +141,13 @@ class PetRegistrationForm(forms.ModelForm):
                 'id': 'picture',
                 'class': 'form-control',
                 'autocomplete': 'off',
-                'accept': 'image/*',  # Accept images of any type
-                'capture': 'camera'  # Open the camera interface on mobile devices
+                'accept': 'image/jpeg, image/png, image/webp',
             }
         ),
         required=False,
         validators=[validate_image_size]
     )
+
 
     class Meta:
         model = Pet

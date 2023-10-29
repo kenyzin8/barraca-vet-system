@@ -71,7 +71,7 @@ $.ajax({
             if (disabledDay) {
                 $('#selectedDateToEnable').val(dateString);
                 if (disabledDay.timeOfTheDay === 'whole_day') {
-                    showError("This date is disabled for the whole day by the clinic staff.");
+                    showError(`You cannot set an appointment on this day. <br><br><span class="fw-700 text-danger">Reason: ${disabledDay.reason}</span>.`);
                 } else if (availableSlots <= 0) {
                     showError("This date is full, please select another date.");
                 } else {

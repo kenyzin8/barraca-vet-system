@@ -955,7 +955,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             updateTimeOfTheDayCell(response.disabled_day.date, timeOfDayInfo, timeOfTheDayElements);
                             showRebookList();
-                            showSuccess(`${response.disabled_day.date} has been disabled for ${response.disabled_day.timeOfTheDay}. Reason: ${response.disabled_day.reason}`);
+                            showSuccess(`${response.disabled_day.date} has been disabled for ${response.disabled_day.timeOfTheDay_val}. Reason: ${response.disabled_day.reason}`);
                         
                             $('#OKSuccessModalButton').on('click', function() {
                                 localStorage.setItem('calendarDate', response.disabled_day.date);

@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load humanize %}
+{% load templatetags %}
 
 {% block title %} Product Types | Barraca Veterinary Clinic {% endblock %}
 
@@ -106,10 +107,11 @@ window.addEventListener('DOMContentLoaded', event => {
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-bs-target="#updateTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Update">
                                 <i data-feather="settings"></i>
                             </a>
-                            
+                            {% if request.user|has_permission:'inventory.delete_product' %}
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#" data-bs-toggle="modal" data-bs-target="#deleteTypeModal" data-type-name="{{ type.name }}" data-type-id="{{ type.id }}" data-bs-placement="top" title="Delete">
                                 <i data-feather="trash-2"></i>
                             </a>
+                            {% endif %}
                             {% endif %}
                         </td>
                     </tr>

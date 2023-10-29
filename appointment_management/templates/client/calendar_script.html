@@ -1,7 +1,7 @@
 <script>
 function showError(message) {
     $("#OKErrorModalButton").off("click");
-    $('#errorModal .modal-body').text(message);
+    $('#errorModal .modal-body').html(message);
     $('#errorModal').modal('show');
 }
 
@@ -758,13 +758,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     success: function(response) {
                         if (response.status === 'full') {
                             showError('This date is full.');
-                        } else {
+                        } 
+                        else if(response.status === 'disabled'){
+                            showError('This date is disabled, please refresh the page.');
+                        }
+                        else {
                             $('#selectedDate').val(dateString);
                             $('#addAppointmentModal').modal('show');
                         }
                     },
                     error: function(error) {
-                        showError(error.responseJSON.message);
+                        showError(error);
                     }
                 });
             });

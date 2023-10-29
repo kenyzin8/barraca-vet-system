@@ -19,7 +19,7 @@ class AdminDashboardConfig(AppConfig):
             "add_doctorschedule", "change_doctorschedule", "delete_doctorschedule", "view_doctorschedule",
             "add_maximumappointment", "change_maximumappointment", "delete_maximumappointment", "view_maximumappointment",
             "view_user",
-            "add_billing",
+            "add_billing", "view_billing"
             "add_billingproduct", "view_billingproduct",
             "add_billingservice", "view_billingservice",
             "add_smslogs", "change_smslogs", "delete_smslogs", "view_smslogs",
@@ -34,6 +34,9 @@ class AdminDashboardConfig(AppConfig):
             "view_temporarylabresultimage",
             "view_treatmentcycle",
             "add_user", "view_user"
+            "add_product",
+            "add_product_type",
+            "add_service",
         ]
 
         secretary_group, created = Group.objects.get_or_create(name="Secretary")

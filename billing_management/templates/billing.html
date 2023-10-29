@@ -59,6 +59,10 @@
     {
         flex: 0 0 auto;
     }
+
+    .modal-xl {
+        --bs-modal-width: 1540px;
+    }
 </style>
 {% include 'product_table_script.html' %}
 <script>
@@ -450,9 +454,9 @@ window.addEventListener('DOMContentLoaded', event => {
                                                 <span class="product-batch-number small">
                                                     {{ product.batch_number }}
                                                 </span>
-                                                <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-update-page' product.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Updates" style="margin-bottom: 4px;">
+                                                <!-- <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'product-update-page' product.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Updates" style="margin-bottom: 4px;">
                                                     <i data-feather="external-link"></i>
-                                                </a>
+                                                </a> -->
                                             </td>
                                             <td>
                                                 <span class="small">

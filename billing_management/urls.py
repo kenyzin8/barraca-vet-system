@@ -13,5 +13,6 @@ urlpatterns = [
     #path('admin/sales/<int:bill_id>/', permission_required('billing_management.view_billing', raise_exception=True)(views.view_bill), name='view-bill-page'),
     path('admin/sales/<int:bill_id>/', views.view_bill, name='view-bill-page'),
     path('admin/sales/unpaid/<int:bill_id>/', views.view_unpaid_bill, name='unpaid-bill-page'),
-    path('admin/sales/', permission_required('billing_management.view_billing', raise_exception=True)(views.sales), name='sales-page'),
+    #path('admin/sales/', permission_required('billing_management.view_billing', raise_exception=True)(views.sales), name='sales-page'),
+    path('admin/sales/', views.sales, name='sales-page'),
 ]

@@ -59,6 +59,7 @@ def disable_day(request):
 
             disabled_day_dict['date'] = disable_day.date
             disabled_day_dict['timeOfTheDay'] = disable_day.timeOfTheDay
+            disabled_day_dict['timeOfTheDay_val'] = disable_day.get_timeOfTheDay_display()
             disabled_day_dict['reason'] = disable_day.reason
 
             return JsonResponse({'status': 'success', 'disabled_day': disabled_day_dict}, status=200)
@@ -170,7 +171,9 @@ def enable_day(request):
             return JsonResponse({'status': 'error', 'message': 'This date is already enabled, please refresh the page.'}, status=400)
 
         DoctorSchedule.objects.filter(date=date_obj).delete()
-        return JsonResponse({'success': True, 'message': f'{date} has been enabled.'}, status=200)
+        date_obj = datetime.strptime(date, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%B %d, %Y")
+        return JsonResponse({'success': True, 'message': f'{formatted_date} has been enabled.'}, status=200)
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=405)
 
@@ -593,33 +596,33 @@ def rebook_appointment(request):
 def check_if_full(request):
     if request.method == 'GET':
         selected_date_str = request.GET.get('selected_date')
-        try:
-            selected_date = datetime.strptime(selected_date_str.split('T')[0], "%Y-%m-%d").date()  
-            num_appointments = Appointment.objects.filter(date=selected_date, status='pending', isActive=True, pet__is_active=True).count()
-            max_slots = MaximumAppointment.load().max_appointments
-            date_slot = DateSlot.objects.filter(date=selected_date).first()
-            max_morning_slots = date_slot.morning_slots if date_slot else (max_slots / 2)
-            max_afternoon_slots = date_slot.afternoon_slots if date_slot else (max_slots / 2)
+        
+        selected_date = datetime.strptime(selected_date_str.split('T')[0], "%Y-%m-%d").date()  
+        num_appointments = Appointment.objects.filter(date=selected_date, status='pending', isActive=True, pet__is_active=True).count()
+        max_slots = MaximumAppointment.load().max_appointments
+        date_slot = DateSlot.objects.filter(date=selected_date).first()
+        max_morning_slots = date_slot.morning_slots if date_slot else (max_slots / 2)
+        max_afternoon_slots = date_slot.afternoon_slots if date_slot else (max_slots / 2)
 
-            total_slots = max_morning_slots + max_afternoon_slots
+        total_slots = max_morning_slots + max_afternoon_slots
 
-            doctor_schedule = DoctorSchedule.objects.filter(date=selected_date, isActive=True).first()
+        doctor_schedule = DoctorSchedule.objects.filter(date=selected_date, isActive=True).first()
 
-            if num_appointments >= total_slots:
-                return JsonResponse({'status': 'full'}, status=200)
-            elif num_appointments >= max_morning_slots:
+        if num_appointments >= total_slots:
+            return JsonResponse({'status': 'full'}, status=200)
+        elif num_appointments >= max_morning_slots:
+            return JsonResponse({'status': 'morning_full'}, status=200)
+        elif num_appointments >= max_afternoon_slots:
+            return JsonResponse({'status': 'afternoon_full'}, status=200)
+        elif doctor_schedule:
+            if doctor_schedule.timeOfTheDay == 'morning':
                 return JsonResponse({'status': 'morning_full'}, status=200)
-            elif num_appointments >= max_afternoon_slots:
+            elif doctor_schedule.timeOfTheDay == 'afternoon':
                 return JsonResponse({'status': 'afternoon_full'}, status=200)
-            elif doctor_schedule:
-                if doctor_schedule.timeOfTheDay == 'morning':
-                    return JsonResponse({'status': 'morning_full'}, status=200)
-                elif doctor_schedule.timeOfTheDay == 'afternoon':
-                    return JsonResponse({'status': 'afternoon_full'}, status=200)
-            else:
-                return JsonResponse({'status': 'not full'}, status=200)
-        except ValueError:
-            return JsonResponse({'status': 'Invalid date format'}, status=400)
+            elif doctor_schedule.timeOfTheDay == 'whole_day':
+                return JsonResponse({'status': 'disabled'}, status=200)
+        else:
+            return JsonResponse({'status': 'not full'}, status=200)
     else:
         return JsonResponse({'status': 'Invalid method'}, status=400)
 
@@ -1067,7 +1070,7 @@ def get_all_data_client(request):
     #print(event_list)
 
     # Get disabled days
-    disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay')
+    disabled_days = DoctorSchedule.objects.filter(isActive=True).values('date', 'timeOfTheDay', 'reason')
     disabled_days_list = list(disabled_days)
 
     # Get max appointments

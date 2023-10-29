@@ -88,12 +88,16 @@ class Product(models.Model):
     active = models.BooleanField(default=True)
     
     changes_log = models.JSONField(default=dict, blank=True)
+    has_new_batch = models.BooleanField(default=False)
+    old_batch = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.product_name}"
 
     def is_product_critical(self):
-        return self.quantity_on_stock <= self.critical_level
+        if not self.has_new_batch:
+            return self.quantity_on_stock <= self.critical_level
+        return False
 
     def is_product_expired(self):
         return self.expiration_date < datetime.date.today()
@@ -184,17 +188,17 @@ class Product(models.Model):
                 f"Critical Level - {self.product_name}"
             )
 
-            self.create_or_delete_notification(
-                self.is_product_out_of_stock(),
-                Notification.OUT_OF_STOCK,
-                f"Out of Stock - {self.product_name}"
-            )
+            # self.create_or_delete_notification(
+            #     self.is_product_out_of_stock(),
+            #     Notification.OUT_OF_STOCK,
+            #     f"Out of Stock - {self.product_name}"
+            # )
 
-            self.create_or_delete_notification(
-                self.is_product_expired(),
-                Notification.EXPIRED,
-                f"Expired - {self.product_name}"
-            )
+            # self.create_or_delete_notification(
+            #     self.is_product_expired(),
+            #     Notification.EXPIRED,
+            #     f"Expired - {self.product_name}"
+            # )
 
 # class Product(models.Model):
 #     product_name = models.CharField(max_length=255)

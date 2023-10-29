@@ -4,7 +4,7 @@ from core.models import SMSLogs
 from services.models import Service
 from core.semaphore import send_sms
 from .utils import time_choices
-from datetime import time
+from datetime import time, datetime
 
 class MaximumAppointment(models.Model):
     max_appointments = models.IntegerField(default=8)
@@ -115,7 +115,12 @@ class Appointment(models.Model):
     def remindClient(self, reminder_type):
         phone_number = self.client.contact_number
         formatted_time = self.time.strftime('%I:%M %p')
-        message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time}. Thank you!'
+
+        formatted_date = self.date.strftime("%B %d, %Y")
+
+        #message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {formatted_date} at {formatted_time}. Thank you!'
+        message = f"Reminder of the {self.purpose.service_type} appointment for your pet {self.pet.name} on {formatted_date} at {formatted_time}. Thank you, {self.client.get_gender_honorific()} {self.client.full_name}!"
+
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(
@@ -135,7 +140,9 @@ class Appointment(models.Model):
     def remindClientCancel(self, reason):
         phone_number = self.client.contact_number
         formatted_time = self.time.strftime('%I:%M %p')
-        message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time} has been cancelled. Due to {reason}. Thank you!'
+        formatted_date = self.date.strftime("%B %d, %Y")
+        message = f"Dear {self.client.get_gender_honorific()} {self.client.full_name}, we regret to inform you that your {self.purpose.service_type} appointment for {self.pet.name} scheduled on {formatted_date} at {formatted_time} has been cancelled. Reason: {reason}. Thank you for your understanding."
+
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(
@@ -147,8 +154,10 @@ class Appointment(models.Model):
     def remindClientRebook(self, newDate, newTime):
         phone_number = self.client.contact_number
         formatted_time = self.time.strftime('%I:%M %p')
+        formatted_date = self.date.strftime("%B %d, %Y")
         formatted_new_time = newTime.strftime('%I:%M %p')
-        message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {self.date} at {formatted_time} has been rebooked to {newDate} {formatted_new_time}. Thank you!'
+        formatted_new_date = newDate.strftime("%B %d, %Y")
+        message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {formatted_date} at {formatted_time} has been rebooked to {formatted_new_date} {formatted_new_time}. Thank you!'
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(

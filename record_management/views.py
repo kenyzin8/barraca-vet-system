@@ -17,7 +17,7 @@ from django.views.decorators.http import require_http_methods
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from datetime import time as dt_time
-
+from django.utils import timezone
 import json
 import time
 import imghdr
@@ -42,7 +42,7 @@ from core.semaphore import send_sms, send_otp_sms
 from core.decorators import staff_required
 from django.core.cache import cache
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Max, Count, Min, OuterRef, Subquery, Q, F
 
 from appointment_management.models import (
     Appointment,
@@ -1017,11 +1017,51 @@ def medical_record(request):
     pets = Pet.objects.filter(is_active=True).order_by('-id')
     types = ProductType.objects.filter(name="Medicines")
 
+    # product_dict = {}
+    # for t in types:
+    #     products = Product.objects.filter(type=t, active=True)
+    #     filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
+    #     product_dict[t.name] = filtered_products
     product_dict = {}
-    for t in types:
-        products = Product.objects.filter(type=t, active=True)
-        filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
-        product_dict[t.name] = filtered_products
+    for product_type in types:
+        valid_products = Product.objects.filter(
+            type=product_type, 
+            quantity_on_stock__gt=0, 
+            active=True, 
+            expiration_date__gt=timezone.now().date()  # Convert datetime to date
+        )
+
+        final_products = {}
+        processed_product_names = set()
+
+        for product in valid_products.order_by('date_added'):
+            product_name = product.product_name
+
+            if product_name in processed_product_names:
+                continue
+
+            current_batch = product
+            while current_batch and current_batch.old_batch:
+                older_batch = valid_products.filter(id=current_batch.old_batch_id).first()
+                if older_batch:
+                    current_batch = older_batch
+                else:
+                    break
+
+            if current_batch.quantity_on_stock > 0 and current_batch.expiration_date > timezone.now().date():
+                final_products[product_name] = current_batch
+                processed_product_names.add(product_name)
+            else:
+                newest_batch = valid_products.filter(
+                    product_name=product_name, 
+                    quantity_on_stock__gt=0, 
+                    expiration_date__gt=timezone.now().date()
+                ).order_by('-date_added').first()
+                if newest_batch:
+                    final_products[product_name] = newest_batch
+                    processed_product_names.add(product_name)
+
+        product_dict[product_type.name.replace(' ', '-')] = list(final_products.values())
 
     formList = PrescriptionMedicines.MEDICINES_FORM_LIST
 
@@ -1487,12 +1527,51 @@ def add_medical_prescription(request):
     pets = Pet.objects.filter(is_active=True).order_by('-id')
     types = ProductType.objects.filter(name="Medicines")
 
+    # product_dict = {}
+    # for t in types:
+    #     products = Product.objects.filter(type=t, active=True)
+    #     filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
+    #     product_dict[t.name] = filtered_products
     product_dict = {}
-    for t in types:
-        products = Product.objects.filter(type=t, active=True)
-        filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
-        product_dict[t.name] = filtered_products
+    for product_type in types:
+        valid_products = Product.objects.filter(
+            type=product_type, 
+            quantity_on_stock__gt=0, 
+            active=True, 
+            expiration_date__gt=timezone.now().date()  # Convert datetime to date
+        )
 
+        final_products = {}
+        processed_product_names = set()
+
+        for product in valid_products.order_by('date_added'):
+            product_name = product.product_name
+
+            if product_name in processed_product_names:
+                continue
+
+            current_batch = product
+            while current_batch and current_batch.old_batch:
+                older_batch = valid_products.filter(id=current_batch.old_batch_id).first()
+                if older_batch:
+                    current_batch = older_batch
+                else:
+                    break
+
+            if current_batch.quantity_on_stock > 0 and current_batch.expiration_date > timezone.now().date():
+                final_products[product_name] = current_batch
+                processed_product_names.add(product_name)
+            else:
+                newest_batch = valid_products.filter(
+                    product_name=product_name, 
+                    quantity_on_stock__gt=0, 
+                    expiration_date__gt=timezone.now().date()
+                ).order_by('-date_added').first()
+                if newest_batch:
+                    final_products[product_name] = newest_batch
+                    processed_product_names.add(product_name)
+
+        product_dict[product_type.name.replace(' ', '-')] = list(final_products.values())
     formList = PrescriptionMedicines.MEDICINES_FORM_LIST
 
     context = {'pets': pets, 'product_dict': product_dict, 'formList': formList}
@@ -1588,15 +1667,57 @@ def add_health_card_treatment(request):
     pets = Pet.objects.filter(is_active=True).order_by('-id')
     types = ProductType.objects.filter(name="Medicines")
 
+    # product_dict = {}
+    # for t in types:
+    #     products = Product.objects.filter(type=t, active=True)
+    #     filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
+        
+    #     for product in filtered_products:
+    #         product.formatted_volume = format_volume(product.volume)
+        
+    #     product_dict[t.name] = filtered_products
+
     product_dict = {}
-    for t in types:
-        products = Product.objects.filter(type=t, active=True)
-        filtered_products = [product for product in products if not product.is_product_expired() and not product.is_product_out_of_stock()]
-        
-        for product in filtered_products:
-            product.formatted_volume = format_volume(product.volume)
-        
-        product_dict[t.name] = filtered_products
+    for product_type in types:
+        valid_products = Product.objects.filter(
+            type=product_type, 
+            quantity_on_stock__gt=0, 
+            active=True, 
+            expiration_date__gt=timezone.now().date()  # Convert datetime to date
+        )
+
+        final_products = {}
+        processed_product_names = set()
+
+        for product in valid_products.order_by('date_added'):
+            product_name = product.product_name
+
+            if product_name in processed_product_names:
+                continue
+
+            current_batch = product
+            while current_batch and current_batch.old_batch:
+                older_batch = valid_products.filter(id=current_batch.old_batch_id).first()
+                if older_batch:
+                    current_batch = older_batch
+                else:
+                    break
+
+            if current_batch.quantity_on_stock > 0 and current_batch.expiration_date > timezone.now().date():
+                final_products[product_name] = current_batch
+                processed_product_names.add(product_name)
+            else:
+                newest_batch = valid_products.filter(
+                    product_name=product_name, 
+                    quantity_on_stock__gt=0, 
+                    expiration_date__gt=timezone.now().date()
+                ).order_by('-date_added').first()
+                if newest_batch:
+                    final_products[product_name] = newest_batch
+                    processed_product_names.add(product_name)
+
+        product_dict[product_type.name.replace(' ', '-')] = list(final_products.values())
+
 
     formList = PrescriptionMedicines.MEDICINES_FORM_LIST
 
@@ -2520,7 +2641,7 @@ class UpdateConsultationView(APIView):
                                 'details': product_details
                             })
 
-                        request.session['selected_medicines'] = medicines_for_session
+                        #request.session['selected_medicines'] = medicines_for_session
                     else:
                         pet_medical_prescription = PetMedicalPrescription.objects.filter(pet_treatment=pet_treatment).first()
                         if pet_medical_prescription:
@@ -2528,7 +2649,7 @@ class UpdateConsultationView(APIView):
                             pet_medical_prescription.save()
 
                     checkup_service = Service.objects.get(service_type="Doctor's Fee") #MAKE THIS DYNAMIC AT POLISHING
-                    request.session['selected_service'] = checkup_service.id
+                    #request.session['selected_service'] = checkup_service.id
 
                     pet_owner_id = selected_pet.client.id
 

@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.db.models import F, Q
 from django.views.decorators.csrf import csrf_exempt
 from copy import deepcopy
-
+from django.core.exceptions import ValidationError
 from billing_management.models import BillingProduct, Billing
 
 def format_volume(volume):
@@ -174,6 +174,50 @@ def product_update(request, product_id):
 
     return render(request, 'inventory_update.html', {'form': form, 'product': product})
 
+from django.forms.models import model_to_dict
+
+@staff_required
+@login_required
+def product_add_new_batch(request, product_id):
+    original_product = get_object_or_404(Product, id=product_id, active=True)
+    
+    if request.method == 'POST':
+        post_data = request.POST.copy()
+
+        readonly_fields = ['product_name', 'type', 'volume', 'volume_unit', 'form', 'manufacturer']
+
+        for field in readonly_fields:
+            post_data[field] = getattr(original_product, field)
+
+        form = ProductForm(post_data)
+
+        if form.is_valid():
+            new_product = form.save(commit=False)
+            new_product.id = None
+            new_product.old_batch = original_product
+            new_product.save()
+            
+            original_product.has_new_batch = True
+            original_product.save()
+
+            return redirect('product-list-page')
+        # else:
+        #     print(form.errors)
+    else:
+        initial_data = model_to_dict(original_product)
+        old_batch_number = initial_data['batch_number']
+        initial_data.update({
+            'quantity_on_stock': '',
+            'batch_number': '',
+            'manufacturing_date': None,
+            'price': '',
+            'critical_level': '',
+            'expiration_date': None,
+        })
+        form = ProductForm(initial=initial_data)
+
+    return render(request, 'inventory_new_batch.html', {'form': form, 'product': original_product, 'old_batch_number': old_batch_number})
+
 # @staff_required
 # @login_required
 # def product_update(request, product_id):
@@ -234,7 +278,7 @@ def delete_product(request, product_id):
 @staff_required
 @login_required
 def reorder_list(request):
-    products = Product.objects.filter(quantity_on_stock__lte=F('critical_level'), active=True).order_by('-id')
+    products = Product.objects.filter(quantity_on_stock__lte=F('critical_level'), active=True, has_new_batch=False).order_by('-id')
     
     reorder_data = []
 

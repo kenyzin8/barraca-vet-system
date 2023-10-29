@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load humanize %}
+{% load templatetags %}
 
 {% block title %} Sales | Barraca Veterinary Clinic {% endblock %}
 
@@ -230,12 +231,18 @@ function initDataTables(tableId, maxPage) {
                         <span class="fw-700">Gross Revenue: ₱ {{ gross_revenue|floatformat:2|intcomma }}</span>
                     </div>
                     <div class="col-12 col-xl-auto d-flex align-items-center">
+                        {% if request.user|has_permission:'billing_management.change_billing' %}
                         <div class="input-group input-group-joined border-0 ml-3" style="width: 16.5rem">
                             <span class="input-group-text" style="background: #232323; color: white;">
                                 <i class="text-light" data-feather="calendar"></i>
                             </span>
                             <input class="form-control ps-0 pointer input-litepicker" id="litepickerRangePlugin" placeholder="Select date range..." style="background: #232323;color: white;" />
+                            
                         </div>
+                        {% else %}
+                        <span class="fw-700">Today ({% now "F j, Y" %})</span>
+                        {% endif %}
+                        
                     </div>
                 </div>                  
                 <div class="tab-content" id="cardTabContent">
@@ -415,6 +422,7 @@ function initDataTables(tableId, maxPage) {
 {% block extrascripts %}
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/js/bundle.js' %}" crossorigin="anonymous"></script>
+{% if request.user|has_permission:'billing_management.change_billing' %}
 <script>
     window.addEventListener('DOMContentLoaded', event => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -508,8 +516,9 @@ function initDataTables(tableId, maxPage) {
             
         }
     });
-    
 </script>
+{% endif %}
+
 <script src="{% static 'plugins/print-js/print.min.js' %}"></script>
 <script>
     function numberWithCommas(x) {

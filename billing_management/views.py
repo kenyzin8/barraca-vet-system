@@ -7,7 +7,8 @@ from inventory.models import Product, ProductType
 from services.models import Service
 from record_management.models import Client
 from .models import Billing, BillingProduct, BillingService, format_billing_number
-from django.db.models import Max
+from django.db.models import Max, Count, Min, OuterRef, Subquery, Q, F
+from django.utils.timezone import now
 from django.utils import timezone
 from decimal import Decimal
 from django.contrib.auth.models import User
@@ -42,7 +43,59 @@ def bill(request):
 
     types = ProductType.objects.all().filter(active=True)
     # product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0, active=True) for t in types}
-    product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0, active=True, expiration_date__gt=date.today()) for t in types}
+    #product_dict = {t.name.replace(' ', '-'): Product.objects.filter(type=t, quantity_on_stock__gt=0, active=True, expiration_date__gt=date.today()) for t in types}
+    # product_dict = {}
+    # for product_type in types:
+    #     oldest_products = (Product.objects
+    #                     .filter(type=product_type, quantity_on_stock__gt=0, active=True, expiration_date__gt=now())
+    #                     .order_by('product_name', 'date_added')
+    #                     .distinct('product_name'))
+        
+    #     oldest_product_ids = [product.id for product in oldest_products]
+        
+    #     products = Product.objects.filter(id__in=oldest_product_ids)
+        
+    #     product_dict[product_type.name.replace(' ', '-')] = products
+    product_dict = {}
+    for product_type in types:
+        valid_products = Product.objects.filter(
+            type=product_type, 
+            quantity_on_stock__gt=0, 
+            active=True, 
+            expiration_date__gt=timezone.now().date()  # Convert datetime to date
+        )
+
+        final_products = {}
+        processed_product_names = set()
+
+        for product in valid_products.order_by('date_added'):
+            product_name = product.product_name
+
+            if product_name in processed_product_names:
+                continue
+
+            current_batch = product
+            while current_batch and current_batch.old_batch:
+                older_batch = valid_products.filter(id=current_batch.old_batch_id).first()
+                if older_batch:
+                    current_batch = older_batch
+                else:
+                    break
+
+            if current_batch.quantity_on_stock > 0 and current_batch.expiration_date > timezone.now().date():
+                final_products[product_name] = current_batch
+                processed_product_names.add(product_name)
+            else:
+                newest_batch = valid_products.filter(
+                    product_name=product_name, 
+                    quantity_on_stock__gt=0, 
+                    expiration_date__gt=timezone.now().date()
+                ).order_by('-date_added').first()
+                if newest_batch:
+                    final_products[product_name] = newest_batch
+                    processed_product_names.add(product_name)
+
+        product_dict[product_type.name.replace(' ', '-')] = list(final_products.values())
 
     for type_key, products in product_dict.items():
         for product in products:

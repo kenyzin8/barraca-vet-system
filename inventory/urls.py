@@ -10,6 +10,7 @@ urlpatterns = [
     path('admin/inventory/product-type/delete/<int:type_id>/', permission_required('inventory.add_product', raise_exception=True)(views.delete_type_page), name='delete-type-page'),
     path('admin/inventory/add/', permission_required('inventory.add_product', raise_exception=True)(views.product_add), name='product-add-page'),
     path('admin/inventory/update/<int:product_id>/', permission_required('inventory.add_product', raise_exception=True)(views.product_update), name='product-update-page'),
+    path('admin/inventory/add-new-batch/<int:product_id>/', permission_required('inventory.add_product', raise_exception=True)(views.product_add_new_batch), name='add-new-batch-page'),
     path('admin/inventory/delete/<int:product_id>/', permission_required('inventory.add_product', raise_exception=True)(views.delete_product), name='delete-product-page'),
     path('admin/inventory/check-quantity/<int:product_id>/', views.check_product_quantity, name='check-product-quantity-page'),
     path('admin/inventory/check-expiry/<int:product_id>/', views.check_product_expiry, name='check-product-expiry-page'),

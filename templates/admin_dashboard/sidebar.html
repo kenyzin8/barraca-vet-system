@@ -74,17 +74,15 @@
                                 Billing & Payment
                             </a>
                             {% endif %}
-                            {% if request.user|has_permission:'billing_management.view_billing' %}
                             <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'view-bill-page' or current_url_name == 'sales-page' %}active{% endif %}" href="{% url 'sales-page' %}">
                                 <div class="nav-link-icon"><i class="fas fa-receipt text-grey-200"></i></div>
                                 Sales
                             </a>
-                            {% endif %}
                         </div>
                         <div class="inventory" draggable="true" data-section-sortable="inventory">
                             {% if request.user|has_permission:'inventory.add_product' %}
                             <div class="sidenav-menu-heading ">Inventory & Services</div>
-                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' or current_url_name == 'add-new-batch-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
                                 <div class="nav-link-icon"><i class="fas fa-cubes text-grey-200"></i></div>
                                 Inventory
                             </a>

@@ -99,6 +99,14 @@
                 background: #232323;
                 color: white;
             }
+
+            @media (max-width: 767.98px) 
+            {
+                .px-5{
+                    padding-left: 2.5px !important;
+                    padding-right: 2.5px !important;
+                }
+            }
         </style>
     </head>
     <body class="nav-fixed bg-light">
@@ -110,7 +118,7 @@
                     {% block header %}
                     {% endblock %}
                     <!-- Main page content-->
-                    <div class="container-fluid px-10 mt-2">
+                    <div class="container-fluid px-5 mt-2">
                         {% block content %}
                         {% endblock %}
                     </div>

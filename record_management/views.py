@@ -2335,8 +2335,8 @@ def get_laboratory_results_data(request, treatmentID):
             lab_results_data.append({
                 'id': lab_result.id,
                 'name': lab_result.result_name,
-                'result': lab_result.result if lab_result.result != '' else 'N/A',
-                'normal_range': lab_result.normal_range if lab_result.normal_range != '' else 'N/A',
+                'result': lab_result.result if lab_result.result else 'N/A',
+                'normal_range': lab_result.normal_range if lab_result.normal_range else 'N/A',
                 'image': lab_result.result_image.url if lab_result.result_image != 'None' else False
             })
 

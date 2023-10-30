@@ -857,10 +857,39 @@ def set_appointment_client(request):
                 if Appointment.objects.filter(date=date, isActive=True, status='pending', pet__is_active=True).count() >= maximum_appointments.max_appointments:
                     return JsonResponse({'status': 'error', 'message': 'No more slots available for this date.'}, status=400)
 
-            existing_appointment = Appointment.objects.filter(pet_id=pet_id, status__in=["pending", "rebook"], isActive=True, pet__is_active=True).first()
+            # existing_appointment = Appointment.objects.filter(pet_id=pet_id, status__in=["pending", "rebook"], isActive=True, pet__is_active=True).first()
+            
+            # if existing_appointment:
+            #     return JsonResponse({'status': 'error', 'message': 'This pet already has an appointment, please refresh the page.'}, status=400)
+
+            active_pet_treatments = PetTreatment.objects.filter(isActive=True)
+            fully_active_cycle_appointment_ids = set()
+            for pet_treatment in active_pet_treatments:
+                appointment_ids_in_cycle = [
+                    entry['appointment_id'] 
+                    for entry in pet_treatment.appointment_cycles or [] 
+                    if 'appointment_id' in entry
+                ]
+                
+                active_appointments_count = Appointment.objects.filter(
+                    id__in=appointment_ids_in_cycle, 
+                    isActive=True
+                ).count()
+                if active_appointments_count == len(appointment_ids_in_cycle):
+                    fully_active_cycle_appointment_ids.update(appointment_ids_in_cycle)
+                    
+            existing_appointment = Appointment.objects.filter(
+                pet_id=pet_id, 
+                status__in=["pending", "rebook"], 
+                isActive=True, 
+                pet__is_active=True
+            ).exclude(id__in=fully_active_cycle_appointment_ids).first()
             
             if existing_appointment:
-                return JsonResponse({'status': 'error', 'message': 'This pet already has an appointment, please refresh the page.'}, status=400)
+                return JsonResponse(
+                    {'status': 'error', 'message': 'This pet already has an appointment, please refresh the page.'}, 
+                    status=400
+                )
 
             appointment = Appointment(client_id=request.user.client.id, pet_id=pet_id, timeOfTheDay=time_of_day, 
                                       date=date, time=time, purpose_id=service_id, status=status, isActive=True)
@@ -918,7 +947,23 @@ def set_appointment_client(request):
 @login_required
 def is_all_my_pets_scheduled(request):
     client_pets = Pet.objects.filter(client=request.user.client, is_active=True)
-    pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True).values_list('pet', flat=True).distinct()
+
+    active_pet_treatments = PetTreatment.objects.filter(isActive=True)
+
+    fully_active_cycle_appointment_ids = []
+
+    for pet_treatment in active_pet_treatments:
+        appointment_ids_in_cycle = [entry['appointment_id'] for entry in pet_treatment.appointment_cycles or [] if 'appointment_id' in entry]
+        
+        active_appointments_count = Appointment.objects.filter(id__in=appointment_ids_in_cycle, isActive=True).count()
+        if active_appointments_count == len(appointment_ids_in_cycle):
+            fully_active_cycle_appointment_ids.extend(appointment_ids_in_cycle)
+
+    pets_with_appointments = Appointment.objects.exclude(
+        Q(status='cancelled') | Q(id__in=fully_active_cycle_appointment_ids)
+    ).filter(
+        pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True
+    ).values_list('pet', flat=True).distinct()
 
     if client_pets.count() == pets_with_appointments.count():
         return JsonResponse({'all_scheduled': True})
@@ -943,14 +988,30 @@ def get_pets_client(request):
     client_id = request.GET.get('client_id')
     selected_pet_id = request.GET.get('selected_pet_id')
 
+    active_pet_treatments = PetTreatment.objects.filter(isActive=True, pet__client=client_id)
+
+    pets_with_all_appointments_in_active_cycle = []
+
+    for pet_treatment in active_pet_treatments:
+        appointment_ids_in_cycle = [entry['appointment_id'] for entry in pet_treatment.appointment_cycles or [] if 'appointment_id' in entry]
+        
+        active_appointments = Appointment.objects.filter(id__in=appointment_ids_in_cycle, isActive=True)
+        if active_appointments.count() == len(appointment_ids_in_cycle):
+            pets_with_all_appointments_in_active_cycle.append(pet_treatment.pet_id)
+
     pets_with_appointments = Appointment.objects.exclude(
-        status__in=['cancelled', 'done']).filter(pet__client=client_id, isActive=True).values_list('pet', flat=True)
-    
-    pets_without_appointments = Pet.objects.filter(client=client_id, is_active=True).exclude(id__in=pets_with_appointments).values('id', 'name')
+        status__in=['cancelled', 'done']).filter(
+        pet__client=client_id, isActive=True).values_list('pet', flat=True).distinct()
+
+    pets_without_appointments_or_in_active_cycle = Pet.objects.filter(
+        Q(client=client_id, is_active=True) & (
+            Q(id__in=pets_with_all_appointments_in_active_cycle) | ~Q(id__in=pets_with_appointments)
+        )
+    ).values('id', 'name')
+
     selected_pet = Pet.objects.filter(id=selected_pet_id, is_active=True).values('id', 'name')
 
-    pets = pets_without_appointments | selected_pet
-    #print(list(pets))
+    pets = pets_without_appointments_or_in_active_cycle | selected_pet
     return JsonResponse(list(pets), safe=False)
 
 @login_required
@@ -1080,11 +1141,42 @@ def get_all_data_client(request):
     date_slots = DateSlot.objects.filter(isActive=True).values('date', 'morning_slots', 'afternoon_slots')
     date_slots_list = list(date_slots)
 
+    # # Check if all pets are scheduled
+    # client_pets = Pet.objects.filter(client=request.user.client, is_active=True)
+    # pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True).values_list('pet', flat=True).distinct()
+
+    # if client_pets.count() == pets_with_appointments.count():
+    #     all_scheduled = True
+    # else:
+    #     all_scheduled = False
+
+    # # Get my pets
+    # my_pets = Pet.objects.filter(client=request.user.client, is_active=True).values('id', 'name')
+    active_pet_treatments = PetTreatment.objects.filter(isActive=True, pet__client=request.user.client)
+
+    # Initialize a list to store pet IDs that have all appointments in a fully active cycle
+    pets_with_all_appointments_in_active_cycle = []
+
+    for pet_treatment in active_pet_treatments:
+        # Extract appointment IDs from the cycle
+        appointment_ids_in_cycle = [entry['appointment_id'] for entry in pet_treatment.appointment_cycles or [] if 'appointment_id' in entry]
+        
+        # Check if all appointments in the cycle are active
+        active_appointments = Appointment.objects.filter(id__in=appointment_ids_in_cycle, isActive=True)
+        if active_appointments.count() == len(appointment_ids_in_cycle):
+            pets_with_all_appointments_in_active_cycle.append(pet_treatment.pet_id)
+
     # Check if all pets are scheduled
     client_pets = Pet.objects.filter(client=request.user.client, is_active=True)
-    pets_with_appointments = Appointment.objects.exclude(status='cancelled').filter(pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True).values_list('pet', flat=True).distinct()
+    pets_with_appointments = Appointment.objects.exclude(
+        status='cancelled'
+    ).filter(
+        pet__in=client_pets, status__in=['pending', 'rebook'], isActive=True
+    ).values_list('pet', flat=True).distinct()
 
-    if client_pets.count() == pets_with_appointments.count():
+    pets_scheduled_or_in_active_cycle = set(pets_with_all_appointments_in_active_cycle + list(pets_with_appointments))
+
+    if client_pets.count() == len(pets_scheduled_or_in_active_cycle):
         all_scheduled = True
     else:
         all_scheduled = False

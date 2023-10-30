@@ -418,6 +418,8 @@
         $(document).on('click', '.selectable-image', function() {
             var newImageSrc = $(this).attr('data-full-image');
             var imageName = $(this).attr('alt');
+            var resultSec = $(this).attr('data-result-sec');
+            var resultNormalRange = $(this).attr('data-result-normal-range');
         
             if (!newImageSrc) {
                 newImageSrc = '{% static "images/no-image-placeholder.png" %}';
@@ -425,6 +427,8 @@
         
             $('#mainImage').attr('src', newImageSrc);
             $('#resultName').text(imageName);
+            $('#resultSecond').text(resultSec);
+            $('#resultNormalRange').text(resultNormalRange);
         
             // Remove .selected from all .selectable-image
             $('.selectable-image').removeClass('selected');
@@ -448,9 +452,9 @@
                         labResults.forEach(function(result) {
     
                             if(result.image) {
-                                imageListContent += `<img src="${result.image}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" style="width: 80px; height: auto; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                                imageListContent += `<img src="${result.image}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" data-result-sec="${result.result}" data-result-normal-range="${result.normal_range}" style="width: 80px; height: auto; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
                             } else {
-                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="{% static 'images/no-image-placeholder.png' %}" style="width: 80px; height: 80px; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="{% static 'images/no-image-placeholder.png' %}" data-result-sec="${result.result}" data-result-normal-range="${result.normal_range}" style="width: 80px; height: 80px; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
                             } 
                         });
                         
@@ -467,12 +471,16 @@
                             $('#mainImage').attr('src', firstResult.image);
                             $('.selectable-image').first().addClass('selected');
                             $('#resultName').text(firstResult.name);
+                            $('#resultSecond').text(firstResult.result);
+                            $('#resultNormalRange').text(firstResult.normal_range);
                         }
                         else
                         {
                             $('#mainImage').attr('src', '{% static 'images/no-image-placeholder.png' %}');
                             $('.selectable-image').first().addClass('selected');
                             $('#resultName').text(firstResult.name);
+                            $('#resultSecond').text(firstResult.result);
+                            $('#resultNormalRange').text(firstResult.normal_range);
                         }
                         
                         $('#showLabResultsModal').modal('show');

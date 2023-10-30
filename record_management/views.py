@@ -1326,25 +1326,36 @@ class SubmitConsultationView(APIView):
                         isActive=True
                     )
 
-                    lab_results_descriptions = serializer.validated_data.get('labResultsDescriptions')
+                    lab_results_descriptions = serializer.validated_data.get('labResultsDescriptions', [])
+                    lab_results_2 = serializer.validated_data.get('labResults2', [])
+                    lab_result_normal_range = serializer.validated_data.get('labResultNormalRange', [])
                     lab_results_image_ids = serializer.validated_data.get('labResultsImageIDS', [])
-
+                    print(lab_results_descriptions)
+                    print(lab_results_2)
+                    print(lab_result_normal_range)
+                    print(lab_results_image_ids)
                     for index, description in enumerate(lab_results_descriptions):
                         lab_result_data = {
                             'description': description,
+                            'result': lab_results_2[index] if index < len(lab_results_2) else None,
+                            'normal_range': lab_result_normal_range[index] if index < len(lab_result_normal_range) else None,
                             'image': lab_results_image_ids[index] if index < len(lab_results_image_ids) else None
                         }
-
+                        print(lab_result_data)
                         if lab_result_data['image']:
                             temp_image = TemporaryLabResultImage.objects.get(id=lab_result_data['image'])
                             lab_result = LabResult.objects.create(
                                 result_name=lab_result_data['description'],
+                                result=lab_result_data['result'],
+                                normal_range=lab_result_data['normal_range'],
                                 result_image=temp_image.image
                             )
                             temp_image.delete()
                         else:
                             lab_result = LabResult.objects.create(
-                                result_name=lab_result_data['description']
+                                result_name=lab_result_data['description'],
+                                result=lab_result_data['result'],
+                                normal_range=lab_result_data['normal_range']
                             )
                         
                         pet_treatment.lab_results.add(lab_result)
@@ -2324,9 +2335,11 @@ def get_laboratory_results_data(request, treatmentID):
             lab_results_data.append({
                 'id': lab_result.id,
                 'name': lab_result.result_name,
+                'result': lab_result.result if lab_result.result != '' else 'N/A',
+                'normal_range': lab_result.normal_range if lab_result.normal_range != '' else 'N/A',
                 'image': lab_result.result_image.url if lab_result.result_image != 'None' else False
             })
-            
+
         return JsonResponse({'success': True, 'lab_results_data': lab_results_data})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
@@ -2562,10 +2575,16 @@ class UpdateConsultationView(APIView):
 
                     for lab_result_item in labResults:
                         description = lab_result_item['description']
+                        result = lab_result_item['result']
+                        normal_range = lab_result_item['normal_range']
                         image_id = lab_result_item['image_id']
                         lab_result_id = lab_result_item['lab_result_id']
+                        if lab_result_id == 'null':
+                            lab_result_id = None
 
-                        defaults = {'result_name': description}
+                        defaults = {'result_name': description, 'result': result, 'normal_range': normal_range}
+                        
+                        print(defaults, lab_result_id, image_id)
 
                         if image_id:
                             temp_image = TemporaryLabResultImage.objects.get(id=image_id)

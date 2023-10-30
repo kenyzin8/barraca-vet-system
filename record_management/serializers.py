@@ -19,6 +19,8 @@ class ConsultationSerializer(serializers.Serializer):
     diagnosis = serializers.CharField()
     treatment = serializers.CharField()
     labResultsDescriptions = serializers.JSONField(required=True)
+    labResults2 = serializers.JSONField(required=False)
+    labResultNormalRange = serializers.JSONField(required=False)
     labResultsImageIDS = serializers.JSONField(required=False)
     isDeworming = serializers.BooleanField()
     isVaccination = serializers.BooleanField()

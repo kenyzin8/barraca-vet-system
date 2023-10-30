@@ -44,7 +44,7 @@ class TemporaryLabResultImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'image', 'uploaded_at')
 
 class LabResultAdmin(admin.ModelAdmin):
-    list_display = ('id', 'result_name', 'result_image')
+    list_display = ('id', 'result_name', 'result', 'normal_range', 'result_image')
 
 admin.site.register(PetTreatment, PetTreatmentAdmin)
 admin.site.register(PetMedicalPrescription, PetMedicalPrescriptionAdmin)

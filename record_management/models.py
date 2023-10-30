@@ -166,8 +166,13 @@ class PetTreatment(models.Model):
 
     
 class LabResult(models.Model):
-    result_name = models.CharField(max_length=100, null=True, blank=True)
+    result_name = models.CharField(max_length=100, null=True, blank=True) #TEST NAME
+
+    result = models.CharField(max_length=100, null=True, blank=True) #RESULT
+    normal_range = models.CharField(max_length=100, null=True, blank=True) #NORMAL RANGE
+
     result_image = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
+
 
     isActive = models.BooleanField(default=True)
 

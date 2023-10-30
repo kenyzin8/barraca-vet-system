@@ -1,8 +1,8 @@
 from django import forms
 from .models import DoctorSchedule, Appointment, DateSlot, MaximumAppointment
-from record_management.models import Client, Pet
+from record_management.models import Client, Pet, PetTreatment
 from services.models import Service
-from django.db.models import Q
+from django.db.models import Q, Count
 
 class AppointmentForm(forms.ModelForm):
     class Meta:
@@ -44,10 +44,48 @@ class AppointmentFormClient(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request', None)
         super(AppointmentFormClient, self).__init__(*args, **kwargs)
+        
         if request:
-            pets_with_appointments = Appointment.objects.exclude(status__in=['cancelled', 'done']).filter(pet__client=request.user.client, isActive=True).values_list('pet', flat=True)
-            self.fields['pet'].queryset = Pet.objects.filter(client=request.user.client, is_active=True).exclude(id__in=pets_with_appointments)
+            client_pets = Pet.objects.filter(client=request.user.client, is_active=True)
+            print("Client Pets Before Exclusion:", client_pets)
 
+            # Get active Pet Treatments and their fully active appointment cycles
+            active_pet_treatments = PetTreatment.objects.filter(isActive=True)
+            fully_active_cycle_appointment_ids = []
+            for pet_treatment in active_pet_treatments:
+                appointment_ids_in_cycle = [
+                    entry['appointment_id'] 
+                    for entry in pet_treatment.appointment_cycles or [] 
+                    if 'appointment_id' in entry
+                ]
+                
+                active_appointments_count = Appointment.objects.filter(
+                    id__in=appointment_ids_in_cycle, 
+                    isActive=True
+                ).count()
+                if active_appointments_count == len(appointment_ids_in_cycle):
+                    fully_active_cycle_appointment_ids.extend(appointment_ids_in_cycle)
+
+            # Get pets with appointments not in fully active cycles
+            pets_with_appointments = Appointment.objects.exclude(
+                status='cancelled'
+            ).filter(
+                pet__client=request.user.client, 
+                status__in=['pending', 'rebook'], 
+                isActive=True
+            ).values_list('pet', 'id').distinct()
+
+            pets_to_exclude = set()
+            for pet_id, appointment_id in pets_with_appointments:
+                if appointment_id not in fully_active_cycle_appointment_ids:
+                    pets_to_exclude.add(pet_id)
+
+            # Exclude pets with appointments not in fully active cycles
+            self.fields['pet'].queryset = client_pets.exclude(id__in=pets_to_exclude)
+            
+            print("Pets with Appointments not in Active Cycle:", pets_to_exclude)
+            print("Available Pets:", self.fields['pet'].queryset)
+            
     pet = forms.ModelChoiceField(
         queryset=Pet.objects.none(),  
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet'}), 

@@ -14,7 +14,7 @@
         var formData = new FormData();
         formData.append('image', inputElement.files[0]);
 
-        const currentInputID = ind; 
+        const currentInputID = inputElement.dataset.id; 
 
         $.ajax({
             url: "{% url 'admin-upload-lab-image-page' %}", 
@@ -38,7 +38,7 @@
             },
             success: function(response) {
                 labResultsData.push({
-                    id: ind,
+                    id: currentInputID,
                     image_id: response.temp_image_id
                 });
                 console.log(labResultsData)
@@ -716,97 +716,83 @@
             $(this).closest('tr').remove();
         });
 
-        const addLabResultBtn = document.getElementById('addLabResultBtn');
+        let inds = {{ laboratory_results|length }} + 1;
 
-        addLabResultBtn.addEventListener('click', function(e) {
+        document.getElementById('addLabResultBtn').addEventListener('click', function(e) {
             e.preventDefault();
-            const labResultGroupFields = document.createElement('div');
-            labResultGroupFields.className = 'lab-result-group-fields';
 
-            // Create the new input group for lab results
-            const inputGroup = document.createElement('div');
-            inputGroup.className = 'input-group mb-2';
+            const initialLabResultGroup = document.querySelector('.lab-result-group-fields');
 
-            const noImageButton = document.createElement('button');
-            noImageButton.className = 'btn btn-no-image';
-            noImageButton.type = 'button';
-            const noImageIcon = document.createElement('i');
-            noImageIcon.setAttribute('data-feather', 'arrow-right-circle');
-            noImageButton.appendChild(noImageIcon);
-            //add this to noImageButton  data-bs-toggle="tooltip" data-bs-placement="left" title="This laboratory result have no image"
-            noImageButton.setAttribute('data-bs-toggle', 'tooltip');
-            noImageButton.setAttribute('data-bs-placement', 'left');
-            noImageButton.setAttribute('title', 'New laboratory result field');
+            const newLabResultGroup = initialLabResultGroup.cloneNode(true);
+            newLabResultGroup.style.marginTop = '1rem';
 
-            const removeButton = document.createElement('button');
-            removeButton.className = 'btn btn-remove-lab-result';
-            removeButton.type = 'button';
-            const removeIcon = document.createElement('i');
-            removeIcon.setAttribute('data-feather', 'minus-circle');
-            removeButton.appendChild(removeIcon);
-            removeButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                labResultGroupFields.remove();
-            });
+            updateIds(newLabResultGroup);
 
-            const inputLabResults = document.createElement('input');
-            inputLabResults.className = 'form-control lab-result-input';
-            inputLabResults.name = 'diagnosis';
-            inputLabResults.type = 'text';
-            inputLabResults.placeholder = 'Enter lab results';
-            inputLabResults.id = 'inputLabResults'
+            resetInputValues(newLabResultGroup);
 
-            const progressBar = document.createElement('div');
-            progressBar.className = 'progress mb-2';
+            const addButton = newLabResultGroup.querySelector('.btn-add-lab-result');
+            addButton.remove();
 
-            // Create the inner progress-bar div
-            const progressBarInner = document.createElement('div');
-            progressBarInner.className = 'progress-bar progress-bar-striped progress-bar-animated bg-success';
-            progressBarInner.setAttribute('role', 'progressbar');
-            progressBarInner.style.width = '0%';
-            progressBarInner.setAttribute('aria-valuenow', '0');
-            progressBarInner.setAttribute('aria-valuemin', '0');
-            progressBarInner.setAttribute('aria-valuemax', '100');
-            progressBarInner.textContent = '0%';
+            const removeButton = createRemoveButton();
+            newLabResultGroup.querySelector('.second-row-lab-r').appendChild(removeButton);
 
-            const inputLabResultsImages = document.createElement('input');
-            inputLabResultsImages.className = 'form-control lab-result-image-input';
-            inputLabResultsImages.name = 'lab_result_images';
-            inputLabResultsImages.type = 'file';
-            inputLabResultsImages.accept = '.jpg, .jpeg, .png';
-            inputLabResultsImages.id = 'inputLabResultsImages'
+            initialLabResultGroup.parentNode.insertBefore(newLabResultGroup, initialLabResultGroup.nextSibling);
 
-            ind++;
-
-            inputLabResults.dataset.id = ind; 
-            inputLabResultsImages.dataset.id = ind;
-
-            inputLabResultsImages.onchange = function() {
-                const progressBar = this.parentElement.nextElementSibling;
-                const progressBarInner = progressBar.querySelector('.progress-bar');
-
-                validateFile(this, progressBarInner)
-
-                console.log(labResultsData);
-            };
-
-            progressBar.appendChild(progressBarInner);
-            inputGroup.appendChild(noImageButton);
-            inputGroup.appendChild(inputLabResults);
-            inputGroup.appendChild(inputLabResultsImages);
-            inputGroup.appendChild(removeButton);
-
-            labResultGroupFields.appendChild(inputGroup);
-            labResultGroupFields.appendChild(progressBar);
-
-            addLabResultBtn.parentElement.insertAdjacentElement('beforebegin', labResultGroupFields);
-
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
             feather.replace();
         });
+
+        function createRemoveButton() {
+            const button = document.createElement('button');
+            button.className = 'btn btn-remove-lab-result';
+            button.type = 'button';
+            
+            const icon = document.createElement('i');
+            icon.setAttribute('data-feather', 'minus-circle');
+            button.appendChild(icon);
+            
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.closest('.lab-result-group-fields').remove();
+            });
+            
+            return button;
+        }
+
+        function updateIds(element) {
+            const labResultInputs = element.querySelectorAll('[data-id]');
+            const dataExistingLabID = element.querySelectorAll('[data-existing-lab-id]');
+            labResultInputs.forEach(input => {
+                input.dataset.id = inds;
+                if (input.id) {
+                    input.id += inds;
+                }
+            });
+            dataExistingLabID.forEach(input => {
+                input.dataset.existingLabId = null;
+            });
+            inds++;
+        }
+
+        function resetInputValues(element) {
+            const inputs = element.querySelectorAll('input');
+            inputs.forEach(input => {
+                if (input.type !== 'button' && input.type !== 'file') {
+                    input.value = '';
+                }
+            });
+
+            const fileInput = element.querySelector('.lab-result-image-input');
+            if (fileInput) {
+                fileInput.value = null;
+            }
+
+            const progressBar = element.querySelector('.progress-bar');
+            if (progressBar) {
+                progressBar.style.width = '0%';
+                progressBar.setAttribute('aria-valuenow', '0');
+                progressBar.textContent = '0%';
+            }
+        }
 
         $(document).on('input', '#inputCustomPurpose', function(e) {
             $('#nextAppointmentPurpose').val("");
@@ -895,6 +881,8 @@
             var custom_purpose = $('#inputCustomPurpose').val();
             
             const labResultInputs = document.querySelectorAll('.lab-result-input');
+            const labResult2Inputs = document.querySelectorAll('.lab-result-second-input');
+            const labResultNormalRangeInputs = document.querySelectorAll('.lab-result-normal-range-input');
             const labResultImageInputs = document.querySelectorAll('.lab-result-image-input');
             const labResultIds = document.querySelectorAll('.laboratory-result-id');
 
@@ -937,6 +925,8 @@
                 return null;
             }
             
+            var _index = 0;
+
             labResultInputs.forEach((input) => {
                 let id = input.dataset.id;
             
@@ -944,14 +934,20 @@
             
                 let labResultId = getLabResultId(id);
             
+                let labResult2Input = labResult2Inputs[_index];
+                let labResultNormalRangeInput = labResultNormalRangeInputs[_index];
+
                 let matchingImageData = labResultsData.find(item => item.id == id);
                 let imageId = matchingImageData ? matchingImageData.image_id : null;
-            
                 labResultsForm.push({
                     description: description,
+                    result: labResult2Input.value || null,
+                    normal_range: labResultNormalRangeInput.value || null,
                     image_id: imageId,
                     lab_result_id: labResultId  
                 });
+
+                _index++;
             });
             
             formData.append('labResults', JSON.stringify(labResultsForm));
@@ -1166,10 +1162,10 @@
             button.addEventListener('click', function(e) {
                 e.preventDefault();
 
-                const parentInputGroup = e.target.closest('.input-group');
+                const parentInputGroup = e.target.closest('.lab-result-group-fields');
                 
                 if(parentInputGroup) {
-                    parentInputGroup.nextElementSibling.remove(); 
+                    // parentInputGroup.nextElementSibling.remove(); 
                     parentInputGroup.remove();
                 }
             });

@@ -1,7 +1,7 @@
 {% load static %}
 <div class="tab-pane py-2 py-xl-2 fade" id="wizard2" role="tabpanel" aria-labelledby="wizard2-tab">
     <div class="row justify-content-center">
-        <div class="col-xxl-10 col-xl-8">
+        <div class="no-class">
             <div class="parent-container">
                 <div class="header-group">
                     <h3 class="text-primary">Step 2</h3>
@@ -39,7 +39,12 @@
                 </div>
                 <div class="lab-result-group-fields">
                     <div class="input-group mb-2">
-                        <input class="form-control lab-result-input" id="inputLabResults" data-id="0" name="diagnosis" type="text" placeholder="Enter lab results"/>
+                        <input class="form-control lab-result-input" id="inputLabResults" data-id="0" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)"/>
+                        <input class="form-control lab-result-second-input" id="inputResult" data-id="0" name="result" type="text" placeholder="Enter result (e.g., 13.5 g/dL) (Optional)"/>
+                        <button class="btn btn-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
+                    </div>
+                    <div class="input-group mb-2 second-row-lab-r">
+                        <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-id="0" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0 g/dL) (Optional)"/>
                         <input class="form-control lab-result-image-input" id="inputLabResultsImages" data-id="0" name="lab_result_images" type="file" accept=".jpg, .jpeg, .png" onchange="validateFile(this, this.parentElement.nextElementSibling.querySelector('.progress-bar'));" />
                         <button class="btn btn-add-lab-result" type="button" id="addLabResultBtn"><i data-feather="plus-circle"></i></button>
                     </div>

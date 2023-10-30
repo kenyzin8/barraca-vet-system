@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from copy import deepcopy
 from django.core.exceptions import ValidationError
 from billing_management.models import BillingProduct, Billing
+from django.forms.models import model_to_dict
 
 def format_volume(volume):
     if volume % 1 == 0:
@@ -124,15 +125,22 @@ def delete_type_page(request, type_id):
 @login_required
 def product_add(request):
     previous_batch_numbers = list(Product.objects.values_list('batch_number', flat=True).distinct())
+    all_products = Product.objects.filter(active=True)
 
     if request.method == 'POST':
         form = ProductForm(request.POST)
+
+        for product in all_products:
+            if product.product_name.strip().lower() == form.data['product_name'].strip().lower() and product.batch_number.strip().lower() != form.data['batch_number'].strip().lower():
+                form.add_error('product_name', 'Error: Product with this name already exists. Consider adding a new batch by')
+                product_id = product.id
+                return render(request, 'inventory_add.html', {'form': form, 'previous_batch_numbers': previous_batch_numbers, 'product_id': product_id})
+                break
+
         if form.is_valid():
             new_product = form.save(commit=False)
             new_product.save()  
             return redirect('product-list-page')
-        else:
-            print(form.errors)
     else:
         form = ProductForm()
 
@@ -143,28 +151,38 @@ def product_add(request):
 def product_update(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     product.quantity_on_stock = int(product.quantity_on_stock)
+    all_products = Product.objects.exclude(product_name=product.product_name).filter(active=True)
+
     if product.active is False:
         return redirect('product-list-page')
 
     if request.method == 'POST':
         form = ProductForm(request.POST, instance=product)
+
+        for _product in all_products:
+            if _product.product_name.strip().lower() == form.data['product_name'].strip().lower() and _product.batch_number.strip().lower() != form.data['batch_number'].strip().lower():
+                form.add_error('product_name', 'Error: Product with this name already exists. Consider adding a new batch by')
+                product_id = _product.id
+                return render(request, 'inventory_update.html', {'form': form, 'product': product, 'product_id': product_id})
+                break
+
         if form.is_valid():
             old_product = deepcopy(product)
             form.save()
 
-            changes = {}
-            for field in form.fields:
-                old_value = getattr(old_product, field)
-                new_value = getattr(product, field)
-                if old_value != new_value:
-                    changes[field] = {'old': old_value, 'new': new_value}
+            # changes = {}
+            # for field in form.fields:
+            #     old_value = getattr(old_product, field)
+            #     new_value = getattr(product, field)
+            #     if old_value != new_value:
+            #         changes[field] = {'old': old_value, 'new': new_value}
 
-            if changes:
-                if product.changes_log:
-                    product.changes_log.append(changes)
-                else:
-                    product.changes_log = [changes]
-                product.save()
+            # if changes:
+            #     if product.changes_log:
+            #         product.changes_log.append(changes)
+            #     else:
+            #         product.changes_log = [changes]
+            #     product.save()
 
             return redirect('product-list-page')
 
@@ -174,13 +192,11 @@ def product_update(request, product_id):
 
     return render(request, 'inventory_update.html', {'form': form, 'product': product})
 
-from django.forms.models import model_to_dict
-
 @staff_required
 @login_required
 def product_add_new_batch(request, product_id):
     original_product = get_object_or_404(Product, id=product_id, active=True)
-    
+    old_batch_number = original_product.batch_number
     if request.method == 'POST':
         post_data = request.POST.copy()
 
@@ -190,6 +206,9 @@ def product_add_new_batch(request, product_id):
             post_data[field] = getattr(original_product, field)
 
         form = ProductForm(post_data)
+
+        if original_product.batch_number == post_data['batch_number']:
+            form.add_error('batch_number', 'Error: Batch number is the same as the original product.')
 
         if form.is_valid():
             new_product = form.save(commit=False)
@@ -201,11 +220,10 @@ def product_add_new_batch(request, product_id):
             original_product.save()
 
             return redirect('product-list-page')
-        # else:
-        #     print(form.errors)
+        else:
+            print(form.errors)
     else:
         initial_data = model_to_dict(original_product)
-        old_batch_number = initial_data['batch_number']
         initial_data.update({
             'quantity_on_stock': '',
             'batch_number': '',

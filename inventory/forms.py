@@ -22,7 +22,7 @@ class ProductForm(forms.ModelForm):
     manufacturing_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'manufacturing_date', 'class': 'form-control', 'type': 'date'}))
     expiration_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'expiration_date', 'class': 'form-control', 'type': 'date'}))
     critical_level = forms.IntegerField(validators=[validate_critical], widget=forms.NumberInput(attrs={'id': 'critical_level', 'class': 'form-control', 'min': 1, 'placeholder': 'Product Critical Level'}))
-    price = forms.DecimalField(validators=[validate_selling], widget=forms.NumberInput(attrs={'id': 'price', 'class': 'form-control', 'min': 1, 'placeholder': 'Product Price'}))
+    price = forms.DecimalField(validators=[validate_selling], widget=forms.NumberInput(attrs={'id': 'price', 'class': 'form-control', 'min': 1, 'max': 10000,'placeholder': 'Product Price'}))
     product_description = forms.CharField(widget=forms.Textarea(attrs={'id': 'product_description', 'class': 'form-control', 'placeholder': 'Product Description'}))
 
     class Meta:
@@ -42,22 +42,29 @@ class ProductForm(forms.ModelForm):
         str_quantity_on_stock = str(quantity_on_stock)
 
         if validate_manufacturing_and_expiry_date(manufacturing_date, expiration_date):
-            raise ValidationError(("Manufacturing date must be earlier than expiry date."))
+            #raise ValidationError(("Manufacturing date must be earlier than expiry date."))
+            self.add_error('manufacturing_date', 'Error: Manufacturing date must be earlier than expiry date.')
 
         if '.' in str_price and len(str_price.split('.')[1]) > 2:
-            raise ValidationError('You can only input 8 digits and 2 decimal points for the price.')
+            self.add_error('price', 'Error: Price can only have up to 2 decimal points.')
+            #raise ValidationError('You can only input 8 digits and 2 decimal points for the price.')
 
         if '.' in str_quantity_on_stock and len(str_quantity_on_stock.split('.')[1]) > 2:
-            raise ValidationError('Quantity on stock can only have up to 2 decimal points.')
+            self.add_error('quantity_on_stock', 'Error: Quantity on stock can only have up to 2 decimal points.')
+            #raise ValidationError('Quantity on stock can only have up to 2 decimal points.')
 
         if price > 10000:
-            raise ValidationError('Price must not be greater than ₱10,000.00')
+            self.add_error('price', 'Error: Price must not be greater than ₱10,000.00')
+            #raise ValidationError('Price must not be greater than ₱10,000.00')
 
         if len(str_price.replace('.', '')) > 10:
-            raise ValidationError('You can only input 8 digits for the price.')
+            self.add_error('price', 'Error: You can only input 8 digits for the price.')
+            #raise ValidationError('You can only input 8 digits for the price.')
 
         if critical_level > quantity_on_stock:
-            raise ValidationError('Critical level must not be greater than quantity on stock.')
+            self.add_error('critical_level', 'Error: Critical level must not be greater than quantity on stock.')
+            #raise ValidationError('Critical level must not be greater than quantity on stock.')
 
         if quantity_on_stock > 10000:
-            raise ValidationError('Quantity on stock must not be greater than 10,000.')
+            self.add_error('quantity_on_stock', 'Error: Quantity on stock must not be greater than 10,000.')
+            #raise ValidationError('Quantity on stock must not be greater than 10,000.')

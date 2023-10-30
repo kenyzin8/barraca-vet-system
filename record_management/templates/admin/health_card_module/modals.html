@@ -28,16 +28,17 @@
                                 <table id="table-medicines-{{ forloop.counter }}">
                                     <thead>
                                         <tr>
-                                            <th>#</th>
-                                            <th>Medicine</th>
-                                            <th>Form</th>
-                                            <th>Volume</th>
-                                            <th>Batch Number</th>
-                                            <th>Manufacturer</th>
-                                            <th>Expiration Date</th>
-                                            <th>Price</th>
-                                            <th>Product Description</th>
-                                            <th>Action</th>
+                                            <th><small>#</small></th>
+                                            <th><small>Medicine</small></th>
+                                            <th><small>Quantity&nbsp;Left</small></th>
+                                            <th><small>Form</small></th>
+                                            <!-- <th><small>Volume</small></th> -->
+                                            <th><small>Batch&nbsp;Number</small></th>
+                                            <th><small>Manufacturer</small></th>
+                                            <th><small>Expiration&nbsp;Date</small></th>
+                                            <th><small>Price</small></th>
+                                            <th><small>Product&nbsp;Description</small></th>
+                                            <th><small>Action</small></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -46,12 +47,13 @@
                                         <tr>
                                             <td><span class="product-id">{{ product.id }}</span></td>
                                             <td><span class="product-name">{{ product.product_name }}</span></td>
+                                            <td>{{ product.quantity_on_stock|floatformat:0 }}</td>
                                             <td>{{ product.get_form_display }}</td>
-                                            <td>{{ product.formatted_volume }} {{ product.volume_unit }}</td>
+                                            <!-- <td>{{ product.formatted_volume }} {{ product.volume_unit }}</td> -->
                                             <td>{{ product.batch_number }}</td>
                                             <td>{{ product.manufacturer }}</td>
                                             <td>{{ product.expiration_date }}</td>
-                                            <td>₱ {{ product.price|intcomma }}</td>
+                                            <td>₱{{ product.price|intcomma }}</td>
                                             <td>{{ product.product_description }}</td>
                                             <td>
                                                 <button class="btn btn-dark btn-sm add-product" data-product-id="{{ product.id }}">

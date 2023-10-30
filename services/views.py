@@ -64,6 +64,9 @@ def service_update(request, service_id):
         if form.is_valid():
             try:
                 updated_service = form.save(commit=False)
+                
+                if updated_service.service_type == '':
+                    updated_service.service_type = service.service_type
 
                 stripped_lower_updated_service_type = updated_service.service_type.strip().lower()
                 

@@ -22,6 +22,12 @@
    {
     color: #232323;
   }
+  .errorlist{
+    margin-top: 1rem !important;
+    margin-bottom: 0rem !important;
+    color: red !important;
+    font-size: smaller !important;
+  }
 </style>
 {% endblock %}
 
@@ -47,10 +53,22 @@
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputProductName">Name <span class="text-red">*</span></label>
                                     {{ form.product_name }}
+                                    {% if form.errors.product_name %}
+                                      <div>
+                                        <ul class="errorlist">
+                                            <li>
+                                                {{ form.errors.product_name.0 }} <a class="text-red" href="{% url 'add-new-batch-page' product_id %}" target="_blank" style="text-decoration: none;">
+                                                    clicking here <i data-feather="external-link"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                      </div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputQuantity">Quantity <span class="text-red">*</span></label>
                                     {{ form.quantity_on_stock }}
+                                    {{ form.errors.quantity_on_stock }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
@@ -79,6 +97,7 @@
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputBatch">Batch Number <span class="text-red">*</span></label>
                                     {{ form.batch_number }}
+                                    {{ form.errors.batch_number }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
@@ -89,6 +108,7 @@
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputManuDate">Manufacturing Date <span class="text-red">*</span></label>
                                     {{ form.manufacturing_date }}
+                                    {{ form.errors.manufacturing_date }}
                                 </div>
                             </div>
                             <div class="row gx-3 mb-3">
@@ -99,6 +119,7 @@
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputCrit">Critical Level <span class="text-red">*</span></label>
                                     {{ form.critical_level }}
+                                    {{ form.errors.critical_level }}
                                 </div>
 
                             </div>
@@ -110,6 +131,7 @@
                                 <div class="col-md-6">
                                     <label class="small mb-1" for="inputPrice">Selling Price (₱) <span class="text-red">*</span></label>
                                     {{ form.price }}
+                                    {{ form.errors.price }}
                                 </div>
                             </div>
                             <button disabled id="submit-button" class="btn btn-dark lift lift-sm" type="submit">Update Product</button>

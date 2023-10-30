@@ -10,6 +10,12 @@ class ServiceForm(forms.ModelForm):
     service_description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Service description'}))
     #remarks = forms.ChoiceField(choices=Service.REMARKS_TYPES, widget=forms.Select(attrs={'class': 'form-select'}))
 
+    def __init__(self, *args, **kwargs):
+        super(ServiceForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.id:
+            if instance.service_type in ["Check-up", "Deworming", "Vaccination", "Doctor's Fee", "Follow-up Check-up"]:
+                self.fields['service_type'].disabled = True
     class Meta:
         model = Service
         fields = ['service_type', 'fee', 'job_for', 'service_description']

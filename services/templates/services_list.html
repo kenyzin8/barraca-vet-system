@@ -42,7 +42,13 @@
                     <tr>
                         <td>{{ service.id }}</td>
                         <td>{{ service.service_type }}</td>
-                        <td>₱ {{ service.fee|intcomma }}</td>
+                        <td>
+                          {% if service.fee == 0 %}
+                          Free
+                          {% else %}
+                          ₱&nbsp;{{ service.fee|intcomma }}
+                          {% endif %}
+                        </td>
                         <td>
                           {% if service.job_for == 'doctor' %}
                             <span class="badge bg-dark">{{ service.get_job_for_display }}</span>
@@ -150,6 +156,12 @@
               sortable: true,
               searchable: true,
               hiddenHeader: false,
+              columns: [
+                {
+                    select: 3,
+                    filter: ["Doctor", "Veterinary Technician"]
+                }
+              ],
           });
 
           window.dataTable = dataTable;

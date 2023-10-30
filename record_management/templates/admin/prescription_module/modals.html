@@ -27,15 +27,18 @@
                                 <table id="table-medicines-{{ forloop.counter }}">
                                     <thead>
                                         <tr>
-                                            <th>#</th>
-                                            <th>Medicine</th>
-                                            <th>Strength <span class="text-red">*</span></th>
+                                            <th><small>#</small></th>
+                                            <th><small>Medicine</small></th>
+                                            <th><small>Batch&nbsp;Number</small></th>
+                                            <th><small>Quantity&nbsp;Left</small></th>
+                                            <th><small>Expiration&nbsp;Date</small></th>
+                                            <th><small>Strength</small>&nbsp;<span class="text-red">*</span></th>
                                             <!-- <th>Form</th> -->
-                                            <th>Quantity <span class="text-red">*</span></th>
-                                            <th>Dosage <span class="text-red">*</span></th>
-                                            <th>Frequency <span class="text-red">*</span></th>
-                                            <th>Remarks <span class="text-red">*</span></th>
-                                            <th>Action</th>
+                                            <th><small>Quantity</small>&nbsp;<span class="text-red">*</span></th>
+                                            <th><small>Dosage</small>&nbsp;<span class="text-red">*</span></th>
+                                            <th><small>Frequency</small>&nbsp;<span class="text-red">*</span></th>
+                                            <th><small>Remarks</small>&nbsp;<span class="text-red">*</span></th>
+                                            <th><small>Action</small></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -53,6 +56,15 @@
                                                 <span class="product-form" style="display: none;">
                                                     {{ product.form }}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                {{ product.batch_number }}
+                                            </td>
+                                            <td>
+                                                {{ product.quantity_on_stock|floatformat:0 }}
+                                            </td>
+                                            <td>
+                                                {{ product.expiration_date }}
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control product-strength" placeholder="Ex. 100mg" required>

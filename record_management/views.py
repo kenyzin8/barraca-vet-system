@@ -1028,7 +1028,7 @@ def medical_record(request):
             type=product_type, 
             quantity_on_stock__gt=0, 
             active=True, 
-            expiration_date__gt=timezone.now().date()  # Convert datetime to date
+            expiration_date__gt=timezone.now().date()
         )
 
         final_products = {}
@@ -1040,26 +1040,22 @@ def medical_record(request):
             if product_name in processed_product_names:
                 continue
 
-            current_batch = product
-            while current_batch and current_batch.old_batch:
-                older_batch = valid_products.filter(id=current_batch.old_batch_id).first()
-                if older_batch:
-                    current_batch = older_batch
-                else:
-                    break
+            batch = valid_products.filter(product_name=product_name).first()
 
-            if current_batch.quantity_on_stock > 0 and current_batch.expiration_date > timezone.now().date():
-                final_products[product_name] = current_batch
-                processed_product_names.add(product_name)
-            else:
-                newest_batch = valid_products.filter(
+            while batch and batch.quantity_on_stock <= 10:
+                key = f"{product_name}-{batch.batch_number}"
+                final_products[key] = batch
+                next_batch = valid_products.filter(
                     product_name=product_name, 
-                    quantity_on_stock__gt=0, 
-                    expiration_date__gt=timezone.now().date()
-                ).order_by('-date_added').first()
-                if newest_batch:
-                    final_products[product_name] = newest_batch
-                    processed_product_names.add(product_name)
+                    date_added__gt=batch.date_added
+                ).first()
+                batch = next_batch
+
+            if batch and batch.quantity_on_stock > 0:
+                key = f"{product_name}-{batch.batch_number}"
+                final_products[key] = batch
+
+            processed_product_names.add(product_name)
 
         product_dict[product_type.name.replace(' ', '-')] = list(final_products.values())
 
@@ -1549,7 +1545,7 @@ def add_medical_prescription(request):
             type=product_type, 
             quantity_on_stock__gt=0, 
             active=True, 
-            expiration_date__gt=timezone.now().date()  # Convert datetime to date
+            expiration_date__gt=timezone.now().date()
         )
 
         final_products = {}
@@ -1561,28 +1557,25 @@ def add_medical_prescription(request):
             if product_name in processed_product_names:
                 continue
 
-            current_batch = product
-            while current_batch and current_batch.old_batch:
-                older_batch = valid_products.filter(id=current_batch.old_batch_id).first()
-                if older_batch:
-                    current_batch = older_batch
-                else:
-                    break
+            batch = valid_products.filter(product_name=product_name).first()
 
-            if current_batch.quantity_on_stock > 0 and current_batch.expiration_date > timezone.now().date():
-                final_products[product_name] = current_batch
-                processed_product_names.add(product_name)
-            else:
-                newest_batch = valid_products.filter(
+            while batch and batch.quantity_on_stock <= 10:
+                key = f"{product_name}-{batch.batch_number}"
+                final_products[key] = batch
+                next_batch = valid_products.filter(
                     product_name=product_name, 
-                    quantity_on_stock__gt=0, 
-                    expiration_date__gt=timezone.now().date()
-                ).order_by('-date_added').first()
-                if newest_batch:
-                    final_products[product_name] = newest_batch
-                    processed_product_names.add(product_name)
+                    date_added__gt=batch.date_added
+                ).first()
+                batch = next_batch
+
+            if batch and batch.quantity_on_stock > 0:
+                key = f"{product_name}-{batch.batch_number}"
+                final_products[key] = batch
+
+            processed_product_names.add(product_name)
 
         product_dict[product_type.name.replace(' ', '-')] = list(final_products.values())
+        
     formList = PrescriptionMedicines.MEDICINES_FORM_LIST
 
     context = {'pets': pets, 'product_dict': product_dict, 'formList': formList}

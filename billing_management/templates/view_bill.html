@@ -258,8 +258,8 @@
             <td>${entry.type}</td>
             <td>${entry.particulars}</td>
             <td>${numberWithCommas(entry.quantity) || 'N/A'}</td>
-            <td>₱${numberWithCommas(entry.amount) || 'N/A'}</td>
-            <td>₱${numberWithCommas(entry.amount_total)} ↓</td>
+            <td>₱&nbsp;${numberWithCommas(entry.amount) || 'N/A'}</td>
+            <td>₱&nbsp;${numberWithCommas(entry.amount_total)}&nbsp;↓</td>
         </tr>
         `).join('');
 
@@ -284,7 +284,7 @@
 
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center;">
-                    <span style='font-size:12pt;font-weight:700;'> Total Amount: ₱${numberWithCommas(totalAmount.toFixed(2))}</span>
+                    <span style='font-size:12pt;font-weight:700;'>Total&nbsp;Amount:&nbsp;₱&nbsp;${numberWithCommas(totalAmount.toFixed(2))}</span>
                     <span style="font-size:9pt;font-weight:600;">‎</span>
                     <span style="font-size:9pt;font-weight:600;">‎</span>
                     <span style="font-size:9pt;font-weight:600;">‎</span>

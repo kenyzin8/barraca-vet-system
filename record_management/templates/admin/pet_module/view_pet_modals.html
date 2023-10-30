@@ -19,34 +19,34 @@
 <div class="modal fade" id="showLabResultsModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="showLabResultsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content">
+        <div class="modal-background">
+            <div class="modal-overlay"></div>
+            <img class="background-image" id="backgroundImage" src="" alt="">
+        </div>
         <div class="modal-header">
-          <h5 class="modal-title" id="showLabResultsModalLabel">Laboratory Results</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5 class="modal-title fw-500 p-1 rounded" id="showLabResultsModalLabel" style="z-index: 9999; color: white;">Laboratory Results</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="z-index: 9999;"></button>
         </div>
         <div class="modal-body">
-            <div class="main-image mb-3 text-center ">
-                <img class="rounded img-fluid" id="mainImage" src="" alt="Selected Image" width="40%">
+            <div class="main-image mb-3 text-center">
+                <a id="imageLink" href="" target="_blank">
+                    <img class="rounded img-fluid" id="mainImage" src="" alt="Selected Image" width="40%">
+                </a>
             </div>
         
-            <div class="text-center mb-1">
-                <span class="fw-700">Test:</span> <span id="resultName" class="bg-dark text-white p-1 rounded"></span>
+            <div class="result-container">
+                Test: <span id="resultName"></span><br>
+                Result: <span id="resultSecond"></span><br>
+                Normal Range: <span id="resultNormalRange"></span><br>
             </div>
-
-            <div class="text-center mb-1">
-                <span class="fw-700">Result:</span> <span id="resultSecond" class="bg-dark text-white p-1 rounded"></span>
-            </div>
-
-            <div class="text-center mb-1">
-                <span class="fw-700">Normal Range:</span> <span id="resultNormalRange" class="bg-dark text-white p-1 rounded"></span>
-            </div>
-        
+            
             <div class="d-flex justify-content-center align-items-center flex-wrap image-list">
               
             </div>
         </div>
         
         <div class="modal-footer">
-          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
+          <button type="button" class="btn btn-transparent-dark text-light fw-600" data-bs-dismiss="modal" style="z-index: 99999; color: whitesmoke !important;">OK</button>
         </div>
       </div>
     </div>

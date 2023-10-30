@@ -420,20 +420,20 @@
             var imageName = $(this).attr('alt');
             var resultSec = $(this).attr('data-result-sec');
             var resultNormalRange = $(this).attr('data-result-normal-range');
-        
+
             if (!newImageSrc) {
                 newImageSrc = '{% static "images/no-image-placeholder.png" %}';
             }
-        
+
             $('#mainImage').attr('src', newImageSrc);
+            $('#imageLink').attr('href', newImageSrc);
+            $('#backgroundImage').attr('src', newImageSrc);
             $('#resultName').text(imageName);
             $('#resultSecond').text(resultSec);
             $('#resultNormalRange').text(resultNormalRange);
-        
-            // Remove .selected from all .selectable-image
+
             $('.selectable-image').removeClass('selected');
             
-            // Add .selected to the clicked element
             $(this).addClass('selected');
         });
 
@@ -450,11 +450,10 @@
                         var imageListContent = '';
 
                         labResults.forEach(function(result) {
-    
                             if(result.image) {
-                                imageListContent += `<img src="${result.image}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" data-result-sec="${result.result}" data-result-normal-range="${result.normal_range}" style="width: 80px; height: auto; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                                imageListContent += `<img src="${result.image}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" data-result-sec="${result.result}" data-result-normal-range="${result.normal_range}" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
                             } else {
-                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="{% static 'images/no-image-placeholder.png' %}" data-result-sec="${result.result}" data-result-normal-range="${result.normal_range}" style="width: 80px; height: 80px; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="{% static 'images/no-image-placeholder.png' %}" data-result-sec="${result.result}" data-result-normal-range="${result.normal_range}" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
                             } 
                         });
                         
@@ -469,6 +468,8 @@
                         var firstResult = labResults[0];
                         if (firstResult.image) {
                             $('#mainImage').attr('src', firstResult.image);
+                            $('#imageLink').attr('href', firstResult.image);
+                            $('#backgroundImage').attr('src', firstResult.image);
                             $('.selectable-image').first().addClass('selected');
                             $('#resultName').text(firstResult.name);
                             $('#resultSecond').text(firstResult.result);
@@ -477,6 +478,8 @@
                         else
                         {
                             $('#mainImage').attr('src', '{% static 'images/no-image-placeholder.png' %}');
+                            $('#imageLink').attr('href', '{% static 'images/no-image-placeholder.png' %}');
+                            $('#backgroundImage').attr('src', '{% static 'images/no-image-placeholder.png' %}');
                             $('.selectable-image').first().addClass('selected');
                             $('#resultName').text(firstResult.name);
                             $('#resultSecond').text(firstResult.result);

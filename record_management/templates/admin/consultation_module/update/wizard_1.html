@@ -71,7 +71,7 @@
                         {% else %}
                         <button class="btn btn-no-image" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="This laboratory result have no image"><i data-feather="x-square"></i></button>
                         {% endif %}
-                        <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="0" name="diagnosis" type="text" placeholder="Enter lab results" value="{{ one_laboratory_results.result_name }}"/>
+                        <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="0" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)" value="{{ one_laboratory_results.result_name }}"/>
                         <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="1" name="result" type="text" placeholder="Enter result (e.g., 13.5 g/dL) (Optional)" value="{{ one_laboratory_results.result }}"/>
                         <button class="btn btn-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
                     </div>
@@ -98,7 +98,7 @@
                             {% else %}
                             <button class="btn btn-no-image" type="button" disabled><i data-feather="x-square"></i></button>
                             {% endif %}
-                            <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="diagnosis" type="text" placeholder="Enter lab results" value="{{ lab_results.result_name }}"/>
+                            <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)" value="{{ lab_results.result_name }}"/>
                             <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="result" type="text" placeholder="Enter result (e.g., 13.5 g/dL) (Optional)" value="{{ lab_results.result }}"/>
                             <button class="btn btn-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
                         </div>
@@ -123,7 +123,7 @@
                             {% else %}
                             <button class="btn btn-no-image" type="button" disabled><i data-feather="x-square"></i></button>
                             {% endif %}
-                            <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="diagnosis" type="text" placeholder="Enter lab results" value="{{ lab_results.result_name }}"/>
+                            <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)" value="{{ lab_results.result_name }}"/>
                             <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="result" type="text" placeholder="Enter result (e.g., 13.5 g/dL) (Optional)" value="{{ lab_results.result }}"/>
                             <button class="btn btn-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
                         </div>

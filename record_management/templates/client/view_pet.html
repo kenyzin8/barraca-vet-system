@@ -67,6 +67,56 @@
     .img-thumbnail.selected {
         border-color: #e81500;
     }
+
+    .modal-background {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        overflow: hidden;
+        border-radius: 7px;
+    }
+
+    .background-image {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(20px) brightness(0.5);
+        transition: filter 0.3s;
+    }
+
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .result-container {
+        width: 50%;
+        margin: 0 auto;
+        text-align: center;
+        font-weight: 700;
+        /* background-color: rgba(245, 245, 245, 0.8);  */
+        color: white;
+        padding: 0.25rem 0.5rem; 
+        border-radius: 0.5rem; 
+        word-wrap: break-word;
+        word-break: break-word;
+    }
 </style>
 {% endblock %}
 
@@ -381,17 +431,25 @@
 <div class="modal fade" id="showLabResultsModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="showLabResultsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
       <div class="modal-content">
+        <div class="modal-background">
+            <div class="modal-overlay"></div>
+            <img class="background-image" id="backgroundImage" src="" alt="">
+        </div>
         <div class="modal-header">
-          <h5 class="modal-title" id="showLabResultsModalLabel">Laboratory Results</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title fw-500 p-1 rounded" id="showLabResultsModalLabel" style="z-index: 9999; color: white;">Laboratory Results</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="z-index: 9999;"></button>
         </div>
         <div class="modal-body">
             <div class="main-image mb-3 text-center ">
-                <img class="rounded img-fluid" id="mainImage" src="" alt="Selected Image" width="50%">
+                <a id="imageLink" href="" target="_blank">
+                    <img class="rounded img-fluid" id="mainImage" src="" alt="Selected Image" width="40%">
+                </a>
             </div>
         
-            <div class="text-center mb-3">
-                <span id="resultName" class="bg-dark text-white p-1 rounded"></span>
+            <div class="result-container">
+                Test: <span id="resultName"></span><br>
+                Result: <span id="resultSecond"></span><br>
+                Normal Range: <span id="resultNormalRange"></span><br>
             </div>
         
             <div class="d-flex justify-content-center align-items-center flex-wrap image-list">
@@ -400,7 +458,7 @@
         </div>
         
         <div class="modal-footer">
-          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">OK</button>
+            <button type="button" class="btn btn-transparent-dark text-light fw-600" data-bs-dismiss="modal" style="z-index: 99999; color: whitesmoke !important;">OK</button>
         </div>
       </div>
     </div>
@@ -675,18 +733,22 @@
         $(document).on('click', '.selectable-image', function() {
             var newImageSrc = $(this).attr('data-full-image');
             var imageName = $(this).attr('alt');
+            var resultSec = $(this).attr('data-result-sec');
+            var resultNormalRange = $(this).attr('data-result-normal-range');
             
             if (!newImageSrc) {
                 newImageSrc = '{% static "images/no-image-placeholder.png" %}';
             }
         
             $('#mainImage').attr('src', newImageSrc);
+            $('#imageLink').attr('href', newImageSrc);
+            $('#backgroundImage').attr('src', newImageSrc);
             $('#resultName').text(imageName);
-        
-            // Remove .selected from all .selectable-image
+            $('#resultSecond').text(resultSec);
+            $('#resultNormalRange').text(resultNormalRange);
+
             $('.selectable-image').removeClass('selected');
             
-            // Add .selected to the clicked element
             $(this).addClass('selected');
         });
 
@@ -702,11 +764,10 @@
                         var imageListContent = '';
 
                         labResults.forEach(function(result) {
-                            
                             if(result.image) {
-                                imageListContent += `<img src="${result.image}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" style="width: 80px; height: auto; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                                imageListContent += `<img src="${result.image}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="${result.image}" data-result-sec="${result.result}" data-result-normal-range="${result.normal_range}" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
                             } else {
-                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="{% static 'images/no-image-placeholder.png' %}" style="width: 80px; height: 80px; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
+                                imageListContent += `<img src="{% static 'images/no-image-placeholder-2.png' %}" alt="${result.name}" class="img-thumbnail m-2 selectable-image" data-full-image="{% static 'images/no-image-placeholder.png' %}" data-result-sec="${result.result}" data-result-normal-range="${result.normal_range}" style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="${result.name}">`;
                             } 
                         });
                         
@@ -721,14 +782,22 @@
                         var firstResult = labResults[0];
                         if (firstResult.image) {
                             $('#mainImage').attr('src', firstResult.image);
+                            $('#imageLink').attr('href', firstResult.image);
+                            $('#backgroundImage').attr('src', firstResult.image);
                             $('.selectable-image').first().addClass('selected');
                             $('#resultName').text(firstResult.name);
+                            $('#resultSecond').text(firstResult.result);
+                            $('#resultNormalRange').text(firstResult.normal_range);
                         }
                         else
                         {
                             $('#mainImage').attr('src', '{% static 'images/no-image-placeholder.png' %}');
+                            $('#imageLink').attr('href', '{% static 'images/no-image-placeholder.png' %}');
+                            $('#backgroundImage').attr('src', '{% static 'images/no-image-placeholder.png' %}');
                             $('.selectable-image').first().addClass('selected');
                             $('#resultName').text(firstResult.name);
+                            $('#resultSecond').text(firstResult.result);
+                            $('#resultNormalRange').text(firstResult.normal_range);
                         }
                         
                         $('#showLabResultsModal').modal('show');

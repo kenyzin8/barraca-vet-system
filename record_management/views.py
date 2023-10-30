@@ -2579,6 +2579,7 @@ class UpdateConsultationView(APIView):
                         normal_range = lab_result_item['normal_range']
                         image_id = lab_result_item['image_id']
                         lab_result_id = lab_result_item['lab_result_id']
+
                         if lab_result_id == 'null':
                             lab_result_id = None
 
@@ -2589,14 +2590,23 @@ class UpdateConsultationView(APIView):
                         if image_id:
                             temp_image = TemporaryLabResultImage.objects.get(id=image_id)
                             defaults['result_image'] = temp_image.image
+                        elif lab_result_id and int(lab_result_id) in existing_lab_results:
+                            existing_lab_result = LabResult.objects.get(id=lab_result_id)
+                            defaults['result_image'] = existing_lab_result.result_image
                         else:
-                            if not lab_result_id or (lab_result_id and int(lab_result_id) not in existing_lab_results):
-                                try:
-                                    existing_lab_result = LabResult.objects.filter(id__in=existing_lab_results).first()
-                                    if existing_lab_result:
-                                        defaults['result_image'] = existing_lab_result.result_image
-                                except LabResult.DoesNotExist:
-                                    pass
+                            defaults['result_image'] = 'None'
+
+                        # if image_id:
+                        #     temp_image = TemporaryLabResultImage.objects.get(id=image_id)
+                        #     defaults['result_image'] = temp_image.image
+                        # else:
+                        #     if not lab_result_id or (lab_result_id and int(lab_result_id) not in existing_lab_results):
+                        #         try:
+                        #             existing_lab_result = LabResult.objects.filter(id__in=existing_lab_results).first()
+                        #             if existing_lab_result:
+                        #                 defaults['result_image'] = existing_lab_result.result_image
+                        #         except LabResult.DoesNotExist:
+                        #             pass
 
                         if lab_result_id:
                             lab_result, created = LabResult.objects.update_or_create(

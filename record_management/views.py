@@ -1735,6 +1735,7 @@ def add_health_card_treatment(request):
     date_slots = serialize('json', date_slots)
     doctor_schedules = serialize('json', doctor_schedules)
     time_choices = Appointment.time_choices
+
     context = {
         'pets': pets, 
         'product_dict': product_dict, 
@@ -1746,6 +1747,7 @@ def add_health_card_treatment(request):
         'doctor_schedules': doctor_schedules,
         'time_choices': time_choices
     }
+    
     return render(request, 'admin/health_card_module/health_card_module.html', context)
 
 def get_scheduled_appointments_count(date, time_of_day=None):

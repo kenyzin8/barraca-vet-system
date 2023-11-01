@@ -55,6 +55,7 @@ def disable_day(request):
             else:
                 Appointment.objects.filter(date=disable_day.date, timeOfTheDay=disable_day.timeOfTheDay, isActive=True, status='pending').update(status='rebook')
 
+
             disabled_day_dict = model_to_dict(disable_day, exclude=['id', 'isActive', 'reason'])
 
             disabled_day_dict['date'] = disable_day.date

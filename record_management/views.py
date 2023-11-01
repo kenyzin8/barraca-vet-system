@@ -1722,7 +1722,6 @@ def add_health_card_treatment(request):
 
         product_dict[product_type.name.replace(' ', '-')] = list(final_products.values())
 
-
     formList = PrescriptionMedicines.MEDICINES_FORM_LIST
 
     services = Service.objects.filter(active=True)

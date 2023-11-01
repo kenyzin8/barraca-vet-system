@@ -43,6 +43,17 @@ class DateSlot(models.Model):
         verbose_name = "Date Slot"
         verbose_name_plural = "Date Slots"
 
+class SMSTemplate(models.Model):
+    name = models.CharField(max_length=255)
+    template = models.TextField()
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "SMS Template"
+        verbose_name_plural = "SMS Templates"
+
 class DoctorSchedule(models.Model):
     time_of_the_day_choices = [('morning', 'Morning'), ('afternoon', 'Afternoon'), ('whole_day', 'Whole Day')]
     date = models.DateField()
@@ -60,15 +71,7 @@ class DoctorSchedule(models.Model):
             appointments = Appointment.objects.filter(date=self.date, timeOfTheDay=self.timeOfTheDay, isActive=True, status='pending')
 
         for appointment in appointments:
-            message = f'Hello {appointment.client.full_name}, your appointment on {self.date} {appointment.timeOfTheDay} has been cancelled due to {self.reason}. Please rebook your appointment on our webiste or contact the clinic to do it for you. Thank you!'
-            
-            SMSLogs.objects.create(
-                text = message,
-                client = appointment.client,
-                sms_type = 'cancel'
-            )
-            
-            send_sms(appointment.client.contact_number, message)
+            appointment.remindClientCancel(self.reason)
 
     class Meta:
         verbose_name = "Doctor Schedule"
@@ -119,8 +122,22 @@ class Appointment(models.Model):
         formatted_date = self.date.strftime("%B %d, %Y")
 
         #message = f'Hi {self.client.get_gender_honorific()} {self.client.full_name}, this is a reminder for your {self.purpose.service_type} appointment about {self.pet.name} on {formatted_date} at {formatted_time}. Thank you!'
-        message = f"Reminder of the {self.purpose.service_type} appointment for your pet {self.pet.name} on {formatted_date} at {formatted_time}. Thank you, {self.client.get_gender_honorific()} {self.client.full_name}!"
-
+        #message = f"Reminder of the {self.purpose.service_type} appointment for your pet {self.pet.name} on {formatted_date} at {formatted_time}. Thank you, {self.client.get_gender_honorific()} {self.client.full_name}!"
+        try:
+            sms_template = SMSTemplate.objects.get(name='remind-client')
+            message = sms_template.template.format(
+                client_honorific=self.client.get_gender_honorific(),
+                client_full_name=self.client.full_name,
+                pet_name=self.pet.name,
+                date=formatted_date,
+                time=formatted_time,
+                service_type=self.purpose.service_type
+            )
+        except SMSTemplate.DoesNotExist:
+            message = f"Reminder: {self.purpose.service_type} appointment for {self.pet.name} on {formatted_date} at {formatted_time}."
+        except Exception as e:
+            message = f"Reminder: {self.purpose.service_type} appointment for {self.pet.name} on {formatted_date} at {formatted_time}."
+        
         send_sms(phone_number, message)
 
         SMSLogs.objects.create(
@@ -141,7 +158,23 @@ class Appointment(models.Model):
         phone_number = self.client.contact_number
         formatted_time = self.time.strftime('%I:%M %p')
         formatted_date = self.date.strftime("%B %d, %Y")
-        message = f"Dear {self.client.get_gender_honorific()} {self.client.full_name}, we regret to inform you that your {self.purpose.service_type} appointment for {self.pet.name} scheduled on {formatted_date} at {formatted_time} has been cancelled. Reason: {reason}. Thank you for your understanding."
+        #message = f"Dear {self.client.get_gender_honorific()} {self.client.full_name}, we regret to inform you that your {self.purpose.service_type} appointment for {self.pet.name} scheduled on {formatted_date} at {formatted_time} has been cancelled. Reason: {reason}. Thank you for your understanding."
+        
+        try:
+            sms_template = SMSTemplate.objects.get(name='remind-client-cancel')
+            message = sms_template.template.format(
+                client_honorific=self.client.get_gender_honorific(),
+                client_full_name=self.client.full_name,
+                pet_name=self.pet.name,
+                date=formatted_date,
+                time=formatted_time,
+                service_type=self.purpose.service_type,
+                reason=reason
+            )
+        except SMSTemplate.DoesNotExist:
+            message = f"Reminder: {self.purpose.service_type} appointment for {self.pet.name} on {formatted_date} at {formatted_time}."
+        except Exception as e:
+            message = f"Reminder: {self.purpose.service_type} appointment for {self.pet.name} on {formatted_date} at {formatted_time}."
 
         send_sms(phone_number, message)
 

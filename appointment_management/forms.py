@@ -1,8 +1,16 @@
 from django import forms
-from .models import DoctorSchedule, Appointment, DateSlot, MaximumAppointment
+from .models import DoctorSchedule, Appointment, DateSlot, MaximumAppointment, SMSTemplate
 from record_management.models import Client, Pet, PetTreatment
 from services.models import Service
 from django.db.models import Q, Count
+
+class SMSTemplateForm(forms.ModelForm):
+    class Meta:
+        model = SMSTemplate
+        fields = '__all__'
+        help_texts = {
+            'template': ('Required placeholders: {client_full_name}, {pet_name}, {date}, {time}, {service_type}'),
+        }
 
 class AppointmentForm(forms.ModelForm):
     class Meta:

@@ -1,8 +1,14 @@
 from django.contrib import admin
-from .models import Appointment, DoctorSchedule, MaximumAppointment, DateSlot
+from .models import Appointment, DoctorSchedule, MaximumAppointment, DateSlot, SMSTemplate
 from django.contrib.admin.models import LogEntry, CHANGE
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import force_str
+from .forms import SMSTemplateForm
+
+class SMSTemplateAdmin(admin.ModelAdmin):
+    form = SMSTemplateForm
+    list_display = ('id', 'name', 'template')
+    search_fields = ('name', 'template')
 
 class DateSlotAdmin(admin.ModelAdmin):
     list_display = ('date', 'morning_slots', 'afternoon_slots', 'isActive')
@@ -58,6 +64,7 @@ class AppointmentAdmin(admin.ModelAdmin):
     set_as_done.short_description = "Set selected appointments as done"
     set_as_rebook.short_description = "Set selected appointments as rebook"
 
+admin.site.register(SMSTemplate, SMSTemplateAdmin)
 admin.site.register(DateSlot, DateSlotAdmin)
 admin.site.register(MaximumAppointment, MaximumAppointmentAdmin)
 admin.site.register(Appointment, AppointmentAdmin)

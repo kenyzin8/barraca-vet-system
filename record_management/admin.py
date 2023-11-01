@@ -26,7 +26,6 @@ class PetMedicalPrescriptionAdmin(admin.ModelAdmin):
     list_filter = ('pet__name', 'pet__species', 'pet__breed', 'date_prescribed', 'isActive')
     search_fields = ('pet__name', 'pet__species', 'pet__breed', 'date_prescribed', 'isActive')
 
-
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'first_name', 'last_name', 'gender', 'contact_number', 'street', 'barangay', 'city', 'province', 'two_auth_enabled')
     search_fields = ('first_name', 'last_name', 'gender', 'user__email')

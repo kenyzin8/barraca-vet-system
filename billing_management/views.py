@@ -470,8 +470,8 @@ def sales(request):
 
     bills = bills.prefetch_related('products', 'services')
     
-    # for bill in bills:
-    #     gross_revenue += bill.get_total()
+    for bill in bills:
+        gross_revenue += bill.get_total()
 
     total_products_count = sum(bill.billing_products.all().count() for bill in bills)
     total_services_count = sum(bill.billing_services.all().count() for bill in bills)
@@ -485,7 +485,7 @@ def sales(request):
     for bill in bills.order_by('id'):
         _date = bill.date_created.strftime("%b %d, %Y %I:%M %p")
         for bs in bill.billing_services.all():
-            total = bs.quantity * bs.service.fee
+            total = bs.quantity * bs.price_at_time_of_purchase
             billing_services_data.append({
                 'id': bill.get_billing_number(),
                 'date_created': _date,
@@ -506,13 +506,13 @@ def sales(request):
                 'product': bp.product.product_name,
                 'quantity': int(bp.quantity),
                 'sold_under': bill.client.full_name,
-                'price': custom_format(bp.product.price),
+                'price': custom_format(bp.price_at_time_of_purchase),
                 'total_due': custom_format(total)
             })
 
             products_sub_total += total
 
-    gross_revenue = services_sub_total + products_sub_total
+    # gross_revenue = services_sub_total + products_sub_total
 
     _range = "Today (" + datetime.now().strftime("%B %d, %Y") + ")"
 

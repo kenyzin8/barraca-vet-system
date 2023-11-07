@@ -470,8 +470,8 @@ def sales(request):
 
     bills = bills.prefetch_related('products', 'services')
     
-    for bill in bills:
-        gross_revenue += bill.get_total()
+    # for bill in bills:
+    #     gross_revenue += bill.get_total()
 
     total_products_count = sum(bill.billing_products.all().count() for bill in bills)
     total_services_count = sum(bill.billing_services.all().count() for bill in bills)
@@ -511,6 +511,8 @@ def sales(request):
             })
 
             products_sub_total += total
+
+    gross_revenue = services_sub_total + products_sub_total
 
     _range = "Today (" + datetime.now().strftime("%B %d, %Y") + ")"
 

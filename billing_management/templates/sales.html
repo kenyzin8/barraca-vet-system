@@ -364,6 +364,7 @@ function initDataTables(tableId, maxPage) {
                                                     <th>Under Bill #</th>
                                                     <th>Date Sold</th>
                                                     <th>Service</th>
+                                                    <th>Quantity</th>
                                                     <th>Price</th>
                                                 </tr>
                                             </thead>
@@ -383,7 +384,11 @@ function initDataTables(tableId, maxPage) {
                                                     </td>
                                                     <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
                                                     <td>{{ billing_service.service.service_type }}</td>
-                                                    <td>₱{{ billing_service.price_at_time_of_purchase|intcomma }}</td>                                           
+                                                    <td>{{ billing_service.quantity }}</td>
+                                                    <td class="calc" data-price="{{ billing_service.service.fee }}" data-quantity="{{ billing_service.quantity }}">
+                                                        {{ billing_service.price_at_time_of_purchase|floatformat:2|intcomma }} x {{ billing_service.quantity|floatformat:0|intcomma }} = 
+                                                        ₱<span class="total-price">0.00</span>
+                                                    </td> 
                                                 </tr>
                                                 {% endfor %}
                                                 {% endfor %}

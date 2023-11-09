@@ -2495,7 +2495,7 @@ class UpdateConsultationView(APIView):
                         else:
                             appointment_time_of_the_day = 'morning'
 
-                        if appointment_date < date.today():
+                        if appointment_date < date.today() and pet_treatment.appointment.isActive:
                             return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Selected date is in the past.'})
 
                         doctor_schedule_for_date = DoctorSchedule.objects.filter(date=appointment_date).first()
@@ -2844,6 +2844,7 @@ def submit_update_health_card(request):
 
                         if pet_treatment.appointment.date != datetime.strptime(appointment_date, '%Y-%m-%d').date() or pet_treatment.appointment.time != appointment_time or pet_treatment.appointment.purpose != service:
                             converted_date = datetime.strptime(appointment_date, '%Y-%m-%d').date()
+                            
                             if converted_date < date.today():
                                 return JsonResponse({'success': False, 'appointment_error': True, 'message': 'Selected date is in the past.'})
                             

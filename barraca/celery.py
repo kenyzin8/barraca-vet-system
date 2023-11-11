@@ -24,21 +24,27 @@ def clean_calendar():
     from record_management.models import Client, Pet
     from appointment_management.models import Appointment, DoctorSchedule
     try:
+        current_datetime = timezone.now()
+        current_date = current_datetime.date()
+
         def update_past_appointments():
-            past_appointments = Appointment.objects.filter(date__lt=timezone.now().date(), isActive=True, status='pending')
+            past_appointments = Appointment.objects.filter(date__lt=current_date, isActive=True, status='pending')
             for appointment in past_appointments:
                 appointment.status = 'done'
                 appointment.isActive = False
                 appointment.save()
 
         def update_past_doctor_schedules():
-            past_doctor_schedules = DoctorSchedule.objects.filter(date__lt=timezone.now().date(), isActive=True)
+            past_doctor_schedules = DoctorSchedule.objects.filter(date__lt=current_date, isActive=True)
             for schedule in past_doctor_schedules:
                 schedule.isActive = False
                 schedule.save()
                 
         update_past_appointments()
         update_past_doctor_schedules()
+
+        logger.info(f'Current DateTime: {current_datetime}')
+        logger.info(f'Current Date: {current_date}')
     except Exception as e:
         logger.error(f"Error in Clean Calendar: {e}")
     else:

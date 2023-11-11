@@ -45,6 +45,7 @@ def clean_calendar():
 
         logger.info(f'Current DateTime: {current_datetime}')
         logger.info(f'Current Date: {current_date}')
+        
     except Exception as e:
         logger.error(f"Error in Clean Calendar: {e}")
     else:

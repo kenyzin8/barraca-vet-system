@@ -7,6 +7,11 @@
 
 {% block extrastyles %}
 <link rel="stylesheet" type="text/css" href="{% static 'plugins/print-js/print.min.css' %}">
+<style>
+.datatable-container{
+    overflow-y: hidden !important;
+}
+</style>
 {% endblock %}
 
 {% block content %}

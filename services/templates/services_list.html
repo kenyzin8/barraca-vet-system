@@ -7,13 +7,14 @@
 
 {% block extrastyles %}
 <style>
-  .datatable-pagination .datatable-active a, .datatable-pagination .datatable-active a:focus, .datatable-pagination .datatable-active a:hover 
-  {
+  .datatable-pagination .datatable-active a, .datatable-pagination .datatable-active a:focus, .datatable-pagination .datatable-active a:hover {
     background-color: #232323;
   }
-  .page-link, .datatable-pagination a
-   {
+  .page-link, .datatable-pagination a {
     color: #232323;
+  }
+  .datatable-container {
+    overflow-y: hidden !important;
   }
 </style>
 {% endblock %}

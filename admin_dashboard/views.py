@@ -209,7 +209,7 @@ def admin_dashboard(request):
     current_year_bills = Billing.objects.filter(date_created__year=today.year, isActive=True)
 
     for month in range(1, 13): 
-        month_bills = current_year_bills.filter(date_created__month=month)
+        month_bills = current_year_bills.filter(date_created__month=month, isActive=True, isPaid=True)
         for bill in month_bills:
             monthly_revenue[month-1] += bill.get_total() 
 
@@ -218,7 +218,7 @@ def admin_dashboard(request):
     yearly_revenue = {}
 
     for year in range(start_year, current_year + 1): 
-        year_bills = Billing.objects.filter(date_created__year=year, isActive=True)
+        year_bills = Billing.objects.filter(date_created__year=year, isActive=True, isPaid=True)
         yearly_revenue[str(year)] = sum(bill.get_total() for bill in year_bills)
 
     context = {

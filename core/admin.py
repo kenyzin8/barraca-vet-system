@@ -4,8 +4,17 @@ from django.contrib.auth.models import User
 from django.contrib.admin.models import LogEntry
 from django_celery_beat.models import ClockedSchedule, CrontabSchedule, IntervalSchedule, PeriodicTask, SolarSchedule
 from django_celery_results.models import TaskResult, GroupResult
+from django.contrib.sessions.models import Session
 
 from .models import Notification, SMSLogs, Region, Province, Municipality, Barangay
+
+@admin.register(Session)
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ['session_key', 'expire_date', 'get_decoded']
+    readonly_fields = ['session_key', 'expire_date', 'get_decoded']
+
+    def get_decoded(self, obj):
+        return obj.get_decoded()
 
 class SMSLogsAdmin(admin.ModelAdmin):
     list_display = ('text', 'date_created', 'client', 'sms_type')

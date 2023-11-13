@@ -46,7 +46,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     #'jazzmin',
-    'admin_reorder',
+    #'admin_reorder',
     'django_feather',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -93,17 +93,18 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'rest_api.rest_exceptions.custom_exception_handler',
 }
 
-ADMIN_REORDER = (
-    {'app': 'appointment_management', 'label': 'Appointment Management'},
-    {'app': 'billing_management', 'label': 'Billing Management'},
-    {'app': 'inventory_services_management', 'label': 'Inventory & Services Management'},
-    {'app': 'record_management', 'label': 'Record Management'},
-    {'app': 'core', 'label': 'Core'},
-    {'app': 'django_celery_beat', 'label': 'Celery Beat'},
-    {'app': 'django_celery_results', 'label': 'Celery Results'},
-    {'app': 'authtoken', 'label': 'Token'},
-    {'app': 'rest_framework.throttling.ScopedRateThrottle', 'label': 'Auth'},
-)
+# ADMIN_REORDER = (
+#     {'app': 'appointment_management', 'label': 'Appointment Management'},
+#     {'app': 'billing_management', 'label': 'Billing Management'},
+#     {'app': 'inventory_services_management', 'label': 'Inventory & Services Management'},
+#     {'app': 'record_management', 'label': 'Record Management'},
+#     {'app': 'core', 'label': 'Core'},
+#     {'app': 'django_celery_beat', 'label': 'Celery Beat'},
+#     {'app': 'django_celery_results', 'label': 'Celery Results'},
+#     {'app': 'authtoken', 'label': 'Token'},
+#     {'app': 'rest_framework.throttling.ScopedRateThrottle', 'label': 'Auth'},
+#     {'app': 'django', 'label': 'Sessions'},
+# )
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -114,7 +115,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'admin_reorder.middleware.ModelAdminReorder',
+    #'admin_reorder.middleware.ModelAdminReorder',
     #'core.middleware.SessionDisplayMiddleware',
     # 'core.middleware.MinifyHTMLMiddleware',
 ]

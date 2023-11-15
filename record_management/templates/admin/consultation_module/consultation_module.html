@@ -208,6 +208,18 @@
     width: 32px !important;
     height: 32px !important;
 }
+
+.tooltip-inner {
+    max-width: 300px;
+    width: auto; 
+}
+
+.image-tooltip-container {
+    width: 100%;
+    opacity: 1 !important;
+    padding: 5px;
+    border-radius: 10px !important;
+}
 </style>
 
 {% include 'admin/consultation_module/consultation_module_script.html' %}
@@ -536,6 +548,12 @@ window.addEventListener('DOMContentLoaded', event => {
             });
         });
     }
+});
+</script>
+<script>
+window.addEventListener('DOMContentLoaded', event => {
+    $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+    $('[data-bs-toggle="tooltip"]').tooltip({html: true});
 });
 </script>
 {% endblock %}

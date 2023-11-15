@@ -17,10 +17,10 @@ window.addEventListener('DOMContentLoaded', event => {
     
     var max_page = PetModule.max_page;
     var lastIndex = max_page > 25 ? max_page : 50;
-
+    var dataTable_Pet = null;
     if (datatablesSimple) {
         datatablesSimple.style.display = "";
-        let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+        dataTable_Pet = new simpleDatatables.DataTable(datatablesSimple, {
             paging: true,
             perPageSelect: [5, 10, 25, lastIndex],
             perPage: 10,
@@ -30,42 +30,54 @@ window.addEventListener('DOMContentLoaded', event => {
             hiddenHeader: false,
         });
 
-        window.dataTable = dataTable;
+        window.dataTable = dataTable_Pet;
 
-        dataTable.on('datatable.update', () => {
+        dataTable_Pet.on('datatable.update', () => {
+            feather.replace();
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+
+            $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+            $('[data-bs-toggle="tooltip"]').tooltip({html: true});
+        });
+
+        dataTable_Pet.on('datatable.page', function(page) {
             feather.replace();
             
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
+
+            $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+            $('[data-bs-toggle="tooltip"]').tooltip({html: true});
         });
 
-        dataTable.on('datatable.page', function(page) {
+        dataTable_Pet.on('datatable.search', function(query, matched) {
             feather.replace();
             
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
+
+            $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+            $('[data-bs-toggle="tooltip"]').tooltip({html: true});
         });
 
-        dataTable.on('datatable.search', function(query, matched) {
+        dataTable_Pet.on('datatable.sort', function(column, direction) {
             feather.replace();
 
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
             })
-        });
 
-        dataTable.on('datatable.sort', function(column, direction) {
-            feather.replace();
-            
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
+            $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+            $('[data-bs-toggle="tooltip"]').tooltip({html: true});
         });
 
         var searchInput = document.querySelector('.datatable-input');
@@ -81,6 +93,9 @@ window.addEventListener('DOMContentLoaded', event => {
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
+
+        $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+        $('[data-bs-toggle="tooltip"]').tooltip({html: true});
     }
 });
 

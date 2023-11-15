@@ -162,6 +162,8 @@
                     return new bootstrap.Tooltip(tooltipTriggerEl)
                 })
                 setupSelectButtons();
+                $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+                $('[data-bs-toggle="tooltip"]').tooltip({html: true});
             });
     
             petDataTable.on('datatable.page', function(page) {
@@ -172,6 +174,8 @@
                     return new bootstrap.Tooltip(tooltipTriggerEl)
                 })
                 setupSelectButtons();
+                $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+                $('[data-bs-toggle="tooltip"]').tooltip({html: true});
             });
     
             petDataTable.on('datatable.search', function(query, matched) {
@@ -185,6 +189,8 @@
                 console.log(selectedPetId)
 
                 setupSelectButtons();
+                $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+                $('[data-bs-toggle="tooltip"]').tooltip({html: true});
             });
     
             petDataTable.on('datatable.sort', function(column, direction) {
@@ -195,6 +201,8 @@
                     return new bootstrap.Tooltip(tooltipTriggerEl)
                 })
                 setupSelectButtons();
+                $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+                $('[data-bs-toggle="tooltip"]').tooltip({html: true});
             });
     
             var searchInput = document.querySelector('.datatable-input');

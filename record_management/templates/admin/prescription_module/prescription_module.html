@@ -200,6 +200,17 @@
     width: 32px !important;
     height: 32px !important;
 }
+.tooltip-inner {
+    max-width: 300px;
+    width: auto; 
+}
+
+.image-tooltip-container {
+    width: 100%;
+    opacity: 1 !important;
+    padding: 5px;
+    border-radius: 10px !important;
+}
 </style>
 
 {% include 'admin/prescription_module/prescription_module_script.html' %}
@@ -255,6 +266,9 @@
 <script src="{% static 'plugins/sb-admin/js/bundle.js' %}" crossorigin="anonymous"></script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/plugins/mobilefriendly.js"></script> -->
 <script>
-
+window.addEventListener('DOMContentLoaded', event => {
+    $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+    $('[data-bs-toggle="tooltip"]').tooltip({html: true});
+});
 </script>
 {% endblock %}

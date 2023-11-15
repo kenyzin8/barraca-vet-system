@@ -190,7 +190,7 @@ def admin_dashboard(request):
 
     # Get total gross revenue for today
     today = datetime.now()
-    today_bills = Billing.objects.filter(date_created__year=today.year, date_created__month=today.month, date_created__day=today.day, isActive=True)
+    today_bills = Billing.objects.filter(date_created__year=today.year, date_created__month=today.month, date_created__day=today.day, isActive=True, isPaid=True)
     total_revenue = 0
     for bill in today_bills:
         total_revenue += bill.get_total()
@@ -206,7 +206,7 @@ def admin_dashboard(request):
 
     monthly_revenue = [0]*12
 
-    current_year_bills = Billing.objects.filter(date_created__year=today.year, isActive=True)
+    current_year_bills = Billing.objects.filter(date_created__year=today.year, isActive=True, isPaid=True)
 
     for month in range(1, 13): 
         month_bills = current_year_bills.filter(date_created__month=month, isActive=True, isPaid=True)

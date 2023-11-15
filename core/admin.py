@@ -5,16 +5,42 @@ from django.contrib.admin.models import LogEntry
 from django_celery_beat.models import ClockedSchedule, CrontabSchedule, IntervalSchedule, PeriodicTask, SolarSchedule
 from django_celery_results.models import TaskResult, GroupResult
 from django.contrib.sessions.models import Session
+from django.contrib.auth import get_user_model
 
 from .models import Notification, SMSLogs, Region, Province, Municipality, Barangay
 
 @admin.register(Session)
 class SessionAdmin(admin.ModelAdmin):
-    list_display = ['session_key', 'expire_date', 'get_decoded']
-    readonly_fields = ['session_key', 'expire_date', 'get_decoded']
+    list_display = ['get_user', 'get_login_date', 'session_key', 'expire_date']
+    readonly_fields = ['session_data', 'get_user', 'get_login_date', 'session_key', 'expire_date', 'get_decoded']
 
     def get_decoded(self, obj):
         return obj.get_decoded()
+
+    def get_user(self, obj):
+        decoded = obj.get_decoded()
+        user_id = decoded.get('_auth_user_id')
+        if user_id:
+            User = get_user_model()
+            try:
+                return User.objects.get(id=user_id).username
+            except User.DoesNotExist:
+                return "User not found"
+        return "Anonymous"
+
+    def get_login_date(self, obj):
+        decoded = obj.get_decoded()
+        user_id = decoded.get('_auth_user_id')
+        if user_id:
+            User = get_user_model()
+            try:
+                return User.objects.get(id=user_id).last_login
+            except User.DoesNotExist:
+                return "User not found"
+        return "Unknown"
+
+    get_user.short_description = 'User'
+    get_login_date.short_description = 'Last Login'
 
 class SMSLogsAdmin(admin.ModelAdmin):
     list_display = ('text', 'date_created', 'client', 'sms_type')

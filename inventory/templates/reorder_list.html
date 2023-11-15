@@ -27,10 +27,12 @@
                     <tr>
                         <th>#</th>
                         <th>Item</th>
-                        <th>Batch Number</th>
-                        <th>Stock Quantity</th>
-                        <th>Critical Level</th>
-                        <th>Price</th>
+                        <th>Volume</th>
+                        <th>Batch&nbsp;Number</th>
+                        <th>Manufacturer</th>
+                        <th>Stock&nbsp;Quantity</th>
+                        <th>Critical&nbsp;Level</th>
+                        <th>Selling&nbsp;Price</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -39,10 +41,12 @@
                     <tr>
                         <td>{{ product.id }}</td>
                         <td>{{ product.product_name }}</td>
+                        <td>{{ product.volume|floatformat:0|intcomma }}&nbsp;{{ product.volume_unit }}</td>
                         <td>{{ product.batch_number }}</td>
+                        <td>{{ product.manufacturer }}</td>
                         <td>{{ product.quantity_on_stock|floatformat:0|intcomma }}</td>
                         <td>{{ product.critical_level }}</td>
-                        <td>₱ {{ product.price|intcomma }}</td>
+                        <td>₱&nbsp;{{ product.price|intcomma }}</td>
                         <td>
                             <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'add-new-batch-page' product.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Add New Batch">
                                 <i class="fa-solid fa-box"></i>

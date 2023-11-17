@@ -71,7 +71,18 @@ class DoctorSchedule(models.Model):
             appointments = Appointment.objects.filter(date=self.date, timeOfTheDay=self.timeOfTheDay, isActive=True, status='pending')
 
         for appointment in appointments:
-            appointment.remindClientCancel(self.reason)
+            formatted_time = appointment.time.strftime('%I:%M %p')
+            formatted_date = appointment.date.strftime("%B %d, %Y")
+            
+            message = f'Dear {appointment.client.full_name}, {formatted_date} at {formatted_time} has been disabled due to {self.reason}, and your appointment for {appointment.pet.name} has been added to rebook list. Please rebook your appointment on our website or contact the clinic to do it for you. Thank you!'
+
+            send_sms(appointment.client.contact_number, message)
+            SMSLogs.objects.create(
+                text = message,
+                client = appointment.client,
+                sms_type = 'date Disabled'
+            )
+            #appointment.remindClientCancel(self.reason)
 
     class Meta:
         verbose_name = "Doctor Schedule"

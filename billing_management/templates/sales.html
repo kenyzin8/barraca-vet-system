@@ -335,7 +335,7 @@ function initDataTables(tableId, maxPage) {
                                                     <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
                                                     <td>{{ billing_product.product.product_name }}</td>
                                                     <td>{{ billing_product.quantity|floatformat:0|intcomma }}</td>
-                                                    <td class="calc" data-price="{{ billing_product.product.price }}" data-quantity="{{ billing_product.quantity }}">
+                                                    <td class="calc" data-price="{{ billing_product.price_at_time_of_purchase }}" data-quantity="{{ billing_product.quantity }}">
                                                         {{ billing_product.price_at_time_of_purchase|floatformat:2|intcomma }} x {{ billing_product.quantity|floatformat:0|intcomma }} = 
                                                         ₱<span class="total-price">0.00</span>
                                                     </td>                                            
@@ -385,7 +385,7 @@ function initDataTables(tableId, maxPage) {
                                                     <td>{{ bill.date_created|date:"F j, Y, g:i A" }}</td>
                                                     <td>{{ billing_service.service.service_type }}</td>
                                                     <td>{{ billing_service.quantity }}</td>
-                                                    <td class="calc" data-price="{{ billing_service.service.fee }}" data-quantity="{{ billing_service.quantity }}">
+                                                    <td class="calc" data-price="{{ billing_service.price_at_time_of_purchase }}" data-quantity="{{ billing_service.quantity }}">
                                                         {{ billing_service.price_at_time_of_purchase|floatformat:2|intcomma }} x {{ billing_service.quantity|floatformat:0|intcomma }} = 
                                                         ₱<span class="total-price">0.00</span>
                                                     </td> 
@@ -535,6 +535,7 @@ function initDataTables(tableId, maxPage) {
         for(var i=0; i<calcs.length; i++) {
             var price = parseFloat(calcs[i].dataset.price);
             var quantity = parseFloat(calcs[i].dataset.quantity);
+
             var totalPrice = price * quantity;
     
             calcs[i].getElementsByClassName('total-price')[0].textContent = numberWithCommas(totalPrice.toFixed(2));

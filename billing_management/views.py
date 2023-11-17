@@ -361,8 +361,8 @@ def view_bill(request, bill_id):
             'type': 'Product',
             'particulars': b.product.product_name,
             'qty': str(b.quantity),
-            'amount': str(b.product.price), 
-            'amount_total': str(b.quantity * b.product.price)  
+            'amount': str(b.price_at_time_of_purchase), 
+            'amount_total': str(b.quantity * b.price_at_time_of_purchase)  
         })
 
     for b in bill.billing_services.all():
@@ -370,8 +370,8 @@ def view_bill(request, bill_id):
             'type': 'Service',
             'particulars': b.service.service_type,
             'qty': str(b.quantity), 
-            'amount': str(b.service.fee),
-            'amount_total': str(b.service.fee * b.quantity)
+            'amount': str(b.price_at_time_of_purchase),
+            'amount_total': str(b.price_at_time_of_purchase * b.quantity)
         })
 
     context = {'bill': bill, 'bill_data': bill_data}
@@ -395,8 +395,8 @@ def view_unpaid_bill(request, bill_id):
             'type': 'Product',
             'particulars': b.product.product_name,
             'qty': str(b.quantity),
-            'amount': str(b.product.price), 
-            'amount_total': str(b.quantity * b.product.price)  
+            'amount': str(b.price_at_time_of_purchase), 
+            'amount_total': str(b.quantity * b.price_at_time_of_purchase)  
         })
 
     for b in bill.billing_services.all():
@@ -404,8 +404,8 @@ def view_unpaid_bill(request, bill_id):
             'type': 'Service',
             'particulars': b.service.service_type,
             'qty': str(b.quantity), 
-            'amount': str(b.service.fee),
-            'amount_total': str(b.service.fee * b.quantity)
+            'amount': str(b.price_at_time_of_purchase),
+            'amount_total': str(b.price_at_time_of_purchase * b.quantity)
         })
 
     context = {'bill': bill, 'bill_data': bill_data}

@@ -28,7 +28,7 @@ class ProductForm(forms.ModelForm):
             'id': 'manufacturing_date', 
             'class': 'form-control', 
             'type': 'date',
-            'max': today  # Disables dates after today
+            'max': today
         })
     )
     expiration_date = forms.DateField(
@@ -36,7 +36,7 @@ class ProductForm(forms.ModelForm):
             'id': 'expiration_date', 
             'class': 'form-control', 
             'type': 'date',
-            'min': today  # Disables dates before today
+            'min': today
         })
     )
 

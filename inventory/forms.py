@@ -2,6 +2,7 @@ from django import forms
 from .models import Product, ProductType
 from .validators import validate_manufacturing_and_expiry_date, validate_quantity, validate_volume, validate_selling, validate_critical
 from django.core.exceptions import ValidationError
+from datetime import date
 
 class ProductForm(forms.ModelForm):
     product_name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control', 'placeholder': 'Product Name'}))
@@ -19,8 +20,26 @@ class ProductForm(forms.ModelForm):
     type = forms.ModelChoiceField(queryset=ProductType.objects.filter(active=True).order_by('-id'), widget=forms.Select(attrs={'id': 'type', 'class': 'form-select'}))
     batch_number = forms.CharField(widget=forms.TextInput(attrs={'id': 'batch_number', 'class': 'form-control', 'list': 'previous-batch-numbers', 'placeholder': 'Product Batch Number'}))
     manufacturer = forms.CharField(widget=forms.TextInput(attrs={'id': 'manufacturer', 'class': 'form-control', 'placeholder': 'Product Manufacturer'}))
-    manufacturing_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'manufacturing_date', 'class': 'form-control', 'type': 'date'}))
-    expiration_date = forms.DateField(widget=forms.DateInput(attrs={'id': 'expiration_date', 'class': 'form-control', 'type': 'date'}))
+    
+    today = date.today().strftime('%Y-%m-%d')
+
+    manufacturing_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'id': 'manufacturing_date', 
+            'class': 'form-control', 
+            'type': 'date',
+            'max': today  # Disables dates after today
+        })
+    )
+    expiration_date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'id': 'expiration_date', 
+            'class': 'form-control', 
+            'type': 'date',
+            'min': today  # Disables dates before today
+        })
+    )
+
     critical_level = forms.IntegerField(validators=[validate_critical], widget=forms.NumberInput(attrs={'id': 'critical_level', 'class': 'form-control', 'min': 1, 'placeholder': 'Product Critical Level'}))
     price = forms.DecimalField(validators=[validate_selling], widget=forms.NumberInput(attrs={'id': 'price', 'class': 'form-control', 'min': 1, 'max': 10000,'placeholder': 'Product Price'}))
     product_description = forms.CharField(widget=forms.Textarea(attrs={'id': 'product_description', 'class': 'form-control', 'placeholder': 'Product Description'}))

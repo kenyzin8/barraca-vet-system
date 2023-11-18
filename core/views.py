@@ -31,7 +31,6 @@ def test(request):
         try:
             email = request.POST.get('email')
             phone = request.POST.get('phone')
-            
             user = User.objects.filter(Q(email=email) | Q(client__contact_number=phone), client__isBanned=True).first()
 
             if user:

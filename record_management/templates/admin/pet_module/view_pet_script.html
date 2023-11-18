@@ -102,12 +102,81 @@
             });
         }
 
+        const prescription_table = document.getElementById('prescriptions-table');
+        let PrescriptionTableObj;
+
+        var prescriptionTableCount = "{{ inactive_pet_treatment|length }}"
+        prescriptionTableCount = parseInt(prescriptionTableCount);
+
+        var lastPrescriptionPageIndex = prescriptionTableCount > 25 ? prescriptionTableCount : 50;
+
+        if (prescription_table) {
+            PrescriptionTableObj = new simpleDatatables.DataTable(prescription_table, {
+                paging: true,
+                perPageSelect: [5, 10, 25, lastArchivePageIndex],
+                perPage: 10,
+                fixedHeight: false,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+            });
+
+            PrescriptionTableObj.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            PrescriptionTableObj.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            PrescriptionTableObj.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            PrescriptionTableObj.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    PrescriptionTableObj.search('');
+                }
+            });
+        }
+
         var collapseElement = document.getElementById('acrhiveCollapseCard');
+        var prescriptionCollapseElement = document.getElementById('prescriptionCollapseCard');
 
         collapseElement.addEventListener('shown.bs.collapse', function () {
             treatmentArchiveTableObj.refresh();
-            
         });
+        
+        prescriptionCollapseElement.addEventListener('shown.bs.collapse', function () {
+            PrescriptionTableObj.refresh();
+        });
+
 
         const treatment_table = document.getElementById('treatment-table');
         let treatmentTableObj;

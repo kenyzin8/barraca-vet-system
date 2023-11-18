@@ -530,6 +530,42 @@
                                 Print
                             </button>
                         </div>
+                        <div class="card card-collapsable mb-2">
+                            <a class="card-header collapsed" href="#prescriptionCollapseCard" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="prescriptionCollapseCard"><div><i class="fas fa-prescription text-grey-200"></i> Medical Prescriptions ({{ pet_prescriptions|length }})</div>
+                                <div class="card-collapsable-arrow">
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                            </a>
+                            <div class="collapse" id="prescriptionCollapseCard">
+                                <div class="card-body">
+                                    <table id="prescriptions-table">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th><span class="small">Date Prescribed</span></th>
+                                                <th><span class="small">Actions</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for prescription in pet_prescriptions %}
+                                            <tr>
+                                                <td><span class="prescription-id">{{ prescription.id }}</span></td>
+                                                <td>
+                                                    <!-- convert date to Dec 25, 2023 12:00 AM format -->
+                                                    {{ prescription.date_prescribed|date:"M d, Y" }} {{ prescription.date_prescribed|time:"g:i A" }}
+                                                </td>
+                                                <td>
+                                                    <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-view-prescription-page' prescription.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Prescription">
+                                                        <i data-feather="external-link"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                         <div class="card card-collapsable">
                             <a class="card-header collapsed" href="#acrhiveCollapseCard" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="acrhiveCollapseCard"><div><i data-feather="archive" style="margin-top: 3px;"></i> Archive ({{ inactive_pet_treatment|length }})</div>
                                 <div class="card-collapsable-arrow">

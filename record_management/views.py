@@ -940,6 +940,8 @@ def admin_view_pet(request, pet_id):
 
     #print(medical_record_data)
 
+    pet_prescriptions = PetMedicalPrescription.objects.filter(pet=pet, isActive=True, pet_treatment__isnull=True).order_by('-id')
+
     context = {
         'pet': pet,
         'pet_treatment': pet_treatment,
@@ -949,7 +951,8 @@ def admin_view_pet(request, pet_id):
         'inactive_health_card': inactive_health_card, 
         'deworming_data': deworming_data,
         'vaccination_data': vaccination_data,
-        'medical_record_data': medical_record_data
+        'medical_record_data': medical_record_data,
+        'pet_prescriptions': pet_prescriptions
     }
     return render(request, 'admin/pet_module/view_pet.html', context)
 

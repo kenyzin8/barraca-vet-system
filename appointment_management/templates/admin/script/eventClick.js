@@ -35,7 +35,7 @@ const timeDetails = dateIsDisabled
 
 const details = [
     `<strong>Client:</strong> ${arg.event.extendedProps.client}`,
-    `<strong>Pet:</strong> ${arg.event.extendedProps.pet}`,
+    `<strong>Pet:</strong> ${arg.event.extendedProps.pet} <a id="${arg.event.id}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" href="${`{% url 'admin-view-pet-page' 0 %}`.replace('0', arg.event.extendedProps.pet_id)}" data-bs-toggle="tooltip" data-bs-placement="top" title="View pet details"><i data-feather="external-link"></i></a>`,
     timeDetails,
     arg.event.extendedProps.purpose == null ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`,
     `<strong>Day Before SMS Status: </strong> <span>${isDaySentIcon}<span>`,

@@ -64,6 +64,10 @@ class ProductForm(forms.ModelForm):
             #raise ValidationError(("Manufacturing date must be earlier than expiry date."))
             self.add_error('manufacturing_date', 'Error: Manufacturing date must be earlier than expiry date.')
 
+        if expiration_date <= date.today():
+            self.add_error('expiration_date', 'Error: Expiration date must be later than today.')
+            #raise ValidationError('Expiration date must be later than today.')
+
         if '.' in str_price and len(str_price.split('.')[1]) > 2:
             self.add_error('price', 'Error: Price can only have up to 2 decimal points.')
             #raise ValidationError('You can only input 8 digits and 2 decimal points for the price.')

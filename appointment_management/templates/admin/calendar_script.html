@@ -75,6 +75,7 @@ function hideRebookList() {
 function showAppointmentDetails(appointmentId) {
     let appointment = document.getElementById(appointmentId);
 
+    let pet_id = appointment.getAttribute('data-pet-id');
     let client = appointment.getAttribute('data-client-name');
     let pet = appointment.getAttribute('data-pet-rname');
     let purpose = appointment.getAttribute('data-purpose-val');
@@ -84,13 +85,19 @@ function showAppointmentDetails(appointmentId) {
 
     const details = [
         `<strong>Client:</strong> ${client}`,
-        `<strong>Pet:</strong> ${pet}`,
+        `<strong>Pet:</strong> ${pet} <a id="${appointmentId}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" href="${`{% url 'admin-view-pet-page' 0 %}`.replace('0', pet_id)}" data-bs-toggle="tooltip" data-bs-placement="top" title="View pet details"><i data-feather="external-link"></i></a>`,
         `<strong>Time:</strong> ${timeOfDay}`,
         purpose == null || purpose == "" ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${purpose}`
     ].join('<br>');
 
     document.getElementById('rebookListAppointmentLabel').innerText = "#" + appointmentId + " from Rebook List";
     document.getElementById('rebookListAppointmentBody').innerHTML = details;
+
+    feather.replace();
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
 
     document.getElementById('doneRebookList').onclick = function() {
         $('#rebookListAppointmentModal').modal('hide');

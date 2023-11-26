@@ -1033,7 +1033,7 @@ def get_all_data(request):
                 'client_id': appointment.client.id,
                 'client': appointment.client.full_name,
                 'contact_number': appointment.client.contact_number,
-                'pet': appointment.pet.name,  
+                'pet': f'{appointment.pet.name} ({appointment.pet.breed})',  
                 'pet_id': appointment.pet.id,
                 'timeOfTheDay': appointment.get_timeOfTheDay_display(),
                 'timeOfTheDay_val': appointment.timeOfTheDay,

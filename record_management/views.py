@@ -1795,10 +1795,10 @@ def check_doctor_schedule(date):
         return 'afternoon'
         
 def next_available_time(date, job_for):
-    MORNING_START = dt_time(7, 30)
+    MORNING_START = dt_time(8, 0)
     MORNING_END = dt_time(12, 0)  
     AFTERNOON_START = dt_time(13, 0)
-    AFTERNOON_END = dt_time(17, 0)
+    AFTERNOON_END = dt_time(16, 30)
     
     time_of_the_day = check_doctor_schedule(date)
 

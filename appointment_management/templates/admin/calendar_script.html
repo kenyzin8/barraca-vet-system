@@ -1007,10 +1007,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 $('#adjustSlotModal').modal('show');
             });
 
+            $('#adjustSlotModal').on('show.bs.modal', function() {
+                let dateString = window.selectedDate.getFullYear() + '-' + String(window.selectedDate.getMonth() + 1).padStart(2, '0') + '-' + String(window.selectedDate.getDate()).padStart(2, '0');
+
+                let disabledDay = disabledDays.find(function(day) {
+                    return day.date === dateString;
+                });
+
+                if (disabledDay) {
+                    if (disabledDay.timeOfTheDay === 'morning') {
+                        $('#id_morning_slots').val(0); 
+                    } else if (disabledDay.timeOfTheDay === 'afternoon') {
+                        $('#id_afternoon_slots').val(0);
+                    } else if (disabledDay.timeOfTheDay === 'whole_day') {
+                        $('#id_morning_slots').val(0);
+                        $('#id_afternoon_slots').val(0);
+                    }
+                }
+            });
+
             $('#adjustSlotForm').submit(function(e) {
                 e.preventDefault();
 
                 let formData = $(this).serialize();
+
+                let morningSlots = $('#id_morning_slots').val();
+                let afternoonSlots = $('#id_afternoon_slots').val();
+                let selectedDate = $('#selectedDateToDisable-slots').val();
+
+                if(morningSlots == 0 && afternoonSlots == 0) {
+                    $('#disable-day-choice').click();
+                    $('#adjustSlotModal').modal('hide');
+                    $('#id_timeOfTheDay-disable').val('whole_day');
+                    return;
+                }
+                else if(morningSlots == 0) {
+                    $('#disable-day-choice').click();
+                    $('#adjustSlotModal').modal('hide');
+                    $('#id_timeOfTheDay-disable').val('morning');
+                    return;
+                }
+                else if(afternoonSlots == 0) {
+                    $('#disable-day-choice').click();
+                    $('#adjustSlotModal').modal('hide');
+                    $('#id_timeOfTheDay-disable').val('afternoon');
+                    return;
+                }
 
                 $.ajax({
                     type: 'POST',

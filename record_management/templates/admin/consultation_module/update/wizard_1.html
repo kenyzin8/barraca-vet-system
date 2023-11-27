@@ -72,12 +72,21 @@
                         <button class="btn btn-no-image" type="button" data-bs-toggle="tooltip" data-bs-placement="left" title="This laboratory result have no image"><i data-feather="x-square"></i></button>
                         {% endif %}
                         <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="0" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)" value="{{ one_laboratory_results.result_name }}"/>
-                        <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="1" name="result" type="text" placeholder="Enter result (e.g., 13.5 g/dL) (Optional)" value="{{ one_laboratory_results.result }}"/>
-                        <button class="btn btn-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
+                        <select class="form-select lab-result-select" id="selectLabTest" name="select-test">
+                            <option value="">Select a Test</option>
+                            {% for test in laboratory_tests %}
+                            <option value="{{ test.lab_test_unit }}" {% if one_laboratory_results.result_name == test.lab_test %}selected{% endif %}>{{ test.lab_test }}</option>
+                            {% endfor %}
+                        </select>  
+                        
+                    </div>
+                    <div class="input-group mb-2">
+                        <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="0" name="result" type="text" placeholder="Enter result (e.g., 13.5) (Optional)" value="{% if one_laboratory_results.result == ' ' %}{% else %}{{one_laboratory_results.result}}{% endif %}"/>
+                        <span class="input-group-text lab-test-unit lab-test-unit-to-submit" data-id="0">{{ one_laboratory_results.result_unit }}</span>
+                        <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="0" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0) (Optional)" value="{% if one_laboratory_results.normal_range == ' ' %}{% else %}{{one_laboratory_results.normal_range}}{% endif %}"/>
+                        <span class="input-group-text lab-test-unit" data-id="0">{{one_laboratory_results.result_unit}}</span>
                     </div>
                     <div class="input-group mb-2 second-row-lab-r">
-                        <button class="btn btn-second-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
-                        <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="0" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0 g/dL) (Optional)" value="{{ one_laboratory_results.normal_range }}"/>
                         <input class="form-control lab-result-image-input" id="inputLabResultsImages" data-existing-lab-id="{{ one_laboratory_results.id }}" data-id="0" name="lab_result_images" type="file" accept=".jpg, .jpeg, .png" onchange="validateFile(this, this.parentElement.nextElementSibling.querySelector('.progress-bar'));" />
                         <button class="btn btn-add-lab-result" type="button" id="addLabResultBtn"><i data-feather="plus-circle"></i></button>
                     </div>
@@ -98,13 +107,22 @@
                             {% else %}
                             <button class="btn btn-no-image" type="button" disabled><i data-feather="x-square"></i></button>
                             {% endif %}
+                            
                             <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)" value="{{ lab_results.result_name }}"/>
-                            <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="result" type="text" placeholder="Enter result (e.g., 13.5 g/dL) (Optional)" value="{{ lab_results.result }}"/>
-                            <button class="btn btn-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
+                            <select class="form-select lab-result-select" id="selectLabTest" name="select-test">
+                                <option value="">Select a Test</option>
+                                {% for test in laboratory_tests %}
+                                <option value="{{ test.lab_test_unit }}" {% if lab_results.result_name == test.lab_test %}selected{% endif %}>{{ test.lab_test }}</option>
+                                {% endfor %}
+                            </select>                            
+                        </div>
+                        <div class="input-group mb-2">
+                            <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="result" type="text" placeholder="Enter result (e.g., 13.5) (Optional)" value="{% if lab_results.result %}{{lab_results.result}}{% else %}{% endif %}"/>
+                            <span class="input-group-text lab-test-unit lab-test-unit-to-submit" data-id="{{ forloop.counter }}">{{ lab_results.result_unit }}</span>
+                            <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0) (Optional)" value="{% if lab_results.normal_range %}{{lab_results.normal_range}}{% else %}{% endif %}"/>
+                            <span class="input-group-text lab-test-unit" data-id="{{ forloop.counter }}">{{ lab_results.result_unit }}</span>
                         </div>
                         <div class="input-group mb-2 second-row-lab-r">
-                            <button class="btn btn-second-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
-                            <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0 g/dL) (Optional)" value="{{ lab_results.normal_range }}"/>
                             <input class="form-control lab-result-image-input" id="inputLabResultsImages" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="lab_result_images" type="file" accept=".jpg, .jpeg, .png" onchange="validateFile(this, this.parentElement.nextElementSibling.querySelector('.progress-bar'));" />
                             <button class="btn btn-add-lab-result" type="button" id="addLabResultBtn"><i data-feather="plus-circle"></i></button>
                         </div>
@@ -123,13 +141,22 @@
                             {% else %}
                             <button class="btn btn-no-image" type="button" disabled><i data-feather="x-square"></i></button>
                             {% endif %}
+
                             <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)" value="{{ lab_results.result_name }}"/>
-                            <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="result" type="text" placeholder="Enter result (e.g., 13.5 g/dL) (Optional)" value="{{ lab_results.result }}"/>
-                            <button class="btn btn-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
+                            <select class="form-select lab-result-select" id="selectLabTest" name="select-test">
+                                <option value="">Select a Test</option>
+                                {% for test in laboratory_tests %}
+                                <option value="{{ test.lab_test_unit }}" {% if lab_results.result_name == test.lab_test %}selected{% endif %}>{{ test.lab_test }}</option>
+                                {% endfor %}
+                            </select> 
+                        </div>
+                        <div class="input-group mb-2">
+                            <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="result" type="text" placeholder="Enter result (e.g., 13.5 g/dL) (Optional)" value="{% if lab_results.result == ' ' %}{% else %}{{lab_results.result}}{% endif %}"/>
+                            <span class="input-group-text lab-test-unit lab-test-unit-to-submit" data-id="{{ forloop.counter }}">{{ lab_results.result_unit }}</span>
+                            <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0 g/dL) (Optional)" value="{% if lab_results.normal_range == ' ' %}{% else %}{{lab_results.normal_range}}{% endif %}"/>
+                            <span class="input-group-text lab-test-unit" data-id="{{ forloop.counter }}">{{ lab_results.result_unit }}</span>
                         </div>
                         <div class="input-group mb-2 second-row-lab-r">
-                            <button class="btn btn-second-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button>
-                            <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0 g/dL) (Optional)" value="{{ lab_results.normal_range }}"/>
                             <input class="form-control lab-result-image-input" id="inputLabResultsImages" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="lab_result_images" type="file" accept=".jpg, .jpeg, .png" onchange="validateFile(this, this.parentElement.nextElementSibling.querySelector('.progress-bar'));" />
                             <button class="btn btn-remove-lab-result" type="button" id="removeLabResultBtn"><i data-feather="minus-circle"></i></button>
                         </div>

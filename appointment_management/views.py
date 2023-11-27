@@ -95,15 +95,52 @@ def adjust_slots(request):
 
             maximum_appointments = MaximumAppointment.load()
 
-            if morning_slots < 1:
-                return JsonResponse({'status': 'error', 'message': 'Please enter a number greater than or equal to 1 for morning.'})
+            existing_disabled_day_morning = DoctorSchedule.objects.filter(date=date, isActive=True, timeOfTheDay='morning').first()
+            existing_disabled_day_afternoon = DoctorSchedule.objects.filter(date=date, isActive=True, timeOfTheDay='afternoon').first()
+
+            if morning_slots == 0 and afternoon_slots == 0:
+                if existing_disabled_day_morning:
+                    existing_disabled_day_morning.delete()
+                if existing_disabled_day_afternoon:
+                    existing_disabled_day_afternoon.delete()
+
+                disable_day = DoctorSchedule(date=date, timeOfTheDay='whole_day', reason='No more slots available', isActive=True)
+                disable_day.save()
+
+                return JsonResponse({'status': 'success', 'message': 'Slots adjusted successfully', 'dateSlot': {'date': date, 'morning_slots': 0, 'afternoon_slots': 0}})
+
+            if morning_slots == 0 and not existing_disabled_day_morning:
+                if existing_disabled_day_afternoon:
+                    existing_disabled_day_afternoon.delete()
+
+                    disable_day = DoctorSchedule(date=date, timeOfTheDay='whole_day', reason='No more slots available', isActive=True)
+                    disable_day.save()
+                else:
+                    disable_day = DoctorSchedule(date=date, timeOfTheDay='morning', reason='No more morning slots available', isActive=True)
+                    disable_day.save()
+
+                return JsonResponse({'status': 'success', 'message': 'Slots adjusted successfully', 'dateSlot': {'date': date, 'morning_slots': 0, 'afternoon_slots': afternoon_slots}})
+            elif afternoon_slots == 0 and not existing_disabled_day_afternoon:
+                if existing_disabled_day_morning:
+                    existing_disabled_day_morning.delete()
+
+                    disable_day = DoctorSchedule(date=date, timeOfTheDay='whole_day', reason='No more slots available', isActive=True)
+                    disable_day.save()
+                else:
+                    disable_day = DoctorSchedule(date=date, timeOfTheDay='afternoon', reason='No more afternoon slots available', isActive=True)
+                    disable_day.save()
+                    
+                return JsonResponse({'status': 'success', 'message': 'Slots adjusted successfully', 'dateSlot': {'date': date, 'morning_slots': morning_slots, 'afternoon_slots': 0}})
+
+            if morning_slots < 0:
+                return JsonResponse({'status': 'error', 'message': 'Please enter a number greater than or equal to 0.'})
             elif morning_slots > MAX_APPOINTMENTS_PER_DAY:
                 return JsonResponse({'status': 'error', 'message': f'Please enter a number less than or equal to {MAX_APPOINTMENTS_PER_DAY}.'})
-            elif afternoon_slots < 1:
-                return JsonResponse({'status': 'error', 'message': 'Please enter a number greater than or equal to 1 for afternoon.'})
             elif afternoon_slots > MAX_APPOINTMENTS_PER_DAY:
                 return JsonResponse({'status': 'error', 'message': f'Please enter a number less than or equal to {MAX_APPOINTMENTS_PER_DAY}.'})
-
+            elif afternoon_slots < 0:
+                return JsonResponse({'status': 'error', 'message': 'Please enter a number greater than or equal to 0.'})
+                
             appointment_count_morning = Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='morning').count()
             appointment_count_afternoon = Appointment.objects.filter(date=date, isActive=True, status='pending', timeOfTheDay='afternoon').count()
 
@@ -117,7 +154,13 @@ def adjust_slots(request):
             if not created:
                 dateSlot.morning_slots = morning_slots
                 dateSlot.afternoon_slots = afternoon_slots
+
                 dateSlot.save()
+
+            ds = DoctorSchedule.objects.filter(date=date, isActive=True).first()
+
+            if ds:
+                ds.delete()
 
             return JsonResponse({
                 'status': 'success', 

@@ -217,12 +217,12 @@ class DateSlotForm(forms.ModelForm):
         fields = ['morning_slots', 'afternoon_slots']
 
     morning_slots = forms.IntegerField(
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1}), 
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 0}), 
         label='Morning Slots'
     )
 
     afternoon_slots = forms.IntegerField(
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 1}), 
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': 0}), 
         label='Afternoon Slots'
     )
 

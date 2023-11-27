@@ -143,7 +143,18 @@
             });
         });
 
+        $(document).on('change', '.lab-result-select', function() {
+            var container = $(this).closest('.lab-result-group-fields');
+            
+            var selectedText = $('option:selected', this).text();
+            var capitalizedText = selectedText.charAt(0).toUpperCase() + selectedText.slice(1);
 
+            container.find('.lab-result-input').val(capitalizedText);
+
+            var selectedUnit = $('option:selected', this).val();
+            
+            container.find('.lab-test-unit').text(selectedUnit == 'None' ? '' : selectedUnit);
+        });
         
         const petTable = document.getElementById('petTable');
     
@@ -822,6 +833,16 @@
                 progressBar.setAttribute('aria-valuenow', '0');
                 progressBar.textContent = '0%';
             }
+
+            const testUnit = element.querySelector('.lab-test-unit');
+            if (testUnit) {
+                testUnit.textContent = '';
+            }
+
+            const labRSelect = element.querySelector('.lab-result-select');
+            if (labRSelect) {
+                labRSelect.selectedIndex = 0;
+            }
         }
 
         $(document).on('input', '#inputCustomPurpose', function(e) {
@@ -921,6 +942,7 @@
             
             const labResultInputs = document.querySelectorAll('.lab-result-input');
             const labResult2Inputs = document.querySelectorAll('.lab-result-second-input');
+            const labTestUnits = document.querySelectorAll('.lab-test-unit-to-submit');
             const labResultNormalRangeInputs = document.querySelectorAll('.lab-result-normal-range-input');
             const labResultImageInputs = document.querySelectorAll('.lab-result-image-input');
             const labResultIds = document.querySelectorAll('.laboratory-result-id');
@@ -974,14 +996,15 @@
                 let labResultId = getLabResultId(id);
             
                 let labResult2Input = labResult2Inputs[_index];
+                let labTestUnit = labTestUnits[_index];
                 let labResultNormalRangeInput = labResultNormalRangeInputs[_index];
 
                 let matchingImageData = labResultsData.find(item => item.id == id);
                 let imageId = matchingImageData ? matchingImageData.image_id : null;
                 labResultsForm.push({
                     description: description,
-                    result: labResult2Input.value || null,
-                    normal_range: labResultNormalRangeInput.value || null,
+                    result: labResult2Input.value + ' ' + labTestUnit.textContent || null,
+                    normal_range: labResultNormalRangeInput.value + ' ' + labTestUnit.textContent  || null,
                     image_id: imageId,
                     lab_result_id: labResultId  
                 });
@@ -1252,25 +1275,40 @@
 </script>
 <script>
     $(document).ready(function() {
-
         const regex = /[^a-zA-Z\s\-:'"]/g;
         const leadingSpaceRegex = /^\s+/;
-        
+        const numberAndCharacterRegex = /[^0-9a-zA-Z\s\.\-]/g;
+
         $("#inputSymptoms, #inputDiagnosis, #inputLabResults, #inputTreatment").on("input", function() {
             let value = $(this).val();
             value = value.replace(regex, "");
             value = value.replace(leadingSpaceRegex, "");
-            $(this).val(value);
-        });
-
-        $("#inputSymptoms, #inputDiagnosis, #inputLabResults, #inputTreatment").on("input", function() {
-            let value = $(this).val();   
-
             if (value.length > 0) {
                 value = value.charAt(0).toUpperCase() + value.slice(1);
             }
-
             $(this).val(value);
+        });
+
+        $(document).on("input", ".lab-result-second-input", function() {
+            let value = $(this).val();
+            let decimalNumberRegex = /^\d*(\.\d{0,2})?$/;
+
+            if (!decimalNumberRegex.test(value)) {
+                $(this).val($(this).data('lastValid') || '');
+            } else {
+                $(this).data('lastValid', value);
+            }
+        });
+
+        $(document).on("input", ".lab-result-normal-range-input", function() {
+            let value = $(this).val();
+            let formatRegex = /^(\d+(\.\d{0,2})?)?\s?(-\s?(\d+(\.\d{0,2})?)?)?$/;
+
+            if (!formatRegex.test(value)) {
+                $(this).val($(this).data('lastValid') || '');
+            } else {
+                $(this).data('lastValid', value);
+            }
         });
     });
 </script>

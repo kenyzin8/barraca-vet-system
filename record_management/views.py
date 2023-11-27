@@ -32,7 +32,8 @@ from .models import (
     TemporaryLabResultImage,
     LabResult,
     LabResultsTreatment,
-    TreatmentCycle
+    TreatmentCycle,
+    LaboratoryTests,
 )
 
 from billing_management.models import Billing, BillingProduct, BillingService
@@ -614,7 +615,7 @@ def view_pet(request, pet_id):
         'vaccination_health_card': vaccination_health_card,
         'deworming_data': deworming_data,
         'vaccination_data': vaccination_data,
-        'medical_record_data': medical_record_data
+        'medical_record_data': medical_record_data,
     }
     return render(request, 'client/view_pet.html', context)
 
@@ -1019,6 +1020,8 @@ def medical_record(request):
     pets = Pet.objects.filter(is_active=True).order_by('-id')
     types = ProductType.objects.filter(name="Medicines")
 
+    laboratory_tests = LaboratoryTests.objects.all()
+
     # product_dict = {}
     # for t in types:
     #     products = Product.objects.filter(type=t, active=True)
@@ -1084,7 +1087,8 @@ def medical_record(request):
         'max_appointment': max_appointment,
         'date_slots': date_slots,
         'doctor_schedules': doctor_schedules,
-        'time_choices': time_choices
+        'time_choices': time_choices,
+        'laboratory_tests': laboratory_tests,
     }
     return render(request, 'admin/consultation_module/consultation_module.html', context)
 
@@ -2348,12 +2352,14 @@ def get_laboratory_results_data(request, treatmentID):
         return JsonResponse({'success': True, 'lab_results_data': lab_results_data})
     else:
         return JsonResponse({'success': False, 'message': 'Invalid request method'})
-
+import re
 @staff_required
 @login_required
 def update_medical_record(request, treatmentID):
     pets = Pet.objects.filter(is_active=True).order_by('-id')
     types = ProductType.objects.filter(name="Medicines")
+
+    laboratory_tests = LaboratoryTests.objects.all()
 
     product_dict = {}
     for t in types:
@@ -2377,7 +2383,28 @@ def update_medical_record(request, treatmentID):
     pet_treatment = PetTreatment.objects.get(pk=treatmentID)
 
     laboratory_results = pet_treatment.lab_results.all()
-    
+
+    for lab_result in laboratory_results:
+        if lab_result.normal_range:
+            # Find the last word in the string, which should be the unit
+            match = re.search(r'\s(\S+)$', lab_result.normal_range)
+            if match:
+                unit = match.group(1)
+                # The range is the part before the unit
+                range_part = lab_result.normal_range[:match.start()]
+            else:
+                unit = ''
+                range_part = lab_result.normal_range
+
+            lab_result.result_unit = unit
+
+            if lab_result.result == ' ':
+                lab_result.result = None
+            lab_result.result = lab_result.result.split()[0] if lab_result.result else None
+            lab_result.normal_range = range_part.strip()
+
+            print(lab_result.result)
+
     one_laboratory_results = None
 
     if len(laboratory_results) == 1:
@@ -2427,7 +2454,8 @@ def update_medical_record(request, treatmentID):
         'products_map': products_map,
         'appointment': appointment,
         'time_choices': time_choices,
-        'pet': pet
+        'pet': pet,
+        'laboratory_tests': laboratory_tests
     }
     return render(request, 'admin/consultation_module/update/update.html', context)
 

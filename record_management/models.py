@@ -174,7 +174,6 @@ class LabResult(models.Model):
 
     result_image = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
 
-
     isActive = models.BooleanField(default=True)
 
     def is_image(self):
@@ -315,6 +314,12 @@ class PrescriptionMedicines(models.Model):
     class Meta:
         verbose_name_plural = "Prescription Medicines"
 
+class LaboratoryTests(models.Model):
+    lab_test = models.CharField(max_length=100, null=True, blank=True)
+    lab_test_unit = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = "Laboratory Tests"
 
 # DEPRECATED: This model is no longer in active use but is preserved for data integrity.
 class PetHealthCard(models.Model):

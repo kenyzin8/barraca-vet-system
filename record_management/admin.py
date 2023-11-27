@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Client, Pet
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin, GroupAdmin as AuthGroupAdmin
-from .models import User, Group, PetTreatment, PetMedicalPrescription, PrescriptionMedicines, LabResult, LabResultsTreatment, TemporaryLabResultImage, TreatmentCycle 
+from .models import User, Group, PetTreatment, PetMedicalPrescription, PrescriptionMedicines, LabResult, LabResultsTreatment, TemporaryLabResultImage, TreatmentCycle, LaboratoryTests
 
 import nested_admin
 
@@ -45,6 +45,9 @@ class TemporaryLabResultImageAdmin(admin.ModelAdmin):
 class LabResultAdmin(admin.ModelAdmin):
     list_display = ('id', 'result_name', 'result', 'normal_range', 'result_image')
 
+class LaboratoryTestsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'lab_test', 'lab_test_unit')
+
 admin.site.register(PetTreatment, PetTreatmentAdmin)
 admin.site.register(PetMedicalPrescription, PetMedicalPrescriptionAdmin)
 admin.site.register(Client, ClientAdmin)
@@ -54,6 +57,7 @@ admin.site.register(User, AuthUserAdmin)
 admin.site.register(Group, AuthGroupAdmin)
 admin.site.register(TemporaryLabResultImage, TemporaryLabResultImageAdmin)
 admin.site.register(LabResult, LabResultAdmin)
+admin.site.register(LaboratoryTests, LaboratoryTestsAdmin)
 
 # class PetMedicalRecordAdmin(admin.ModelAdmin):
 #     list_display = ('pet', 'visit_date', 'isActive')

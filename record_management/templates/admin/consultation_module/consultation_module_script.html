@@ -140,7 +140,18 @@
             });
         });
 
+        $(document).on('change', '.lab-result-select', function() {
+            var container = $(this).closest('.lab-result-group-fields');
+            
+            var selectedText = $('option:selected', this).text();
+            var capitalizedText = selectedText.charAt(0).toUpperCase() + selectedText.slice(1);
 
+            container.find('.lab-result-input').val(capitalizedText);
+
+            var selectedUnit = $('option:selected', this).val();
+            
+            container.find('.lab-test-unit').text(selectedUnit == 'None' ? '' : selectedUnit);
+        });
         
         const petTable = document.getElementById('petTable');
         var petDataTable = null;
@@ -828,6 +839,11 @@
                 progressBar.setAttribute('aria-valuenow', '0');
                 progressBar.textContent = '0%';
             }
+
+            const testUnit = element.querySelector('.lab-test-unit');
+            if (testUnit) {
+                testUnit.textContent = '';
+            }
         }
 
         $(document).on('input', '#inputCustomPurpose', function(e) {
@@ -909,6 +925,7 @@
             
             const labResultInputs = document.querySelectorAll('.lab-result-input');
             const labResult2Inputs = document.querySelectorAll('.lab-result-second-input');
+            const labTestUnits = document.querySelectorAll('.lab-test-unit-to-submit');
             const labResultNormalRangeInputs = document.querySelectorAll('.lab-result-normal-range-input');
             const labResultImageInputs = document.querySelectorAll('.lab-result-image-input');
             
@@ -941,10 +958,19 @@
                 }
 
                 let labResult2Input = labResult2Inputs[index];
-                labResults2.push(labResult2Input ? labResult2Input.value : null);
-
+                let labTestUnit = labTestUnits[index];
+                let labResult2Value = labResult2Input ? labResult2Input.value : null;
+                if (labTestUnit && labResult2Value !== null) {
+                    labResult2Value += ' ' + labTestUnit.textContent; 
+                }
+                labResults2.push(labResult2Value);
+                
                 let labResultNormalRangeInput = labResultNormalRangeInputs[index];
-                labResultNormalRange.push(labResultNormalRangeInput ? labResultNormalRangeInput.value : null);
+                let labResultNormalRangeValue = labResultNormalRangeInput ? labResultNormalRangeInput.value : null;
+                if (labTestUnit && labResultNormalRangeValue !== null) {
+                    labResultNormalRangeValue += ' ' + labTestUnit.textContent;
+                }
+                labResultNormalRange.push(labResultNormalRangeValue);
             });
 
             formData.append('labResultsDescriptions', JSON.stringify(labResultsDescriptions));
@@ -1224,14 +1250,26 @@
             $(this).val(value);
         });
 
-        $("#inputResult, #inputNormalRange").on("input", function() {
+        $(document).on("input", ".lab-result-second-input", function() {
             let value = $(this).val();
-            value = value.replace(numberAndCharacterRegex, "");
-            value = value.replace(leadingSpaceRegex, "");
-            if (value.length > 0 && isNaN(value.charAt(0))) {
-                value = '';
+            let decimalNumberRegex = /^\d*(\.\d{0,2})?$/;
+
+            if (!decimalNumberRegex.test(value)) {
+                $(this).val($(this).data('lastValid') || '');
+            } else {
+                $(this).data('lastValid', value);
             }
-            $(this).val(value);
+        });
+
+        $(document).on("input", ".lab-result-normal-range-input", function() {
+            let value = $(this).val();
+            let formatRegex = /^(\d+(\.\d{0,2})?)?\s?(-\s?(\d+(\.\d{0,2})?)?)?$/;
+
+            if (!formatRegex.test(value)) {
+                $(this).val($(this).data('lastValid') || '');
+            } else {
+                $(this).data('lastValid', value);
+            }
         });
     });
 </script>

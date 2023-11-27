@@ -80,6 +80,7 @@ function showAppointmentDetails(appointmentId) {
     let pet = appointment.getAttribute('data-pet-rname');
     let purpose = appointment.getAttribute('data-purpose-val');
     let timeOfDay = appointment.getAttribute('data-time-of-day');
+    let symtomps = appointment.getAttribute('data-appointment-symtomps');
 
     timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
 
@@ -87,7 +88,8 @@ function showAppointmentDetails(appointmentId) {
         `<strong>Client:</strong> ${client}`,
         `<strong>Pet:</strong> ${pet} <a id="${appointmentId}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" href="${`{% url 'admin-view-pet-page' 0 %}`.replace('0', pet_id)}" data-bs-toggle="tooltip" data-bs-placement="top" title="View pet details"><i data-feather="external-link"></i></a>`,
         `<strong>Time:</strong> ${timeOfDay}`,
-        purpose == null || purpose == "" ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${purpose}`
+        purpose == null || purpose == "" ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${purpose}`,
+        symtomps == null || symtomps == "" ? `<strong>Symtomps:</strong> None` : `<strong>Symtomps:</strong> ${symtomps}`
     ].join('<br>');
 
     document.getElementById('rebookListAppointmentLabel').innerText = "#" + appointmentId + " from Rebook List";
@@ -199,6 +201,7 @@ function _showAppointmentDetails(event) {
     let pet = event.extendedProps.pet;
     let purpose = event.extendedProps.purpose;
     let timeOfDay = event.extendedProps.time;
+    let symtomps = event.extendedProps.symtomps;
 
     let [hours, minutes] = timeOfDay.split(":");
     let _date = new Date(1970, 0, 1, hours, minutes); 
@@ -210,7 +213,8 @@ function _showAppointmentDetails(event) {
         `<strong>Client:</strong> ${client}`,
         `<strong>Pet:</strong> ${pet}`,
         `<strong>Time:</strong> ${timeOfDay}`,
-        purpose == null || purpose == "" ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${purpose}`
+        purpose == null || purpose == "" ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${purpose}`,
+        symtomps == null || symtomps == "" ? `<strong>Symtomps:</strong> None` : `<strong>Symtomps:</strong> ${symtomps}`
     ].join('<br>');
 
     document.getElementById('rebookListAppointmentLabel').innerText = "#" + event.id + " from Rebook List";
@@ -1332,6 +1336,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     'current_date': response.appointment.date,
                                     'day_sms_reminder': response.appointment.daily_reminder_sent,
                                     'week_sms_reminder': response.appointment.weekly_reminder_sent,
+                                    'symtomps': response.appointment.symtomps,
                                 }
                             };
                             calendar.addEvent(newEvent);

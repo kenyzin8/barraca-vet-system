@@ -34,7 +34,8 @@ const timeDetails = dateIsDisabled
 const details = [
     `<strong>Pet:</strong> ${arg.event.extendedProps.pet}`,
     timeDetails,
-    `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`
+    `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`,
+    arg.event.extendedProps.symtomps == '' ? `<strong>Symtomps:</strong> None` : `<strong>Symtomps:</strong> ${arg.event.extendedProps.symtomps}`,
 ].join('<br>');
 
 document.getElementById('eventModalLabel').innerText = "#" + arg.event.id + " - " + day;

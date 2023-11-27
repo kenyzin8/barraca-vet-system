@@ -249,7 +249,7 @@ def set_appointment(request):
         try:
             client_id = request.POST['client']
             pet_id = request.POST['pet']
-            
+
             time = request.POST['time']
 
             if time >= '12:00:00' and time < '18:00:00':
@@ -481,6 +481,8 @@ def rebook_appointment(request):
         
         time = request.POST.get('time')
         
+        symtomps = request.POST.get('symtomps')
+        
         if time >= '12:00:00' and time < '18:00:00':
             time_of_the_day = 'afternoon'
         elif time > '00:00:00' and time < '12:00:00':
@@ -569,7 +571,9 @@ def rebook_appointment(request):
             appointment.timeOfTheDay = time_of_the_day
             appointment.time = time
             appointment.status = "pending"
-            
+            if symtomps:
+                appointment.symtomps = symtomps
+
             appointment.save()
         
             appointment_dict = model_to_dict(appointment)
@@ -582,6 +586,7 @@ def rebook_appointment(request):
             appointment_dict['time'] = appointment.time
             appointment_dict['purpose'] = appointment.purpose.service_type
             appointment_dict['purpose_id'] = appointment.purpose.id
+            appointment_dict['symtomps'] = appointment.symtomps
 
             return JsonResponse({'status' : 'Appointment rebooked successfully', 'appointment' : appointment_dict}, status=200)
 
@@ -780,7 +785,8 @@ def set_appointment_client(request):
             pet_id = request.POST['pet']
             time = request.POST['time']
             iso_timestamp = request.POST['date']
-            
+            symtomps = request.POST['symtomps']
+
             if time >= '12:00:00' and time < '18:00:00':
                 time_of_day = 'afternoon'
             else:
@@ -892,7 +898,7 @@ def set_appointment_client(request):
                 )
 
             appointment = Appointment(client_id=request.user.client.id, pet_id=pet_id, timeOfTheDay=time_of_day, 
-                                      date=date, time=time, purpose_id=service_id, status=status, isActive=True)
+                                      date=date, time=time, purpose_id=service_id, status=status, isActive=True, symtomps=symtomps)
                
             appointment.save()
             
@@ -1043,6 +1049,9 @@ def get_all_data(request):
                 'current_date': appointment.date.isoformat() if appointment.date is not None else '',
                 'day_sms_reminder': appointment.daily_reminder_sent,
                 'week_sms_reminder': appointment.weekly_reminder_sent,
+                'hour_sms_reminder': appointment.one_hour_reminder_sent,
+                'today_sms_reminder': appointment.today_reminder_sent,
+                'symtomps': appointment.symtomps if appointment.symtomps else '',
             }
         }
         event_list.append(event)
@@ -1114,7 +1123,7 @@ def get_all_data_client(request):
                 'client_id': appointment.client.id,
                 'client': appointment.client.full_name,
                 'contact_number': appointment.client.contact_number,
-                'pet': appointment.pet.name,  
+                'pet': f'{appointment.pet.name} ({appointment.pet.breed})',  
                 'pet_id': appointment.pet.id,
                 'timeOfTheDay': appointment.get_timeOfTheDay_display(),
                 'timeOfTheDay_val': appointment.timeOfTheDay,
@@ -1124,6 +1133,7 @@ def get_all_data_client(request):
                 'current_date': appointment.date.isoformat(),
                 'day_sms_reminder': appointment.daily_reminder_sent,
                 'week_sms_reminder': appointment.weekly_reminder_sent,
+                'symtomps': appointment.symtomps if appointment.symtomps else '',
             }
         }
         event_list.append(event)

@@ -80,7 +80,7 @@ def forgot_password(request):
                 client = user.client
 
                 if client.isBanned:
-                    messages.error(request, 'Your account is banned. Please contact the administrator.')
+                    messages.error(request, f'Your account is banned for {client.ban_reason}. Please contact the administrator.')
                     return redirect('forgot-password-page')
 
                 phone_number = client.contact_number
@@ -141,7 +141,7 @@ def login_view(request):
             user = form.get_user()
 
             if user.client.isBanned:
-                messages.error(request, 'Your account is banned. Please contact the administrator.')
+                messages.error(request, f'Your account is banned for {user.client.ban_reason}. Please contact the administrator.')
                 cache.set(attempts_key, 0, 2 * 60)
                 return redirect('login-page')
 
@@ -1254,6 +1254,12 @@ class SubmitConsultationView(APIView):
                     
                     selected_pet = Pet.objects.get(pk=selected_pet_id)
 
+                    pet_appointment_today = Appointment.objects.filter(pet=selected_pet, date=date.today(), isActive=True, status='pending').first()
+                    if pet_appointment_today:
+                        pet_appointment_today.status = 'done'
+                        pet_appointment_today.isActive = False
+                        pet_appointment_today.save()
+
                     appointment = None
 
                     if appointment_date:
@@ -1328,10 +1334,7 @@ class SubmitConsultationView(APIView):
                     lab_results_2 = serializer.validated_data.get('labResults2', [])
                     lab_result_normal_range = serializer.validated_data.get('labResultNormalRange', [])
                     lab_results_image_ids = serializer.validated_data.get('labResultsImageIDS', [])
-                    print(lab_results_descriptions)
-                    print(lab_results_2)
-                    print(lab_result_normal_range)
-                    print(lab_results_image_ids)
+
                     for index, description in enumerate(lab_results_descriptions):
                         lab_result_data = {
                             'description': description,
@@ -1339,7 +1342,7 @@ class SubmitConsultationView(APIView):
                             'normal_range': lab_result_normal_range[index] if index < len(lab_result_normal_range) else None,
                             'image': lab_results_image_ids[index] if index < len(lab_results_image_ids) else None
                         }
-                        print(lab_result_data)
+                        
                         if lab_result_data['image']:
                             temp_image = TemporaryLabResultImage.objects.get(id=lab_result_data['image'])
                             lab_result = LabResult.objects.create(
@@ -1994,6 +1997,12 @@ class SubmitHealthCardTreatment(APIView):
                         return Response({'success': False, 'message': 'Appointment cycle repeat cannot be greater than 10.'})
 
                     pet = Pet.objects.get(pk=selected_pet_id)
+
+                    pet_appointment_today = Appointment.objects.filter(pet=selected_pet, date=date.today(), isActive=True, status='pending').first()
+                    if pet_appointment_today:
+                        pet_appointment_today.status = 'done'
+                        pet_appointment_today.isActive = False
+                        pet_appointment_today.save()
 
                     service = Service.objects.get(pk=appointment_purpose)
 

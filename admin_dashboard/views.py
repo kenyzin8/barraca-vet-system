@@ -115,6 +115,7 @@ def ban_user(request, userID):
 
             user.is_active = False
             client.isBanned = True
+            client.ban_reason = request.POST['reason']
             user.save()
             client.save()
 

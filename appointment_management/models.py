@@ -105,6 +105,10 @@ class Appointment(models.Model):
 
     weekly_reminder_sent = models.BooleanField(default=False)
     daily_reminder_sent = models.BooleanField(default=False)
+    one_hour_reminder_sent = models.BooleanField(default=False)
+    today_reminder_sent = models.BooleanField(default=False)
+
+    symtomps = models.CharField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.client} ({self.pet}) - {self.date} - {self.time}'
@@ -161,6 +165,10 @@ class Appointment(models.Model):
             self.weekly_reminder_sent = True
         elif reminder_type == 'daily':
             self.daily_reminder_sent = True
+        elif reminder_type == 'hourly':
+            self.one_hour_reminder_sent = True
+        elif reminder_type == 'today':
+            self.today_reminder_sent = True
         elif reminder_type == 'renotify':
             pass
         self.save()

@@ -164,10 +164,15 @@
             </div>
             <div class="modal-body">
                Are you sure you want to ban <span class="user-to-ban fw-600"></span>?
+               <form id="ban-form" method="POST" class="mt-3">
+                    {% csrf_token %}
+                    <label for="reason-to-ban-input" class="fw-700">Reason <span class="small text-red">*</span></label>
+                    <input type="text" class="form-control reason-to-ban mt-1" id="reason-to-ban-input" placeholder="Input reason of ban" required>
+               </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
-                <button id="confirm-ban-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+                <button id="confirm-ban-button" class="btn btn-dark" type="submit" form="ban-form">Yes</button>
             </div>
         </div>
     </div>
@@ -339,13 +344,21 @@
             $("#confirmationModal").modal('show');
         });
     
-        $("#confirm-ban-button").on('click', function() {
+        $("#confirm-ban-button").on('click', function(event) {
+
             var url = "{% url 'ban-user-page' 0 %}".replace('0', selected_id);
+            var reasonToBan = $('#reason-to-ban-input').val();
+
+            if(reasonToBan == ""){
+                return;
+            }
+
             $.ajax({
                 url: url,
                 method: 'POST',
                 data: {
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    reason: reasonToBan
                 },
                 success: function(response) {
                     if(response.success){

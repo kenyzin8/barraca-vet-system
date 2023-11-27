@@ -1,3 +1,12 @@
+{% load templatetags %}
+<style>
+.event-click-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>
+
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true" data-bs-backdrop='static'>
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -10,12 +19,25 @@
         <div class="modal-body" id="eventModalBody">
           <!-- Event title will be displayed here -->
         </div>
-        <div class="modal-footer">
+        {% if request.user|has_permission:'record_management.add_treatment' %}
+        <div class="modal-footer event-click-buttons">
+            <a class="btn btn-dark btn-sm" id="btn-create-health-card" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Health Card">
+                Health Card
+            </a>
+            <a class="btn btn-dark btn-sm" id="btn-create-medical-record" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Medical Record">
+                Consultation
+            </a>
+            <a class="btn btn-dark btn-sm" id="btn-create-prescription" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Create Medical Prescription">
+                Prescription
+            </a>
+        </div>
+        {% endif %}
+        <div class="modal-footer event-click-buttons">
           <button type="button" class="btn btn-dark btn-sm" id="deleteEvent">Cancel Appointment</button>
           <button type="button" class="btn btn-dark btn-sm" id="rebookEvent">Rebook</button>
           <button type="button" class="btn btn-dark btn-sm" id="doneEvent">Appointment Done</button>
           <!-- <button type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button> -->
-      </div>
+        </div>
       </div>
     </div>
 </div>  

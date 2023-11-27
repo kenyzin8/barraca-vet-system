@@ -39,7 +39,7 @@
                                     <div class="avatar me-2">
                                         {% if pet.picture %}
                                         <div data-bs-toggle="tooltip" data-bs-placement="left" data-html="true" title="<img class='image-tooltip-container img-fluid' src='{{ pet.picture.url }}'>">
-                                            <img class="avatar-img img-fluid" src="{{ pet.picture.url }}" onload="hidePlaceholder(this)"/>
+                                            <img class="avatar-img img-fluid" src="{{ pet.picture.url }}"/>
                                         </div>
                                         {% else %}
                                         <div data-bs-toggle="tooltip" data-bs-placement="left" data-html="true" title="<img class='image-tooltip-container' src='{% static 'images/no-image-placeholder.jpg' %}'>">

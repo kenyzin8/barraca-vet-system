@@ -22,21 +22,18 @@ class AppointmentForm(forms.ModelForm):
         queryset = Client.objects.filter(pet__isnull=False).distinct(),
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_client'}),  
     )
+
     pet = forms.ModelChoiceField(
         queryset=Pet.objects.none(),  
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_pet'}), 
     )
+
     purpose = forms.ModelChoiceField(
         #filter only active services and only the name should be displayed
         queryset=Service.objects.filter(active=True).exclude(service_type__icontains="doctor's fee"),
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Service'
     )
-    # timeOfTheDay = forms.ChoiceField(
-    #     choices=Appointment.time_of_the_day_choices,
-    #     widget=forms.Select(attrs={'class': 'form-select'}), 
-    #     label='Time of the Day'
-    # )
 
     time = forms.ChoiceField(
         choices=Appointment.time_choices,
@@ -44,10 +41,17 @@ class AppointmentForm(forms.ModelForm):
         label='Time'
     )
 
+    # timeOfTheDay = forms.ChoiceField(
+    #     choices=Appointment.time_of_the_day_choices,
+    #     widget=forms.Select(attrs={'class': 'form-select'}), 
+    #     label='Time of the Day'
+    # )
+
+
 class AppointmentFormClient(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['pet', 'purpose', 'time']
+        fields = ['pet', 'purpose', 'symtomps', 'time']
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request', None)
@@ -104,11 +108,19 @@ class AppointmentFormClient(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Service'
     )
+
+    symtomps = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Input symtomps here if needed.'}),
+        label='Symtomps (Optional)',
+        required=False
+    )
+
     time = forms.ChoiceField(
         choices=Appointment.time_choices,
         widget=forms.Select(attrs={'class': 'form-select'}),
         label='Time'
     )
+
     # timeOfTheDay = forms.ChoiceField(
     #     choices=Appointment.time_of_the_day_choices,
     #     widget=forms.Select(attrs={'class': 'form-select'}), 
@@ -143,10 +155,11 @@ class RebookAppointmentForm(forms.ModelForm):
         label='Time'
     )
 
+
 class RebookAppointmentFormClient(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['pet_rebook', 'purpose', 'time']
+        fields = ['pet_rebook', 'purpose', 'symtomps','time']
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request', None)
@@ -165,6 +178,13 @@ class RebookAppointmentFormClient(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_purpose-rebook'}),
         label='Service'
     )
+
+    symtomps = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Input symtomps here if needed.', 'id': 'id_symtomps-rebook'}),
+        label='Symtomps (Optional)',
+        required=False
+    )
+
     # timeOfTheDay = forms.ChoiceField(
     #     choices=Appointment.time_of_the_day_choices,
     #     widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_timeOfTheDay-rebook'}),

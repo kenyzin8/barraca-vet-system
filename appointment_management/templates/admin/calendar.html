@@ -81,7 +81,7 @@
                         <div id='external-events-list'>
                             {% if rebook_appointments %}
                             {% for appointment in rebook_appointments %}
-                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }} ({{ appointment.pet.breed }})" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.time|date:'h:i A' }}" data-daySMS-sent="{{ appointment.daily_reminder_sent }}" data-weekSMS-sent="{{ appointment.weekly_reminder_sent }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
+                                <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event custom-rebook-color' id='{{ appointment.id }}' data-appointment-symtomps="{{ appointment.symtomps }}" data-client-id="{{ appointment.client.id }}" data-client-name="{{ appointment.client.full_name }}" data-pet-id="{{ appointment.pet.id }}" data-pet-rname="{{ appointment.pet.name }} ({{ appointment.pet.breed }})" data-purpose-id="{{ appointment.purpose.id }}" data-purpose-val="{{ appointment.purpose.service_type }}" data-time-of-day="{{ appointment.time|date:'h:i A' }}" data-daySMS-sent="{{ appointment.daily_reminder_sent }}" data-weekSMS-sent="{{ appointment.weekly_reminder_sent }}" onclick="showAppointmentDetails('{{ appointment.id }}')">
                                     <div class='fc-event-main'>#{{ appointment.id }} - {{ appointment.client.full_name }}</div>
                                 </div>
                             {% endfor %}
@@ -129,13 +129,15 @@
         <table id="datatablesSimple" class="appointments-list-table">
             <thead>
                 <tr>
-                    <th>Appointment Number</th>
-                    <th>Client Name</th>
-                    <th>Pet Name</th>
-                    <th>Contact Number</th>
-                    <th>Day Reminder Status</th>
-                    <th>Week Reminder Status</th>
-                    <th>Action</th>
+                    <th><span class="small">Appointment Number</span></th>
+                    <th><span class="small">Client Name</span></th>
+                    <th><span class="small">Pet Name</span></th>
+                    <th><span class="small">Contact Number</span></th>
+                    <th><span class="small">One Hour Reminder Status</span></th>
+                    <th><span class="small">Today Reminder Status</span></th>
+                    <th><span class="small">Day Before Reminder Status</span></th>
+                    <th><span class="small">Week Before Reminder Status</span></th>
+                    <th><span class="small">Action</span></th>
                 </tr>
             </thead>
             <tbody>

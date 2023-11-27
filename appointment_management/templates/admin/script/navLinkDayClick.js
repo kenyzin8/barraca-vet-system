@@ -96,6 +96,8 @@ eventsOnDate.forEach(function(event, index) {
         event.extendedProps.client,
         event.extendedProps.pet,
         event.extendedProps.contact_number,
+        event.extendedProps.hour_sms_reminder == false ? '<span class="badge bg-warning">Pending</span>' : '<span class="badge bg-success">Sent</span>',
+        event.extendedProps.today_sms_reminder == false ? '<span class="badge bg-warning">Pending</span>' : '<span class="badge bg-success">Sent</span>',
         event.extendedProps.day_sms_reminder == false ? '<span class="badge bg-warning">Pending</span>' : '<span class="badge bg-success">Sent</span>',
         event.extendedProps.week_sms_reminder == false ? '<span class="badge bg-warning">Pending</span>' : '<span class="badge bg-success">Sent</span>',
         "<button type='button' class='btn btn-primary btn-sm lift lift-sm' onclick='confirmSendSMS(\"" +

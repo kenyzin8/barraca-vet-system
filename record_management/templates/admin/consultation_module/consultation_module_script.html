@@ -100,10 +100,14 @@
 
         let parameter = new URLSearchParams(window.location.search);
         let _pet_id = parameter.get('pet_id');
+        let _pet_symtomps = parameter.get('symtomps');
 
-        if(_pet_id != null)
-        {
+        if(_pet_id != null){
             selectedPetId = _pet_id;
+        }
+
+        if(_pet_symtomps != null){
+            $('#inputSymptoms').val(_pet_symtomps);
         }
 
         let radioStates = {};

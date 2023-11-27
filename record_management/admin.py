@@ -28,7 +28,7 @@ class PetMedicalPrescriptionAdmin(admin.ModelAdmin):
 
 class ClientAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'first_name', 'last_name', 'gender', 'contact_number', 'street', 'barangay', 'city', 'province', 'two_auth_enabled')
-    search_fields = ('first_name', 'last_name', 'gender', 'user__email')
+    search_fields = ('user__username', 'first_name', 'last_name', 'gender', 'user__email')
 
     def email(self, obj):
         return obj.user.email

@@ -86,13 +86,15 @@ function showAppointmentDetails(appointmentId) {
     let pet = appointment.getAttribute('data-pet-rname');
     let purpose = appointment.getAttribute('data-purpose-val');
     let timeOfDay = appointment.getAttribute('data-time-of-day')
+    let symtomps = appointment.getAttribute('data-appointment-symtomps');
 
     timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
 
     const details = [
         `<strong>Pet:</strong> ${pet}`,
         `<strong>Time:</strong> ${timeOfDay}`,
-        `<strong>Purpose:</strong> ${purpose}`
+        `<strong>Purpose:</strong> ${purpose}`,
+        symtomps == null || symtomps == "" ? `<strong>Symtomps:</strong> None` : `<strong>Symtomps:</strong> ${symtomps}`
     ].join('<br>');
 
     document.getElementById('rebookListAppointmentLabel').innerText = "#" + appointmentId + " from Rebook List";
@@ -160,6 +162,7 @@ function _showAppointmentDetails(event) {
     let pet = event.extendedProps.pet;
     let purpose = event.extendedProps.purpose;
     let timeOfDay = event.extendedProps.time;
+    let symtomps = event.extendedProps.symtomps;
 
     let [hours, minutes] = timeOfDay.split(":");
     let _date = new Date(1970, 0, 1, hours, minutes); 
@@ -170,7 +173,8 @@ function _showAppointmentDetails(event) {
         `<strong>Client:</strong> ${client}`,
         `<strong>Pet:</strong> ${pet}`,
         `<strong>Time:</strong> ${timeOfDay}`,
-        `<strong>Purpose:</strong> ${purpose}`
+        `<strong>Purpose:</strong> ${purpose}`,
+        symtomps == null || symtomps == "" ? `<strong>Symtomps:</strong> None` : `<strong>Symtomps:</strong> ${symtomps}`
     ].join('<br>');
 
     document.getElementById('rebookListAppointmentLabel').innerText = "#" + event.id + " from Rebook List";
@@ -242,13 +246,15 @@ function showAppointmentDetailsFromOtherModule() {
         let purpose = appointmentElement.getAttribute('data-appointment-purpose');
         let date = appointmentElement.getAttribute('data-appointment-dateNONISO');
         let status = appointmentElement.getAttribute('data-appointment-status');
+        let symtomps = appointmentElement.getAttribute('data-appointment-symtomps');
 
         timeOfDay = timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1);
 
         const details = [
             `<strong>Pet:</strong> ${pet}`,
             `<strong>Time of the Day:</strong> ${timeOfDay}`,
-            `<strong>Purpose:</strong> ${purpose}`
+            `<strong>Purpose:</strong> ${purpose}`,
+            symtomps == null || symtomps == "" ? `<strong>Symtomps:</strong> None` : `<strong>Symtomps:</strong> ${symtomps}`
         ].join('<br>');
 
         let _date = status != "pending" ? "From Rebook List" : date;
@@ -960,6 +966,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var time = $('#id_time-rebook').val();
                 var pet = $('#id_pet-rebook').val();
                 var purpose = $('#id_purpose-rebook').val();
+                var symtomps = $('#id_symtomps-rebook').val();
 
                 $.ajax({
                     type: 'POST',
@@ -971,6 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         'time': time,
                         'pet': pet,
                         'purpose': purpose,
+                        'symtomps': symtomps,
                         'csrfmiddlewaretoken': '{{ csrf_token }}'
                     },
                     success: function(response) {
@@ -1093,6 +1101,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             $('#rebookConfirmAppointmentModal').modal('hide');
 
                             showSuccess(response.status + ".");
+                            $('#id_symtomps-rebook').val("");
 
                             var oldDate;
                             if (old_date == "from_rebook_list") {

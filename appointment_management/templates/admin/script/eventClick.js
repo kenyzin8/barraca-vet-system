@@ -7,6 +7,8 @@ const day = monthNames[date.getMonth()] + " " + date.getDate() + ", " + date.get
 
 var isDaySentIcon = arg.event.extendedProps.day_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
 var isWeekSentIcon = arg.event.extendedProps.week_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
+var isHourSentIcon = arg.event.extendedProps.hour_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
+var isTodaySentIcon = arg.event.extendedProps.today_sms_reminder == false ? '<i data-feather="x-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="Pending SMS"></i>' : '<i data-feather="check-circle" style="margin-top: 4px;" data-bs-toggle="tooltip" data-bs-placement="right" title="SMS Sent"></i>';
 
 var year = dateString.getFullYear();
 var month = (dateString.getMonth() + 1).toString().padStart(2, '0');
@@ -29,6 +31,29 @@ let _date = new Date(1970, 0, 1, hours, minutes);
 
 timeOfDay = _date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
+document.getElementById('btn-create-health-card').onclick = function () {
+    var url = "{% url 'admin-add-pet-health-card-treatment-page' %}?pet_id=0";
+    url = url.replace('0', arg.event.extendedProps.pet_id);
+
+    window.open(url, '_blank');
+}
+
+document.getElementById('btn-create-medical-record').onclick = function () {
+    var url = "{% url 'admin-medical-record-page' %}?pet_id=0&symtomps=SYMPTOMS";
+    url = url.replace('0', arg.event.extendedProps.pet_id);
+    url = url.replace('SYMPTOMS', arg.event.extendedProps.symtomps);
+    console.log(url)
+
+    window.open(url, '_blank');
+}
+
+document.getElementById('btn-create-prescription').onclick = function () {
+    var url = "{% url 'admin-add-pet-medical-prescription-page' %}?pet_id=0";
+    url = url.replace('0', arg.event.extendedProps.pet_id);
+
+    window.open(url, '_blank');
+}
+
 const timeDetails = dateIsDisabled
     ? `<strong>Time:</strong> ${timeOfDay}`
     : `<strong>Time:</strong> ${timeOfDay} <a id="${arg.event.id}" class="btn btn-datatable btn-icon btn-transparent-dark btn-change-time" href="#!" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit time of the day"><i data-feather="edit"></i></a>`;
@@ -38,8 +63,7 @@ const details = [
     `<strong>Pet:</strong> ${arg.event.extendedProps.pet} <a id="${arg.event.id}" class="btn btn-datatable btn-icon btn-transparent-dark" target="_blank" href="${`{% url 'admin-view-pet-page' 0 %}`.replace('0', arg.event.extendedProps.pet_id)}" data-bs-toggle="tooltip" data-bs-placement="top" title="View pet details"><i data-feather="external-link"></i></a>`,
     timeDetails,
     arg.event.extendedProps.purpose == null ? `<strong>Purpose:</strong> None` : `<strong>Purpose:</strong> ${arg.event.extendedProps.purpose}`,
-    `<strong>Day Before SMS Status: </strong> <span>${isDaySentIcon}<span>`,
-    `<strong>Week Before SMS Status: </strong> <span>${isWeekSentIcon}<span>`,
+    arg.event.extendedProps.symtomps == '' ? `<strong>Symtomps:</strong> None` : `<strong>Symtomps:</strong> ${arg.event.extendedProps.symtomps}`,
 ].join('<br>');
 
 document.getElementById('eventModalLabel').innerText = "#" + arg.event.id + " - " + day;
@@ -191,6 +215,9 @@ document.getElementById('yesRebookConfButton').onclick = function() {
                 rebookEvent.dataset.weekSmsSent = arg.event.extendedProps.week_sms_reminder;
                 rebookEvent.dataset.contactNumber = arg.event.extendedProps.contact_number;
                 rebookEvent.dataset.currentDate = arg.event.extendedProps.current_date;
+                rebookEvent.dataset.appointmentSymtomps = arg.event.extendedProps.symtomps == "" ? "None" : arg.event.extendedProps.symtomps;
+
+                console.log(arg.event);
 
                 rebookEvent.onclick = function() {
                     _showAppointmentDetails(arg.event);

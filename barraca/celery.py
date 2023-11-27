@@ -52,6 +52,64 @@ def clean_calendar():
         logger.info("Calendar Cleaned")
         return "Calendar Cleaned"
 
+@app.task(name="One Hour Appointment Reminder")
+def send_one_hour_reminder():
+    from appointment_management.models import Appointment
+    try:
+        now = timezone.now()
+
+        appointments = Appointment.objects.filter(
+            date=now.date(), 
+            time__gte=now.time(), 
+            time__lt=(now + timedelta(hours=1)).time(), 
+            isActive=True, 
+            status='pending',
+            one_hour_reminder_sent=False
+        )
+
+        total_sent = 0
+
+        for appointment in appointments:
+            total_sent += 1
+            appointment.remindClient('hourly')
+            logger.info(f'One hour before appointment reminder sent to {appointment.client.full_name}. Date: {appointment.date}, Time: {appointment.time}')
+
+        if total_sent == 0:
+            logger.info('No appointments to remind for the next hour.')
+            
+    except Exception as e:
+        logger.error(f"Error in Hourly Appointment Reminder: {e}")
+    else:
+        return "One Hour Before Reminder Called"
+
+@app.task(name="Today Appointment Reminder")
+def send_today_reminder():
+    from appointment_management.models import Appointment
+    try:
+        today = timezone.now().date()
+
+        appointments = Appointment.objects.filter(
+            date=today,
+            isActive=True, 
+            status='pending',
+            today_reminder_sent=False
+        )
+
+        total_sent = 0
+
+        for appointment in appointments:
+            total_sent += 1
+            appointment.remindClient('today')
+            logger.info(f'Today appointment reminder sent to {appointment.client.full_name}. Date: {appointment.date}, Time: {appointment.time}')
+
+        if total_sent == 0:
+            logger.info('No appointments to remind for today.')
+            
+    except Exception as e:
+        logger.error(f"Error in Daily Appointment Reminder: {e}")
+    else:
+        return "Today Reminder Called"
+
 @app.task(name="Week Appointment Reminder")
 def send_week_reminder():
     from appointment_management.models import Appointment

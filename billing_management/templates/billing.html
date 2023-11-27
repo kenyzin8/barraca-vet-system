@@ -114,7 +114,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     <tr>
                         <td>
                             <div class="d-flex align-items-center justify-content-between">  
-                                <span class="billing-number">
+                                <span class="billing-number" id="billNumb">
                                     {{ bill.id }}
                                 </span>
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'unpaid-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Unpaid Bill">
@@ -172,7 +172,7 @@ window.addEventListener('DOMContentLoaded', event => {
                 <div class="h3 text-white">Billing Statement</div>
                 Bill No. <span class="billing-number">{{ bill_number_to_view }}</span>
                 <br />
-                <span class="current-date">{% now "F j, Y" %}</span>
+                <span class="current-date" id="currentDate">{% now "F j, Y" %}</span>
             </div>
         </div>
     </div>
@@ -192,9 +192,9 @@ window.addEventListener('DOMContentLoaded', event => {
                 </div>
                 <div class="d-flex align-items-center">
                     {% if selected_pet_owner_id %}
-                    <input type="text" class="form-control selected-client-input" data-client-id="{{ selected_pet_owner_id }}" value="{{ selected_pet_owner_id_name }}" id="" placeholder="Walk-in or select existing client">
+                    <input type="text" class="form-control selected-client-input" data-client-id="{{ selected_pet_owner_id }}" value="{{ selected_pet_owner_id_name }}" id="selectedClient" placeholder="Walk-in or select existing client">
                     {% else %}
-                    <input type="text" class="form-control selected-client-input" data-client-id="{{ client.id }}" value="{{ client.full_name }}" id="" placeholder="Walk-in or select existing client">
+                    <input type="text" class="form-control selected-client-input" data-client-id="{{ client.id }}" value="{{ client.full_name }}" id="selectedClient" placeholder="Walk-in or select existing client">
                     {% endif %}
                     &nbsp;
                     <a class="btn btn-datatable btn-icon btn-transparent-dark remove-client ml-2" href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Remove Client" style="display: none;">
@@ -249,7 +249,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     </tr>
                     <tr>
                         <td class="text-start pb-0" colspan="3" style="padding-top: 20px;">
-                            <!-- <a href="#" id="save-for-later-button" type="button" class="btn btn-warning lift lift-sm mb-3 fw-600" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Save for Later">Save</a> -->
+                            <button class="btn btn-dark lift lift-sm print-bill" style="margin-left:10px;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Print Unpaid Bill">Print</button>
                         </td>
                         <td class="text-end pb-0 billing-buttons" style="padding-top: 20px;">
                             <a href="#" id="cancel-button" type="button" class="btn btn-danger lift lift-sm mb-3 fw-600" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Cancel Transaction">Cancel</a>
@@ -259,6 +259,7 @@ window.addEventListener('DOMContentLoaded', event => {
                 </tbody>
             </table>
         </div>
+        
     </div>
 </div>
 
@@ -587,6 +588,7 @@ window.addEventListener('DOMContentLoaded', event => {
 {% endblock %}
 
 {% block extrascripts %}
+<script src="{% static 'plugins/print-js/print.min.js' %}"></script>
 <script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
 <script>
 function initDataTables(tableId, maxPage) {

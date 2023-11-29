@@ -49,6 +49,7 @@ urlpatterns = [
     path('admin/get-cycle-data/<int:petID>/', permission_required('record_management.add_pethealthcard', raise_exception=True)(views.get_treatment_cycle_status), name='get-treatment-cycle-data'),
     path('admin/update-pet-health-card-treatment/<int:treatmentID>/', permission_required('record_management.add_pethealthcard', raise_exception=True)(views.update_health_card_record), name='admin-update-pet-health-card-treatment-page'),
     path('admin/update-pet-health-card-treatment/submit/', permission_required('record_management.add_pethealthcard', raise_exception=True)(views.submit_update_health_card), name='admin-submit-update-pet-health-card-treatment-page'),
+    path('admin/register-client/', permission_required('record_management.add_client', raise_exception=True)(views.register_walkin_user), name='admin-register-walkin-client-page'),
 ]
 
 

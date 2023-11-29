@@ -110,7 +110,10 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-xl-4">
-                        <h1>{{ client.full_name }}</h1>
+                        <div>
+                            <h1>{{ client.full_name }}</h1><span class="small font-italic">(Registered through {% if client.isWalkIn %}Walk-In{% else %}Online{% endif %})</span>
+                        </div>
+
                         <br>
                         <p>Gender: {{ client.gender }}</p>
                         <p>Address: {{ client.get_address }}</p>

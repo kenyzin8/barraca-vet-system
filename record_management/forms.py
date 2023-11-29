@@ -109,6 +109,96 @@ class UserRegistrationForm(UserCreationForm):
         model = User
         fields = UserCreationForm.Meta.fields + ('email',)
 
+class WalkinUserRegistrationForm(UserCreationForm):
+    username = forms.CharField(required=True, widget=forms.TextInput(attrs={
+                                'class' : 'form-control rounded-left wider-input',
+                                'placeholder' : 'Username',
+                                'data-bs-toggle': 'tooltip',
+                                'data-bs-placement': 'right',
+                                'title': 'This will be the username for logging in.',
+                                'autocomplete': 'off'
+                                }))
+
+    password1 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={
+        'class': 'form-control rounded-left wider-input',
+        'placeholder': 'Password',
+        'data-bs-toggle': 'tooltip',
+        'data-bs-placement': 'right',
+        'data-html': 'true',
+        'title': ('<div class="text-start mt-2"><div class="text-center">Password Requirements</div><br>'
+                '<ul>'
+                '<li class="small me-2">At least 8 characters long.</li>'
+                '<li class="small me-2">Must not be too common.</li>'
+                '<li class="small me-2">Must not be too similar to the username.</li>'
+                '<li class="small me-2">Contains both uppercase and lowercase characters.</li>'
+                '<li class="small me-2">Contains at least one numerical digit.</li>'
+                '<li class="small me-2">Contains at least one special character (e.g., @, #, $, etc.).</li>'
+                '</ul></div>')
+    }), validators=[validate_contains_special_character, validate_contains_digit, validate_contains_uppercase])
+
+
+    password2 = forms.CharField(required=True, widget=forms.PasswordInput(attrs={
+                                'class' : 'form-control rounded-left wider-input',
+                                'placeholder' : 'Confirm Password',
+                                'data-bs-toggle': 'tooltip',
+                                'data-bs-placement': 'right',
+                                'title': 'This will be the password for logging in.'}))
+    email = forms.CharField(required=True, widget=forms.EmailInput(attrs={'class' : 'form-control rounded-left wider-input', 'placeholder' : 'Email', 'autocomplete': 'off'}))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'First Name', 'autocomplete': 'off'}), validators=[validate_first_name])
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Last Name','autocomplete': 'off'}), validators=[validate_last_name])
+    gender = forms.ChoiceField(choices=[('', 'Gender'), ('Male', 'Male'), ('Female', 'Female')], widget=forms.Select(attrs={'id': 'gender', 'class': 'form-select'}), initial='')
+    street = forms.CharField(
+        required=True, 
+        widget=forms.TextInput(attrs={
+            'class': 'form-control wider-input', 
+            'placeholder': 'Street', 
+            'autocomplete': 'off'
+        })
+    )
+
+    province = forms.ModelChoiceField(
+        required=True,
+        queryset=Province.objects.all().order_by('name'), 
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        empty_label="Select Province"
+    )
+    city = forms.ModelChoiceField(
+        required=True,
+        queryset=Municipality.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-select'}), 
+        empty_label="Select City/Municipality"
+    )
+    barangay = forms.ModelChoiceField(
+        required=True,
+        queryset=Barangay.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        empty_label="Select Barangay"
+    )
+    contact_number = forms.CharField(required=True, widget=forms.TextInput(attrs={
+                                'class': 'form-control wider-input', 
+                                'placeholder': 'Contact Number',
+                                'data-bs-toggle': 'tooltip',
+                                'data-bs-placement': 'right',
+                                'title': "Input a valid number. It's for contact during appointments.", 'autocomplete': 'off'}), validators=[validate_phone_number], label='Contact Number')
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if 'data' in kwargs:
+            if 'province' in kwargs['data']:
+                province_id = kwargs['data']['province']
+                self.fields['city'].queryset = Municipality.objects.filter(province_id=province_id)
+
+            if 'city' in kwargs['data']:
+                city_id = kwargs['data']['city']
+                self.fields['barangay'].queryset = Barangay.objects.filter(municipality_id=city_id)
+        
+        self.fields['username'].widget.attrs.update({'autofocus': False})
+
+    class Meta:
+        model = User
+        fields = UserCreationForm.Meta.fields + ('email',)
+
 class PetRegistrationForm(forms.ModelForm):
 
     today = datetime.today()

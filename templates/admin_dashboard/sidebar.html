@@ -31,7 +31,7 @@
                         <div class="sidenav-menu-heading ">Record</div>
                             {% endif %}
                             {% if request.user|has_permission:'record_management.add_client' %}
-                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
+                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-register-walkin-client-page' or current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
                                 <div class="nav-link-icon"><i class="fas fa-user-group text-grey-200"></i></div>
                                 Clients
                             </a>

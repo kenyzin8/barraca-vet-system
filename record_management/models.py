@@ -28,6 +28,7 @@ class Client(models.Model):
     two_auth_enabled = models.BooleanField(default=False)
     isBanned = models.BooleanField(default=False)
     ban_reason = models.CharField(max_length=200, default="None")
+    isWalkIn = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

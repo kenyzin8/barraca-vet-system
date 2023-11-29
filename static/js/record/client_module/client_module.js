@@ -27,6 +27,12 @@ window.addEventListener('DOMContentLoaded', event => {
             sortable: true,
             searchable: true,
             hiddenHeader: false,
+            columns: [
+            {
+                select: 6,
+                filter: ["Walk-In Registered", "Online Registered"]
+            }
+            ],
         });
 
         window.dataTable = dataTable;

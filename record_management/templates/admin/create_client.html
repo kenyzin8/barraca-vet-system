@@ -1,0 +1,403 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Create Walk-In Client | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container mt-5 animated--fade-in-up">
+        <nav class="mt-4 rounded" aria-label="breadcrumb">
+            <ol class="breadcrumb px-3 py-2 rounded mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'admin-client-list-page' %}">Clients</a></li>
+                <li class="breadcrumb-item active">Register Walk-In Client</li>
+            </ol>
+        </nav>
+        <div class="card card-header-actions mt-3 mb-5 animated--fade-in-up">
+            <div class="card-header">
+                Walk-In Client Registration
+            </div>
+            <div class="card-body">
+                <form method="POST" id="client-registration">
+                    {% csrf_token %}
+                    <div class="row">
+                        <!-- First column -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                            {{ form.first_name }}
+                            </div>
+                            <div class="mb-3">
+                            {{ form.last_name }}
+                            </div>
+                            <div class="mb-3">
+                            {{ form.province }}
+                            </div>
+                            <div class="mb-3">
+                            {{ form.city }}
+                            </div>
+                            <div class="mb-3">
+                            {{ form.barangay }}
+                            </div>
+                            <div class="mb-3">
+                            {{ form.street }}
+                            </div>
+                        </div>
+                        
+                        <!-- Second column -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                            {{ form.gender }}
+                            </div>
+                            <div class="mb-3">
+                            {{ form.contact_number }}
+                            </div>
+                            <div class="mb-3">
+                            {{ form.email }}
+                            </div>
+                            <div class="mb-3">
+                            {{ form.username }}
+                            </div>
+                            <div class="mb-3">
+                            <div class="password-wrapper">
+                                {{ form.password1 }}
+                                <i class="fa fa-eye password-toggle"></i>
+                            </div>
+                            
+                            </div>
+                            <div class="mb-3">
+                            <div class="password-wrapper">
+                                {{ form.password2 }}
+                                <i class="fa fa-eye password-toggle"></i>
+                            </div>
+                            
+                            </div>
+                        </div>
+                        </div>
+                        <button class="btn btn-dark rounded main-button" id="main-submit-button">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+    <div class="modal fade" id="errorModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">There was an error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% if form.errors %}
+                        {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <div class="error-container">
+                            <i data-feather="corner-down-right" style="color:maroon;"></i> {{ error }}
+                        </div>
+                        {% endfor %}
+                            {% comment %} <li>{{ field|capfirst }} 
+                                <ul class="errorlist">
+
+                                </ul>
+                            </li> {% endcomment %}
+                        {% endfor %}
+                        {% comment %} <ul class="errorlist">
+
+                        </ul> {% endcomment %}
+                    {% endif %}
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="error-container">
+                            <i data-feather="corner-down-right" style="color:maroon;"></i> {{ message }}
+                        </div>
+                        {% endfor %}
+                        {% comment %} <ul class="errorlist">
+
+                        </ul> {% endcomment %}
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-dark btn-sm" type="button" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if form.errors or messages %}
+    <script>
+        $(document).ready(function() {
+            $('#errorModal').modal('show');
+        });
+    </script>
+    {% endif %}
+    <div class="modal fade" id="errorModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Oh no!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- message here -->
+            </div>
+            <div class="modal-footer">
+                <button id="OKErrorModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="confirmationModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Confirm Submission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to submit this client?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirmSubmitButton" type="button" class="btn btn-dark">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script>
+    function showErrorModal(message) {
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        const errorModalBody = document.querySelector('#errorModal .modal-body');
+        errorModalBody.innerHTML = message;
+        errorModal.show();
+    }
+    $(document).ready(function() {
+        $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+        $('[data-bs-toggle="tooltip"]').tooltip({html: true});
+
+        $(document).on('click', '.password-toggle', function() {
+            var svgIcon = $(this);
+            var inputField = $($(this).prev());
+            
+            if (svgIcon.attr('data-icon') === 'eye') {
+                svgIcon.attr('data-icon', 'eye-slash');
+                if (inputField.attr('type') === 'password') {
+                    inputField.attr('type', 'text');
+                }
+            } else {
+                svgIcon.attr('data-icon', 'eye');
+                if (inputField.attr('type') === 'text') {
+                    inputField.attr('type', 'password');
+                }
+            }
+        });
+
+        const regex = /[^a-zA-Z\s]/g;
+        const leadingSpaceRegex = /^\s+/;
+
+        $("#id_first_name, #id_last_name").on("input", function() {
+            let value = $(this).val();   
+            value = value.replace(regex, "");
+            value = value.replace(leadingSpaceRegex, "");
+            
+            $(this).val(value);
+        });
+
+        $("#id_street, #id_first_name, #id_last_name").on("input", function() {
+            let value = $(this).val();   
+
+            if (value.length > 0) {
+                value = value.charAt(0).toUpperCase() + value.slice(1);
+            }
+
+            $(this).val(value);
+        });
+    });
+</script>
+<script>
+    window.addEventListener('load', function () {
+    document.querySelector('input').blur();
+});
+</script>
+<script>
+    document.getElementById("gender").options[0].disabled = true;
+</script>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const genderSelect = document.getElementById('gender');
+
+        genderSelect.addEventListener('focus', function() {
+            for (let i = 0; i < this.options.length; i++) {
+                if (this.options[i].value === '') {
+                    this.options[i].style.display = 'none';
+                }
+            }
+        });
+
+        genderSelect.addEventListener('blur', function() {
+            for (let i = 0; i < this.options.length; i++) {
+                if (this.options[i].value === '') {
+                    this.options[i].style.display = 'block';
+                }
+            }
+        });
+
+        genderSelect.addEventListener('change', function() {
+            if (this.value === 'Male' || this.value === 'Female') {
+                this.style.color = '#69707a';
+            } else {
+                this.style.color = ''; 
+            }
+        });
+
+        $('#client-registration').on('submit', function(e) {
+            $('.main-button').attr('disabled', true).html(`
+            Get Started&nbsp;
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="sr-only"></span>
+            </div>
+            `);
+        });
+
+        const form = document.getElementById('client-registration');
+        const submitButton = document.getElementById('main-submit-button');
+
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        const confirmSubmitModalButton = document.getElementById('confirmSubmitButton');
+
+        submitButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('id_first_name').value;
+            const lastName = document.getElementById('id_last_name').value;
+            const province = document.getElementById('id_province').value;
+            const city = document.getElementById('id_city').value;
+            const barangay = document.getElementById('id_barangay').value;
+            const street = document.getElementById('id_street').value;
+            const gender = document.getElementById('gender').value;
+            const contactNumber = document.getElementById('id_contact_number').value;
+            const email = document.getElementById('id_email').value;
+            const username = document.getElementById('id_username').value;
+            const password1 = document.getElementById('id_password1').value;
+            const password2 = document.getElementById('id_password2').value;
+
+            if(firstName === '') {
+                showErrorModal('Missing first name');
+                return;
+            }
+            else if(lastName === '') {
+                showErrorModal('Missing last name');
+                return;
+            }
+            else if(province === '') {
+                showErrorModal('Missing province');
+                return;
+            }
+            else if(city === '') {
+                showErrorModal('Missing city');
+                return;
+            }
+            else if(barangay === '') {
+                showErrorModal('Missing barangay');
+                return;
+            }
+            else if(street === '') {
+                showErrorModal('Missing street');
+                return;
+            }
+            else if(gender === '') {
+                showErrorModal('Missing gender');
+                return;
+            }
+            else if(contactNumber === '') {
+                showErrorModal('Missing contact number');
+                return;
+            }
+            else if(email === '') {
+                showErrorModal('Missing email');
+                return;
+            }
+            else if(username === ''){
+                showErrorModal('Missing username');
+                return;
+            }
+            else if(password1 === '') {
+                showErrorModal('Missing password');
+                return;
+            }
+            else if(password2 === '') {
+                showErrorModal('Missing password confirmation');
+                return;
+            }
+            else if(password1 !== password2) {
+                showErrorModal('Passwords do not match');
+                return;
+            }
+
+            confirmModal.show();
+        });
+
+        confirmSubmitModalButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            form.submit();
+        });
+    });
+</script>
+<script>
+    const provinceDropdown = document.getElementById('id_province');
+    const cityDropdown = document.getElementById('id_city');
+    const barangayDropdown = document.getElementById('id_barangay');
+    provinceDropdown.addEventListener('change', function() {
+      const provinceId = this.value;
+
+      fetch(`/get_municipalities/?province_id=${provinceId}`)
+      .then(response => response.json())
+      .then(data => {
+          cityDropdown.innerHTML = '<option value="">Select City/Municipality</option>';
+
+          data.forEach(item => {
+              const option = document.createElement('option');
+              option.value = item.id;
+              option.textContent = item.name;
+              cityDropdown.append(option);
+          });
+      });
+    });
+
+    cityDropdown.addEventListener('change', function() {
+        const municipalityId = this.value;
+
+        fetch(`/get_barangays/?municipality_id=${municipalityId}`)
+        .then(response => response.json())
+        .then(data => {
+            barangayDropdown.innerHTML = '<option value="">Select Barangay</option>';
+
+            data.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.name;
+                barangayDropdown.append(option);
+            });
+        });
+    });
+  </script>
+{% endblock %}

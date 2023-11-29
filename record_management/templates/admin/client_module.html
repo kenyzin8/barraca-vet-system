@@ -13,7 +13,11 @@
     <div class="card card-header-actions mt-5 mb-5 animated--fade-in-up">
         <div class="card-header">
             Clients
-            <button class="btn btn-dark btn-sm lift lift-sm" onclick="printTable('datatablesSimple')">Print</button>
+            <div>
+                <button class="btn btn-dark btn-sm lift lift-sm" onclick="printTable('datatablesSimple')">Print</button>
+                <a class="btn btn-dark btn-sm lift lift-sm" href="{% url 'admin-register-walkin-client-page' %}">Register Client</a>
+            </div>
+
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="print-table" style="display: none;">
@@ -25,7 +29,7 @@
                         <th>Address</th>
                         <th>Contact Number</th>
                         <th>Total Pets</th>
-                        <th>Status</th>
+                        <th>Type</th>
                         <th class="hide-on-print">Actions</th>
                     </tr>
                 </thead>
@@ -54,10 +58,10 @@
                         <td>{{ client.contact_number }}</td>
                         <td>{{ client.total_pets }}</td>
                         <td>
-                            {% if client.user.is_active %}
-                                <span class="badge bg-success">Active</span>
+                            {% if client.isWalkIn %}
+                                <span class="badge bg-success">Walk-In Registered</span>
                             {% else %}
-                                <span class="badge bg-danger">Inactive</span>
+                                <span class="badge bg-teal">Online Registered</span>
                             {% endif %}
                         </td>
                         <td class="hide-on-print">

@@ -791,7 +791,7 @@ def client_module(request):
             'address': client.get_address(),
             'contact_number': client.contact_number,
             'total_pets': client.total_pets,
-            'status': client.get_status()
+            'type': "Walk&nbsp;In" if client.isWalkIn else "Online",
         })
     clients_for_print = json.dumps(clients_for_print)
     context = {'clients': clients, 'clients_for_print': clients_for_print}

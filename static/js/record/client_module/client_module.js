@@ -147,13 +147,13 @@ function printTable(tableID)
     var tableContent = ClientModule.dataRaw.map(c => 
     `
     <tr>
-        <td>${c.id}</td>
-        <td>${c.name}</td>
-        <td>${c.gender}</td>
+        <td style="font-size:12px;">${c.id}</td>
+        <td style="font-size:12px;">${c.name}</td>
+        <td style="font-size:12px;">${c.gender}</td>
         <td style="font-size:12px;">${c.address}</td>
-        <td>${c.contact_number}</td>
-        <td>${c.total_pets}</td>
-        <td>${c.status}</td>
+        <td style="font-size:12px;">${c.contact_number}</td>
+        <td style="font-size:12px;">${c.total_pets}</td>
+        <td style="font-size:12px;">${c.type}</td>
     </tr>
     `).join('');
 
@@ -168,7 +168,7 @@ function printTable(tableID)
                     <th class="table-header">Address</th>
                     <th class="table-header">Phone</th>
                     <th class="table-header">Total Pets</th>
-                    <th class="table-header">Status</th>
+                    <th class="table-header">Type</th>
                 </tr>
             </thead>
             <tbody class="first-tbody">

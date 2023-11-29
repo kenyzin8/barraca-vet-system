@@ -2002,7 +2002,7 @@ class SubmitHealthCardTreatment(APIView):
 
                     pet = Pet.objects.get(pk=selected_pet_id)
 
-                    pet_appointment_today = Appointment.objects.filter(pet=selected_pet, date=date.today(), isActive=True, status='pending').first()
+                    pet_appointment_today = Appointment.objects.filter(pet=pet, date=date.today(), isActive=True, status='pending').first()
                     if pet_appointment_today:
                         pet_appointment_today.status = 'done'
                         pet_appointment_today.isActive = False

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Client, Pet
+from .models import Client, Pet, LaboratoryTests
 from .validators import (
     validate_phone_number, 
     validate_image_size, 
@@ -18,6 +18,15 @@ from core.models import Region, Province, Municipality, Barangay
 from datetime import datetime, timedelta
 
 User = get_user_model()
+
+class LaboratoryTestsForm(forms.ModelForm):
+    lab_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Test Name (e.g. FBS, CBC, etc.)'}))
+    lab_test_unit = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Test Unit  (e.g. mg/dL, mmol/L, etc.)'}))
+    lab_test_description = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control wider-input', 'placeholder': 'Test Description'}))
+
+    class Meta:
+        model = LaboratoryTests
+        fields = ('lab_test', 'lab_test_unit', 'lab_test_description')
 
 class UserRegistrationForm(UserCreationForm):
     username = forms.CharField(required=True, widget=forms.TextInput(attrs={

@@ -7,6 +7,23 @@
     function removeDecimal(inputElement) {
         inputElement.value = inputElement.value.replace('.', '');
     }
+
+    function togglePaidButton() {
+        var paidButton = document.getElementById('paid-button');
+        if (paidButton.style.pointerEvents === 'none') {
+            paidButton.style.pointerEvents = 'auto';
+            paidButton.style.opacity = 1;
+        } else {
+            paidButton.style.pointerEvents = 'none';
+            paidButton.style.opacity = 0.5;
+        }
+    }
+
+    function disablePaidButton() {
+        var paidButton = document.getElementById('paid-button');
+        paidButton.style.pointerEvents = 'none';
+        paidButton.style.opacity = 0.5;
+    }
 $(document).ready(function() {
     var total = 0;
 
@@ -88,7 +105,7 @@ $(document).ready(function() {
 
         function printBill() 
         {
-            console.log(data)
+
             if(data.full_name == ''){
                 $('#errorModal .modal-body').text("Please select a client.");
                 $('#errorModal').modal('show');
@@ -134,7 +151,7 @@ $(document).ready(function() {
             var css_gridHeaderStyle = `color: #232323; padding: 0px; border: 0px solid #232323; ${font}`;
             var css_gridStyle = `text-align: center; padding: 0px;border: 0px solid #232323; ${font};`;
             var css_headerStyle = `text-align: center; font-size: 14pt; color: #232323; font-weight: 600; margin-bottom: 20px; ${font}`;
-            var headerName = "INVOICE";
+            var headerName = "UNPAID BILLING STATEMENT";
             var imgSrc = "{% static 'images/barraca.png' %}";
 
             var date = new Date();
@@ -258,9 +275,8 @@ $(document).ready(function() {
                     padding-top: 0px !important;
                 }         
             `,
-            
-            
             });
+            togglePaidButton();
         }
 
         printBill();
@@ -589,6 +605,7 @@ $(document).ready(function() {
 
         var newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?to=' + clientId;
         window.history.pushState({path: newUrl}, '', newUrl);
+        disablePaidButton();
     });
 
     $(document).on('click', '.remove-client', function(e) 
@@ -609,6 +626,7 @@ $(document).ready(function() {
         var url = window.location.href;
         var newUrl = url.split('?')[0];
         window.history.pushState({}, null, newUrl);
+        disablePaidButton();
     });
 
     function addService(serviceId, quantity, row, button) {
@@ -662,6 +680,7 @@ $(document).ready(function() {
         $('.total-amount').text('Total Amount: ₱ ' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
 
         feather.replace();
+        disablePaidButton();
     }
 
     function addProduct(productId, quantity, row, button) {
@@ -813,6 +832,7 @@ $(document).ready(function() {
                 });
             }
         });
+        disablePaidButton();
     }
 
     $(document).on('click', '.add-service', function() {
@@ -875,6 +895,8 @@ $(document).ready(function() {
         $('.add-service[data-service-id="' + serviceId + '"]').text("Add");
 
         $(this).closest('tr').remove();
+
+        disablePaidButton();
     });
 
     $(document).on('click', '.remove-service-from-modal', function(e) 
@@ -906,6 +928,8 @@ $(document).ready(function() {
 
         var removeServiceRow = $('tr.selected-service[data-service-id="' + serviceId + '"]');
         removeServiceRow.remove();
+
+        disablePaidButton();
     });
 
     $(document).on('click', '.remove-product', function(e) 
@@ -934,6 +958,8 @@ $(document).ready(function() {
         addProductButton.prop('disabled', false);
 
         $(this).closest('tr').remove();
+
+        disablePaidButton();
     });
 
     $(document).on('click', '.remove-product-from-modal', function(e) 
@@ -966,6 +992,8 @@ $(document).ready(function() {
 
         var removeProductRow = $('tr.selected-product[data-product-id="' + productId + '"]');
         removeProductRow.remove();
+
+        disablePaidButton();
     });
 
     $('#paid-button').on('click', function() 
@@ -1073,6 +1101,7 @@ $(document).ready(function() {
             },
             success: function(data) {
                 $('#addBillSuccess').modal('show');
+                disablePaidButton();
             },
             error: function(data) {
                 $('#errorModal .modal-body').text(data.responseJSON.message);

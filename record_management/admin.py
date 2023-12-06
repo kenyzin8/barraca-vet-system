@@ -46,7 +46,8 @@ class LabResultAdmin(admin.ModelAdmin):
     list_display = ('id', 'result_name', 'result', 'normal_range', 'result_image')
 
 class LaboratoryTestsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'lab_test', 'lab_test_unit')
+    list_display = ('id', 'lab_test', 'lab_test_unit', 'lab_test_description', 'is_active')
+    search_fields = ('lab_test', 'lab_test_unit', 'lab_test_description', 'is_active')
 
 admin.site.register(PetTreatment, PetTreatmentAdmin)
 admin.site.register(PetMedicalPrescription, PetMedicalPrescriptionAdmin)

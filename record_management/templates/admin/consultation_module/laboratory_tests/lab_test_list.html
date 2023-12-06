@@ -1,0 +1,183 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Laboratory Tests | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+    label 
+    {
+        font-weight: bold;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="card card-header-actions mt-5 mb-5 animated--fade-in-up">
+        <div class="card-header">
+            Laboratory Tests
+            <a href="{% url 'admin-add-laboratory-test-page' %}" type="button" class="btn btn-dark btn-sm lift lift-sm">Add Test</a>
+        </div>
+        <div class="card-body">
+            <table id="datatablesSimple" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Test</th>
+                        <th>Unit</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for test in tests %}
+                    <tr>
+                        <td>{{ test.id }}</td>
+                        <td>{{ test.lab_test }}</td>
+                        <td><span class="badge bg-dark">{{ test.lab_test_unit }}</span></td>
+                        <td>{{ test.lab_test_description }}</td>
+                        <td>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'admin-update-laboratory-test-page' test.id %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Update">
+                                <i data-feather="settings"></i>
+                            </a>
+                            <a class="btn btn-datatable btn-icon btn-transparent-dark" href="#!" data-bs-toggle="modal" data-bs-target="#deleteTestModal" data-test-name="{{ test.lab_test }}" data-test-id="{{ test.id }}" data-bs-placement="top" title="Delete">
+                                <i data-feather="trash-2"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<div class="modal fade" id="deleteTestModal" tabindex="-1" aria-labelledby="deleteTestModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteTestModalLabel">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            Are you sure you want to delete this test?
+            <br>
+            <br>
+            <span id="testName" style="font-weight: bolder;"></span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
+          <a href="#" class="btn btn-dark" id="confirmDelete">Delete</a>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/datatables/simple-datatables.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var deleteTestModal = document.getElementById('deleteTestModal');
+        deleteTestModal.addEventListener('show.bs.modal', function(event) {
+            var button = event.relatedTarget;
+            var testName = button.getAttribute('data-test-name');
+            var testElement = document.getElementById('testName');
+
+            testElement.textContent = testName;
+
+            var testId = button.getAttribute('data-test-id');
+            var deleteUrl = "{% url 'admin-delete-laboratory-test-page' 0 %}".replace('0', testId);
+            var confirmDelete = document.getElementById('confirmDelete');
+
+            confirmDelete.onclick = function() {
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                }).then(function(response){
+                    return response.json();
+                }).then(function(data){
+                    if (data.success) {
+                        window.location.href = "{% url 'admin-laboratory-test-page' %}";
+                    }
+                })
+            }
+        });
+      
+        const datatablesSimple = document.getElementById('datatablesSimple');
+
+        var max_page = 50;
+        var lastIndex = max_page > 25 ? max_page : 50;
+
+        if (datatablesSimple) {
+            datatablesSimple.style.display = "";
+            let dataTable = new simpleDatatables.DataTable(datatablesSimple, {
+                paging: true,
+                perPageSelect: [5, 10, 25, lastIndex],
+                perPage: 10,
+                fixedHeight: false,
+                sortable: true,
+                searchable: true,
+                hiddenHeader: false,
+                columns: [
+                    {
+                        select: 3,
+                        filter: ["Doctor", "Veterinary Technician"]
+                    }
+                ],
+            });
+
+            window.dataTable = dataTable;
+
+            dataTable.on('datatable.update', () => {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dataTable.on('datatable.page', function(page) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dataTable.on('datatable.search', function(query, matched) {
+                feather.replace();
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            dataTable.on('datatable.sort', function(column, direction) {
+                feather.replace();
+                
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            var searchInput = document.querySelector('.datatable-input');
+            
+            searchInput.addEventListener('search', function(e) {
+                if (e.target.value == '') {
+                    dataTable.search('');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -31,10 +31,21 @@
                         <div class="sidenav-menu-heading ">Record</div>
                             {% endif %}
                             {% if request.user|has_permission:'record_management.add_client' %}
-                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-register-walkin-client-page' or current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
+                            <!-- <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-register-walkin-client-page' or current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">
                                 <div class="nav-link-icon"><i class="fas fa-user-group text-grey-200"></i></div>
                                 Clients
+                            </a> -->
+                            <a class="nav-link {% if current_url_name == 'admin-register-walkin-client-page' or current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}{% else %}collapsed{% endif %}" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseClients" aria-expanded="false" aria-controls="collapseClients">
+                                <div class="nav-link-icon"><i data-feather="activity"></i></div>
+                                Clients
+                                <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
+                            <div class="collapse {% if current_url_name == 'admin-register-walkin-client-page' or current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}show{% endif %}" id="collapseClients" data-bs-parent="#accordionSidenav">
+                                <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                                    <a class="nav-link {% if current_url_name == 'admin-client-list-page' or current_url_name == 'admin-view-client-page' %}active{% endif %}" href="{% url 'admin-client-list-page' %}">List</a>
+                                    <a class="nav-link {% if current_url_name == 'admin-register-walkin-client-page' %}active{% endif %}" href="{% url 'admin-register-walkin-client-page' %}">Register Walk-In</a>
+                                </nav>
+                            </div>
                             {% endif %}
                             {% if request.user|has_permission:'record_management.add_pet' %}
                             <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-pet-list-page' or current_url_name == 'admin-view-pet-page' or current_url_name == 'admin-update-pet-page' %}active{% endif %}" href="{% url 'admin-pet-list-page' %}">
@@ -51,10 +62,21 @@
                                 <div class="nav-link-icon"><i class="fas fa-prescription text-grey-200"></i></div>
                                 Medical Prescription
                             </a>
-                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}"> <!-- {% if current_url_name == 'admin-vet' %}active{% endif %} MUST ADD!!!!!-->
+                            <!-- <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}"> 
                                 <div class="nav-link-icon"><i class="fas fa-stethoscope text-grey-200"></i></div>
                                 Consultation
+                            </a> -->
+                            <a class="nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' or current_url_name == 'admin-laboratory-test-page' or current_url_name == 'admin-add-laboratory-test-page' %}{% else %}collapsed{% endif %}" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseConsultation" aria-expanded="false" aria-controls="collapseConsultation">
+                                <div class="nav-link-icon"><i data-feather="activity"></i></div>
+                                Consultation
+                                <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
+                            <div class="collapse {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' or current_url_name == 'admin-laboratory-test-page' or current_url_name == 'admin-add-laboratory-test-page' %}show{% endif %}" id="collapseConsultation" data-bs-parent="#accordionSidenav">
+                                <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                                    <a class="nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}">Form</a>
+                                    <a class="nav-link {% if current_url_name == 'admin-laboratory-test-page' or current_url_name == 'admin-add-laboratory-test-page' %}active{% endif %}" href="{% url 'admin-laboratory-test-page' %}">Laboratory Tests</a>
+                                </nav>
+                            </div>
                             {% endif %}
                         </div>
                         <div class="appointment" draggable="true" data-section-sortable="appointment">
@@ -82,10 +104,21 @@
                         <div class="inventory" draggable="true" data-section-sortable="inventory">
                             {% if request.user|has_permission:'inventory.add_product' %}
                             <div class="sidenav-menu-heading ">Inventory & Services</div>
-                            <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' or current_url_name == 'add-new-batch-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
+                            <!-- <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' or current_url_name == 'add-new-batch-page' %}active{% endif %}" href="{% url 'product-list-page' %}">
                                 <div class="nav-link-icon"><i class="fas fa-cubes text-grey-200"></i></div>
                                 Inventory
+                            </a> -->
+                            <a class="nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' or current_url_name == 'add-new-batch-page' %}{% else %}collapsed{% endif %}" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseInventory" aria-expanded="false" aria-controls="collapseInventory">
+                                <div class="nav-link-icon"><i data-feather="activity"></i></div>
+                                Inventory
+                                <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
+                            <div class="collapse {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'product-type-list-page' or current_url_name == 'add-new-batch-page' %}show{% endif %}" id="collapseInventory" data-bs-parent="#accordionSidenav">
+                                <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
+                                    <a class="nav-link {% if current_url_name == 'product-list-page' or current_url_name == 'product-add-page' or current_url_name == 'product-update-page' or current_url_name == 'add-new-batch-page' %}active{% endif %}" href="{% url 'product-list-page' %}">Products</a>
+                                    <a class="nav-link {% if current_url_name == 'product-type-list-page' %}active{% endif %}" href="{% url 'product-type-list-page' %}">Product Type</a>
+                                </nav>
+                            </div>
                             <a style="background:#ffffff;box-shadow:none;" class="lift lift-sm nav-link {% if current_url_name == 'service-list-page' or current_url_name == 'service-add-page' or current_url_name == 'service-update-page' %}active{% endif %}" href="{% url 'service-list-page' %}">
                                 <div class="nav-link-icon"><i class="fas fa-syringe text-grey-200"></i></div>
                                 Services

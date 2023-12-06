@@ -3089,3 +3089,55 @@ def register_walkin_user(request):
     context = {'form': form}
 
     return render(request, 'admin/create_client.html', context)
+
+@staff_required
+@login_required
+def laboratory_test_list(request):
+    tests = LaboratoryTests.objects.filter(is_active=True).order_by('-id')
+
+    context = {'tests': tests}
+
+    return render(request, 'admin/consultation_module/laboratory_tests/lab_test_list.html', context)
+
+@staff_required
+@login_required
+def laboratory_test_add(request):
+    if request.method == 'POST':
+        form = LaboratoryTestsForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                form.save()
+                return redirect('admin-laboratory-test-page')
+            except ValueError as e:
+                form.add_error('lab_test', e) 
+    else:
+        form = LaboratoryTestsForm()
+
+    context = {'form': form}
+    return render(request, 'admin/consultation_module/laboratory_tests/lab_test_add.html', context)
+
+@staff_required
+@login_required
+def laboratory_test_update(request, test_id):
+    test = LaboratoryTests.objects.get(id=test_id)
+    if request.method == 'POST':
+        form = LaboratoryTestsForm(request.POST, request.FILES, instance=test)
+        if form.is_valid():
+            try:
+                form.save()
+                return redirect('admin-laboratory-test-page')
+            except ValueError as e:
+                form.add_error('lab_test', e) 
+    else:
+        form = LaboratoryTestsForm(instance=test)
+
+    context = {'form': form}
+    return render(request, 'admin/consultation_module/laboratory_tests/lab_test_update.html', context)
+
+@staff_required
+@login_required
+def laboratory_test_delete(request, test_id):
+    test = LaboratoryTests.objects.get(id=test_id)
+    test.is_active = False
+    test.save()
+    return JsonResponse({'success': True, 'message': 'Laboratory test deleted successfully.'})

@@ -1,0 +1,73 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+
+{% block title %} Add Laboratory Test | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+    label 
+    {
+        font-weight: bold;
+    }
+
+    .errorlist{
+        margin-top: 1rem !important;
+        margin-bottom: 0rem !important;
+        color: red !important;
+        font-size: smaller !important;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<main>
+    <div class="container-xl px-4 mt-5 mb-5 animated--fade-in-up">
+        <nav class="mt-4 rounded mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb px-3 py-2 rounded mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'admin-laboratory-test-page' %}">Laboratory Tests</a></li>
+                <li class="breadcrumb-item active">Add Laboratory Test</li>
+            </ol>
+        </nav>
+        <div class="row">
+            <div class="col-xl-8">
+                <div class="card mb-4">
+                    <div class="card-header">Add Laboratory Test</div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="row gx-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="id_lab_test">Laboratory Test <span class="text-red">*</span></label>
+                                    {{ form.lab_test }}
+                                    {{ form.errors.lab_test }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small mb-1" for="id_lab_test_unit">Test Unit <span class="text-red">*</span></label>
+                                    {{ form.lab_test_unit }}
+                                    {{ form.errors.lab_test_unit }}
+                                </div>
+                            </div>
+                            <div class="row gx-3 mb-3">
+                                <div class="col">
+                                    <label class="small mb-1" for="id_lab_test_description">Test Description <span class="text-red">*</span></label>
+                                    {{ form.lab_test_description }} 
+                                    {{ form.errors.lab_test_description }}
+                                </div>
+                            </div>
+                            <button class="btn btn-dark lift lift-sm" type="submit">Add Test</button>
+                            <a href="{% url 'admin-laboratory-test-page' %}" class="ms-3" style="color: #121212; text-decoration: none;"><i class="fas fa-solid fa-angles-left"></i> Back</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+{% block extrascripts %}
+
+{% endblock %}

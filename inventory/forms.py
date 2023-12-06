@@ -2,7 +2,8 @@ from django import forms
 from .models import Product, ProductType
 from .validators import validate_manufacturing_and_expiry_date, validate_quantity, validate_volume, validate_selling, validate_critical
 from django.core.exceptions import ValidationError
-from datetime import date
+from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
 
 class ProductForm(forms.ModelForm):
     product_name = forms.CharField(widget=forms.TextInput(attrs={'id': 'name', 'class': 'form-control', 'placeholder': 'Product Name'}))
@@ -22,6 +23,7 @@ class ProductForm(forms.ModelForm):
     manufacturer = forms.CharField(widget=forms.TextInput(attrs={'id': 'manufacturer', 'class': 'form-control', 'placeholder': 'Product Manufacturer'}))
     
     today = date.today().strftime('%Y-%m-%d')
+    one_month_later = (date.today() + relativedelta(months=1)).strftime('%Y-%m-%d')
 
     manufacturing_date = forms.DateField(
         widget=forms.DateInput(attrs={
@@ -36,7 +38,7 @@ class ProductForm(forms.ModelForm):
             'id': 'expiration_date', 
             'class': 'form-control', 
             'type': 'date',
-            'min': today
+            'min': one_month_later
         })
     )
 

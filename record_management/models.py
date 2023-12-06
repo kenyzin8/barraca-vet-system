@@ -318,6 +318,16 @@ class PrescriptionMedicines(models.Model):
 class LaboratoryTests(models.Model):
     lab_test = models.CharField(max_length=100, null=True, blank=True)
     lab_test_unit = models.CharField(max_length=100, null=True, blank=True)
+    lab_test_description = models.CharField(max_length=100, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        normalized_test_name = self.lab_test.lower().strip()
+
+        if LaboratoryTests.objects.exclude(pk=self.pk).filter(lab_test=normalized_test_name).exists():
+            raise ValueError(f"'{self.lab_test}' test already exists.")
+
+        super(LaboratoryTests, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = "Laboratory Tests"

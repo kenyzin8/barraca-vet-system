@@ -910,12 +910,11 @@
                 showError("Please enter the treatment.");
                 return;
             }
-            else if(labResults == null || labResults == "")
-            {
-                activateTab(1);
-                showError("Please enter the lab results.");
-                return;
-            }
+
+            // if(labResults == null || labResults == "")
+            // {
+            //     labResults = "None";
+            // }
 
             var appointment_date = $('#litepickerSingleDate').val();
             var appointment_time = $('#inputNextAppointmentTime').val();

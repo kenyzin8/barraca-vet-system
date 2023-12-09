@@ -1346,21 +1346,26 @@ class SubmitConsultationView(APIView):
                             'normal_range': lab_result_normal_range[index] if index < len(lab_result_normal_range) else None,
                             'image': lab_results_image_ids[index] if index < len(lab_results_image_ids) else None
                         }
-                        
+
                         if lab_result_data['image']:
+                            
                             temp_image = TemporaryLabResultImage.objects.get(id=lab_result_data['image'])
+
                             lab_result = LabResult.objects.create(
-                                result_name=lab_result_data['description'],
-                                result=lab_result_data['result'],
-                                normal_range=lab_result_data['normal_range'],
+                                result_name=lab_result_data['description'] if len(lab_result_data['description']) > 0 else "None",
+                                result=lab_result_data['result'] if len(lab_result_data['result']) > 1 else "None",
+                                normal_range=lab_result_data['normal_range'] if len(lab_result_data['normal_range']) > 1 else "None",
                                 result_image=temp_image.image
                             )
+
                             temp_image.delete()
+
                         else:
+
                             lab_result = LabResult.objects.create(
-                                result_name=lab_result_data['description'],
-                                result=lab_result_data['result'],
-                                normal_range=lab_result_data['normal_range']
+                                result_name=lab_result_data['description'] if len(lab_result_data['description']) > 0 else "None",
+                                result=lab_result_data['result'] if len(lab_result_data['result']) > 1 else "None",
+                                normal_range=lab_result_data['normal_range'] if len(lab_result_data['normal_range']) > 1 else "None",
                             )
                         
                         pet_treatment.lab_results.add(lab_result)

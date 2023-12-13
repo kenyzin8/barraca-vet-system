@@ -769,6 +769,25 @@
 
         let inds = ind;
 
+        $(document).on('change', '.pending-laboratory-result-check-box', function() {
+            const isChecked = $(this).is(':checked');
+            const group = $(this).closest('.input-group.mb-2');
+
+            const labResultInput = group.find('.lab-result-second-input');
+            const labNormalRangeInput = group.find('.lab-result-normal-range-input');
+            const labImageInput = group.next('.input-group.mb-2').find('.lab-result-image-input');
+
+            if (isChecked) {
+                labResultInput.val('').prop('disabled', true);
+                labNormalRangeInput.val('').prop('disabled', true);
+                labImageInput.val('').css('pointer-events', 'none').prop('disabled', true);
+            } else {
+                labResultInput.prop('disabled', false);
+                labNormalRangeInput.prop('disabled', false);
+                labImageInput.css('pointer-events', '').prop('disabled', false);
+            }
+        });
+
         document.getElementById('addLabResultBtn').addEventListener('click', function(e) {
             e.preventDefault();
 

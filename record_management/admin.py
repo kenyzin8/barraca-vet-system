@@ -43,7 +43,7 @@ class TemporaryLabResultImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'image', 'uploaded_at')
 
 class LabResultAdmin(admin.ModelAdmin):
-    list_display = ('id', 'result_name', 'result', 'normal_range', 'result_image')
+    list_display = ('id', 'result_name', 'result', 'normal_range', 'result_image', 'isPendingLabResult')
 
 class LaboratoryTestsAdmin(admin.ModelAdmin):
     list_display = ('id', 'lab_test', 'lab_test_unit', 'lab_test_description', 'is_active')

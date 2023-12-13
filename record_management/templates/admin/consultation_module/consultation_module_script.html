@@ -880,6 +880,12 @@
 
             var labResults = $('#inputLabResults').val();
 
+            const labResultPendingCheckBox = document.querySelectorAll('.pending-laboratory-result-check-box');
+            
+            function isAnyLabResultPending() {
+                return Array.from(labResultPendingCheckBox).some(checkbox => checkbox.checked);
+            }
+
             if(symptoms == null || symptoms == "")
             {
                 activateTab(1);
@@ -898,19 +904,29 @@
                 showError("Please enter the weight.");
                 return;
             }
-            else if(diagnosis == null || diagnosis == "")
-            {
-                activateTab(1);
-                showError("Please enter the diagnosis.");
-                return;
-            }
-            else if(treatment == null || treatment == "")
-            {
-                activateTab(1);
-                showError("Please enter the treatment.");
-                return;
+
+            if (!isAnyLabResultPending()) {
+                if(diagnosis == null || diagnosis == "") {
+                    activateTab(1);
+                    showError("Please enter the diagnosis.");
+                    return;
+                }
+                else if(treatment == null || treatment == "") {
+                    activateTab(1);
+                    showError("Please enter the treatment.");
+                    return;
+                }
             }
 
+            if(diagnosis == null || diagnosis == "") {
+                diagnosis = null;
+            }
+
+            if(treatment == null || treatment == "") {
+                treatment = null;
+            }
+
+            console.log(diagnosis, treatment)
             // if(labResults == null || labResults == "")
             // {
             //     labResults = "None";
@@ -945,6 +961,7 @@
             var labResults2 = [];
             var labResultNormalRange = [];
             var labResultsImageIDS = [];
+            var labResultPending = [];
 
             labResultInputs.forEach((input, index) => {
                 labResultsDescriptions.push(input.value);
@@ -959,9 +976,11 @@
                 let labResult2Input = labResult2Inputs[index];
                 let labTestUnit = labTestUnits[index];
                 let labResult2Value = labResult2Input ? labResult2Input.value : null;
+
                 if (labTestUnit && labResult2Value !== null) {
                     labResult2Value += ' ' + labTestUnit.textContent; 
                 }
+
                 labResults2.push(labResult2Value);
                 
                 let labResultNormalRangeInput = labResultNormalRangeInputs[index];
@@ -970,15 +989,25 @@
                     labResultNormalRangeValue += ' ' + labTestUnit.textContent;
                 }
                 labResultNormalRange.push(labResultNormalRangeValue);
+
+                let _labResultPending = labResultPendingCheckBox[index].checked;
+                labResultPending.push(_labResultPending);
             });
 
             formData.append('labResultsDescriptions', JSON.stringify(labResultsDescriptions));
+
+            formData.append('labResultPending', JSON.stringify(labResultPending));
+
             formData.append('labResults2', JSON.stringify(labResults2));
             formData.append('labResultNormalRange', JSON.stringify(labResultNormalRange));
             formData.append('labResultsImageIDS', JSON.stringify(labResultsImageIDS));
 
             formData.append('isDeworming', isDeworming);
             formData.append('isVaccination', isVaccination);
+            
+            // var addToPendingLabTestCheckBox = document.getElementById('addToPendingLabCheckbox');
+            // formData.append('addToPendingLabResults', addToPendingLabTestCheckBox.checked);
+
             formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
 
             $.ajax({

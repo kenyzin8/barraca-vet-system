@@ -1,0 +1,566 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block title %} Process Pending Lab Results | Barraca Veterinary Clinic {% endblock %}
+
+{% block extrastyles %}
+<style>
+    :root {
+        --litepicker-day-color-hover: #232323;
+        --litepicker-is-end-color-bg: #232323;
+    }
+    .nav-wizard .nav-link {
+        padding: 1rem;
+    }
+    .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+        background-color: #232323;
+    }
+    .nav-wizard .nav-link.active .wizard-step-icon {
+        color: #232323;
+    }
+    .nav-wizard .nav-link .wizard-step-text .wizard-step-text-name {
+        color: #232323;
+    }
+    .nav-wizard .nav-link .wizard-step-icon {
+        background-color: #232323;
+    }
+    .text-primary {
+        color: #232323 !important;
+    }
+    .next-button
+    {
+        background-color: #232323 !important;
+        border: none;
+    }
+    .submit-button
+    {
+        border: none;
+    }
+    .modal-xl {
+        --bs-modal-width: 1540px;
+    }
+    .litepicker .container__months {
+        border: 1px solid rgb(161, 161, 161);
+    }
+    .litepicker .container__footer {
+        border: 1px solid rgb(161, 161, 161);
+    }
+    .litepicker .container__days .day-item.is-locked {
+        color: rgba(255, 0, 0, 0.082) !important;
+    }
+    .litepicker .container__days .day-item.is-locked:hover {
+        box-shadow: inset 0 0 0 0px var(--litepicker-day-color-hover) !important;
+        cursor: default !important;
+    }
+    .litepicker .container__months .month-item-header div > .month-item-name, .month-item-year {
+        border: none;
+    }
+    .litepicker .container__footer .button-apply {
+        background-color: #232323;
+    }
+    
+    .litepicker .container__days .day-item.afternoon-disabled {
+        color: rgb(45, 45, 248) !important;
+        font-weight: 600 !important;
+    }
+    .litepicker .container__days .day-item.morning-disabled {
+        color: rgb(1, 92, 1) !important;
+        font-weight: 600 !important;
+    }
+    .litepicker .container__days .day-item.day-full {
+        color: red !important;
+        font-weight: 600 !important;
+    }
+    .litepicker .container__days .day-item.old-date {
+        pointer-events: none;
+        color: rgba(255, 0, 0, 0.082) !important;
+    }
+    .bs-tooltip-top, 
+    .bs-tooltip-auto[data-popper-placement^=top] {
+        z-index: 10000 !important;
+    }
+    
+    .bs-tooltip-bottom, 
+    .bs-tooltip-auto[data-popper-placement^=bottom], 
+    .bs-tooltip-left, 
+    .bs-tooltip-auto[data-popper-placement^=left], 
+    .bs-tooltip-right, 
+    .bs-tooltip-auto[data-popper-placement^=right] {
+        z-index: 10000 !important;
+    }
+    
+    .btn-today
+    {
+        color: #232323 !important;
+        font-size: 10px !important;
+    }
+    
+    .parent-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    
+    .avatar {
+        margin: 0 10px; 
+    }
+    
+    .header-group {
+        text-align: left;
+    
+    }
+    
+    .selected-pet-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0px;
+    }
+    
+    @media (max-width: 577px) {
+        .parent-container {
+            flex-direction: column; 
+            align-items: center; 
+        }
+        
+        .header-group {
+            text-align: center; 
+        }
+    
+        .selected-pet-info {
+            margin-top: 5px; 
+            margin-bottom: 30px;
+        }
+    }
+    
+    #litepickerSingleDate
+    {
+        border-top-right-radius: 10px !important;
+        border-bottom-right-radius: 10px !important;
+    }
+    
+
+    .form-check {
+        min-height: 0rem !important;
+        margin-bottom: 0rem !important;
+        margin-left: 15px !important
+    }
+    
+    .form-check-input {
+        vertical-align: middle;
+        margin-top: -0.2rem;
+    }
+    
+    .form-check-label {
+        line-height: 1.5; 
+        vertical-align: middle;
+    }
+    .form-check .form-check-input {
+        float: none;
+        transition: 0.3s;
+    }
+    .form-check-input:checked {
+        background-color: #232323;
+        border-color: #232323;
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.1rem rgba(35, 35, 35, 0.5); 
+    }
+    
+    .form-check-input:focus:checked {
+        box-shadow: 0 0 0 0.25rem rgba(35, 35, 35, 0.5); 
+    }
+    .btn-add-lab-result, .btn-placeholder-only, .btn-second-placeholder-only
+    {
+        border: 1px solid #c5ccd6;
+    }
+    .btn-add-lab-result:hover
+    {
+        border: 1px solid #c5ccd6;
+        background: whitesmoke;
+    }
+    .btn-placeholder-only{
+        border-left: 1px solid white !important;
+    }
+    .btn-placeholder-only:hover{
+        cursor: default !important;
+        background: transparent !important;
+        border: 1px solid #c5ccd6;
+    }
+    .btn-second-placeholder-only{
+        border-right: 1px solid white !important;
+    }
+    .btn-second-placeholder-only:hover{
+        cursor: default !important;
+        background: transparent !important;
+        border: 1px solid #c5ccd6;
+    }
+    .btn-remove-lab-result
+    {
+        border: 1px solid #c5ccd6;
+    }
+    .btn-remove-lab-result:hover
+    {
+        border: 1px solid #c5ccd6;
+        background: whitesmoke;
+    }
+    
+    .btn-view-lab-result-image
+    {
+        border: 1px solid #c5ccd6;
+    }
+    
+    .btn-view-lab-result-image:hover
+    {
+        border: 1px solid #c5ccd6;
+        background: whitesmoke;
+    }
+    .btn-no-image {
+        border: 1px solid #c5ccd6;
+        cursor: default; /* fixed this */
+    }
+    
+    .btn-no-image:hover {
+        border: 1px solid #c5ccd6;
+        cursor: default; /* fixed this */
+    }
+    .btn-no-image:click {
+        border: 1px solid #c5ccd6;
+        cursor: default; /* fixed this */
+    }
+    .breadcrumb {
+        background-color: rgba(0, 0, 0, 0.15);
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+    }
+    .active a
+    {
+        font-weight: 600 !important;
+    }
+    </style>
+{% endblock %}
+
+{% block header %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container-xl mt-5">
+    <nav class="mt-4 rounded mb-3" aria-label="breadcrumb">
+        <ol class="breadcrumb px-3 py-2 rounded mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'admin-medical-record-page' %}">Consultation</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'admin-view-pet-page' pet_treatment.pet.id %}" target="_blank">{{ pet_treatment.pet }}</a></li>
+            <li class="breadcrumb-item active">Process Pending Laboratory Result{% if laboratory_results|length > 1 %}s{% endif %}</li>
+        </ol>
+    </nav>
+    <div class="card card-header-actions">
+        <div class="card-header ">
+            Process Laboratory Result{% if laboratory_results|length > 1 %}s{% endif %}
+            <div class="selected-pet-info">
+                <span class="small">Selected Pet: </span>
+                <div class="avatar">
+                    {% if pet.picture %}
+                    <img class="avatar-img img-fluid selected-pet-image" src="{{ pet_treatment.pet.picture.url }}" alt="{{ pet.name }} loading="lazy"/>
+                    {% else %}
+                    <img class="avatar-img img-fluid selected-pet-image" src="{% static 'images/no-image-placeholder.jpg' %}" alt="{{ pet_treatment.pet.name }}">
+                    {% endif %}
+                </div>
+                <span class="pet-name selected-pet-name small">{{ pet_treatment.pet.name }}</span>
+                <a class="btn btn-datatable btn-icon btn-transparent-dark btn-to-pet selected-pet-link" href="{% url 'admin-view-pet-page' pet_treatment.pet.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Pet">
+                    <i data-feather="external-link"></i>
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div>
+                <label class="small mb-1" for="inputLabResults">Laboratory Result{% if laboratory_results|length > 1 %}s{% endif %} (Description & Image) <span class="text-red">*</span> </label>                   
+            </div>
+            {% for lab_results in laboratory_results %}
+                <div class="lab-result-group-fields" style="margin-top: 1rem;" data-lab-result-id="{{ lab_results.id }}">
+                    <input class="lab-result-id" type="text" hidden value="{{ lab_results.id }}">
+                    <span class="laboratory-result-id" style="display: none;">{{ lab_results.id }}</span>
+                    <div class="input-group mb-2">
+
+                        <input class="form-control lab-result-input" id="inputLabResults" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)" value="{{ lab_results.result_name }}"/>
+                        <select class="form-select lab-result-select" id="selectLabTest" name="select-test">
+                            <option value="">Select a Test</option>
+                            {% for test in laboratory_tests %}
+                            <option value="{{ test.lab_test_unit }}" {% if lab_results.result_name == test.lab_test %}selected{% endif %}>{{ test.lab_test }}</option>
+                            {% endfor %}
+                        </select> 
+                    </div>
+                    <div class="input-group mb-2">
+                        <input class="form-control lab-result-second-input" id="inputResult" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="result" type="text" placeholder="Enter result (e.g., 13.5)" value="{% if lab_results.result == 'None' %}{% else %}{{lab_results.result}}{% endif %}"/>
+                        <span class="input-group-text lab-test-unit lab-test-unit-to-submit" data-id="{{ forloop.counter }}">{{ lab_results.result_unit }}</span>
+                        <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0)" value="{% if lab_results.normal_range == 'None' %}{% else %}{{lab_results.normal_range}}{% endif %}"/>
+                        <span class="input-group-text lab-test-unit" data-id="{{ forloop.counter }}">{{ lab_results.result_unit }}</span>
+                    </div>
+                    <div class="input-group mb-2 second-row-lab-r">
+                        <input class="form-control lab-result-image-input" id="inputLabResultsImages" data-existing-lab-id="{{ lab_results.id }}" data-id="{{ forloop.counter }}" name="lab_result_images" type="file" accept=".jpg, .jpeg, .png" />
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            0%
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="mb-3 mt-3">
+                <label class="small mb-1" for="inputDiagnosis">Diagnosis <span class="text-red">*</span></label>
+                <input class="form-control" id="inputDiagnosis" name="diagnosis" type="text" placeholder="Enter diagnosis" 
+                value="{% if pet_treatment.diagnosis == 'null' %}{% else %}{{ pet_treatment.diagnosis }}{% endif %}"/>
+            </div>
+            <div class="mb-3">
+                <label class="small mb-1" for="inputTreatment">Treatment <span class="text-red">*</span></label>
+                <input type="text" class="form-control" id="inputTreatment" name="treatment" placeholder="Enter treatment" 
+                value="{% if pet_treatment.treatment == 'null' %}{% else %}{{ pet_treatment.treatment }}{% endif %}">
+            </div>
+
+            <button class="btn btn-dark mt-2 submit-button">Submit</button>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop='static'>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="successModalLabel">Success!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <!-- message here -->
+        </div>
+        <div class="modal-footer">
+            <button id="OKSuccessModalButton" type="button" class="btn btn-dark btn-sm" data-bs-dismiss="modal">OK</button>
+        </div>
+        </div>
+    </div>
+</div> 
+<div class="modal fade" id="errorModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark errorOKBtn" type="button" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="confirmationModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               Are you sure you want to submit this laboratory result?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-dark" type="button" data-bs-dismiss="modal">No</button>
+                <button id="confirm-lab-result-button" class="btn btn-dark" type="button" data-bs-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script src="{% static 'plugins/sb-admin/js/bundle.js' %}" crossorigin="anonymous"></script>
+<script>
+function showSuccess(message) {
+    $("#OKSuccessModalButton").off("click");
+    $('#successModal .modal-body').text(message);
+    $('#successModal').modal('show');
+}
+function showError(message){
+    $('#errorModal .modal-body').text(message);
+    $('#errorModal').modal('show');
+}
+function showConfirmationModal() {
+    $('#confirmationModal').modal('show');
+}
+window.addEventListener('DOMContentLoaded', event => {
+    $('[data-bs-toggle="tooltip"]').tooltip('dispose');
+    $('[data-bs-toggle="tooltip"]').tooltip({html: true});
+
+    $(document).on('change', '.lab-result-select', function() {
+        var container = $(this).closest('.lab-result-group-fields');
+        
+        var selectedText = $('option:selected', this).text();
+        var capitalizedText = selectedText.charAt(0).toUpperCase() + selectedText.slice(1);
+
+        container.find('.lab-result-input').val(capitalizedText);
+
+        var selectedUnit = $('option:selected', this).val();
+
+        container.find('.lab-test-unit').text(selectedUnit == 'None' ? '' : selectedUnit);
+    });
+
+    $('.lab-result-select').trigger('change');
+});
+</script>
+<script>
+    $(document).ready(function() {
+        const regex = /[^a-zA-Z\s\-:'"]/g;
+        const leadingSpaceRegex = /^\s+/;
+        const numberAndCharacterRegex = /[^0-9a-zA-Z\s\.\-]/g;
+
+        $("#inputSymptoms, #inputDiagnosis, #inputLabResults, #inputTreatment").on("input", function() {
+            let value = $(this).val();
+            value = value.replace(regex, "");
+            value = value.replace(leadingSpaceRegex, "");
+            if (value.length > 0) {
+                value = value.charAt(0).toUpperCase() + value.slice(1);
+            }
+            $(this).val(value);
+        });
+
+        $(document).on("input", ".lab-result-second-input", function() {
+            let value = $(this).val();
+            let decimalNumberRegex = /^\d*(\.\d{0,2})?$/;
+
+            if (!decimalNumberRegex.test(value)) {
+                $(this).val($(this).data('lastValid') || '');
+            } else {
+                $(this).data('lastValid', value);
+            }
+        });
+
+        $(document).on("input", ".lab-result-normal-range-input", function() {
+            let value = $(this).val();
+            let formatRegex = /^(\d+(\.\d{0,2})?)?\s?(-\s?(\d+(\.\d{0,2})?)?)?$/;
+
+            if (!formatRegex.test(value)) {
+                $(this).val($(this).data('lastValid') || '');
+            } else {
+                $(this).data('lastValid', value);
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+
+        $(document).on("click", ".submit-button", function() {
+            let isValid = true;
+
+            const diagnosisInput = $('#inputDiagnosis');
+            const treatmentInput = $('#inputTreatment');
+
+            diagnosisInput.css('background-color', ''); 
+            treatmentInput.css('background-color', '');
+
+            if (!diagnosisInput.val().trim()) {
+                diagnosisInput.css('background-color', 'pink');
+                isValid = false;
+            }
+
+            if (!treatmentInput.val().trim()) {
+                treatmentInput.css('background-color', 'pink');
+                isValid = false;
+            }
+
+            const labResultGroups = document.querySelectorAll('.lab-result-group-fields');
+            
+            labResultGroups.forEach(group => {
+                const labTestSelect = group.querySelector('.lab-result-select');
+                const labTestInput = group.querySelector('.lab-result-input');
+                const labResultInput = group.querySelector('.lab-result-second-input');
+                const labNormalRangeInput = group.querySelector('.lab-result-normal-range-input');
+                const labImageInput = group.querySelector('.lab-result-image-input');
+
+                labTestInput.style.backgroundColor = '';
+                labResultInput.style.backgroundColor = '';
+                labNormalRangeInput.style.backgroundColor = '';
+                labImageInput.style.backgroundColor = '';
+
+                if (!labTestInput.value.trim()) {
+                    labTestInput.style.backgroundColor = 'pink';
+                    isValid = false;
+                }
+
+                if (labTestSelect.options[labTestSelect.selectedIndex].text.toLowerCase().includes('x-ray')) {
+                    if (!labImageInput.files.length) {
+                        labImageInput.style.backgroundColor = 'pink';
+                        isValid = false;
+                    }
+                } else {
+                    if (!labResultInput.value.trim()) {
+                        labResultInput.style.backgroundColor = 'pink';
+                        isValid = false;
+                    }
+                    if (!labNormalRangeInput.value.trim()) {
+                        labNormalRangeInput.style.backgroundColor = 'pink';
+                        isValid = false;
+                    }
+                }
+            });
+
+            if (!isValid) {
+                showError('Please fill in all required fields.');
+                return;
+            }
+
+            showConfirmationModal();
+        });
+
+        $(document).on("click", "#confirm-lab-result-button", function(){
+            const formData = new FormData();
+            const labResultGroups = document.querySelectorAll('.lab-result-group-fields');
+            
+            formData.append('diagnosis', $('#inputDiagnosis').val());
+            formData.append('treatment', $('#inputTreatment').val());
+            formData.append('treatmentID', '{{ pet_treatment.id }}');
+
+            labResultGroups.forEach(group => {
+                
+                const labResultId = group.getAttribute('data-lab-result-id');
+
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+                formData.append('labResultId', labResultId);
+                formData.append('labTest', group.querySelector('.lab-result-input').value);
+                formData.append('labResult', group.querySelector('.lab-result-second-input').value + " " + group.querySelector('.lab-test-unit-to-submit').textContent);
+                formData.append('labNormalRangeInput', group.querySelector('.lab-result-normal-range-input').value + " " + group.querySelector('.lab-test-unit-to-submit').textContent);
+
+                let labImageInput = group.querySelector('.lab-result-image-input');
+                if (labImageInput && labImageInput.files[0]) {
+                    formData.append('labImageInput', labImageInput.files[0] ? labImageInput.files[0] : 'None');
+                }
+
+                var url = "{% url 'admin-submit-pending-laboratory-results-page' 0 %}".replace('0', labResultId);
+
+                $.ajax({
+                    url: url, 
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        showSuccess('Laboratory results successfully saved!');
+
+                        $('#OKSuccessModalButton').on('click', function() {
+                            window.location.href = "{% url 'admin-medical-record-page' %}";
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        showError('Error saving lab results:', error);
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

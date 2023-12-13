@@ -6,6 +6,8 @@ from django.contrib.auth.models import User as AuthUser, Group as AuthGroup
 from django.apps import apps
 #from core.models import Province, Barangay, Municipality
 from django.templatetags.static import static
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 class User(AuthUser):
     class Meta:
@@ -139,7 +141,6 @@ class PetTreatment(models.Model):
 
     hasMultipleCycles = models.BooleanField(default=False)
     appointment_cycles = models.JSONField(blank=True, null=True)  
-    cycles_remaining = models.PositiveIntegerField(default=0)  #DEPRECIATED
 
     def __str__(self):
         return f"{self.pet.name} - {self.treatment}"
@@ -163,6 +164,10 @@ class PetTreatment(models.Model):
         except:
             return None
 
+    def all_lab_results_not_pending(self):
+        return not self.lab_results.filter(isPendingLabResult=False, isActive=True).exists()
+
+
     class Meta:
         verbose_name_plural = "Pet Treatments"
 
@@ -176,6 +181,8 @@ class LabResult(models.Model):
     result_image = models.ImageField(upload_to='public/images/', null=True, blank=True, default='None', validators=[validate_image_extension])
 
     isActive = models.BooleanField(default=True)
+
+    isPendingLabResult = models.BooleanField(default=False)
 
     def is_image(self):
         return self.result_image != 'None'
@@ -320,6 +327,9 @@ class LaboratoryTests(models.Model):
     lab_test_unit = models.CharField(max_length=100, null=True, blank=True)
     lab_test_description = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.lab_test
 
     def save(self, *args, **kwargs):
         normalized_test_name = self.lab_test.lower().strip()

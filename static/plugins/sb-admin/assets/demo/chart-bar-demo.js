@@ -72,7 +72,14 @@ var myBarChart = new Chart(ctx, {
                 },
                 ticks: {
                     maxTicksLimit: 6
-                }
+                },
+                scaleLabel: {
+                    display: true,
+                    labelString: "Years",
+                    padding: 1,
+                    lineHeight: 1.5,
+                    fontStyle: "bold"
+                },
             }],
             yAxes: [{
                 ticks: {
@@ -91,7 +98,14 @@ var myBarChart = new Chart(ctx, {
                     drawBorder: false,
                     borderDash: [2],
                     zeroLineBorderDash: [2]
-                }
+                },
+                scaleLabel: {
+                    display: true,
+                    labelString: "Gross Revenue",
+                    padding: 1,
+                    lineHeight: 1.5,
+                    fontStyle: "bold"
+                },
             }]
         },
         legend: {

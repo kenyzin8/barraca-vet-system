@@ -54,6 +54,8 @@ urlpatterns = [
     path('admin/consultation/laboratory-test-list/add/', views.laboratory_test_add, name='admin-add-laboratory-test-page'),
     path('admin/consultation/laboratory-test-list/update/<int:test_id>/', views.laboratory_test_update, name='admin-update-laboratory-test-page'),
     path('admin/consultation/laboratory-test-list/delete/<int:test_id>/', views.laboratory_test_delete, name='admin-delete-laboratory-test-page'),
+    path('admin/process-pending-laboratory-results/<int:treatmentID>/', views.process_pending_laboratory_results, name='admin-process-pending-laboratory-results-page'),
+    path('admin/process-pending-laboratory-results/submit/<int:labID>/', views.submit_pending_laboratory_results, name='admin-submit-pending-laboratory-results-page'),
 ]
 
 

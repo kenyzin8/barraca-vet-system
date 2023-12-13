@@ -19,6 +19,9 @@ class ConsultationSerializer(serializers.Serializer):
     diagnosis = serializers.CharField()
     treatment = serializers.CharField()
     labResultsDescriptions = serializers.JSONField(required=True)
+
+    labResultPending = serializers.JSONField(required=False)
+
     labResults2 = serializers.JSONField(required=False)
     labResultNormalRange = serializers.JSONField(required=False)
     labResultsImageIDS = serializers.JSONField(required=False)
@@ -26,6 +29,7 @@ class ConsultationSerializer(serializers.Serializer):
     isVaccination = serializers.BooleanField()
     productsSelected = serializers.JSONField(required=False)
     appointment_purpose = serializers.IntegerField(required=False)
+    addToPendingLabResults = serializers.BooleanField(required=False)
 
 class PrescriptionSerializer(serializers.Serializer):
     selectedPetId = serializers.IntegerField(required=True)

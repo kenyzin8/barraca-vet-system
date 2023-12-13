@@ -66,14 +66,14 @@
                                 <div class="nav-link-icon"><i class="fas fa-stethoscope text-grey-200"></i></div>
                                 Consultation
                             </a> -->
-                            <a class="nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' or current_url_name == 'admin-laboratory-test-page' or current_url_name == 'admin-add-laboratory-test-page' %}{% else %}collapsed{% endif %}" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseConsultation" aria-expanded="false" aria-controls="collapseConsultation">
+                            <a class="nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' or current_url_name == 'admin-laboratory-test-page' or current_url_name == 'admin-add-laboratory-test-page' or current_url_name == 'admin-process-pending-laboratory-results-page' %}{% else %}collapsed{% endif %}" href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#collapseConsultation" aria-expanded="false" aria-controls="collapseConsultation">
                                 <div class="nav-link-icon"><i data-feather="activity"></i></div>
                                 Consultation
                                 <div class="sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <div class="collapse {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' or current_url_name == 'admin-laboratory-test-page' or current_url_name == 'admin-add-laboratory-test-page' %}show{% endif %}" id="collapseConsultation" data-bs-parent="#accordionSidenav">
+                            <div class="collapse {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' or current_url_name == 'admin-laboratory-test-page' or current_url_name == 'admin-add-laboratory-test-page' or current_url_name == 'admin-process-pending-laboratory-results-page' %}show{% endif %}" id="collapseConsultation" data-bs-parent="#accordionSidenav">
                                 <nav class="sidenav-menu-nested nav accordion" id="accordionSidenavPages">
-                                    <a class="nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}">Form</a>
+                                    <a class="nav-link {% if current_url_name == 'admin-medical-record-page' or current_url_name == 'admin-update-consultation-page' or current_url_name == 'admin-process-pending-laboratory-results-page' %}active{% endif %}" href="{% url 'admin-medical-record-page' %}">Form</a>
                                     <a class="nav-link {% if current_url_name == 'admin-laboratory-test-page' or current_url_name == 'admin-add-laboratory-test-page' %}active{% endif %}" href="{% url 'admin-laboratory-test-page' %}">Laboratory Tests</a>
                                 </nav>
                             </div>

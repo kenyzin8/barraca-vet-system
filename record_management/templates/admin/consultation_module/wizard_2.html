@@ -41,7 +41,7 @@
                     <div class="input-group mb-2">
                         <input class="form-control lab-result-input" id="inputLabResults" data-id="0" name="diagnosis" type="text" placeholder="Enter test (e.g., Urinalysis, CBC, X-ray)"/>
                         <select class="form-select lab-result-select" id="selectLabTest" name="select-test">
-                            <option value="">Select a Test</option>
+                            <option value="">Select a test</option>
                             {% for test in laboratory_tests %}
                             <option value="{{ test.lab_test_unit }}">{{ test.lab_test }}</option>
                             {% endfor %}
@@ -49,9 +49,13 @@
                         <!-- <button class="btn btn-placeholder-only" type="button"><i data-feather="plus-circle" style="visibility: hidden;"></i></button> -->
                     </div>
                     <div class="input-group mb-2">
+                        <div class="input-group-text">
+                            <input class="pending-laboratory-result-check-box" type="checkbox" id="flexRadioDefault1" aria-label="Checkbox for following text input" data-id="0">
+                            <label class="form-check-label small pending-result-check-box ms-2" for="flexRadioDefault1" data-id="0">Pending Result</label>
+                        </div>
                         <input class="form-control lab-result-second-input" id="inputResult" data-id="0" name="result" type="text" placeholder="Enter result (e.g., 13.5) (Optional)"/>
                         <span class="input-group-text lab-test-unit lab-test-unit-to-submit" data-id="0"></span>
-                        <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-id="0" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0) (Optional)"/>    
+                        <input class="form-control lab-result-normal-range-input" id="inputNormalRange" data-id="0" name="normal-range" type="text" placeholder="Enter normal range (e.g., 12.0 - 16.0) (Optional)"/>     
                         <span class="input-group-text lab-test-unit" data-id="0"></span>
                     </div>
                     <div class="input-group mb-2 second-row-lab-r">

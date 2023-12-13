@@ -527,7 +527,7 @@ def view_pet(request, pet_id):
     deworming_data = []
     vaccination_data = []
     
-    for treatment in deworming_health_card.order_by('id'):
+    for treatment in deworming_health_card.filter(isActive=True).order_by('id'):
         lab_result = treatment.lab_results.first()
         lab_result_image = lab_result.result_image.url if lab_result and lab_result.result_image else ""
 
@@ -548,7 +548,7 @@ def view_pet(request, pet_id):
             'sticker': lab_result_image,
         })
 
-    for treatment in vaccination_health_card.order_by('id'):
+    for treatment in vaccination_health_card.filter(isActive=True).order_by('id'):
         lab_result = treatment.lab_results.first()
         lab_result_image = lab_result.result_image.url if lab_result and lab_result.result_image else ""
 
@@ -571,7 +571,7 @@ def view_pet(request, pet_id):
 
     medical_record_data = []
     
-    for treatment in pet_treatment.order_by('id'):
+    for treatment in pet_treatment.filter(isActive=True).order_by('id'):
         _lab_results = []
         for lab_result in treatment.lab_results.all():
             if lab_result.result_image:
@@ -1078,6 +1078,13 @@ def medical_record(request):
     doctor_schedules = serialize('json', doctor_schedules)
     time_choices = Appointment.time_choices
 
+    pending_lab_results = PetTreatment.objects.filter(lab_results__isPendingLabResult=True).order_by('-id').distinct()
+
+    for treatment in pending_lab_results:
+        treatment.pending_lab_result_names = ', '.join(
+            [lr.result_name for lr in treatment.lab_results.filter(isPendingLabResult=True)]
+        )
+    
     context = {
         'pets': pets, 
         'product_dict': product_dict, 
@@ -1089,6 +1096,7 @@ def medical_record(request):
         'doctor_schedules': doctor_schedules,
         'time_choices': time_choices,
         'laboratory_tests': laboratory_tests,
+        'pending_lab_results': pending_lab_results
     }
     return render(request, 'admin/consultation_module/consultation_module.html', context)
 
@@ -1240,6 +1248,8 @@ class SubmitConsultationView(APIView):
             is_vaccine = serializer.validated_data.get('isVaccination')
             products_selected = serializer.validated_data.get('productsSelected')
 
+            add_to_pending_lab_results = serializer.validated_data.get('addToPendingLabResults')
+
             noon = dt_time(12, 0, 0)
             evening = dt_time(18, 0, 0)
 
@@ -1335,6 +1345,11 @@ class SubmitConsultationView(APIView):
                     )
 
                     lab_results_descriptions = serializer.validated_data.get('labResultsDescriptions', [])
+
+                    lab_results_pending = serializer.validated_data.get('labResultPending', [])
+
+                    #print(lab_results_pending)
+
                     lab_results_2 = serializer.validated_data.get('labResults2', [])
                     lab_result_normal_range = serializer.validated_data.get('labResultNormalRange', [])
                     lab_results_image_ids = serializer.validated_data.get('labResultsImageIDS', [])
@@ -1342,19 +1357,28 @@ class SubmitConsultationView(APIView):
                     for index, description in enumerate(lab_results_descriptions):
                         lab_result_data = {
                             'description': description,
+                            'isPendingLabResult': lab_results_pending[index],
                             'result': lab_results_2[index] if index < len(lab_results_2) else None,
                             'normal_range': lab_result_normal_range[index] if index < len(lab_result_normal_range) else None,
                             'image': lab_results_image_ids[index] if index < len(lab_results_image_ids) else None
                         }
-
+     
                         if lab_result_data['image']:
                             
                             temp_image = TemporaryLabResultImage.objects.get(id=lab_result_data['image'])
 
+                            if not lab_result_data['isPendingLabResult']:
+                                result = lab_result_data['result'] if len(lab_result_data['result']) > 1 else "None"
+                                normal_range = lab_result_data['normal_range'] if len(lab_result_data['normal_range']) > 1 else "None"
+                            else:
+                                result = "None"
+                                normal_range = "None"
+
                             lab_result = LabResult.objects.create(
                                 result_name=lab_result_data['description'] if len(lab_result_data['description']) > 0 else "None",
-                                result=lab_result_data['result'] if len(lab_result_data['result']) > 1 else "None",
-                                normal_range=lab_result_data['normal_range'] if len(lab_result_data['normal_range']) > 1 else "None",
+                                isPendingLabResult=lab_result_data['isPendingLabResult'],
+                                result=result,
+                                normal_range=normal_range,
                                 result_image=temp_image.image
                             )
 
@@ -1362,10 +1386,18 @@ class SubmitConsultationView(APIView):
 
                         else:
 
+                            if not lab_result_data['isPendingLabResult']:
+                                result = lab_result_data['result'] if len(lab_result_data['result']) > 1 else "None"
+                                normal_range = lab_result_data['normal_range'] if len(lab_result_data['normal_range']) > 1 else "None"
+                            else:
+                                result = "None"
+                                normal_range = "None"
+
                             lab_result = LabResult.objects.create(
                                 result_name=lab_result_data['description'] if len(lab_result_data['description']) > 0 else "None",
-                                result=lab_result_data['result'] if len(lab_result_data['result']) > 1 else "None",
-                                normal_range=lab_result_data['normal_range'] if len(lab_result_data['normal_range']) > 1 else "None",
+                                isPendingLabResult=lab_result_data['isPendingLabResult'],
+                                result=result,
+                                normal_range=normal_range,
                             )
                         
                         pet_treatment.lab_results.add(lab_result)
@@ -2341,7 +2373,7 @@ def get_laboratory_results_data(request, treatmentID):
     if request.method == 'GET':
         pet_treatment = PetTreatment.objects.get(pk=treatmentID)
 
-        lab_results = pet_treatment.lab_results.all()
+        lab_results = pet_treatment.lab_results.filter(isPendingLabResult=False, isActive=True)
 
         lab_results_data = []
 
@@ -2353,6 +2385,7 @@ def get_laboratory_results_data(request, treatmentID):
                 'normal_range': lab_result.normal_range if lab_result.normal_range else 'N/A',
                 'image': lab_result.result_image.url if lab_result.result_image != 'None' else False
             })
+        print(lab_results_data)
 
         return JsonResponse({'success': True, 'lab_results_data': lab_results_data})
     else:
@@ -3146,3 +3179,66 @@ def laboratory_test_delete(request, test_id):
     test.is_active = False
     test.save()
     return JsonResponse({'success': True, 'message': 'Laboratory test deleted successfully.'})
+
+@staff_required
+@login_required
+def process_pending_laboratory_results(request, treatmentID):
+    pet_treatment = PetTreatment.objects.get(id=treatmentID)
+
+    laboratory_results = pet_treatment.lab_results.filter(isPendingLabResult=True)
+    laboratory_tests = LaboratoryTests.objects.filter(is_active=True)
+    
+    for lab_result in laboratory_results:
+        if lab_result.normal_range:
+            match = re.search(r'\s(\S+)$', lab_result.normal_range)
+            if match:
+                unit = match.group(1)
+                range_part = lab_result.normal_range[:match.start()]
+            else:
+                unit = ''
+                range_part = lab_result.normal_range
+
+            lab_result.result_unit = unit
+
+            if lab_result.result == ' ':
+                lab_result.result = None
+            lab_result.result = lab_result.result.split()[0] if lab_result.result else None
+            lab_result.normal_range = range_part.strip()
+
+            print(lab_result.result)
+
+    context = {'laboratory_results': laboratory_results, 'pet_treatment': pet_treatment, 'laboratory_tests': laboratory_tests}
+
+    return render(request, 'admin/consultation_module/process_pending_lab_result.html', context)
+
+@staff_required
+@login_required
+def submit_pending_laboratory_results(request, labID):
+    if request.method == 'POST':
+        lab_result_id = request.POST.get('labResultId')
+        lab_test = request.POST.get('labTest')
+        lab_result = request.POST.get('labResult')
+        lab_normal_range_input = request.POST.get('labNormalRangeInput')
+        lab_image_input = request.FILES.get('labImageInput')
+
+        _lab_result = LabResult.objects.get(id=lab_result_id)
+        _lab_result.result_name = lab_test
+        _lab_result.result = lab_result
+        _lab_result.normal_range = lab_normal_range_input
+        _lab_result.result_image = lab_image_input
+        _lab_result.isPendingLabResult = False
+        _lab_result.save()
+
+        diagnosis = request.POST.get('diagnosis')
+        treatment = request.POST.get('treatment')
+
+        treatmentID = request.POST.get('treatmentID')
+
+        pet_treatment = PetTreatment.objects.get(id=treatmentID)
+        pet_treatment.diagnosis = diagnosis
+        pet_treatment.treatment = treatment
+        pet_treatment.save()
+
+        return JsonResponse({'status': 'success', 'message': 'Lab results saved'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)

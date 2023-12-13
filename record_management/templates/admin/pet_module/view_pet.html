@@ -465,6 +465,7 @@
                                 <tbody>
                                     {% for treatment in pet_treatment %}
                                     {% if treatment.isActive %}
+                                    {% if treatment.diagnosis != 'null' %}
                                     <tr>
                                         <td><span class="treatment-id">{{ treatment.id }}</span></td>
                                         <td>
@@ -516,6 +517,7 @@
                                         </td>
                                         {% endif %}
                                     </tr>
+                                    {% endif %}
                                     {% endif %}
                                     {% endfor %}
                                 </tbody>

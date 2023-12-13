@@ -167,7 +167,6 @@ class PetTreatment(models.Model):
     def all_lab_results_not_pending(self):
         return not self.lab_results.filter(isPendingLabResult=False, isActive=True).exists()
 
-
     class Meta:
         verbose_name_plural = "Pet Treatments"
 

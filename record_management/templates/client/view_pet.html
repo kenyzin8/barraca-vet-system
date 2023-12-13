@@ -357,6 +357,7 @@
                                 <tbody>
                                     {% for treatment in pet_treatment %}
                                     {% if treatment.isActive %}
+                                    {% if treatment.diagnosis != 'null' %}
                                     <tr>
                                         <td><span class="treatment-id">{{ treatment.id }}</span></td>
                                         <td>
@@ -369,10 +370,14 @@
                                         <td>{{ treatment.diagnosis }}</td>
                                         <td>{{ treatment.treatment }}</td>
                                         <td>
-                                            {% if treatment.lab_results %}
-                                                <button class="openLabResultsBtn btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Laboratory Results" data-treatment-id="{{ treatment.id }}">
-                                                    <i data-feather="heart"></i>
-                                                </button>
+                                            {% if treatment.lab_results.exists %}
+                                                {% if treatment.all_lab_results_not_pending %}
+                                                    <i data-feather="x-square"></i>
+                                                {% else %}
+                                                    <button class="openLabResultsBtn btn btn-datatable btn-icon btn-transparent-dark" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="View Laboratory Results" data-treatment-id="{{ treatment.id }}">
+                                                        <i data-feather="heart"></i>
+                                                    </button>
+                                                {% endif %}
                                             {% else %}
                                                 <i data-feather="x-square"></i>
                                             {% endif %}
@@ -394,6 +399,7 @@
                                             {% endif %}
                                         </td>
                                     </tr>
+                                    {% endif %}
                                     {% endif %}
                                     {% endfor %}
                                 </tbody>

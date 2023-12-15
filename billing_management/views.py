@@ -423,8 +423,14 @@ def get_range_name(start_date_str, end_date_str, current_year):
     week_end = week_start + timedelta(days=6)
     
     month_start = datetime(current_year, today.month, 1).date()
-    month_end = (datetime(current_year, today.month + 1, 1) - timedelta(days=1)).date()
+    current_year = today.year
 
+    if today.month == 12:
+        month_end = datetime(current_year + 1, 1, 1) - timedelta(days=1)
+    else:
+        month_end = datetime(current_year, today.month + 1, 1) - timedelta(days=1)
+
+    month_end_date = month_end.date()
     year_start = datetime(current_year, 1, 1).date()
     year_end = datetime(current_year, 12, 31).date()
 
@@ -435,7 +441,7 @@ def get_range_name(start_date_str, end_date_str, current_year):
         return "Today (" + start_date_str.strftime("%B %d, %Y") + ")"
     elif start_date_str == week_start and end_date_str == week_end:
         return "This Week (" + start_date_str.strftime("%B %d") + " - " + end_date_str.strftime("%B %d, %Y") + ")"
-    elif start_date_str == month_start and end_date_str == month_end:
+    elif start_date_str == month_start and end_date_str == month_end_date:
         return "This Month (" + start_date_str.strftime("%B %Y") + ")"
     elif start_date_str == year_start and end_date_str == year_end:
         return "Year (" + start_date_str.strftime("%Y") + ")"

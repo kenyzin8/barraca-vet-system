@@ -437,6 +437,7 @@ def get_range_name(start_date_str, end_date_str, current_year):
     lifetime_start = datetime(2010, 1, 1).date()
     lifetime_end = year_end
 
+
     if start_date_str == today and end_date_str == today:
         return "Today (" + start_date_str.strftime("%B %d, %Y") + ")"
     elif start_date_str == week_start and end_date_str == week_end:

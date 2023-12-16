@@ -194,6 +194,7 @@ def process_unpaid_bill(request):
         
         medicines = []
         services = []
+
         for b in bill.billing_products.all():
             medicines.append({
                 'id': b.product.id,
@@ -201,17 +202,34 @@ def process_unpaid_bill(request):
                     'quantity': int(b.quantity),
                 }
             })
-        
-        for b in bill.billing_services.all():
-            services.append({
-                'id': b.service.id,
-                'details':{
-                    'quantity': int(b.quantity),
-                }
-            })
-        
+
         request.session['selected_medicines'] = medicines
+
+        service_counts = {}
+
+        for b in bill.billing_services.all():
+            service_counts[b.service.id] = {
+                'service': b.service,
+                'quantity': int(b.quantity)
+            }
+
+        # for treatment in bill.treatments.all():
+        #     for lab_result in treatment.lab_results.all():
+        #         similar_service = find_similar_service(lab_result.result_name)
+        #         if similar_service:
+        #             if similar_service.id not in service_counts:
+        #                 service_counts[similar_service.id] = {'service': similar_service, 'quantity': 0}
+        #             service_counts[similar_service.id]['quantity'] += 1
+
+        services = [{
+            'id': service_info['service'].id,
+            'details': {
+                'quantity': service_info['quantity']
+            }
+        } for service_info in service_counts.values()]
+
         request.session['selected_services'] = services
+
         request.session['selected_pet_owner_id'] = bill.client.id
         request.session['bill_to_process'] = bill.get_billing_number()
 
@@ -388,27 +406,7 @@ def view_unpaid_bill(request, bill_id):
     if not bill.isActive:
         return redirect('sales-page')
     
-    bill_data = []
-
-    for b in bill.billing_products.all():
-        bill_data.append({
-            'type': 'Product',
-            'particulars': b.product.product_name,
-            'qty': str(b.quantity),
-            'amount': str(b.price_at_time_of_purchase), 
-            'amount_total': str(b.quantity * b.price_at_time_of_purchase)  
-        })
-
-    for b in bill.billing_services.all():
-        bill_data.append({
-            'type': 'Service',
-            'particulars': b.service.service_type,
-            'qty': str(b.quantity), 
-            'amount': str(b.price_at_time_of_purchase),
-            'amount_total': str(b.price_at_time_of_purchase * b.quantity)
-        })
-
-    context = {'bill': bill, 'bill_data': bill_data}
+    context = {'bill': bill}
     return render(request, 'view_unpaid_bill.html', context)
 
 def custom_format(number):
@@ -436,7 +434,6 @@ def get_range_name(start_date_str, end_date_str, current_year):
 
     lifetime_start = datetime(2010, 1, 1).date()
     lifetime_end = year_end
-
 
     if start_date_str == today and end_date_str == today:
         return "Today (" + start_date_str.strftime("%B %d, %Y") + ")"

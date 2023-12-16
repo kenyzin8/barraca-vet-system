@@ -1223,6 +1223,24 @@ def medical_record(request):
 #     else:
 #         return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
+def find_similar_service(lab_test_name):
+    similar_service = None
+    for service in Service.objects.all():
+        if is_similar(lab_test_name, service.service_type):
+            similar_service = service
+            break
+    return similar_service
+
+def is_similar(string1, string2):
+    words1 = set(string1.lower().split())
+    words2 = set(string2.lower().split())
+
+    for word in words1:
+        if word in words2:
+            return True
+
+    return False
+
 @method_decorator(login_required, name='dispatch')
 @method_decorator(staff_required, name='dispatch')
 class SubmitConsultationView(APIView):
@@ -1460,6 +1478,8 @@ class SubmitConsultationView(APIView):
                             else:
                                 BillingProduct.objects.create(billing=billing, product=product, quantity=quantity)
 
+                    billing.treatments.add(pet_treatment)
+                    billing.include_similar_services()
 
                     #if products_selected:
                     #    request.session['selected_medicines'] = medicines_for_session

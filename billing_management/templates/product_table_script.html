@@ -120,6 +120,7 @@ $(document).ready(function() {
             var billData = [];
             if (data.service_ids) {
                 data.service_ids.forEach(function(service) {
+                    service.amount = parseFloat(service.amount.replace(/,/g, ""));
                     billData.push({
                         type: 'Service',
                         particulars: service.name,
@@ -131,6 +132,7 @@ $(document).ready(function() {
             }
             if (data.product_ids) {
                 data.product_ids.forEach(function(product) {
+                    product.amount = parseFloat(product.amount.replace(/,/g, ""));
                     billData.push({
                         type: 'Product',
                         particulars: product.name,

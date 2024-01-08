@@ -9,6 +9,8 @@
         <title>{% block title %}{% endblock %}</title>
 
         <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.webp' %}">
+        <link rel="stylesheet" href="{% static 'plugins/aos/aos.css' %}">
+        <script src="{% static 'plugins/aos/aos.js' %}"></script>
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'plugins/sb-landing-page/css/styles.css' %}" rel="stylesheet" />
         <script src="{% static 'plugins/feather-icons/js/feather.min.js' %}"></script>
@@ -125,5 +127,8 @@
         });
         </script>
         {% block extrascript %}{% endblock %}
+        <script>
+            AOS.init();
+        </script>
     </body>
 </html>

@@ -114,7 +114,7 @@ window.addEventListener('DOMContentLoaded', event => {
                     <tr>
                         <td>
                             <div class="d-flex align-items-center justify-content-between">  
-                                <span class="billing-number" id="billNumb">
+                                <span class="billing-number">
                                     {{ bill.id }}
                                 </span>
                                 <a class="btn btn-datatable btn-icon btn-transparent-dark" href="{% url 'unpaid-bill-page' bill.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="right" title="View Unpaid Bill">
@@ -170,7 +170,7 @@ window.addEventListener('DOMContentLoaded', event => {
             <div class="col-12 col-lg-auto text-center text-lg-end">
                 <!-- Invoice details-->
                 <div class="h3 text-white">Billing Statement</div>
-                Bill No. <span class="billing-number">{{ bill_number_to_view }}</span>
+                Bill No. <span class="billing-number" id="billNumb">{{ bill_number_to_view }}</span>
                 <br />
                 <span class="current-date" id="currentDate">{% now "F j, Y" %}</span>
             </div>
